@@ -25,14 +25,11 @@ jobs:
           bun run build
           cp .htaccess dist/.htaccess
       
-      - name: Deploy via SCP
-        uses: appleboy/scp-action@v0.1.7
-        with:
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
-          host: ${{ secrets.HOSTINGER_HOST }}
-          port: ${{ secrets.HOSTINGER_PORT }}
-          username: ${{ secrets.HOSTINGER_USER }}
-          source: "dist/*"
-          target: "/home/u774117868/websites/0D7T1hSPl/public_html/"
-          strip_components: 1
-          rm: true
+      - name: Deploy
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+          ssh -i ~/.ssh/deploy_key -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "rm -rf /home/u774117868/websites/0D7T1hSPl/public_html/*"
+          scp -i ~/.ssh/deploy_key -P ${{ secrets.HOSTINGER_PORT }} -r dist/* ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:/home/u774117868/websites/0D7T1hSPl/public_html/
