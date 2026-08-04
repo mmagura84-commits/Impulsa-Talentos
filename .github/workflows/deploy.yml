@@ -27,11 +27,11 @@ jobs:
       
       - name: Deploy via SFTP
         uses: easingthemes/ssh-deploy@v5
-        env:
+        with:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
           ARGS: "-avz --delete"
-          SOURCE: dist/
+          SOURCE: "dist/"
           REMOTE_HOST: ${{ secrets.HOSTINGER_HOST }}
           REMOTE_PORT: ${{ secrets.HOSTINGER_PORT }}
           REMOTE_USER: ${{ secrets.HOSTINGER_USER }}
-          TARGET: /home/u774117868/websites/0D7T1hSPl/public_html/
+          TARGET: "/home/u774117868/websites/0D7T1hSPl/public_html/"
