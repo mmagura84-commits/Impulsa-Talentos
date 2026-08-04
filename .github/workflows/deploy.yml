@@ -27,19 +27,10 @@ jobs:
       
       - name: Deploy
         run: |
-          echo "=== Testing network connectivity ==="
-          timeout 10 bash -c "echo > /dev/tcp/${{ secrets.HOSTINGER_HOST }}/${{ secrets.HOSTINGER_PORT }}" && echo "Port reachable" || echo "Port NOT reachable - blocked!"
-          echo "=== Setting up SSH ==="
           mkdir -p ~/.ssh
-          printf '%s\n' "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          echo "=== Key file size: $(wc -c < ~/.ssh/deploy_key) bytes ==="
-          head -1 ~/.ssh/deploy_key
-          tail -1 ~/.ssh/deploy_key
-          echo "=== Attempting SSH ==="
-          ssh -vv -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "echo connected" 2>&1
-          echo "=== Clearing remote ==="
+          ssh-keyscan -p ${{ secrets.HOSTINGER_PORT }} -H ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
           ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "rm -rf /home/u774117868/websites/0D7T1hSPl/public_html/*" 2>&1
-          echo "=== Uploading files ==="
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -P ${{ secrets.HOSTINGER_PORT }} -r dist/* ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:/home/u774117868/websites/0D7T1hSPl/public_html/ 2>&1
-          echo "=== Done ==="
+          echo "Deploy complete"
