@@ -25,13 +25,14 @@ jobs:
           bun run build
           cp .htaccess dist/.htaccess
       
-      - name: Deploy via SFTP
-        uses: easingthemes/ssh-deploy@v5
+      - name: Deploy via SCP
+        uses: appleboy/scp-action@v0.1.7
         with:
-          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          ARGS: "-avz --delete"
-          SOURCE: "dist/"
-          REMOTE_HOST: ${{ secrets.HOSTINGER_HOST }}
-          REMOTE_PORT: ${{ secrets.HOSTINGER_PORT }}
-          REMOTE_USER: ${{ secrets.HOSTINGER_USER }}
-          TARGET: "/home/u774117868/websites/0D7T1hSPl/public_html/"
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.HOSTINGER_HOST }}
+          port: ${{ secrets.HOSTINGER_PORT }}
+          username: ${{ secrets.HOSTINGER_USER }}
+          source: "dist/*"
+          target: "/home/u774117868/websites/0D7T1hSPl/public_html/"
+          strip_components: 1
+          rm: true
