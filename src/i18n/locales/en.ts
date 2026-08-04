@@ -361,6 +361,11 @@ const en: Dict = {
   'marketing.sourceLabel': 'How did you hear about us?',
   'marketing.sourceLinkedIn': 'LinkedIn', 'marketing.sourceReddit': 'Reddit', 'marketing.sourceUniversity': 'University', 'marketing.sourceJobBoard': 'Job board', 'marketing.sourceReferral': 'Referral', 'marketing.sourceSearch': 'Search engine', 'marketing.sourceOther': 'Other',
   'marketing.consent': 'I agree to receive occasional emails about relevant job opportunities. I can unsubscribe at any time.',
+  'profile.field.skills': 'Skills',
+  'profile.field.skillsPlaceholder': 'React, TypeScript, Customer Service',
+  'profile.field.experienceYears': 'Years of experience',
+  'profile.field.experienceYearsPlaceholder': 'e.g. 3',
+  'profile.field.salaryCurrency': 'Currency',
 }
 
 export default en

@@ -79,6 +79,7 @@ const EMPTY_FORM = {
   avatarUrl: '',
   role: 'candidate' as Role,
   // Candidate-only fields
+  skills: '',
   positionTitle: '',
   yearsOfExperience: '',
   desiredSalaryMin: '',
@@ -301,10 +302,11 @@ function ProfilePage() {
         cvUrl: profile.cvUrl ?? '',
         avatarUrl: profile.avatarUrl ?? '',
         role: (profile.role as Role) ?? 'candidate',
-        positionTitle: '',
-        yearsOfExperience: '',
-        desiredSalaryMin: '',
-        desiredSalaryMax: '',
+        skills: (profile.skills ?? []).join(', '),
+        positionTitle: profile.desiredRole ?? '',
+        yearsOfExperience: profile.experienceYears?.toString() ?? '',
+        desiredSalaryMin: profile.desiredSalaryMin?.toString() ?? '',
+        desiredSalaryMax: profile.desiredSalaryMax?.toString() ?? '',
         preferredLocationType: '',
       })
     } else if (!isLoading && !hydrated) {
@@ -318,6 +320,7 @@ function ProfilePage() {
         cvUrl: '',
         avatarUrl: '',
         role: 'candidate',
+        skills: '',
         positionTitle: '',
         yearsOfExperience: '',
         desiredSalaryMin: '',
@@ -405,6 +408,11 @@ function ProfilePage() {
             languages: form.languages,
             cvUrl: form.cvUrl,
             role: form.role,
+            skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
+            desiredRole: form.positionTitle.trim() || undefined,
+            experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
+            desiredSalaryMin: form.desiredSalaryMin ? Number(form.desiredSalaryMin) : undefined,
+            desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
             ...(profile.avatarUrl ? {} : { avatarUrl: form.avatarUrl || undefined }),
           },
         })
@@ -421,6 +429,11 @@ function ProfilePage() {
           cvUrl: form.cvUrl,
           avatarUrl: form.avatarUrl || '',
           role: form.role,
+          skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
+          desiredRole: form.positionTitle.trim() || undefined,
+          experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
+          desiredSalaryMin: form.desiredSalaryMin ? Number(form.desiredSalaryMin) : undefined,
+          desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
       }
@@ -671,6 +684,13 @@ function ProfilePage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
+                    <Label htmlFor="skills">{t('profile.field.skills')}</Label>
+                    <Input id="skills" value={form.skills} onChange={e => update('skills', e.target.value)} placeholder={t('profile.field.skillsPlaceholder')} />
+                    <div className="flex flex-wrap gap-1.5" aria-label={t('profile.field.skills')}>
+                      {form.skills.split(',').map(s => s.trim()).filter(Boolean).map(skill => <span key={skill} className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">{skill}</span>)}
+                    </div>
+                  </div>
+                  <div className="space-y-2">
                     <Label htmlFor="positionTitle">{t('profile.field.positionTitle')}</Label>
                     <Input id="positionTitle" value={form.positionTitle} onChange={e => update('positionTitle', e.target.value)}
                       placeholder={t('profile.field.positionTitlePlaceholder')} />
@@ -680,8 +700,9 @@ function ProfilePage() {
                       <Label htmlFor="yearsOfExperience" className="flex items-center gap-1.5">
                         <Clock className="size-3.5 text-muted-foreground" /> {t('profile.field.yearsOfExperience')}
                       </Label>
-                      <Input id="yearsOfExperience" value={form.yearsOfExperience} onChange={e => update('yearsOfExperience', e.target.value)}
-                        placeholder={t('profile.field.yearsOfExperiencePlaceholder')} />
+                      <select id="yearsOfExperience" value={form.yearsOfExperience} onChange={e => update('yearsOfExperience', e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground">
+                        <option value="">—</option><option value="0">0</option><option value="1">1–2</option><option value="3">3–5</option><option value="5">5–10</option><option value="10">10+</option>
+                      </select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="preferredLocation" className="flex items-center gap-1.5">
@@ -694,13 +715,13 @@ function ProfilePage() {
                   <div className="grid sm:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="desiredSalaryMin" className="flex items-center gap-1.5">
-                        <DollarSign className="size-3.5 text-muted-foreground" /> {t('profile.field.desiredSalaryMin')}
+                        <DollarSign className="size-3.5 text-muted-foreground" /> {t('profile.field.desiredSalaryMin')} ({t('profile.field.salaryCurrency')}: USD/COP)
                       </Label>
                       <Input id="desiredSalaryMin" value={form.desiredSalaryMin} onChange={e => update('desiredSalaryMin', e.target.value)} placeholder="3.000.000" />
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="desiredSalaryMax" className="flex items-center gap-1.5">
-                        <DollarSign className="size-3.5 text-muted-foreground" /> {t('profile.field.desiredSalaryMax')}
+                        <DollarSign className="size-3.5 text-muted-foreground" /> {t('profile.field.desiredSalaryMax')} ({t('profile.field.salaryCurrency')}: USD/COP)
                       </Label>
                       <Input id="desiredSalaryMax" value={form.desiredSalaryMax} onChange={e => update('desiredSalaryMax', e.target.value)} placeholder="6.000.000" />
                     </div>
