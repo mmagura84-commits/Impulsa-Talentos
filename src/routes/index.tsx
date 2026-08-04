@@ -38,6 +38,7 @@ import type { Job, Company } from '@/types'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
 import { candidatesPhoto } from '@/lib/media'
 import { useRef, type ReactNode } from 'react'
+import { captureUTMParams, trackEvent } from '@/lib/marketing'
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -369,6 +370,10 @@ function LandingPage() {
   const [slide, setSlide] = useState(INITIAL_HERO_SLIDE)
   const pausedRef = useRef(false)
   useEffect(() => {
+    captureUTMParams()
+    trackEvent('page_view')
+  }, [])
+  useEffect(() => {
     if (reduce) return
     const id = window.setInterval(() => { if (!pausedRef.current) setSlide((s) => (s + 1) % HERO_SLIDES.length) }, SLIDE_MS)
     return () => window.clearInterval(id)
@@ -566,6 +571,13 @@ function LandingPage() {
           </SectionReveal>
         </div>
       </section>
+      {/* ── Employer acquisition CTA ─────────────────────────── */}
+      <section className="border-t border-border bg-primary/[.04]">
+        <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
+          <div><p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-muted-foreground">{t('landing.employerCtaDesc')}</p></div>
+          <Button asChild size="lg" className="shrink-0"><Link to="/dashboard" onClick={() => trackEvent('employer_post_start')}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Link></Button>
+        </div>
+      </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
@@ -589,6 +601,7 @@ function LandingPage() {
               <Button asChild variant="outline" size="lg" className="h-12 px-7 text-base font-semibold">
                 <Link to="/jobs">{t('landing.footerSecondary')}</Link>
               </Button>
+              <Link to="/contact" className="w-full text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:w-auto">{t('contact.title')}</Link>
             </div>
           </SectionReveal>
         </div>

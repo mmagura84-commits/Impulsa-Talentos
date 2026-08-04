@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
+import { captureUTMParams, getUTMParams, trackEvent } from '@/lib/marketing'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -277,6 +278,10 @@ function ProfilePage() {
   const [savedFlag, setSavedFlag] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [uploadingCv, setUploadingCv] = useState(false)
+  const [source, setSource] = useState('')
+  const [consent, setConsent] = useState(false)
+  const utm = getUTMParams()
+  useEffect(() => { captureUTMParams(); trackEvent('profile_complete', { profileId: profile?.id ?? null }) }, [profile?.id])
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const cvInputRef = useRef<HTMLInputElement | null>(null)
 
@@ -639,6 +644,11 @@ function ProfilePage() {
                     <textarea id="bio" value={form.bio} onChange={e => update('bio', e.target.value)} placeholder="—" rows={3}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none resize-y" />
                   </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="source" className="flex items-center gap-1.5">{t('marketing.sourceLabel')}</Label>
+                    <select id="source" value={source} onChange={e => setSource(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="">—</option>{[['marketing.sourceLinkedIn','LinkedIn'],['marketing.sourceReddit','Reddit'],['marketing.sourceUniversity','University'],['marketing.sourceJobBoard','Job board'],['marketing.sourceReferral','Referral'],['marketing.sourceSearch','Search engine'],['marketing.sourceOther','Other']].map(([key, fallback]) => <option key={key} value={fallback}>{t(key)}</option>)}</select>
+                  </div>
+                  <div className="flex items-start gap-2 text-sm"><input id="consent" type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1" /><label htmlFor="consent" className="text-muted-foreground">{t('marketing.consent')}</label></div>
                   <div className="space-y-2">
                     <Label htmlFor="languages" className="flex items-center gap-1.5">
                       <Globe className="size-3.5 text-muted-foreground" /> {t('profile.field.languages')}
