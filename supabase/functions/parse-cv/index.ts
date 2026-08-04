@@ -122,10 +122,21 @@ async function extractText(buf: Uint8Array, fileName: string): Promise<string> {
 // decompresses /FlateDecode streams (zlib) with DecompressionStream, then
 // pulls text-showing operators: (…) Tj, (…) ', (…) " and […] TJ arrays.
 // Scanned/image-only PDFs yield no text → caller returns 422.
+//
+// NOTE: we never use TextDecoder('latin1') — per the WHATWG Encoding spec
+// that label maps to windows-1252, silently corrupting bytes 0x80–0x9F.
+// bytesToLatin1() below is the portable 1:1 byte↔string mapping.
+
+/** 1:1 byte → latin1 string (safe across Deno/bun/browsers). */
+function bytesToLatin1(buf: Uint8Array): string {
+  let s = ''
+  for (let i = 0; i < buf.length; i++) s += String.fromCharCode(buf[i])
+  return s
+}
 
 async function extractPdfText(buf: Uint8Array): Promise<string> {
-  // latin1 keeps binary bytes 1:1 so regex scanning never corrupts offsets.
-  const src = new TextDecoder('latin1').decode(buf)
+  // Binary-safe decode keeps stream offsets exact for regex scanning.
+  const src = bytesToLatin1(buf)
   const chunks: string[] = []
 
   const streamRe = /<<([^]*?)>>\s*stream\r?\n([\s\S]*?)\r?\nendstream/g
@@ -135,7 +146,10 @@ async function extractPdfText(buf: Uint8Array): Promise<string> {
     const raw = m[2]
     if (/\/Fl(ate)?Decode/.test(dict)) {
       try {
-        chunks.push(new TextDecoder('latin1').decode(await inflateZlib(new TextEncoder().encode(raw))))
+        // raw is a 1:1 latin1 string — convert back to bytes before inflating.
+        const bytes = new Uint8Array(raw.length)
+        for (let i = 0; i < raw.length; i++) bytes[i] = raw.charCodeAt(i) & 0xff
+        chunks.push(bytesToLatin1(await inflateZlib(bytes)))
       } catch {
         continue // corrupt stream — skip
       }
