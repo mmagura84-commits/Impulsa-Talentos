@@ -16,6 +16,17 @@ export interface Profile {
   updatedAt: string
   /** Email notification preferences. Absent ⇒ DEFAULT_NOTIFICATION_PREFS. */
   notificationPrefs?: NotificationPrefs
+  /** Structured skills array (e.g. ['React', 'TypeScript', 'Customer Service']). */
+  skills?: string[]
+  /** Role the candidate is targeting (e.g. 'Senior Frontend Engineer'). */
+  desiredRole?: string
+  /** Years of professional experience. */
+  experienceYears?: number
+  /** Desired monthly salary range (USD). */
+  desiredSalaryMin?: number
+  desiredSalaryMax?: number
+  /** Raw text extracted from the uploaded CV — used for matching, never displayed. */
+  parsedCvText?: string
 }
 
 /** Per-user email notification preferences. */
