@@ -1,0 +1,39 @@
+# ================================================================
+# Impulsa Talentos — static SPA/SSR deployment on Apache
+# Hostinger shared hosting: place this file at public_html/.htaccess
+# ================================================================
+Options -Indexes
+RewriteEngine On
+
+# --- 1. API endpoints are served only by the Node/Bun backend
+#      (serve.ts). On static hosting they do not exist — return a real
+#      404 instead of silently rewriting to the SPA shell.
+RewriteRule ^api/ - [R=404,L]
+
+# --- 2. SPA/SSR fallback -----------------------------------------
+# Serve existing files and prerendered directories directly, e.g.
+#   /jobs/<id>/index.html, /companies/<id>/index.html, /images/..., /assets/...
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+# Everything else -> SPA shell; TanStack Router takes over client-side
+# (covers /dashboard, /candidate, /employer, /hq, /m and any deep link)
+RewriteRule ^ /index.html [L]
+
+# --- 3. Compression (recommended) ---------------------------------
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
+</IfModule>
+
+# --- 4. Cache policy (recommended) --------------------------------
+# Prerendered HTML changes on every redeploy -> do not cache it.
+# Versioned /assets/* and /images/* are immutable -> cache long.
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType text/html "access plus 0 seconds"
+  ExpiresByType image/webp "access plus 30 days"
+  ExpiresByType image/jpeg "access plus 30 days"
+  ExpiresByType image/svg+xml "access plus 30 days"
+  ExpiresByType text/css "access plus 7 days"
+  ExpiresByType application/javascript "access plus 7 days"
+</IfModule>

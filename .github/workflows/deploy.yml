@@ -1,0 +1,37 @@
+name: Deploy to Hostinger
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
+      
+      - name: Build
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
+          SITE_URL: https://impulsatalentos.expert
+        run: |
+          bun install
+          bun run build
+          cp .htaccess dist/.htaccess
+      
+      - name: Deploy via SFTP
+        uses: easingthemes/ssh-deploy@v5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          ARGS: "-avz --delete"
+          SOURCE: dist/
+          REMOTE_HOST: ${{ secrets.HOSTINGER_HOST }}
+          REMOTE_PORT: ${{ secrets.HOSTINGER_PORT }}
+          REMOTE_USER: ${{ secrets.HOSTINGER_USER }}
+          TARGET: /home/u774117868/websites/0D7T1hSPl/public_html/
