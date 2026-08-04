@@ -1,8 +1,7 @@
 /**
- * Email sending — fire-and-forget POST to the same-origin `/api/email`
- * proxy (serve.ts), which forwards to the configured EMAIL_API_URL with
- * EMAIL_API_KEY. When no provider is configured the proxy logs and skips,
- * so email failures never block the product flows that trigger them.
+ * Email sending — calls Resend API directly (works on static hosting).
+ * Key is baked at build time via VITE_RESEND_API_KEY.
+ * Resend API: https://resend.com/docs/api-reference/emails/send-email
  */
 export interface EmailPayload {
   to: string
@@ -11,13 +10,31 @@ export interface EmailPayload {
   text?: string
 }
 
+const RESEND_API = 'https://api.resend.com/emails'
+const FROM = 'Impulsa Talentos <info@impulsatalentos.expert>'
+
 export async function sendEmail(payload: EmailPayload): Promise<void> {
-  const res = await fetch('/api/email', {
+  const key = import.meta.env.VITE_RESEND_API_KEY
+  if (!key) {
+    console.warn('[emailSender] No VITE_RESEND_API_KEY set — email not sent')
+    return
+  }
+  const res = await fetch(RESEND_API, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(payload),
+    headers: {
+      'Authorization': `Bearer ${key}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      from: FROM,
+      to: [payload.to],
+      subject: payload.subject,
+      html: payload.html,
+      text: payload.text,
+    }),
   })
   if (!res.ok) {
-    throw new Error(`Email API error ${res.status}`)
+    const body = await res.text()
+    throw new Error(`Resend API error ${res.status}: ${body}`)
   }
 }
