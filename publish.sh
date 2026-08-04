@@ -15,7 +15,10 @@ pids=$(lsof -t -iTCP:3000 -sTCP:LISTEN 2>/dev/null || true)
 # Build workspace on overlay filesystem (plenty of space)
 BUILD_DIR="/tmp/impulsa-build-$$"
 rm -rf "$BUILD_DIR" 2>/dev/null || true
-cp -a . "$BUILD_DIR"
+mkdir -p "$BUILD_DIR"
+# Copy source without the local dependency tree; dependencies are reinstalled in build workspace.
+# This avoids duplicating node_modules and exhausting the small overlay filesystem.
+tar --exclude='./node_modules' --exclude='./dist' --exclude='./.run' -cf - . | (cd "$BUILD_DIR" && tar -xf -)
 cd "$BUILD_DIR"
 
 BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache bun install
