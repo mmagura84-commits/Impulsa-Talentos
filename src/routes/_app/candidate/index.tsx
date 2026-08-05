@@ -51,8 +51,10 @@ function CandidateHomePage() {
       <div className="p-6 max-w-5xl mx-auto">
         <FadeIn>
           <div className="mb-8">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-              <LayoutDashboard className="size-7 text-primary" />
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-3 border-b-2 border-amber-500/60 w-fit pb-1">
+              <span className="flex size-11 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+                <LayoutDashboard className="size-6" />
+              </span>
               {t('dashboard.greeting', { name: displayName })}
             </h1>
             <p className="mt-1 text-muted-foreground">{t('dashboard.candidate.subtitle')}</p>
