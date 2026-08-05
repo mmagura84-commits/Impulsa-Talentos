@@ -64,7 +64,7 @@ export function useProfileCompletion(profile: Profile | undefined | null): Profi
       yearsOfExperience: profile.experienceYears != null ? String(profile.experienceYears) : legacyCareer.yearsOfExperience,
       desiredSalaryMin: profile.desiredSalaryMin != null ? String(profile.desiredSalaryMin) : legacyCareer.desiredSalaryMin,
       desiredSalaryMax: profile.desiredSalaryMax != null ? String(profile.desiredSalaryMax) : legacyCareer.desiredSalaryMax,
-      preferredLocationType: legacyCareer.preferredLocationType,
+      preferredLocationType: profile.preferredLocationType ?? legacyCareer.preferredLocationType,
     }
 
     // Extract the real bio text (strip the career JSON block)

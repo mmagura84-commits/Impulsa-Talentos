@@ -24,6 +24,8 @@ export interface Profile {
   desiredRole?: string
   /** Years of professional experience. */
   experienceYears?: number
+  /** Preferred work mode (e.g. 'Remote', 'Hybrid', 'On-site'). */
+  preferredLocationType?: string
   /** Desired monthly salary range (USD). */
   desiredSalaryMin?: number
   desiredSalaryMax?: number
