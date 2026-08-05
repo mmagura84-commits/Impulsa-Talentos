@@ -35,8 +35,11 @@ import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
 import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
 import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
+import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
 import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
+import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
 import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
+import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
@@ -178,14 +181,29 @@ const MJobsIdRoute = MJobsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MJobsRoute,
 } as any)
+const AppMdProfileRoute = AppMdProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppMdRoute,
+} as any)
 const AppMdMessagesRoute = AppMdMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
   getParentRoute: () => AppMdRoute,
 } as any)
+const AppMdMeetingsRoute = AppMdMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => AppMdRoute,
+} as any)
 const AppMdMarketingRoute = AppMdMarketingRouteImport.update({
   id: '/marketing',
   path: '/marketing',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdEmployersRoute = AppMdEmployersRouteImport.update({
+  id: '/employers',
+  path: '/employers',
   getParentRoute: () => AppMdRoute,
 } as any)
 const AppMdBankingRoute = AppMdBankingRouteImport.update({
@@ -275,8 +293,11 @@ export interface FileRoutesByFullPath {
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
+  '/md/employers': typeof AppMdEmployersRoute
   '/md/marketing': typeof AppMdMarketingRoute
+  '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
+  '/md/profile': typeof AppMdProfileRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate/': typeof AppCandidateIndexRoute
   '/employer/': typeof AppEmployerIndexRoute
@@ -313,8 +334,11 @@ export interface FileRoutesByTo {
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
+  '/md/employers': typeof AppMdEmployersRoute
   '/md/marketing': typeof AppMdMarketingRoute
+  '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
+  '/md/profile': typeof AppMdProfileRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate': typeof AppCandidateIndexRoute
   '/employer': typeof AppEmployerIndexRoute
@@ -355,8 +379,11 @@ export interface FileRoutesById {
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
   '/_app/md/banking': typeof AppMdBankingRoute
+  '/_app/md/employers': typeof AppMdEmployersRoute
   '/_app/md/marketing': typeof AppMdMarketingRoute
+  '/_app/md/meetings': typeof AppMdMeetingsRoute
   '/_app/md/messages': typeof AppMdMessagesRoute
+  '/_app/md/profile': typeof AppMdProfileRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
   '/_app/employer/': typeof AppEmployerIndexRoute
@@ -397,8 +424,11 @@ export interface FileRouteTypes {
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
+    | '/md/employers'
     | '/md/marketing'
+    | '/md/meetings'
     | '/md/messages'
+    | '/md/profile'
     | '/m/jobs/$id'
     | '/candidate/'
     | '/employer/'
@@ -435,8 +465,11 @@ export interface FileRouteTypes {
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
+    | '/md/employers'
     | '/md/marketing'
+    | '/md/meetings'
     | '/md/messages'
+    | '/md/profile'
     | '/m/jobs/$id'
     | '/candidate'
     | '/employer'
@@ -476,8 +509,11 @@ export interface FileRouteTypes {
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
     | '/_app/md/banking'
+    | '/_app/md/employers'
     | '/_app/md/marketing'
+    | '/_app/md/meetings'
     | '/_app/md/messages'
+    | '/_app/md/profile'
     | '/m/jobs/$id'
     | '/_app/candidate/'
     | '/_app/employer/'
@@ -685,6 +721,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MJobsIdRouteImport
       parentRoute: typeof MJobsRoute
     }
+    '/_app/md/profile': {
+      id: '/_app/md/profile'
+      path: '/profile'
+      fullPath: '/md/profile'
+      preLoaderRoute: typeof AppMdProfileRouteImport
+      parentRoute: typeof AppMdRoute
+    }
     '/_app/md/messages': {
       id: '/_app/md/messages'
       path: '/messages'
@@ -692,11 +735,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMdMessagesRouteImport
       parentRoute: typeof AppMdRoute
     }
+    '/_app/md/meetings': {
+      id: '/_app/md/meetings'
+      path: '/meetings'
+      fullPath: '/md/meetings'
+      preLoaderRoute: typeof AppMdMeetingsRouteImport
+      parentRoute: typeof AppMdRoute
+    }
     '/_app/md/marketing': {
       id: '/_app/md/marketing'
       path: '/marketing'
       fullPath: '/md/marketing'
       preLoaderRoute: typeof AppMdMarketingRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/employers': {
+      id: '/_app/md/employers'
+      path: '/employers'
+      fullPath: '/md/employers'
+      preLoaderRoute: typeof AppMdEmployersRouteImport
       parentRoute: typeof AppMdRoute
     }
     '/_app/md/banking': {
@@ -802,15 +859,21 @@ const AppJobsRouteWithChildren =
 
 interface AppMdRouteChildren {
   AppMdBankingRoute: typeof AppMdBankingRoute
+  AppMdEmployersRoute: typeof AppMdEmployersRoute
   AppMdMarketingRoute: typeof AppMdMarketingRoute
+  AppMdMeetingsRoute: typeof AppMdMeetingsRoute
   AppMdMessagesRoute: typeof AppMdMessagesRoute
+  AppMdProfileRoute: typeof AppMdProfileRoute
   AppMdIndexRoute: typeof AppMdIndexRoute
 }
 
 const AppMdRouteChildren: AppMdRouteChildren = {
   AppMdBankingRoute: AppMdBankingRoute,
+  AppMdEmployersRoute: AppMdEmployersRoute,
   AppMdMarketingRoute: AppMdMarketingRoute,
+  AppMdMeetingsRoute: AppMdMeetingsRoute,
   AppMdMessagesRoute: AppMdMessagesRoute,
+  AppMdProfileRoute: AppMdProfileRoute,
   AppMdIndexRoute: AppMdIndexRoute,
 }
 
