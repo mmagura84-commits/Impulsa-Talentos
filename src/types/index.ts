@@ -37,6 +37,13 @@ export interface Profile {
   source?: string
   /** User consented to marketing emails at sign-up. */
   emailConsent?: boolean
+  /** Social links for MD profile. */
+  linkedinUrl?: string
+  twitterUrl?: string
+  instagramUrl?: string
+  whatsappNumber?: string
+  tiktokUrl?: string
+  youtubeUrl?: string
 }
 
 /** Per-user email notification preferences. */

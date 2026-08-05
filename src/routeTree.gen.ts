@@ -30,7 +30,9 @@ import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppMdRouteImport } from './routes/_app/md'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
 import { Route as AppHqRouteImport } from './routes/_app/hq'
+import { Route as AppEmployerRouteImport } from './routes/_app/employer'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppCandidateRouteImport } from './routes/_app/candidate'
 import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
 import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
@@ -156,9 +158,19 @@ const AppHqRoute = AppHqRouteImport.update({
   path: '/hq',
   getParentRoute: () => AppRoute,
 } as any)
+const AppEmployerRoute = AppEmployerRouteImport.update({
+  id: '/employer',
+  path: '/employer',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCandidateRoute = AppCandidateRouteImport.update({
+  id: '/candidate',
+  path: '/candidate',
   getParentRoute: () => AppRoute,
 } as any)
 const AppMdIndexRoute = AppMdIndexRouteImport.update({
@@ -167,14 +179,14 @@ const AppMdIndexRoute = AppMdIndexRouteImport.update({
   getParentRoute: () => AppMdRoute,
 } as any)
 const AppEmployerIndexRoute = AppEmployerIndexRouteImport.update({
-  id: '/employer/',
-  path: '/employer/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppCandidateIndexRoute = AppCandidateIndexRouteImport.update({
-  id: '/candidate/',
-  path: '/candidate/',
-  getParentRoute: () => AppRoute,
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppCandidateRoute,
 } as any)
 const MJobsIdRoute = MJobsIdRouteImport.update({
   id: '/$id',
@@ -222,25 +234,25 @@ const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
   getParentRoute: () => AppHqRoute,
 } as any)
 const AppEmployerPostJobRoute = AppEmployerPostJobRouteImport.update({
-  id: '/employer/post-job',
-  path: '/employer/post-job',
-  getParentRoute: () => AppRoute,
+  id: '/post-job',
+  path: '/post-job',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppEmployerJobsRoute = AppEmployerJobsRouteImport.update({
-  id: '/employer/jobs',
-  path: '/employer/jobs',
-  getParentRoute: () => AppRoute,
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
-  id: '/candidate/saved',
-  path: '/candidate/saved',
-  getParentRoute: () => AppRoute,
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => AppCandidateRoute,
 } as any)
 const AppCandidateApplicationsRoute =
   AppCandidateApplicationsRouteImport.update({
-    id: '/candidate/applications',
-    path: '/candidate/applications',
-    getParentRoute: () => AppRoute,
+    id: '/applications',
+    path: '/applications',
+    getParentRoute: () => AppCandidateRoute,
   } as any)
 const AppApplyIdRoute = AppApplyIdRouteImport.update({
   id: '/apply/$id',
@@ -248,14 +260,14 @@ const AppApplyIdRoute = AppApplyIdRouteImport.update({
   getParentRoute: () => AppRoute,
 } as any)
 const AppEmployerManageIdRoute = AppEmployerManageIdRouteImport.update({
-  id: '/employer/manage/$id',
-  path: '/employer/manage/$id',
-  getParentRoute: () => AppRoute,
+  id: '/manage/$id',
+  path: '/manage/$id',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppEmployerEditJobIdRoute = AppEmployerEditJobIdRouteImport.update({
-  id: '/employer/edit-job/$id',
-  path: '/employer/edit-job/$id',
-  getParentRoute: () => AppRoute,
+  id: '/edit-job/$id',
+  path: '/edit-job/$id',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
   id: '/confirm',
@@ -272,7 +284,9 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
+  '/candidate': typeof AppCandidateRouteWithChildren
   '/dashboard': typeof AppDashboardRoute
+  '/employer': typeof AppEmployerRouteWithChildren
   '/hq': typeof AppHqRouteWithChildren
   '/jobs': typeof AppJobsRouteWithChildren
   '/md': typeof AppMdRouteWithChildren
@@ -358,7 +372,9 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
+  '/_app/candidate': typeof AppCandidateRouteWithChildren
   '/_app/dashboard': typeof AppDashboardRoute
+  '/_app/employer': typeof AppEmployerRouteWithChildren
   '/_app/hq': typeof AppHqRouteWithChildren
   '/_app/jobs': typeof AppJobsRouteWithChildren
   '/_app/md': typeof AppMdRouteWithChildren
@@ -403,7 +419,9 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/terms'
+    | '/candidate'
     | '/dashboard'
+    | '/employer'
     | '/hq'
     | '/jobs'
     | '/md'
@@ -488,7 +506,9 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/terms'
+    | '/_app/candidate'
     | '/_app/dashboard'
+    | '/_app/employer'
     | '/_app/hq'
     | '/_app/jobs'
     | '/_app/md'
@@ -686,11 +706,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHqRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/employer': {
+      id: '/_app/employer'
+      path: '/employer'
+      fullPath: '/employer'
+      preLoaderRoute: typeof AppEmployerRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/dashboard': {
       id: '/_app/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof AppDashboardRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/candidate': {
+      id: '/_app/candidate'
+      path: '/candidate'
+      fullPath: '/candidate'
+      preLoaderRoute: typeof AppCandidateRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/md/': {
@@ -702,17 +736,17 @@ declare module '@tanstack/react-router' {
     }
     '/_app/employer/': {
       id: '/_app/employer/'
-      path: '/employer'
+      path: '/'
       fullPath: '/employer/'
       preLoaderRoute: typeof AppEmployerIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppEmployerRoute
     }
     '/_app/candidate/': {
       id: '/_app/candidate/'
-      path: '/candidate'
+      path: '/'
       fullPath: '/candidate/'
       preLoaderRoute: typeof AppCandidateIndexRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppCandidateRoute
     }
     '/m/jobs/$id': {
       id: '/m/jobs/$id'
@@ -779,31 +813,31 @@ declare module '@tanstack/react-router' {
     }
     '/_app/employer/post-job': {
       id: '/_app/employer/post-job'
-      path: '/employer/post-job'
+      path: '/post-job'
       fullPath: '/employer/post-job'
       preLoaderRoute: typeof AppEmployerPostJobRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppEmployerRoute
     }
     '/_app/employer/jobs': {
       id: '/_app/employer/jobs'
-      path: '/employer/jobs'
+      path: '/jobs'
       fullPath: '/employer/jobs'
       preLoaderRoute: typeof AppEmployerJobsRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppEmployerRoute
     }
     '/_app/candidate/saved': {
       id: '/_app/candidate/saved'
-      path: '/candidate/saved'
+      path: '/saved'
       fullPath: '/candidate/saved'
       preLoaderRoute: typeof AppCandidateSavedRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppCandidateRoute
     }
     '/_app/candidate/applications': {
       id: '/_app/candidate/applications'
-      path: '/candidate/applications'
+      path: '/applications'
       fullPath: '/candidate/applications'
       preLoaderRoute: typeof AppCandidateApplicationsRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppCandidateRoute
     }
     '/_app/apply/$id': {
       id: '/_app/apply/$id'
@@ -814,17 +848,17 @@ declare module '@tanstack/react-router' {
     }
     '/_app/employer/manage/$id': {
       id: '/_app/employer/manage/$id'
-      path: '/employer/manage/$id'
+      path: '/manage/$id'
       fullPath: '/employer/manage/$id'
       preLoaderRoute: typeof AppEmployerManageIdRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppEmployerRoute
     }
     '/_app/employer/edit-job/$id': {
       id: '/_app/employer/edit-job/$id'
-      path: '/employer/edit-job/$id'
+      path: '/edit-job/$id'
       fullPath: '/employer/edit-job/$id'
       preLoaderRoute: typeof AppEmployerEditJobIdRouteImport
-      parentRoute: typeof AppRoute
+      parentRoute: typeof AppEmployerRoute
     }
     '/_app/apply/$id/confirm': {
       id: '/_app/apply/$id/confirm'
@@ -835,6 +869,42 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AppCandidateRouteChildren {
+  AppCandidateApplicationsRoute: typeof AppCandidateApplicationsRoute
+  AppCandidateSavedRoute: typeof AppCandidateSavedRoute
+  AppCandidateIndexRoute: typeof AppCandidateIndexRoute
+}
+
+const AppCandidateRouteChildren: AppCandidateRouteChildren = {
+  AppCandidateApplicationsRoute: AppCandidateApplicationsRoute,
+  AppCandidateSavedRoute: AppCandidateSavedRoute,
+  AppCandidateIndexRoute: AppCandidateIndexRoute,
+}
+
+const AppCandidateRouteWithChildren = AppCandidateRoute._addFileChildren(
+  AppCandidateRouteChildren,
+)
+
+interface AppEmployerRouteChildren {
+  AppEmployerJobsRoute: typeof AppEmployerJobsRoute
+  AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
+  AppEmployerIndexRoute: typeof AppEmployerIndexRoute
+  AppEmployerEditJobIdRoute: typeof AppEmployerEditJobIdRoute
+  AppEmployerManageIdRoute: typeof AppEmployerManageIdRoute
+}
+
+const AppEmployerRouteChildren: AppEmployerRouteChildren = {
+  AppEmployerJobsRoute: AppEmployerJobsRoute,
+  AppEmployerPostJobRoute: AppEmployerPostJobRoute,
+  AppEmployerIndexRoute: AppEmployerIndexRoute,
+  AppEmployerEditJobIdRoute: AppEmployerEditJobIdRoute,
+  AppEmployerManageIdRoute: AppEmployerManageIdRoute,
+}
+
+const AppEmployerRouteWithChildren = AppEmployerRoute._addFileChildren(
+  AppEmployerRouteChildren,
+)
 
 interface AppHqRouteChildren {
   AppHqLeadsRoute: typeof AppHqLeadsRoute
@@ -892,37 +962,25 @@ const AppApplyIdRouteWithChildren = AppApplyIdRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppCandidateRoute: typeof AppCandidateRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
+  AppEmployerRoute: typeof AppEmployerRouteWithChildren
   AppHqRoute: typeof AppHqRouteWithChildren
   AppJobsRoute: typeof AppJobsRouteWithChildren
   AppMdRoute: typeof AppMdRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
   AppApplyIdRoute: typeof AppApplyIdRouteWithChildren
-  AppCandidateApplicationsRoute: typeof AppCandidateApplicationsRoute
-  AppCandidateSavedRoute: typeof AppCandidateSavedRoute
-  AppEmployerJobsRoute: typeof AppEmployerJobsRoute
-  AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
-  AppCandidateIndexRoute: typeof AppCandidateIndexRoute
-  AppEmployerIndexRoute: typeof AppEmployerIndexRoute
-  AppEmployerEditJobIdRoute: typeof AppEmployerEditJobIdRoute
-  AppEmployerManageIdRoute: typeof AppEmployerManageIdRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppCandidateRoute: AppCandidateRouteWithChildren,
   AppDashboardRoute: AppDashboardRoute,
+  AppEmployerRoute: AppEmployerRouteWithChildren,
   AppHqRoute: AppHqRouteWithChildren,
   AppJobsRoute: AppJobsRouteWithChildren,
   AppMdRoute: AppMdRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
   AppApplyIdRoute: AppApplyIdRouteWithChildren,
-  AppCandidateApplicationsRoute: AppCandidateApplicationsRoute,
-  AppCandidateSavedRoute: AppCandidateSavedRoute,
-  AppEmployerJobsRoute: AppEmployerJobsRoute,
-  AppEmployerPostJobRoute: AppEmployerPostJobRoute,
-  AppCandidateIndexRoute: AppCandidateIndexRoute,
-  AppEmployerIndexRoute: AppEmployerIndexRoute,
-  AppEmployerEditJobIdRoute: AppEmployerEditJobIdRoute,
-  AppEmployerManageIdRoute: AppEmployerManageIdRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
