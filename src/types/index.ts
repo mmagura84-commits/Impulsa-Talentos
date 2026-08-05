@@ -133,3 +133,17 @@ export interface JobReport {
   note: string
   createdAt: string
 }
+
+/** Employer lead captured from gated pricing page or other acquisition channels. */
+export interface Lead {
+  id: string
+  email: string
+  phone?: string
+  name?: string
+  company?: string
+  source: string
+  status: 'new' | 'contacted' | 'converted' | 'closed'
+  notes?: string
+  createdAt: string
+  updatedAt: string
+}
