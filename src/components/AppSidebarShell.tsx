@@ -69,14 +69,17 @@ const ADMIN_NAV: NavItemDef[] = [
   { to: '/profile', icon: <User className="size-4" />, labelKey: 'common.profile' },
 ]
 
-function NavItem({ item, collapsed, label }: { item: NavItemDef; collapsed: boolean; label: string }) {
+function NavItem({ item, collapsed, label, accent }: { item: NavItemDef; collapsed: boolean; label: string; accent: 'gold' | 'navy' | 'ink' }) {
+  const active = typeof window !== 'undefined' && window.location.pathname === item.to
+  const activeClass = accent === 'ink' ? 'bg-white/10 text-white border-l-2 border-amber-400' : accent === 'gold' ? 'bg-amber-500/10 text-amber-700 border-l-2 border-amber-500' : 'bg-primary/10 text-primary border-l-2 border-primary'
   const link = (
     <Link
       to={item.to}
       className={cn(
         'flex items-center gap-2.5 rounded-md text-sm transition-colors cursor-pointer',
         collapsed ? 'justify-center w-8 h-8 mx-auto' : 'px-3 py-2 w-full',
-        'text-muted-foreground hover:bg-accent hover:text-foreground',
+        accent === 'ink' ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+        active && activeClass,
       )}
     >
       <span className="shrink-0">{item.icon}</span>
@@ -92,7 +95,7 @@ function NavItem({ item, collapsed, label }: { item: NavItemDef; collapsed: bool
   )
 }
 
-export function AppSidebarShell({ navItems }: { navItems?: NavItemDef[] }) {
+export function AppSidebarShell({ navItems, accent = 'navy' }: { navItems?: NavItemDef[]; accent?: 'gold' | 'navy' | 'ink' }) {
   const { user, logout } = useAuth()
   const { data: profile } = useProfile(user?.id)
   const { t } = useI18n()
@@ -175,6 +178,7 @@ export function AppSidebarShell({ navItems }: { navItems?: NavItemDef[] }) {
               item={item}
               collapsed={collapsed}
               label={t(item.labelKey)}
+              accent={accent}
             />
           ))}
 
