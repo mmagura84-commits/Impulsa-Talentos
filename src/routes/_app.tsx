@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { CandidateSidebar } from '@/components/CandidateSidebar'
 import { EmployerSidebar } from '@/components/EmployerSidebar'
+import { MdSidebar } from '@/components/MdSidebar'
 import { PublicHeader } from '@/components/PublicHeader'
 
 /**
@@ -46,7 +47,7 @@ function AppLayout() {
   // employer sidebar (with the HQ link for admins). Users who haven't
   // completed a profile default to the candidate view and are prompted
   // to finish their profile from the candidate dashboard.
-  const sidebar = role === 'employer' || role === 'admin' ? <EmployerSidebar /> : <CandidateSidebar />
+  const sidebar = role === 'md' ? <MdSidebar /> : role === 'employer' || role === 'admin' ? <EmployerSidebar /> : <CandidateSidebar />
 
   return (
     <BlinkClientBoundary
