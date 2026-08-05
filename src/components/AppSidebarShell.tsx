@@ -92,7 +92,7 @@ function NavItem({ item, collapsed, label }: { item: NavItemDef; collapsed: bool
   )
 }
 
-export function AppSidebarShell({ navItems }: { navItems?: NavItemDef[] }) {
+export function AppSidebarShell({ navItems, accent = 'gold' }: { navItems?: NavItemDef[]; accent?: 'gold' | 'navy' | 'ink' }) {
   const { user, logout } = useAuth()
   const { data: profile } = useProfile(user?.id)
   const { t } = useI18n()
@@ -124,7 +124,7 @@ export function AppSidebarShell({ navItems }: { navItems?: NavItemDef[] }) {
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          'flex flex-col h-full bg-sidebar border-r border-sidebar-border overflow-hidden',
+          `flex flex-col h-full border-r overflow-hidden ${accent === 'ink' ? 'bg-slate-950 border-slate-800 text-white' : accent === 'navy' ? 'bg-slate-900 border-slate-800 text-white' : 'bg-sidebar border-sidebar-border'}`, 
           'transition-[width] duration-200 ease-linear shrink-0',
           collapsed ? 'w-[3rem]' : 'w-[15rem]',
         )}

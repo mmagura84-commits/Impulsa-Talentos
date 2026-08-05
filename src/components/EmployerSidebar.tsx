@@ -12,5 +12,5 @@ export function EmployerSidebar() {
   const items: NavItemDef[] = isAdmin
     ? [...EMPLOYER_NAV, { to: '/hq', icon: <Shield className="size-4" />, labelKey: 'hq.title' }]
     : EMPLOYER_NAV
-  return <AppSidebarShell navItems={items} />
+  return <AppSidebarShell navItems={items} accent="navy" />
 }
