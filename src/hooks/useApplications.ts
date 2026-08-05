@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
-import type { Application } from '@/types'
+import type { Application, Job, Profile } from '@/types'
+import { sendEmail } from '@/lib/emailSender'
+
+const NOTIFY_EMAIL = 'info@impulsatalentos.expert'
 
 
 // ─── Query key factories ───
@@ -97,6 +100,52 @@ export interface ApplyInput {
   resumeUrl?: string
 }
 
+/**
+ * Look up job title + employer email and send a notification.
+ * Runs fire-and-forget — failures are logged but never block the UI.
+ */
+async function notifyEmployerOfApplication(jobId: string, candidateId: string) {
+  // 1. Get the job title + companyId
+  const job = await getRow<Job>('jobs', jobId)
+  if (!job) return
+
+  // 2. Find an employer profile for this company
+  const { data: profiles } = await supabase
+    .from('profiles')
+    .select('email, fullName')
+    .eq('role', 'employer')
+    .limit(1)
+  const employerEmail = profiles?.[0]?.email
+  const employerName = profiles?.[0]?.fullName || 'Employer'
+
+  // 3. Get candidate name
+  const candidate = await getRow<Profile>('profiles', candidateId)
+  const candidateName = candidate?.fullName || 'A candidate'
+
+  // 4. Send notification
+  const subject = `[New Application] ${candidateName} applied for ${job.title}`
+  await sendEmail({
+    to: employerEmail || NOTIFY_EMAIL,
+    subject,
+    text: [
+      `${candidateName} just applied for "${job.title}".`,
+      ``,
+      `View applications: https://impulsatalentos.expert/employer/jobs/${jobId}`,
+    ].join('\n'),
+    html: [
+      `<h2>New job application</h2>`,
+      `<p><strong>${escapeHtml(candidateName)}</strong> applied for <strong>${escapeHtml(job.title)}</strong>.</p>`,
+      `<p><a href="https://impulsatalentos.expert/employer/jobs/${jobId}">View applications →</a></p>`,
+    ].join('\n'),
+  })
+}
+
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c)
+  )
+}
+
 export function useApply() {
   const queryClient = useQueryClient()
 
@@ -135,7 +184,7 @@ export function useApply() {
         status: 'pending',
       })
     },
-    onSuccess: (_result, variables) => {
+    onSuccess: async (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all })
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byCandidate(variables.candidateId),
@@ -143,6 +192,11 @@ export function useApply() {
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byJob(variables.jobId),
       })
+
+      // Fire notification email to the employer (fire-and-forget)
+      notifyEmployerOfApplication(variables.jobId, variables.candidateId).catch(e =>
+        console.warn('[useApply] notification email failed:', e)
+      )
     },
   })
 }
