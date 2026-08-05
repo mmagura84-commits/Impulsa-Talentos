@@ -382,6 +382,7 @@ const en: Dict = {
   'employers.why1': 'A focused pool of Colombian bilingual talent ready for global work', 'employers.why2': 'Structured listings with language levels, location, and salary', 'employers.why3': 'A bilingual platform that keeps every step clear in English and Spanish', 'employers.why4': 'Free to start with 2 job credits included',
   'employers.pricingTitle': 'Free to start', 'employers.pricingDesc': 'Get 2 job credits included. Additional posts start at $49.', 'employers.pricingCta': 'See pricing',
   'employers.footerTitle': 'Ready to find your next hire?',
+  'pricing.leadTitle': 'Unlock employer pricing', 'pricing.leadEmail': 'Work email', 'pricing.leadPhone': 'Phone', 'pricing.leadName': 'Your name', 'pricing.leadCompany': 'Company', 'pricing.leadSubmit': 'See pricing', 'pricing.leadSubmitting': 'Submitting…', 'pricing.leadError': 'We could not save your details. Please try again.'
 }
 
 export default en

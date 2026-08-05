@@ -7,6 +7,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useI18n } from '@/i18n/I18nProvider'
 import { JOB_PACKAGES } from '@/lib/pricing'
 import { PublicHeader } from '@/components/PublicHeader'
+import { LeadCaptureForm } from '@/components/LeadCaptureForm'
+import { useAuth } from '@/hooks/useAuth'
+import { useEffect, useState } from 'react'
 
 export const Route = createFileRoute('/pricing')({
   component: PricingPage,
@@ -69,7 +72,8 @@ function PackageCard({ id }: { id: string }) {
 }
 
 export default function PricingPage() {
-  const { t } = useI18n()
+  const { t } = useI18n(); const { user } = useAuth(); const [unlocked, setUnlocked] = useState(false)
+  useEffect(() => { setUnlocked(!!user || sessionStorage.getItem('impulsa_pricing_lead') === '1') }, [user])
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PublicHeader transparentOnTop={false} />
@@ -80,9 +84,9 @@ export default function PricingPage() {
           <p className="mt-2 text-muted-foreground max-w-xl mx-auto">{t('pricing.subtitle')}</p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+        {!unlocked ? <LeadCaptureForm onSuccess={() => setUnlocked(true)} /> : <div className="grid md:grid-cols-3 gap-6 items-stretch">
           {JOB_PACKAGES.map(pkg => <PackageCard key={pkg.id} id={pkg.id} />)}
-        </div>
+        </div>}
 
         <p className="mt-8 text-center text-xs text-muted-foreground max-w-2xl mx-auto">
           {t('pricing.footnote')}

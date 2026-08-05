@@ -381,6 +381,7 @@ const es: Dict = {
   'employers.why1': 'Una comunidad enfocada en talento bilingüe colombiano listo para trabajar globalmente', 'employers.why2': 'Vacantes estructuradas con niveles de idioma, ubicación y salario', 'employers.why3': 'Una plataforma bilingüe clara en inglés y español', 'employers.why4': 'Empieza gratis con 2 créditos de vacante incluidos',
   'employers.pricingTitle': 'Empieza gratis', 'employers.pricingDesc': 'Obtén 2 créditos incluidos. Las vacantes adicionales empiezan en $49.', 'employers.pricingCta': 'Ver precios',
   'employers.footerTitle': '¿Listo para encontrar tu próximo talento?',
+  'pricing.leadTitle': 'Desbloquea los precios para empleadores', 'pricing.leadEmail': 'Correo laboral', 'pricing.leadPhone': 'Teléfono', 'pricing.leadName': 'Tu nombre', 'pricing.leadCompany': 'Empresa', 'pricing.leadSubmit': 'Ver precios', 'pricing.leadSubmitting': 'Enviando…', 'pricing.leadError': 'No pudimos guardar tus datos. Intenta de nuevo.'
 }
 
 export default es
