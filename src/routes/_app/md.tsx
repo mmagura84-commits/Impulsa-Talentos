@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
-import { useLayoutEffect } from 'react'
+import { useEffect } from 'react'
 import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 
