@@ -17,7 +17,7 @@ function MdLayout() {
   const isMd = useIsMd()
   const navigate = useNavigate()
 
-  useLayoutEffect(() => {
+  useEffect(() => {
     // Wait for both auth and profile to settle before deciding.
     if (authLoading || profileLoading) return
     if (!isMd) {
