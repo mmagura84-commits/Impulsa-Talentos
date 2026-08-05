@@ -370,6 +370,8 @@ const en: Dict = {
   'employers.heroTitle': "Find Colombia's best bilingual talent — in one place",
   'employers.heroDesc': 'Post jobs, review candidates, and hire bilingual professionals across tech, CX, finance, healthcare, and operations.',
   'employers.heroCta': "Get started — it's free",
+  'employers.heroImageAlt': 'Bilingual professionals collaborating in a modern Colombian office.',
+  'employers.ctaImageAlt': 'Medellín’s commercial skyline glowing at dusk in the Aburrá Valley.',
   'employers.snapshot': 'Live marketplace snapshot',
   'employers.stats.jobs': 'open jobs', 'employers.stats.companies': 'companies hiring', 'employers.stats.roles': 'bilingual roles',
   'employers.howTitle': 'From opening to offer, made simple', 'employers.howDesc': 'Everything you need to move quickly and hire with confidence.',

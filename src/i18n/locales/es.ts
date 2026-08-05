@@ -369,6 +369,8 @@ const es: Dict = {
   'employers.heroTitle': 'Encuentra el mejor talento bilingüe de Colombia — en un solo lugar',
   'employers.heroDesc': 'Publica vacantes, revisa candidatos y contrata profesionales bilingües en tecnología, CX, finanzas, salud y operaciones.',
   'employers.heroCta': 'Empieza gratis',
+  'employers.heroImageAlt': 'Profesionales bilingües colaborando en una oficina colombiana moderna.',
+  'employers.ctaImageAlt': 'El horizonte comercial de Medellín iluminado al atardecer en el Valle de Aburrá.',
   'employers.snapshot': 'Resumen del marketplace',
   'employers.stats.jobs': 'vacantes abiertas', 'employers.stats.companies': 'empresas contratando', 'employers.stats.roles': 'roles bilingües',
   'employers.howTitle': 'De la vacante a la contratación, fácil', 'employers.howDesc': 'Todo lo que necesitas para avanzar rápido y contratar con confianza.',
