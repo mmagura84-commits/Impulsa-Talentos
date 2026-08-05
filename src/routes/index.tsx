@@ -155,7 +155,7 @@ function LandingCTAs() {
         </Link>
       </Button>
       <Button asChild variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-7 text-base font-semibold text-white hover:bg-white/10 hover:text-white">
-        <Link to="/dashboard"><Building2 className="size-4" />{t('landing.ctaHire')}</Link>
+        <Link to="/for-employers"><Building2 className="size-4" />{t('landing.ctaHire')}</Link>
       </Button>
     </div>
   )
@@ -575,7 +575,7 @@ function LandingPage() {
       <section className="border-t border-border bg-primary/[.04]">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
           <div><p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-muted-foreground">{t('landing.employerCtaDesc')}</p></div>
-          <Button asChild size="lg" className="shrink-0"><Link to="/dashboard" onClick={() => trackEvent('employer_post_start')}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Link></Button>
+          <Button asChild size="lg" className="shrink-0"><Link to="/for-employers" onClick={() => trackEvent('employer_post_start')}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Link></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}

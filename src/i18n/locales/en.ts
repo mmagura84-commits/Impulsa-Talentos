@@ -366,6 +366,20 @@ const en: Dict = {
   'profile.field.experienceYears': 'Years of experience',
   'profile.field.experienceYearsPlaceholder': 'e.g. 3',
   'profile.field.salaryCurrency': 'Currency',
+  'employers.heroEyebrow': 'For employers',
+  'employers.heroTitle': "Find Colombia's best bilingual talent — in one place",
+  'employers.heroDesc': 'Post jobs, review candidates, and hire bilingual professionals across tech, CX, finance, healthcare, and operations.',
+  'employers.heroCta': "Get started — it's free",
+  'employers.snapshot': 'Live marketplace snapshot',
+  'employers.stats.jobs': 'open jobs', 'employers.stats.companies': 'companies hiring', 'employers.stats.roles': 'bilingual roles',
+  'employers.howTitle': 'From opening to offer, made simple', 'employers.howDesc': 'Everything you need to move quickly and hire with confidence.',
+  'employers.step1Title': 'Create your company profile', 'employers.step1Desc': 'Set up your employer profile in about two minutes and tell candidates what makes your team special.',
+  'employers.step2Title': 'Post a bilingual job listing', 'employers.step2Desc': 'Describe the role with language levels, location, salary, and the details qualified candidates need.',
+  'employers.step3Title': 'Review matches and hire', 'employers.step3Desc': 'Review applications and connect with bilingual professionals who fit your needs.',
+  'employers.whyTitle': 'Why employers choose Impulsa Talentos',
+  'employers.why1': 'A focused pool of Colombian bilingual talent ready for global work', 'employers.why2': 'Structured listings with language levels, location, and salary', 'employers.why3': 'A bilingual platform that keeps every step clear in English and Spanish', 'employers.why4': 'Free to start with 2 job credits included',
+  'employers.pricingTitle': 'Free to start', 'employers.pricingDesc': 'Get 2 job credits included. Additional posts start at $49.', 'employers.pricingCta': 'See pricing',
+  'employers.footerTitle': 'Ready to find your next hire?',
 }
 
 export default en

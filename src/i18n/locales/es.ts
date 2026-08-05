@@ -365,6 +365,20 @@ const es: Dict = {
   'profile.field.experienceYears': 'Años de experiencia',
   'profile.field.experienceYearsPlaceholder': 'p. ej. 3',
   'profile.field.salaryCurrency': 'Moneda',
+  'employers.heroEyebrow': 'Para empleadores',
+  'employers.heroTitle': 'Encuentra el mejor talento bilingüe de Colombia — en un solo lugar',
+  'employers.heroDesc': 'Publica vacantes, revisa candidatos y contrata profesionales bilingües en tecnología, CX, finanzas, salud y operaciones.',
+  'employers.heroCta': 'Empieza gratis',
+  'employers.snapshot': 'Resumen del marketplace',
+  'employers.stats.jobs': 'vacantes abiertas', 'employers.stats.companies': 'empresas contratando', 'employers.stats.roles': 'roles bilingües',
+  'employers.howTitle': 'De la vacante a la contratación, fácil', 'employers.howDesc': 'Todo lo que necesitas para avanzar rápido y contratar con confianza.',
+  'employers.step1Title': 'Crea el perfil de tu empresa', 'employers.step1Desc': 'Configura tu perfil de empleador en unos dos minutos y cuenta qué hace especial a tu equipo.',
+  'employers.step2Title': 'Publica una vacante bilingüe', 'employers.step2Desc': 'Describe idioma, ubicación, salario y los detalles que necesitan los candidatos calificados.',
+  'employers.step3Title': 'Revisa coincidencias y contrata', 'employers.step3Desc': 'Revisa postulaciones y conecta con profesionales bilingües que se ajusten a tus necesidades.',
+  'employers.whyTitle': 'Por qué los empleadores eligen Impulsa Talentos',
+  'employers.why1': 'Una comunidad enfocada en talento bilingüe colombiano listo para trabajar globalmente', 'employers.why2': 'Vacantes estructuradas con niveles de idioma, ubicación y salario', 'employers.why3': 'Una plataforma bilingüe clara en inglés y español', 'employers.why4': 'Empieza gratis con 2 créditos de vacante incluidos',
+  'employers.pricingTitle': 'Empieza gratis', 'employers.pricingDesc': 'Obtén 2 créditos incluidos. Las vacantes adicionales empiezan en $49.', 'employers.pricingCta': 'Ver precios',
+  'employers.footerTitle': '¿Listo para encontrar tu próximo talento?',
 }
 
 export default es
