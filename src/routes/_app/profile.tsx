@@ -290,9 +290,6 @@ function ProfilePage() {
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const cvInputRef = useRef<HTMLInputElement | null>(null)
 
-  // Extract candidate-only fields from metadata stored in `bio` JSON or separate fields.
-  // For now, we treat them as transient form state stored directly on the profile's
-  // existing fields: positionTitle -> bio prefix, etc. We store as-is.
   useEffect(() => {
     if (!user) return
     if (profile) {
@@ -315,6 +312,8 @@ function ProfilePage() {
         meetingProvider: profile.meetingProvider ?? '',
         meetingLink: profile.meetingLink ?? '',
       })
+      setSource(profile.source ?? '')
+      setConsent(profile.emailConsent ?? false)
     } else if (!isLoading && !hydrated) {
       setForm({
         fullName: user.displayName ?? user.email?.split('@')[0] ?? '',
@@ -423,6 +422,8 @@ function ProfilePage() {
             desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
             meetingProvider: form.meetingProvider || undefined,
             meetingLink: form.meetingLink.trim() || undefined,
+            source: source || undefined,
+            emailConsent: consent,
             ...(profile.avatarUrl ? {} : { avatarUrl: form.avatarUrl || undefined }),
           },
         })
@@ -446,6 +447,8 @@ function ProfilePage() {
           desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
           meetingProvider: form.meetingProvider || undefined,
           meetingLink: form.meetingLink.trim() || undefined,
+          source: source || undefined,
+          emailConsent: consent,
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
         if (form.role === 'md') {

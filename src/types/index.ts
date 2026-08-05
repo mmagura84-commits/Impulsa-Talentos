@@ -33,6 +33,10 @@ export interface Profile {
   meetingProvider?: string
   /** Employer default meeting room URL. */
   meetingLink?: string
+  /** How the user heard about Impulsa Talentos. */
+  source?: string
+  /** User consented to marketing emails at sign-up. */
+  emailConsent?: boolean
 }
 
 /** Per-user email notification preferences. */
