@@ -548,17 +548,17 @@ function ProfilePage() {
               <CardDescription>{t('profile.role.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid sm:grid-cols-3 gap-3">
-                {(['candidate', 'employer', 'admin'] as Role[]).map(r => (
+              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                {(['candidate', 'employer', 'admin', 'md'] as Role[]).map(r => (
                   <button key={r} type="button" onClick={() => update('role', r)}
                     className={`text-left rounded-lg border p-4 transition-all ${
                       form.role === r ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border hover:border-primary/40 hover:bg-accent/30'
                     }`}>
                     <p className="font-medium text-foreground">
-                      {r === 'candidate' ? t('profile.role.candidate') : r === 'employer' ? t('profile.role.employer') : t('profile.role.admin')}
+                      {r === 'candidate' ? t('profile.role.candidate') : r === 'employer' ? t('profile.role.employer') : r === 'md' ? t('profile.role.md') : t('profile.role.admin')}
                     </p>
                     <p className="text-xs text-muted-foreground mt-0.5">
-                      {r === 'candidate' ? t('profile.role.candidateDesc') : r === 'employer' ? t('profile.role.employerDesc') : t('profile.role.adminDesc')}
+                      {r === 'candidate' ? t('profile.role.candidateDesc') : r === 'employer' ? t('profile.role.employerDesc') : r === 'md' ? t('profile.role.mdDesc') : t('profile.role.adminDesc')}
                     </p>
                   </button>
                 ))}

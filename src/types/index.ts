@@ -3,7 +3,9 @@
 export interface Profile {
   id: string
   userId: string
-  role: 'candidate' | 'employer' | 'admin'
+  role: 'candidate' | 'employer' | 'admin' | 'md'
+  /** Approval status for managing director accounts. */
+  profileStatus?: 'active' | 'pending' | 'rejected'
   fullName: string
   email: string
   phone: string

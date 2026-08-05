@@ -27,6 +27,7 @@ function DashboardRedirect() {
     const role = profile?.role ?? 'candidate'
     const target =
       role === 'admin' ? '/hq'
+      : role === 'md' ? '/md'
       : role === 'employer' ? '/employer'
       : '/candidate'
     navigate({ to: target, replace: true })
