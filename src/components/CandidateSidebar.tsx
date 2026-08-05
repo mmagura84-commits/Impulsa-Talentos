@@ -5,5 +5,5 @@
 import { AppSidebarShell, CANDIDATE_NAV } from '@/components/AppSidebarShell'
 
 export function CandidateSidebar() {
-  return <AppSidebarShell navItems={CANDIDATE_NAV} />
+  return <AppSidebarShell navItems={CANDIDATE_NAV} accent="gold" />
 }

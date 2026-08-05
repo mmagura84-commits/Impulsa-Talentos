@@ -9,4 +9,4 @@ const MD_NAV: NavItemDef[] = [
   { to: '/md/meetings', icon: <CalendarClock className="size-4" />, labelKey: 'md.nav.meetings' },
   { to: '/md/profile', icon: <User className="size-4" />, labelKey: 'md.nav.profile' },
 ]
-export function MdSidebar() { return <AppSidebarShell navItems={MD_NAV} /> }
+export function MdSidebar() { return <AppSidebarShell navItems={MD_NAV} accent="ink" /> }

@@ -28,17 +28,18 @@ export function StatCard({ icon: Icon, label, value, trend, delay }: {
   value: string
   trend?: string
   delay?: number
+  accent?: 'gold' | 'navy' | 'ink'
 }) {
   return (
     <FadeIn delay={delay}>
-      <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <Card className={`hover:shadow-md hover:-translate-y-0.5 transition-all duration-200 ${accent === 'gold' ? 'border-t-2 border-amber-500/50' : accent === 'navy' ? 'border-t-2 border-primary/40' : accent === 'ink' ? 'bg-slate-950 text-white border-t-2 border-amber-400/60' : ''}`}>
         <CardContent className="pt-6">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
-              <p className="text-2xl font-bold text-foreground font-serif">{value}</p>
+              <p className={`text-xs font-medium uppercase tracking-wider ${accent === 'ink' ? 'text-white/70' : 'text-muted-foreground'}`}>{label}</p>
+              <p className={`text-2xl font-bold font-serif ${accent === 'ink' ? 'text-white' : 'text-foreground'}`}>{value}</p>
             </div>
-            <div className="flex items-center justify-center h-10 w-10 rounded-lg bg-primary/10 text-primary">
+            <div className={`flex items-center justify-center h-10 w-10 rounded-lg ${accent === 'gold' ? 'bg-amber-500/10 text-amber-600' : 'bg-primary/10 text-primary'}`}>
               <Icon className="size-5" />
             </div>
           </div>
