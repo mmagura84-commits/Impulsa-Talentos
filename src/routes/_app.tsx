@@ -42,12 +42,12 @@ function AppLayout() {
     return <><PublicHeader transparentOnTop={false} /><Outlet /></>
   }
 
-  // Never choose a workspace chrome while auth/profile is unresolved. This
-  // prevents an MD session from briefly receiving candidate navigation during
-  // the profile query, which can make the wrong dashboard appear on redirect.
-  if (authLoading || (user && profileLoading)) {
-    return <div className="flex items-center justify-center min-h-dvh"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" /></div>
-  }
+  // BlinkClientBoundary is ALWAYS rendered so SSR produces a consistent
+  // ClientOnly boundary that hydrates correctly. The loading guard AND
+  // workspace chrome live INSIDE the boundary so the sidebar is never
+  // chosen before auth/profile resolve, preventing a flash of the wrong
+  // navigation (e.g. MD session seeing candidate sidebar).
+  const isLoading = authLoading || (user && profileLoading)
   const role = profile?.role
   const sidebar = role === 'md' ? <MdSidebar /> : role === 'employer' || role === 'admin' ? <EmployerSidebar /> : <CandidateSidebar />
 
@@ -59,9 +59,15 @@ function AppLayout() {
         </div>
       }
     >
-      <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar}>
-        <Outlet />
-      </SharedAppLayout>
+      {isLoading ? (
+        <div className="flex items-center justify-center min-h-dvh">
+          <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
+        </div>
+      ) : (
+        <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar}>
+          <Outlet />
+        </SharedAppLayout>
+      )}
     </BlinkClientBoundary>
   )
 }
