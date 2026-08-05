@@ -14,6 +14,9 @@ import { useAllJobs, useUpdateJob, useCreateJob } from '@/hooks/useJobs'
 import { useAllApplications, useUpdateApplicationStatus } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
 import { ModerationTab } from '@/components/hq/ModerationTab'
+import { listRows, updateRow } from '@/lib/supabase'
+import type { Profile } from '@/types'
+import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
 import {
   LayoutDashboard,
   Users,
@@ -40,7 +43,7 @@ import {
   ChevronUp,
   PlusCircle,
 } from 'lucide-react'
-import type { Profile, Company, Job, Application } from '@/types'
+import type { Company, Job, Application } from '@/types'
 
 export const Route = createFileRoute('/_app/hq')({
   component: HqPage,
@@ -1120,7 +1123,7 @@ function NoAccess() {
 }
 
 /* ── Main HQ Shell ───────────────────────────────────────── */
-type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post'
+type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals'
 
 const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'overview', labelKey: 'hq.tab.overview', icon: BarChart3 },
@@ -1130,6 +1133,7 @@ const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'moderation', labelKey: 'hq.tab.moderation', icon: ShieldCheck },
   { id: 'users', labelKey: 'hq.tab.users', icon: Users },
   { id: 'post', labelKey: 'postJob.step2.title', icon: PlusCircle },
+  { id: 'mdApprovals', labelKey: 'hq.mdApprovals', icon: CheckCircle2 },
 ]
 
 function HqShell() {
@@ -1216,6 +1220,7 @@ function HqShell() {
       {tab === 'moderation' && <ModerationTab jobs={j} companies={co} />}
       {tab === 'users' && <UsersTab profiles={p} />}
       {tab === 'post' && <PostJobTab companies={co} jobs={j} />}
+      {tab === 'mdApprovals' && <MdApprovalsTab />}
     </div>
   )
 }
