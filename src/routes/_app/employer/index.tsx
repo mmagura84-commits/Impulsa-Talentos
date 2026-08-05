@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -24,6 +25,10 @@ export const Route = createFileRoute('/_app/employer/')({
 function EmployerHomePage() {
   const { user } = useAuth()
   const { data: profile, isLoading } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!isLoading && profile && profile.role !== 'employer') navigate({ to: '/dashboard', replace: true })
+  }, [isLoading, profile, navigate])
   const { data: company } = useCompany(user?.id)
   const { data: jobs } = useCompanyJobs(company?.id)
   const myJobs = (jobs ?? []).filter((j) => j.companyId === company?.id)
