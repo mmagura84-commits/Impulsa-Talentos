@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows, snakeToCamel } from '@/lib/supabase'
 import type { Application, Job, Profile } from '@/types'
 import { sendEmail } from '@/lib/emailSender'
 
@@ -217,6 +217,27 @@ export function useAllApplications() {
   return useQuery({
     queryKey: applicationKeys.allList,
     queryFn: fetchAllApplications,
+  })
+}
+
+/**
+ * Fetch applications for a specific company's jobs (employer view).
+ * Accepts an array of job IDs belonging to the company.
+ */
+export function useApplicationsByCompany(jobIds: string[] | undefined) {
+  return useQuery({
+    queryKey: ['applications', 'byCompany', jobIds ?? []],
+    queryFn: async (): Promise<Application[]> => {
+      if (!jobIds || jobIds.length === 0) return []
+      const { data, error } = await supabase
+        .from('applications')
+        .select('*')
+        .in('job_id', jobIds)
+        .order('created_at', { ascending: false })
+      if (error) throw new Error(error.message)
+      return (data ?? []).map(r => snakeToCamel<Application>(r as Record<string, unknown>))
+    },
+    enabled: !!(jobIds && jobIds.length > 0),
   })
 }
 

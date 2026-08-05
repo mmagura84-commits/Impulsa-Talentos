@@ -22,7 +22,7 @@ export function FadeIn({ children, className, delay = 0 }: { children: ReactNode
 }
 
 /* ── Shared stat card ──────────────────────────────────── */
-export function StatCard({ icon: Icon, label, value, trend, delay }: {
+export function StatCard({ icon: Icon, label, value, trend, delay, accent }: {
   icon: React.ElementType
   label: string
   value: string
