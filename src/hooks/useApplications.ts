@@ -1,9 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
-import type { Application, Job, Profile } from '@/types'
-import { sendEmail } from '@/lib/emailSender'
-
-const NOTIFY_EMAIL = 'partners@impulsatalentos.expert'
+import type { Application } from '@/types'
 
 
 // ─── Query key factories ───
@@ -100,42 +97,6 @@ export interface ApplyInput {
   resumeUrl?: string
 }
 
-/**
- * Notify the platform (partners@) that a new application came in.
- * Employers discover applications through their dashboard — never via email.
- * Fire-and-forget — failures are logged but never block the UI.
- */
-async function notifyPlatformOfApplication(jobId: string, candidateId: string) {
-  const job = await getRow<Job>('jobs', jobId)
-  if (!job) return
-
-  const candidate = await getRow<Profile>('profiles', candidateId)
-  const candidateName = candidate?.fullName || 'A candidate'
-
-  await sendEmail({
-    to: NOTIFY_EMAIL,
-    subject: `[New Application] ${candidateName} applied for ${job.title}`,
-    text: [
-      `${candidateName} just applied for "${job.title}".`,
-      `Employers can review applications in their dashboard — no direct email is sent.`,
-      ``,
-      `View in HQ: https://impulsatalentos.expert/hq`,
-    ].join('\n'),
-    html: [
-      `<h2>New job application</h2>`,
-      `<p><strong>${escapeHtml(candidateName)}</strong> applied for <strong>${escapeHtml(job.title)}</strong>.</p>`,
-      `<p><em>Employers review applications in their dashboard — no direct email is sent to them.</em></p>`,
-      `<p><a href="https://impulsatalentos.expert/hq">View in HQ →</a></p>`,
-    ].join('\n'),
-  })
-}
-
-function escapeHtml(value: string) {
-  return value.replace(/[&<>"']/g, c =>
-    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c)
-  )
-}
-
 export function useApply() {
   const queryClient = useQueryClient()
 
@@ -174,7 +135,7 @@ export function useApply() {
         status: 'pending',
       })
     },
-    onSuccess: async (_result, variables) => {
+    onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all })
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byCandidate(variables.candidateId),
@@ -182,11 +143,6 @@ export function useApply() {
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byJob(variables.jobId),
       })
-
-      // Notify the platform of the new application (fire-and-forget)
-      notifyPlatformOfApplication(variables.jobId, variables.candidateId).catch(e =>
-        console.warn('[useApply] notification email failed:', e)
-      )
     },
   })
 }

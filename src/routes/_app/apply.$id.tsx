@@ -451,7 +451,6 @@ function ApplyPage() {
         locale,
         dashboardUrl: `${origin}/dashboard`,
         jobsUrl: `${origin}/jobs`,
-        reviewUrl: `${origin}/manage/${job.id}`,
         resumeUrl: file ? null : link || null,
         coverNote: message,
       }).then(outcome => {
