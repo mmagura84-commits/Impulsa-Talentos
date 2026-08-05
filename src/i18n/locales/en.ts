@@ -392,7 +392,8 @@ const en: Dict = {
   'employers.pricingTitle': 'Free to start', 'employers.pricingDesc': 'Get 2 job credits included. Additional posts start at $49.', 'employers.pricingCta': 'See pricing',
   'employers.footerTitle': 'Ready to find your next hire?',
   'pricing.leadTitle': 'Unlock employer pricing', 'pricing.leadEmail': 'Work email', 'pricing.leadPhone': 'Phone', 'pricing.leadName': 'Your name', 'pricing.leadCompany': 'Company', 'pricing.leadSubmit': 'See pricing', 'pricing.leadSubmitting': 'Submitting…', 'pricing.leadError': 'We could not save your details. Please try again.',
-  'hq.leadsTitle': 'Employer leads', 'hq.leadsAdminOnly': 'Admin access is required to view leads.'
+  'hq.leadsTitle': 'Employer leads', 'hq.leadsAdminOnly': 'Admin access is required to view leads.',
+  'profile.employer.meeting.title': 'Meeting Settings', 'profile.employer.meeting.desc': 'Set your default video conferencing link for interviews.', 'profile.employer.meeting.providerLabel': 'Provider', 'profile.employer.meeting.providerPlaceholder': 'Select provider...', 'profile.employer.meeting.linkLabel': 'Meeting link', 'profile.employer.meeting.linkPlaceholder': 'https://meet.google.com/...', 'profile.employer.meeting.saved': 'Meeting settings saved'
 }
 
 export default en

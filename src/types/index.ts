@@ -27,6 +27,10 @@ export interface Profile {
   desiredSalaryMax?: number
   /** Raw text extracted from the uploaded CV — used for matching, never displayed. */
   parsedCvText?: string
+  /** Employer meeting provider preference. */
+  meetingProvider?: string
+  /** Employer default meeting room URL. */
+  meetingLink?: string
 }
 
 /** Per-user email notification preferences. */

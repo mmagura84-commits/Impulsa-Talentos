@@ -185,6 +185,11 @@ function InterviewScheduler({ app, jobId }: { app: Application; jobId: string })
   const [link, setLink] = useState(current.interviewLink ?? '')
   const [date, setDate] = useState(current.interviewDate ?? '')
   const [saving, setSaving] = useState(false)
+  const { user } = useAuth()
+  const { data: employerProfile } = useProfile(user?.id)
+  useEffect(() => {
+    if (!link && employerProfile?.meetingLink) setLink(employerProfile.meetingLink)
+  }, [employerProfile?.meetingLink, link])
 
   useEffect(() => {
     setLink(current.interviewLink ?? '')
