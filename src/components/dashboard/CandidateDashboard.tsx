@@ -407,292 +407,32 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   const { data: jobs, isLoading: jobsLoading } = useJobs()
   const { data: savedJobs, isLoading: savedLoading } = useMySavedJobs(candidateProfileId)
   const withdraw = useWithdrawApplication()
-
-  const handleWithdraw = async (appId: string) => {
-    try {
-      await withdraw.mutateAsync(appId)
-      toast.success(t('timeline.withdrawn'), { duration: 1800 })
-    } catch (err) {
-      toast.error(t('timeline.withdrawError'), { description: err instanceof Error ? err.message : '' })
-    }
-  }
-
+  const completion = useProfileCompletion(profile ?? null)
   const hasProfileSignal = !!(profile?.bio?.trim() || profile?.languages?.trim() || profile?.location?.trim())
-
-  // Deterministic fast matches (for the card row)
-  const ranked = useMemo(
-    () => (hasProfileSignal ? rankJobs(profile ?? null, jobs ?? []) : []),
-    [hasProfileSignal, profile, jobs],
-  )
-  const topMatches = ranked.slice(0, 3)
-  const fallbackJobs = (jobs ?? []).slice(0, 3)
-
-  // AI-powered deep matches
-  const { data: aiMatches, isLoading: aiLoading } = useAiTopMatches(
-    profile ?? null,
-    jobs ?? null,
-    3,
-  )
-  const hasAiMatches = aiMatches && aiMatches.length > 0
-
+  const ranked = useMemo(() => hasProfileSignal ? rankJobs(profile ?? null, jobs ?? []) : [], [hasProfileSignal, profile, jobs])
+  const fallbackJobs = (jobs ?? []).filter(j => j.status === 'open').slice(0, 5)
+  const { data: aiMatches, isLoading: aiLoading } = useAiTopMatches(candidateProfileId, hasProfileSignal)
   const recentApps = (applications ?? []).slice(0, 5)
   const recentSaved = (savedJobs ?? []).slice(0, 3)
-
-  // Enhanced profile completion
-  const completion = useProfileCompletion(profile ?? null)
-
+  const handleWithdraw = async (appId: string) => {
+    try { await withdraw.mutateAsync(appId); toast.success(t('timeline.withdrawn'), { duration: 1800 }) }
+    catch (err) { toast.error(t('timeline.withdrawError'), { description: err instanceof Error ? err.message : '' }) }
+  }
+  const aiJobs = (aiMatches ?? []).map(result => ({ job: jobs?.find(j => j.id === result.jobId), score: result.score })).filter(x => x.job).slice(0, 5) as { job: Job; score: number }[]
+  const matches = aiJobs.length ? aiJobs : ranked.slice(0, 5)
   return (
     <div className="space-y-6">
-      {/* Profile completion bar */}
-      {profile && completion.percent < 100 && (
-        <FadeIn delay={0}>
-          <Card className="border-amber-500/30 bg-gradient-to-r from-amber-500/5 to-transparent">
-            <CardContent className="pt-5 pb-4">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-                <div className="flex items-center gap-2.5 flex-1 min-w-0">
-                  <div className="flex items-center justify-center h-9 w-9 shrink-0 rounded-full bg-amber-500/10 text-amber-600">
-                    <Target className="size-4" />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-foreground">
-                      {t('profileCompletion.title')} · {completion.percent}% ({completion.completed}/{completion.total})
-                    </p>
-                    <div className="mt-1.5 w-full h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-amber-500 transition-all duration-500"
-                        style={{ width: `${completion.percent}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <p className="text-xs text-muted-foreground">
-                    {completion.missingLabels.length > 0
-                      ? t('profileCompletion.missingFields', {
-                          fields: completion.missingLabels.slice(0, 2).join(', ') +
-                            (completion.missingLabels.length > 2 ? '…' : ''),
-                        })
-                      : t('profileCompletion.allDone')}
-                  </p>
-                  <Button size="sm" variant="outline" asChild className="shrink-0">
-                    <Link to="/profile">{t('profileCompletion.cta')}</Link>
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </FadeIn>
-      )}
-
-      {/* Stats row */}
-      <div className="grid sm:grid-cols-3 gap-4">
-        <StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0} />
-        <StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0.05} />
-        <StatCard icon={Star} label={t('dashboard.stat.inProgress')}
-          value={String((applications ?? []).filter(a => a.status === 'pending' || a.status === 'reviewed' || a.status === 'interview').length)}
-          delay={0.1}
-        />
-      </div>
-
-      {/* AI-Powered Best Matches (primary panel) */}
-      {hasProfileSignal && (
-        <FadeIn delay={0.08}>
-          <Card className="border-primary/20 bg-gradient-to-b from-primary/[0.03] to-transparent">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-primary/10 text-primary">
-                    <Brain className="size-4" />
-                  </div>
-                  {t('dashboard.aiMatches.title')}
-                </CardTitle>
-                <CardDescription>{t('dashboard.aiMatches.desc')}</CardDescription>
-              </div>
-              <Button variant="outline" size="sm" asChild>
-                <Link to="/jobs">{t('dashboard.exploreMore')} <ArrowUpRight className="size-3 ml-1" /></Link>
-              </Button>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {aiLoading && (
-                <div className="space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div key={i} className="space-y-2">
-                      <div className="h-14 rounded-lg bg-muted animate-pulse" />
-                    </div>
-                  ))}
-                </div>
-              )}
-              {!aiLoading && !hasAiMatches && (
-                <div className="text-center py-6">
-                  <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary/10 mb-3">
-                    <Search className="size-6 text-primary" />
-                  </div>
-                  <p className="text-sm text-muted-foreground">{t('dashboard.aiMatches.empty')}</p>
-                  <Button size="sm" variant="outline" asChild className="mt-3">
-                    <Link to="/jobs">{t('dashboard.viewJobs')}</Link>
-                  </Button>
-                </div>
-              )}
-              {hasAiMatches && aiMatches!.map((result, i) => {
-                const job = jobs?.find(j => j.id === result.jobId)
-                if (!job) return null
-                return <AiMatchDetailCard key={result.jobId} result={result} job={job} />
-              })}
-            </CardContent>
-          </Card>
-        </FadeIn>
-      )}
-
-      {/* Companies you match with */}
-      {hasProfileSignal && hasAiMatches && (
-        <FadeIn delay={0.1}>
-          <Card className="border-accent/30 bg-gradient-to-b from-accent/[0.03] to-transparent">
-            <CardHeader className="flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base flex items-center gap-2">
-                  <div className="flex items-center justify-center h-8 w-8 rounded-lg bg-accent/10 text-accent">
-                    <Building2 className="size-4" />
-                  </div>
-                  Companies you match with
-                </CardTitle>
-                <CardDescription>
-                  Based on your profile, these companies have roles that fit your skills
-                </CardDescription>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              {aiMatches!.slice(0, 3).map((result) => {
-                const job = jobs?.find(j => j.id === result.jobId)
-                if (!job) return null
-                return <CompanyMatchRow key={result.jobId} job={job} score={result.score} />
-              })}
-            </CardContent>
-          </Card>
-        </FadeIn>
-      )}
-
-      {/* Application timeline */}
-      <FadeIn delay={0.12}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Activity className="size-4 text-primary" />
-                {t('timeline.title')}
-              </CardTitle>
-              <CardDescription>{t('dashboard.myApplications.desc')}</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/jobs">{t('dashboard.exploreMore')}</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-0">
-            {appsLoading && (
-              <div className="space-y-3">
-                {Array.from({ length: 3 }).map((_, i) => (
-                  <div key={i} className="h-12 rounded bg-muted animate-pulse" />
-                ))}
-              </div>
-            )}
-            {!appsLoading && recentApps.length === 0 && (
-              <div className="text-center py-8">
-                <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-muted mb-3">
-                  <Activity className="size-6 text-muted-foreground" />
-                </div>
-                <p className="text-sm text-muted-foreground">{t('timeline.empty')}</p>
-                <Button size="sm" asChild className="mt-3">
-                  <Link to="/jobs">{t('dashboard.viewJobs')}</Link>
-                </Button>
-              </div>
-            )}
-            {recentApps.map((app, i) => (
-              <ApplicationTimelineItem key={app.id} app={app} isLast={i === recentApps.length - 1} onWithdraw={handleWithdraw} />
-            ))}
-            {(applications ?? []).length > 5 && (
-              <div className="pt-2 text-center">
-                <button type="button"
-                  className="inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline cursor-pointer"
-                  onClick={() => { document.querySelector('[data-tab="all-apps"]')?.scrollIntoView({ behavior: 'smooth' }) }}
-                >
-                  {t('timeline.viewAll')} ({applications?.length}) <ChevronRight className="size-3" />
-                </button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+      <FadeIn>
+        <div><h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">{t('dashboard.greeting', { name: profile?.fullName ?? '' })}</h1><p className="mt-1 text-muted-foreground">{t('dashboard.candidate.subtitle')}</p></div>
       </FadeIn>
-
-      {/* Deterministic match cards (compact row below timeline) */}
-      <FadeIn delay={0.18}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Sparkles className="size-4 text-primary" />
-                {hasProfileSignal ? t('dashboard.matches.title') : t('dashboard.matches.weakTitle')}
-              </CardTitle>
-              <CardDescription>
-                {hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}
-              </CardDescription>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/jobs">{t('dashboard.exploreMore')} <ArrowUpRight className="size-3 ml-1" /></Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {jobsLoading && <div className="h-16 rounded bg-muted animate-pulse" />}
-            {!jobsLoading && (jobs ?? []).length === 0 && (
-              <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground">{t('dashboard.noJobs')}</p>
-              </div>
-            )}
-            {!jobsLoading && hasProfileSignal && topMatches.length === 0 && (jobs ?? []).length > 0 && (
-              <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground">{t('dashboard.matches.empty')}</p>
-              </div>
-            )}
-            {(hasProfileSignal ? topMatches : fallbackJobs.map(j => ({ job: j, score: null as unknown as MatchScore }))).map(({ job, score }) => (
-              <JobCard key={job.id} job={job} score={score ?? undefined} />
-            ))}
-          </CardContent>
-        </Card>
-      </FadeIn>
-
-      {/* Saved jobs */}
-      <FadeIn delay={0.2}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base flex items-center gap-2">
-                <Heart className="size-4 text-pink-600 fill-current" />
-                {t('savedJobs.title')}
-              </CardTitle>
-              <CardDescription>{t('savedJobs.desc')}</CardDescription>
-            </div>
-            <Button variant="outline" size="sm" asChild>
-              <Link to="/jobs">{t('dashboard.exploreMore')} <ArrowUpRight className="size-3 ml-1" /></Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {savedLoading && <div className="h-16 rounded bg-muted animate-pulse" />}
-            {!savedLoading && recentSaved.length === 0 && (
-              <div className="text-center py-6">
-                <p className="text-sm text-muted-foreground">{t('savedJobs.empty')}</p>
-                <Button size="sm" variant="outline" asChild className="mt-3">
-                  <Link to="/jobs"><Heart className="size-3.5 mr-1.5" />{t('savedJobs.browse')}</Link>
-                </Button>
-              </div>
-            )}
-            {recentSaved.map(job => (
-              <SavedJobRow key={job.id} job={job} candidateId={candidateProfileId} />
-            ))}
-          </CardContent>
-        </Card>
-      </FadeIn>
+      {completion.percent < 100 && <FadeIn delay={0.04}><Card className="border-amber-500/20"><CardContent className="p-4"><div className="flex flex-wrap items-center gap-3"><Target className="size-5 text-amber-500"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{t('profileCompletion.title')} · {completion.percent}%</p><div className="mt-1.5 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{width:`${completion.percent}%`}}/></div><p className="mt-1 text-xs text-muted-foreground">{completion.missingLabels.slice(0,2).join(', ')}</p></div><Button size="sm" variant="outline" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div></CardContent></Card></FadeIn>}
+      <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0}/><StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0.05}/><StatCard icon={Star} label={t('dashboard.stat.inProgress')} value={String((applications ?? []).filter(a => ['pending','reviewed','interview'].includes(a.status)).length)} delay={0.1}/></div>
+      <FadeIn delay={0.08}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Sparkles className="size-4 text-primary"/>{t('dashboard.matches.title')}</CardTitle><CardDescription>{hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.exploreMore')}</Link></Button></CardHeader><CardContent className="space-y-2">{jobsLoading || aiLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !matches.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.matches.weakDesc')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div> : matches.map(({job,score})=><JobCard key={job.id} job={job} score={typeof score === 'number' ? (score as unknown as MatchScore) : undefined}/>)}</CardContent></Card></FadeIn>
+      <FadeIn delay={0.12}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4 text-primary"/>{t('timeline.title')}</CardTitle><CardDescription>{t('dashboard.myApplications.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></CardHeader><CardContent>{appsLoading ? <div className="space-y-3">{[1,2,3].map(i=><div key={i} className="h-12 rounded bg-muted animate-pulse"/>)}</div> : !recentApps.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('timeline.empty')}<br/><Button size="sm" className="mt-3" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></div> : <>{recentApps.map((app,i)=><ApplicationTimelineItem key={app.id} app={app} isLast={i===recentApps.length-1} onWithdraw={handleWithdraw}/>)}{(applications?.length ?? 0)>5 && <Link className="block pt-2 text-center text-xs text-primary hover:underline" to="/candidate/applications">{t('timeline.viewAll')} ({applications?.length})</Link>}</>}</CardContent></Card></FadeIn>
+      <FadeIn delay={0.16}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Heart className="size-4 text-pink-600 fill-current"/>{t('savedJobs.title')}</CardTitle><CardDescription>{t('savedJobs.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></CardHeader><CardContent className="space-y-2">{savedLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentSaved.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('savedJobs.empty')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></div> : recentSaved.map(job=><SavedJobRow key={job.id} job={job} candidateId={candidateProfileId}/>)}</CardContent></Card></FadeIn>
     </div>
   )
 }
-
 function CompanyMatchRow({ job, score }: { job: Job; score: number }) {
   const { data: company } = useCompanyById(job.companyId)
   const { t } = useI18n()
