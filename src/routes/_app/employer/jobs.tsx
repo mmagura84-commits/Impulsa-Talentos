@@ -28,7 +28,7 @@ function EmployerJobsPage() {
   const myJobs = (jobs ?? []).filter((j) => j.companyId === company?.id)
 
   return (
-    <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">
+    <AuthGate fallbackKey="auth.fallback.employerJobs" fallbackDescKey="auth.fallback.employerJobsDesc">
       <div className="p-6 max-w-5xl mx-auto">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
           <div>
