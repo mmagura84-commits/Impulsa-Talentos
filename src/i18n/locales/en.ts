@@ -127,6 +127,10 @@ const en: Dict = {
   'auth.fallback.profile': 'Sign in to manage your profile',
   'auth.fallback.dashboard': 'Sign in to view your dashboard',
   'auth.fallback.dashboardDesc': 'Access your applications, saved jobs, and personalized matches.',
+  'auth.fallback.employerDashboard': 'Sign in to view your employer dashboard',
+  'auth.fallback.employerDashboardDesc': 'Post jobs, manage applications, and review candidates for your company.',
+  'auth.fallback.employerJobs': 'Sign in to manage your job postings',
+  'auth.fallback.employerJobsDesc': 'View, edit, and manage the candidates for your open positions.',
 
   // Mobile app (phone-first)
   'mobile.appName': 'Impulsa',

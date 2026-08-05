@@ -126,6 +126,10 @@ const es: Dict = {
   'auth.fallback.profile': 'Inicia sesión para gestionar tu perfil',
   'auth.fallback.dashboard': 'Inicia sesión para ver tu dashboard',
   'auth.fallback.dashboardDesc': 'Accede a tus postulaciones, vacantes guardadas y matches personalizados.',
+  'auth.fallback.employerDashboard': 'Inicia sesión para ver tu panel de empleador',
+  'auth.fallback.employerDashboardDesc': 'Publica vacantes, gestiona postulaciones y revisa candidatos para tu empresa.',
+  'auth.fallback.employerJobs': 'Inicia sesión para gestionar tus vacantes',
+  'auth.fallback.employerJobsDesc': 'Revisa, edita y gestiona los candidatos de tus puestos activos.',
 
   // Mobile app (phone-first)
   'mobile.appName': 'Impulsa',

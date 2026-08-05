@@ -36,7 +36,7 @@ function EmployerHomePage() {
 
   if (isLoading) {
     return (
-      <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">
+      <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
         <div className="p-6 max-w-5xl mx-auto">
           <div className="h-8 w-48 rounded bg-muted animate-pulse mb-2" />
           <div className="h-4 w-72 rounded bg-muted animate-pulse mb-8" />
@@ -52,7 +52,7 @@ function EmployerHomePage() {
   }
 
   return (
-    <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">
+    <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
       <div className="p-6 max-w-5xl mx-auto">
         <FadeIn>
           <div className="mb-8">
