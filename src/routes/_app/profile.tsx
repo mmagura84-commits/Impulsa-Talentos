@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch'
 import type { NotificationPrefs, Profile } from '@/types'
 import { DEFAULT_NOTIFICATION_PREFS } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { sendEmail } from '@/lib/emailSender'
 import type { AppUser } from '@/hooks/useAuth'
 import {
   User,
@@ -447,6 +448,9 @@ function ProfilePage() {
           meetingLink: form.meetingLink.trim() || undefined,
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
+        if (form.role === 'md') {
+          sendEmail({ to: 'info@impulsatalentos.expert', subject: 'New MD signup requires approval', html: `<p>${form.fullName} (${form.email}) signed up as Managing Director and needs approval.</p><p><a href="${window.location.origin}/hq">Review in HQ</a></p>` }).catch(() => {})
+        }
       }
       setSavedFlag(true)
       setTimeout(() => setSavedFlag(false), 3000)
