@@ -131,6 +131,10 @@ const en: Dict = {
   'auth.fallback.employerDashboardDesc': 'Post jobs, manage applications, and review candidates for your company.',
   'auth.fallback.employerJobs': 'Sign in to manage your job postings',
   'auth.fallback.employerJobsDesc': 'View, edit, and manage the candidates for your open positions.',
+  'auth.fallback.apply': 'Sign in to apply',
+  'auth.fallback.applyDesc': 'Create an account or sign in to submit your application for this position.',
+  'apply.accessDenied': 'Only candidates can apply',
+  'apply.accessDeniedDesc': 'Employer and administrator accounts cannot submit job applications. Switch to a candidate account to apply.',
 
   // Mobile app (phone-first)
   'mobile.appName': 'Impulsa',

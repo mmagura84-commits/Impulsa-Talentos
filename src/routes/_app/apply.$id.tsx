@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-router'
-import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { motion, AnimatePresence, useInView } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -300,6 +300,15 @@ function ApplyPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
+
+  /* ── Candidate-only gate: redirect non-candidates before any content ── */
+  useLayoutEffect(() => {
+    if (!profile) return
+    if (profile.role !== 'candidate') {
+      toast.error(t('apply.accessDenied'), { description: t('apply.accessDeniedDesc') })
+      navigate({ to: '/jobs/' + id, replace: true })
+    }
+  }, [profile, navigate, id, t])
   const { data: job, isLoading, isError, error, refetch } = useJob(id)
   const { data: company } = useCompanyById(job?.companyId)
   const { data: myApps, isLoading: myAppsLoading } = useMyApplications(profile?.id)
@@ -327,7 +336,7 @@ function ApplyPage() {
   /* ── Loading skeleton ───────────────────────────────── */
   if (isLoading || myAppsLoading) {
     return (
-      <AuthGate>
+      <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
         <div className="p-6 max-w-3xl mx-auto">
           <div className="h-4 w-32 rounded bg-muted animate-pulse mb-6" />
           <div className="h-24 rounded-lg bg-muted animate-pulse mb-6" />
@@ -339,7 +348,7 @@ function ApplyPage() {
 
   if (isError) {
     return (
-      <AuthGate>
+      <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
         <div className="p-6 max-w-3xl mx-auto text-center py-20">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 mb-4">
             <AlertCircle className="size-7 text-destructive" />
@@ -358,7 +367,7 @@ function ApplyPage() {
 
   if (!job) {
     return (
-      <AuthGate>
+      <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
         <div className="p-6 max-w-3xl mx-auto text-center py-20">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 mb-4">
             <XCircle className="size-7 text-destructive" />
@@ -376,7 +385,7 @@ function ApplyPage() {
   // Profile must exist before applying
   if (!profile?.id) {
     return (
-      <AuthGate>
+      <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
         <div className="p-6 max-w-3xl mx-auto text-center py-20">
           <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 mb-4">
             <ShieldCheck className="size-7 text-destructive" />
@@ -479,7 +488,7 @@ function ApplyPage() {
   }
 
   return (
-    <AuthGate>
+    <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
       <div className="p-6 max-w-3xl mx-auto">
         <FadeIn>
           <div className="mb-6">
