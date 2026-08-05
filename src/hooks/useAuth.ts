@@ -56,6 +56,9 @@ export function useAuth() {
     /** Send a passwordless magic link to an email address. */
     sendMagicLink: (email: string) =>
       supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } }),
+    /** Sign in with email + password. */
+    signInWithPassword: (email: string, password: string) =>
+      supabase.auth.signInWithPassword({ email, password }),
     /**
      * Sign-in entry point for callers that don't collect an email inline
      * (hero CTAs, mobile menu). Navigates to the AuthGate-protected

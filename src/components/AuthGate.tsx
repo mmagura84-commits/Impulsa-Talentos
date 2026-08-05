@@ -4,7 +4,7 @@ import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Mail, CheckCircle2, Loader2, LogIn } from 'lucide-react'
+import { Mail, CheckCircle2, Loader2, LogIn, Lock } from 'lucide-react'
 import { useI18n } from '@/i18n/I18nProvider'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { BrandMark } from '@/components/BrandMark'
@@ -23,10 +23,12 @@ interface AuthGateProps {
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
-  const { isAuthenticated, isLoading, sendMagicLink } = useAuth()
+  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
+  const [usePassword, setUsePassword] = useState(false)
   const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -49,6 +51,20 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
       setSent(true)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Could not send the link')
+    } finally {
+      setSending(false)
+    }
+  }
+
+  const handlePassword = async (e: FormEvent) => {
+    e.preventDefault()
+    if (!email.trim() || !password || sending) return
+    setSending(true)
+    setErrorMsg('')
+    try {
+      await signInWithPassword(email.trim(), password)
+    } catch (err) {
+      setErrorMsg(err instanceof Error ? err.message : 'Invalid email or password')
     } finally {
       setSending(false)
     }
@@ -78,7 +94,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <CardDescription>{desc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {sent ? (
+            {!usePassword && sent ? (
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
                   <CheckCircle2 className="size-8 text-emerald-600" />
@@ -99,6 +115,41 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   Resend link
                 </Button>
               </>
+            ) : usePassword ? (
+              <form onSubmit={handlePassword} className="space-y-3">
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    type="email"
+                    value={email}
+                    onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
+                    placeholder="you@example.com"
+                    className="pl-9 text-center"
+                    required
+                    autoFocus
+                    autoComplete="email"
+                  />
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+                  <Input
+                    type="password"
+                    value={password}
+                    onChange={e => { setPassword(e.target.value); setErrorMsg('') }}
+                    placeholder="Password"
+                    className="pl-9 text-center"
+                    required
+                    autoComplete="current-password"
+                  />
+                </div>
+                {errorMsg && (
+                  <p className="text-xs text-destructive">{errorMsg}</p>
+                )}
+                <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
+                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
+                  {sending ? 'Signing in…' : 'Sign in with password'}
+                </Button>
+              </form>
             ) : (
               <form onSubmit={handleMagicLink} className="space-y-3">
                 <div className="relative">
@@ -125,8 +176,15 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             )}
             <button
               type="button"
-              onClick={() => setShowReset(true)}
+              onClick={() => { setUsePassword(!usePassword); setSent(false); setErrorMsg('') }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              {usePassword ? 'Send magic link instead' : 'Sign in with password instead'}
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowReset(true)}
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer block"
             >
               Forgot your password?
             </button>
