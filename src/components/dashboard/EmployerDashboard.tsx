@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useDeleteJob, useCompanyJobs } from '@/hooks/useJobs'
-import { useApplications } from '@/hooks/useApplications'
+import { useApplications, useAllApplications } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
 import { FadeIn, StatCard, formatSalary, formatPosted } from './shared'
 import {
@@ -273,73 +273,21 @@ export function EmployerDashboard({ employerId }: { employerId: string }) {
   const { t } = useI18n()
   const { data: company, isLoading: companyLoading } = useCompany(employerId)
   const { data: companyJobs, isLoading: jobsLoading } = useCompanyJobs(company?.id)
+  const { data: allApplications = [], isLoading: appsLoading } = useAllApplications()
   const postedJobs = (companyJobs ?? []).filter(j => j.companyId === company?.id)
-
-  return (
-    <div className="space-y-6">
-      <div className="grid sm:grid-cols-3 gap-4">
-        <StatCard icon={Briefcase} label={t('dashboard.stat.activeJobs')}
-          value={String(postedJobs.filter(j => j.status === 'open').length)} delay={0} />
-        <StatCard icon={FileText} label={t('dashboard.stat.totalJobs')}
-          value={String(postedJobs.length)} delay={0.05} />
-        <StatCard icon={CheckCircle2} label={t('dashboard.stat.companyStatus')}
-          value={company ? t('dashboard.stat.companyRegistered') : t('dashboard.stat.companyPending')}
-          trend={company?.location ?? undefined} delay={0.1} />
-      </div>
-
-      {company && (
-        <FadeIn delay={0.12}>
-          <CompanyContactEmailCard company={company} />
-        </FadeIn>
-      )}
-
-      {company && !company.verified && (
-        <FadeIn delay={0.13}>
-          <VerificationCard company={company} />
-        </FadeIn>
-      )}
-
-      <FadeIn delay={0.15}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between">
-            <div>
-              <CardTitle className="text-base">{t('dashboard.employerJobs.title')}</CardTitle>
-              <CardDescription>
-                {company ? t('dashboard.employerJobs.descWithName', { company: company.name }) : t('dashboard.employerJobs.descNoCompany')}
-              </CardDescription>
-            </div>
-            <Button size="sm" className="gap-1.5" asChild>
-              <Link to="/employer/post-job"><Plus className="size-3.5" /> {t('dashboard.newJob')}</Link>
-            </Button>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {companyLoading && <div className="h-16 rounded bg-muted animate-pulse" />}
-            {!companyLoading && !company && (
-              <div className="text-center py-8">
-                <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
-                  <AlertCircle className="size-6 text-primary" />
-                </div>
-                <p className="text-muted-foreground text-sm mb-3 max-w-sm mx-auto">{t('dashboard.noCompany')}</p>
-                <Button size="sm" asChild>
-                  <Link to="/employer/post-job"><Plus className="size-3.5 mr-1.5" /> {t('dashboard.registerCompany')}</Link>
-                </Button>
-              </div>
-            )}
-            {jobsLoading && <div className="h-16 rounded bg-muted animate-pulse" />}
-            {!jobsLoading && company && postedJobs.length === 0 && (
-              <div className="text-center py-8">
-                <p className="text-muted-foreground text-sm mb-3">{t('dashboard.noEmployerJobs')}</p>
-                <Button size="sm" asChild>
-                  <Link to="/employer/post-job"><Plus className="size-3.5 mr-1.5" /> {t('dashboard.firstJob')}</Link>
-                </Button>
-              </div>
-            )}
-            {postedJobs.map(job => (
-              <EmployerJobRow key={job.id} job={job} />
-            ))}
-          </CardContent>
-        </Card>
-      </FadeIn>
-    </div>
-  )
+  const jobIds = new Set(postedJobs.map(j => j.id))
+  const applications = allApplications.filter(a => jobIds.has(a.jobId))
+  const hires = applications.filter(a => a.status === 'hired').length
+  const recent = applications.slice(0, 5)
+  const [editingEmail, setEditingEmail] = useState(false)
+  const [email, setEmail] = useState('')
+  const update = useUpdateCompany()
+  const saveEmail = async () => { if (!company) return; await update.mutateAsync({ id: company.id, data: { contactEmail: email.trim() || undefined } }); setEditingEmail(false); toast.success(t('profile.saved')) }
+  return <div className="space-y-6">
+    <FadeIn><div><h1 className="font-serif text-2xl sm:text-3xl font-bold">{t('dashboard.greeting', { name: company?.name ?? '' })}</h1><p className="mt-1 text-muted-foreground">{company ? t('dashboard.employer.subtitle') : t('dashboard.noCompany')}</p></div></FadeIn>
+    <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.activeJobs')} value={String(postedJobs.filter(j=>j.status==='open').length)} delay={0}/><StatCard icon={Users} label={t('dashboard.stat.totalApplicants')} value={String(applications.length)} delay={0.05}/><StatCard icon={CheckCircle2} label={t('dashboard.stat.hires')} value={String(hires)} delay={0.1}/></div>
+    {company && <FadeIn delay={0.1}><Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Mail className="size-4 text-primary"/>{t('dashboard.company.contactEmailLabel')} <span className="ml-auto text-xs">{company.verified ? t('verification.verified') : company.verificationRequested ? t('verification.requested') : t('verification.request')}</span></CardTitle></CardHeader><CardContent>{editingEmail ? <div className="flex gap-2"><Input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder={t('postJob.company.contactEmailPlaceholder')}/><Button onClick={saveEmail} disabled={update.isPending}>{t('common.save')}</Button><Button variant="ghost" onClick={()=>setEditingEmail(false)}>{t('common.cancel')}</Button></div> : <div className="flex items-center justify-between"><span className="text-sm text-muted-foreground">{company.contactEmail || t('dashboard.company.contactEmailMissing')}</span><Button size="sm" variant="outline" onClick={()=>{setEmail(company.contactEmail ?? '');setEditingEmail(true)}}>{t('dashboard.edit')}</Button></div>}{!company.verified && !company.verificationRequested && <Button className="mt-3" variant="outline" onClick={()=>update.mutate({id:company.id,data:{verificationRequested:true}})}>{t('verification.request')}</Button>}</CardContent></Card></FadeIn>}
+    <FadeIn delay={0.14}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base">{t('dashboard.employerJobs.title')}</CardTitle><CardDescription>{company ? company.name : t('dashboard.noCompany')}</CardDescription></div><Button size="sm" asChild><Link to="/employer/post-job"><Plus className="size-3.5 mr-1"/>{t('dashboard.newJob')}</Link></Button></CardHeader><CardContent className="space-y-2">{companyLoading || jobsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !company ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noCompany')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.registerCompany')}</Link></Button></div> : !postedJobs.length ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noEmployerJobs')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.firstJob')}</Link></Button></div> : postedJobs.map(job=><EmployerJobRow key={job.id} job={job}/>)}</CardContent></Card></FadeIn>
+    <FadeIn delay={0.18}><Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Clock className="size-4 text-primary"/>{t('dashboard.recentActivity')}</CardTitle></CardHeader><CardContent>{appsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recent.length ? <p className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.noApplications')}</p> : <div className="space-y-2">{recent.map(a=><div key={a.id} className="flex items-center justify-between rounded border p-3 text-sm"><span>{a.candidateId}</span><span className="text-muted-foreground">{a.status} · {formatPosted(a.createdAt,t)}</span></div>)}</div>}</CardContent></Card></FadeIn>
+  </div>
 }
