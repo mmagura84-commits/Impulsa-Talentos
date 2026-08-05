@@ -90,5 +90,6 @@ export default defineConfig({
     // pre-injects a read-only _redirects the sandbox user can't unlink.
     outDir: '.vite-out',
     emptyOutDir: true,
+    minify: true,
   },
 });
