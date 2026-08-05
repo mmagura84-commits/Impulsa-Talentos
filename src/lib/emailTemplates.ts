@@ -375,7 +375,7 @@ export function buildEmployerEmail(input: EmployerEmailInput): { subject: string
       <tr><td style="padding:16px 20px;">
         <p style="margin:0 0 6px;font-size:18px;font-weight:700;color:#0f172a;">${escapeHtml(candidate.fullName)}</p>
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="font-size:13px;color:#0f172a;">
-          <tr><td style="padding:3px 0;color:#64748b;width:120px;">${escapeHtml(c.email)}</td><td style="padding:3px 0;"><a href="mailto:${escapeAttr(candidate.email)}" style="color:#1f3a8a;text-decoration:underline;">${escapeHtml(candidate.email)}</a></td></tr>
+          <tr><td style="padding:3px 0;color:#64748b;width:120px;">${escapeHtml(c.email)}</td><td style="padding:3px 0;">${escapeHtml(candidate.email)}</td></tr>
           ${candidate.phone ? `<tr><td style="padding:3px 0;color:#64748b;">${escapeHtml(c.phone)}</td><td style="padding:3px 0;">${escapeHtml(candidate.phone)}</td></tr>` : ''}
           ${candidate.location ? `<tr><td style="padding:3px 0;color:#64748b;">${escapeHtml(c.location)}</td><td style="padding:3px 0;">${escapeHtml(candidate.location)}</td></tr>` : ''}
           ${candidate.languages ? `<tr><td style="padding:3px 0;color:#64748b;">${escapeHtml(c.languages)}</td><td style="padding:3px 0;">${escapeHtml(candidate.languages)}</td></tr>` : ''}

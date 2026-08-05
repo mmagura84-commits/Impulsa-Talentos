@@ -145,8 +145,7 @@ function ApplyConfirmPage() {
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {t('apply.email.candidateSent')}
-                {' · '}
-                {t('apply.email.employerSent')}
+                
               </p>
             </div>
           </div>

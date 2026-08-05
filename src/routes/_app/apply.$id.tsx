@@ -440,7 +440,7 @@ function ApplyPage() {
         resumeUrl: link,
       })
 
-      // Fire the candidate + employer emails. Fire-and-forget so a
+      // Fire the candidate + platform notification emails. Fire-and-forget so a
       // failed notification never blocks the candidate's confirmation
       // page. Surface a soft toast so the user knows emails are out.
       const origin = typeof window !== 'undefined' ? window.location.origin : ''
@@ -458,11 +458,6 @@ function ApplyPage() {
         const parts: string[] = []
         if (outcome.candidate.ok) parts.push(t('apply.email.candidateSent'))
         else if (outcome.candidate.error) parts.push(t('apply.email.candidateFailed'))
-        if (outcome.employer.ok) parts.push(t('apply.email.employerSent'))
-        else if (outcome.employer.email) parts.push(t('apply.email.employerFailed'))
-        else if (outcome.employer.error === 'no employer email resolvable') {
-          parts.push(t('apply.email.skippedNoEmployerEmail'))
-        }
         if (parts.length) {
           const hasFailure = parts.some(p => p.toLowerCase().includes('ailed'))
           toast[hasFailure ? 'warning' : 'success'](

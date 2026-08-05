@@ -101,41 +101,31 @@ export interface ApplyInput {
 }
 
 /**
- * Look up job title + employer email and send a notification.
- * Runs fire-and-forget — failures are logged but never block the UI.
+ * Notify the platform (partners@) that a new application came in.
+ * Employers discover applications through their dashboard — never via email.
+ * Fire-and-forget — failures are logged but never block the UI.
  */
-async function notifyEmployerOfApplication(jobId: string, candidateId: string) {
-  // 1. Get the job title + companyId
+async function notifyPlatformOfApplication(jobId: string, candidateId: string) {
   const job = await getRow<Job>('jobs', jobId)
   if (!job) return
 
-  // 2. Find an employer profile for this company
-  const { data: profiles } = await supabase
-    .from('profiles')
-    .select('email, fullName')
-    .eq('role', 'employer')
-    .limit(1)
-  const employerEmail = profiles?.[0]?.email
-  const employerName = profiles?.[0]?.fullName || 'Employer'
-
-  // 3. Get candidate name
   const candidate = await getRow<Profile>('profiles', candidateId)
   const candidateName = candidate?.fullName || 'A candidate'
 
-  // 4. Send notification
-  const subject = `[New Application] ${candidateName} applied for ${job.title}`
   await sendEmail({
-    to: employerEmail || NOTIFY_EMAIL,
-    subject,
+    to: NOTIFY_EMAIL,
+    subject: `[New Application] ${candidateName} applied for ${job.title}`,
     text: [
       `${candidateName} just applied for "${job.title}".`,
+      `Employers can review applications in their dashboard — no direct email is sent.`,
       ``,
-      `View applications: https://impulsatalentos.expert/employer/jobs/${jobId}`,
+      `View in HQ: https://impulsatalentos.expert/hq`,
     ].join('\n'),
     html: [
       `<h2>New job application</h2>`,
       `<p><strong>${escapeHtml(candidateName)}</strong> applied for <strong>${escapeHtml(job.title)}</strong>.</p>`,
-      `<p><a href="https://impulsatalentos.expert/employer/jobs/${jobId}">View applications →</a></p>`,
+      `<p><em>Employers review applications in their dashboard — no direct email is sent to them.</em></p>`,
+      `<p><a href="https://impulsatalentos.expert/hq">View in HQ →</a></p>`,
     ].join('\n'),
   })
 }
@@ -193,8 +183,8 @@ export function useApply() {
         queryKey: applicationKeys.byJob(variables.jobId),
       })
 
-      // Fire notification email to the employer (fire-and-forget)
-      notifyEmployerOfApplication(variables.jobId, variables.candidateId).catch(e =>
+      // Notify the platform of the new application (fire-and-forget)
+      notifyPlatformOfApplication(variables.jobId, variables.candidateId).catch(e =>
         console.warn('[useApply] notification email failed:', e)
       )
     },

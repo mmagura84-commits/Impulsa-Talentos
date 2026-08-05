@@ -1,27 +1,25 @@
 /**
- * Application notifications — fires the candidate + employer emails
- * after a successful apply. Designed to be fire-and-forget so a failed
- * notification never blocks the candidate's confirmation flow.
+ * Application notifications — fires the candidate confirmation email
+ * and a platform heads-up after a successful apply.
  *
- * Strategy:
- *   1. Read the candidate's profile (already in the auth session, used
- *      for the candidate's own email + cover-letter context).
- *   2. Read the company so we have the company's name + (when
- *      available) a contact email.
- *   3. Build localized HTML + plain-text emails.
- *   4. Submit both via `sendEmail` (POST /api/email) in parallel.
- *   5. Swallow + log any errors — the apply flow already succeeded.
+ * Employers are NEVER emailed directly. They review applications
+ * exclusively through their Impulsa Talentos dashboard. The platform
+ * team (partners@) receives a lightweight notification so they know
+ * activity is happening.
+ *
+ * Designed to be fire-and-forget — a failed notification never blocks
+ * the candidate's confirmation flow.
  */
 import { sendEmail } from '@/lib/emailSender'
 import {
   buildCandidateEmail,
-  buildEmployerEmail,
   type CandidateEmailInput,
-  type EmployerEmailInput,
 } from '@/lib/emailTemplates'
 import type { Application, Job, Company, Profile } from '@/types'
 import { listRows, getRow, countRows } from '@/lib/supabase'
 import type { Locale } from '@/lib/emailTemplates'
+
+const PLATFORM_EMAIL = 'partners@impulsatalentos.expert'
 
 // Re-export for callers
 export type { Locale }
@@ -37,7 +35,7 @@ export interface NotificationContext {
   dashboardUrl: string
   /** Public jobs list URL. */
   jobsUrl: string
-  /** URL to the employer's applications review screen. */
+  /** URL to the employer's applications review screen (used in platform notification). */
   reviewUrl: string
   /** Resume public URL (file upload or link) if any. */
   resumeUrl: string | null
@@ -47,23 +45,26 @@ export interface NotificationContext {
 
 interface SendOutcome {
   candidate: { ok: boolean; error?: string }
-  employer: { ok: boolean; error?: string; email?: string }
+  platform: { ok: boolean; error?: string }
 }
 
 /**
- * Dispatch the two application emails. Always returns an outcome
- * object — never throws — so callers can safely fire-and-forget.
+ * Dispatch the candidate confirmation email and a platform notification.
+ * Always returns an outcome object — never throws — so callers can safely
+ * fire-and-forget.
+ *
+ * Employers are NOT emailed. They discover applications in their dashboard.
  */
 export async function sendApplicationNotifications(
   ctx: NotificationContext,
 ): Promise<SendOutcome> {
   const out: SendOutcome = {
     candidate: { ok: false },
-    employer: { ok: false },
+    platform: { ok: false },
   }
 
   try {
-    // ── 1) Candidate email ────────────────────────────
+    // ── 1) Candidate confirmation email ──────────────────
     const candidateName =
       ctx.candidateProfile?.fullName?.trim() ||
       'Candidate'
@@ -95,76 +96,46 @@ export async function sendApplicationNotifications(
         out.candidate = { ok: true }
       } catch (err) {
         out.candidate = { ok: false, error: err instanceof Error ? err.message : String(err) }
-        // eslint-disable-next-line no-console
         console.warn('[notifyApplication] candidate email failed', err)
       }
     } else if (candidateEmail) {
-      // Respect the user's notification preferences — skip the email.
       out.candidate = { ok: false, error: 'candidate opted out of application emails' }
     } else {
       out.candidate = { ok: false, error: 'no candidate email on profile' }
     }
 
-    // ── 2) Employer email ─────────────────────────────
+    // ── 2) Platform notification (partners@) ─────────────
+    // Employers are NOT emailed — they review applications in their dashboard.
     const company = await fetchCompany(ctx.job.companyId)
-    if (!company) {
-      out.employer = { ok: false, error: 'no company for job' }
-      return out
-    }
-
-    // The employer's notification inbox is stored on the company row as
-    // `contactEmail`. It is required on company creation and editable
-    // from the employer dashboard (and HQ), so this always resolves for
-    // companies created after the field was added.
-    const employerEmail = await resolveEmployerEmail(company)
-    if (!employerEmail) {
-      out.employer = { ok: false, error: 'no employer email resolvable' }
-      return out
-    }
-    out.employer.email = employerEmail
-
-    // Respect the employer's notification preferences (profile → prefs).
-    const employerProfile = await fetchProfileByUserId(company.employerId)
-    if (employerProfile?.notificationPrefs?.applicationUpdates === false) {
-      out.employer = { ok: false, error: 'employer opted out of application emails' }
-      return out
-    }
-
+    const companyName = company?.name || 'a company'
     const totalApplications = await countApplicationsForJob(ctx.job.id)
 
-    const input: EmployerEmailInput = {
-      locale: ctx.locale,
-      app: ctx.app,
-      job: ctx.job,
-      companyName: company.name,
-      candidate: {
-        fullName: candidateName,
-        email: candidateEmail ?? '',
-        phone: ctx.candidateProfile?.phone ?? '',
-        location: ctx.candidateProfile?.location ?? '',
-        languages: ctx.candidateProfile?.languages ?? '',
-      },
-      resumeUrl: ctx.resumeUrl,
-      coverNote: ctx.coverNote,
-      totalApplications,
-      reviewUrl: ctx.reviewUrl,
-    }
-    const email = buildEmployerEmail(input)
     try {
       await sendEmail({
-        to: employerEmail,
-        subject: email.subject,
-        html: email.html,
-        text: email.text,
+        to: PLATFORM_EMAIL,
+        subject: `[New Application] ${candidateName} applied for ${ctx.job.title}`,
+        text: [
+          `${candidateName} applied for "${ctx.job.title}" at ${companyName}.`,
+          `Total applications for this job: ${totalApplications}`,
+          ``,
+          `Employer review: ${ctx.reviewUrl}`,
+          `HQ view: https://impulsatalentos.expert/hq`,
+        ].join('\n'),
+        html: [
+          `<h2>New job application</h2>`,
+          `<p><strong>${escapeHtml(candidateName)}</strong> applied for <strong>${escapeHtml(ctx.job.title)}</strong> at ${escapeHtml(companyName)}.</p>`,
+          `<p>Total applications for this job: <strong>${totalApplications}</strong></p>`,
+          `<p><em>Employers review applications in their dashboard — no direct email is sent.</em></p>`,
+          `<p><a href="${escapeAttr(ctx.reviewUrl)}">Employer review →</a></p>`,
+          `<p><a href="https://impulsatalentos.expert/hq">View in HQ →</a></p>`,
+        ].join('\n'),
       })
-      out.employer = { ok: true }
+      out.platform = { ok: true }
     } catch (err) {
-      out.employer = { ok: false, error: err instanceof Error ? err.message : String(err) }
-      // eslint-disable-next-line no-console
-      console.warn('[notifyApplication] employer email failed', err)
+      out.platform = { ok: false, error: err instanceof Error ? err.message : String(err) }
+      console.warn('[notifyApplication] platform notification failed', err)
     }
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.warn('[notifyApplication] unexpected error', err)
   }
   return out
@@ -174,22 +145,6 @@ export async function sendApplicationNotifications(
 async function fetchCompany(companyId: string): Promise<Company | null> {
   try {
     return (await getRow<Company>('companies', companyId)) ?? null
-  } catch {
-    return null
-  }
-}
-
-/**
- * Resolve a user's profile by their Supabase auth userId (profiles are keyed
- * by row id; the auth id lives on `Profile.userId`).
- */
-async function fetchProfileByUserId(userId: string): Promise<Profile | null> {
-  try {
-    const results = await listRows<Profile>('profiles', {
-      where: { userId },
-      limit: 1,
-    })
-    return results[0] ?? null
   } catch {
     return null
   }
@@ -208,18 +163,12 @@ async function resolveCompanyName(companyId: string): Promise<string> {
   return c?.name || 'the company'
 }
 
-/**
- * Resolve the employer's application-inbox email from the company row.
- *
- * The `contactEmail` field is captured on the company-creation flow and
- * editable from the employer dashboard / HQ. If it's still missing we
- * return undefined — the candidate still receives the receipt and we
- * silently skip the employer notification rather than spam the wrong
- * address.
- */
-async function resolveEmployerEmail(
-  company: Company,
-): Promise<string | undefined> {
-  const fromCompany = company.contactEmail?.trim()
-  return fromCompany || undefined
+function escapeHtml(value: string) {
+  return value.replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c] ?? c)
+  )
+}
+
+function escapeAttr(value: string) {
+  return value.replace(/"/g, '&quot;')
 }
