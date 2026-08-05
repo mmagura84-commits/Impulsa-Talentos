@@ -346,6 +346,9 @@ export function SavedJobRow({ job, candidateId }: { job: Job; candidateId: strin
         <span className="hidden sm:inline-flex items-center text-[11px] text-muted-foreground gap-1">
           <Clock className="size-3" /> {formatPosted(job.createdAt, t)}
         </span>
+        <Button variant="outline" size="sm" className="h-8 gap-1 text-xs" asChild>
+          <Link to="/jobs/$id" params={{ id: job.id }}>{t('savedJobs.apply')}</Link>
+        </Button>
         <Button
           variant="ghost" size="sm" className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
           onClick={() => setConfirming(true)} aria-label={t('savedJobs.remove')}
