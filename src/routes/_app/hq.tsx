@@ -43,7 +43,7 @@ import {
   ChevronUp,
   PlusCircle,
 } from 'lucide-react'
-import type { Profile, Company, Job, Application } from '@/types'
+import type { Company, Job, Application } from '@/types'
 
 export const Route = createFileRoute('/_app/hq')({
   component: HqPage,
