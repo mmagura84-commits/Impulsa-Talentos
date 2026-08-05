@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 
@@ -16,7 +16,7 @@ function EmployerLayout() {
   const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
   const navigate = useNavigate()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Wait for both auth and profile to settle before deciding.
     if (authLoading || profileLoading) return
     if (profile && profile.role !== 'employer') {

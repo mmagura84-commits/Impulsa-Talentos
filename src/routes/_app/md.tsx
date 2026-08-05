@@ -1,5 +1,5 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 
@@ -17,7 +17,7 @@ function MdLayout() {
   const isMd = useIsMd()
   const navigate = useNavigate()
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     // Wait for both auth and profile to settle before deciding.
     if (authLoading || profileLoading) return
     if (!isMd) {

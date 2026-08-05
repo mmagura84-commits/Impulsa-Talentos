@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useEffect } from 'react'
+import { useLayoutEffect } from 'react'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -27,7 +27,7 @@ function DashboardRedirect() {
   // disabled (user === undefined, isLoading === false) and defaults
   // to /candidate — causing a bounce for non-candidate users:
   //   /dashboard → /candidate → /dashboard → /employer.
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (authLoading || profileLoading) return
     const role = profile?.role ?? 'candidate'
     const target =
