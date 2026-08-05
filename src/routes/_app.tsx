@@ -34,6 +34,12 @@ function AppLayout() {
   const isPublicRoute =
     !user && (!!matchRoute({ to: '/jobs' }) || !!matchRoute({ to: '/jobs/$id' }))
 
+  if (!authLoading && !user) {
+    // Unauthenticated pages must never inherit a candidate workspace shell.
+    // Child AuthGate components render the sign-in form for protected routes;
+    // public routes render their own content without a sidebar.
+    return <><PublicHeader transparentOnTop={false} /><Outlet /></>
+  }
   if (isPublicRoute) {
     // Public job board renders directly (no ClientOnly boundary): the jobs
     // page and job detail page are SSR-safe (all browser APIs are guarded), so
