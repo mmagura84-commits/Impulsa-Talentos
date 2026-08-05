@@ -58,7 +58,14 @@ export function useProfileCompletion(profile: Profile | undefined | null): Profi
       return { percent: 0, fields: [], missingLabels: [], completed: 0, total: 0 }
     }
 
-    const career = parseCareerPrefs(profile.bio)
+    const legacyCareer = parseCareerPrefs(profile.bio)
+    const career = {
+      positionTitle: profile.desiredRole ?? legacyCareer.positionTitle,
+      yearsOfExperience: profile.experienceYears != null ? String(profile.experienceYears) : legacyCareer.yearsOfExperience,
+      desiredSalaryMin: profile.desiredSalaryMin != null ? String(profile.desiredSalaryMin) : legacyCareer.desiredSalaryMin,
+      desiredSalaryMax: profile.desiredSalaryMax != null ? String(profile.desiredSalaryMax) : legacyCareer.desiredSalaryMax,
+      preferredLocationType: legacyCareer.preferredLocationType,
+    }
 
     // Extract the real bio text (strip the career JSON block)
     const realBio = profile.bio?.replace(/---career\n[\s\S]*?\n---\n?/, '').trim() ?? ''
