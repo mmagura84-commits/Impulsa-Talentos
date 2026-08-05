@@ -71,9 +71,15 @@ export function useAuth() {
 /** Admin gate: checks whether the current user's profile has role === 'admin'. */
 export function useIsAdmin(): boolean {
   const { user, isAuthenticated, isLoading } = useAuth()
-  const { data: profile } = useProfile(
-    isAuthenticated && !isLoading ? user?.id : undefined,
-  )
+  const { data: profile } = useProfile(isAuthenticated && !isLoading ? user?.id : undefined)
   if (!isAuthenticated || isLoading) return false
   return profile?.role === 'admin'
+}
+
+/** Managing director gate: checks whether the current user's profile has role === 'md'. */
+export function useIsMd(): boolean {
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const { data: profile } = useProfile(isAuthenticated && !isLoading ? user?.id : undefined)
+  if (!isAuthenticated || isLoading) return false
+  return profile?.role === 'md'
 }

@@ -392,6 +392,8 @@ const es: Dict = {
   'employers.footerTitle': '¿Listo para encontrar tu próximo talento?',
   'pricing.leadTitle': 'Desbloquea los precios para empleadores', 'pricing.leadEmail': 'Correo laboral', 'pricing.leadPhone': 'Teléfono', 'pricing.leadName': 'Tu nombre', 'pricing.leadCompany': 'Empresa', 'pricing.leadSubmit': 'Ver precios', 'pricing.leadSubmitting': 'Enviando…', 'pricing.leadError': 'No pudimos guardar tus datos. Intenta de nuevo.',
   'hq.leadsTitle': 'Leads de empleadores', 'hq.leadsAdminOnly': 'Se requiere acceso de administrador para ver los leads.',
+  'profile.role.md': 'Director General',
+  'md.title': 'Panel del Director General', 'md.pendingTitle': 'Aprobación pendiente', 'md.pendingDesc': 'Tu cuenta espera la aprobación del propietario.', 'md.welcome': 'Bienvenido a tu espacio de crecimiento empresarial.', 'md.nav.dashboard': 'Panel', 'md.nav.marketing': 'Canales de marketing', 'md.nav.messages': 'Mensajes', 'md.nav.banking': 'Banca', 'profile.role.mdDesc': 'Gestiona el crecimiento, las alianzas y las operaciones del negocio.',
   'profile.employer.meeting.title': 'Configuración de reuniones', 'profile.employer.meeting.desc': 'Establece tu enlace de videoconferencia predeterminado para entrevistas.', 'profile.employer.meeting.providerLabel': 'Proveedor', 'profile.employer.meeting.providerPlaceholder': 'Seleccionar proveedor...', 'profile.employer.meeting.linkLabel': 'Enlace de reunión', 'profile.employer.meeting.linkPlaceholder': 'https://meet.google.com/...', 'profile.employer.meeting.saved': 'Configuración de reuniones guardada'
 }
 
