@@ -1,0 +1,1 @@
+import{Qt as e,Zt as t}from"./index-D7NRld2Q.js";var n=e();function r({children:e,fallback:r=null}){return(0,n.jsx)(t,{fallback:r,children:e})}export{r as t};

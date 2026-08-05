@@ -31,6 +31,7 @@ const es: Dict = {
   // Navbar
   'nav.forCandidates': 'Para Candidatos',
   'nav.forEmployers': 'Para Empresas',
+  'nav.companies': 'Empresas',
   'nav.jobs': 'Empleos',
   'nav.savedJobs': 'Empleos guardados',
   'savedJobs.apply': 'Postularme',

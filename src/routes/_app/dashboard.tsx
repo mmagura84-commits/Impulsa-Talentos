@@ -17,13 +17,18 @@ export const Route = createFileRoute('/_app/dashboard')({
  *   • admins     → /hq          (platform moderation & overview)
  */
 function DashboardRedirect() {
-  const { user } = useAuth()
-  const { data: profile, isLoading } = useProfile(user?.id)
+  const { user, isLoading: authLoading } = useAuth()
+  const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
   const { t } = useI18n()
   const navigate = useNavigate()
 
+  // Wait for BOTH auth and profile to resolve before redirecting.
+  // Without the authLoading gate, the effect fires when useProfile is
+  // disabled (user === undefined, isLoading === false) and defaults
+  // to /candidate — causing a bounce for non-candidate users:
+  //   /dashboard → /candidate → /dashboard → /employer.
   useEffect(() => {
-    if (isLoading) return
+    if (authLoading || profileLoading) return
     const role = profile?.role ?? 'candidate'
     const target =
       role === 'admin' ? '/hq'
@@ -31,7 +36,7 @@ function DashboardRedirect() {
       : role === 'employer' ? '/employer'
       : '/candidate'
     navigate({ to: target, replace: true })
-  }, [isLoading, profile?.role, navigate])
+  }, [authLoading, profileLoading, profile?.role, navigate])
 
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">

@@ -1,0 +1,1 @@
+import{n as e,r as t,t as n}from"../server.js";var r=n({method:`POST`}).handler((n=>{let r=`/_serverFn/`+n;return Object.assign(async(...e)=>(await t(n,{origin:`server`}))(...e),{url:r,serverFnMeta:{id:n},[e]:!0})})(`0e41b2a40654e26175ddfbfa7f1dd7dc3929050bf12536d3a6a91ca3bf920425`));async function i(e){await r({data:e})}export{i as t};

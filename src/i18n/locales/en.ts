@@ -32,6 +32,7 @@ const en: Dict = {
   // Navbar
   'nav.forCandidates': 'For Candidates',
   'nav.forEmployers': 'For Employers',
+  'nav.companies': 'Companies',
   'nav.jobs': 'Jobs',
   'nav.savedJobs': 'Saved Jobs',
   'savedJobs.apply': 'Apply',

@@ -1,0 +1,1 @@
+import{createFileRoute as e,lazyRouteComponent as t}from"@tanstack/react-router";var n=e(`/_app/apply/$id/confirm`)({component:t(()=>import(`./apply._id.confirm-Bs1tjoAB.js`),`component`),validateSearch:e=>({appId:typeof e.appId==`string`?e.appId:void 0})});export{n as t};

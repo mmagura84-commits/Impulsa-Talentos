@@ -1,0 +1,1 @@
+import{ClientOnly as e}from"@tanstack/react-router";import{jsx as t}from"react/jsx-runtime";function n({children:n,fallback:r=null}){return t(e,{fallback:r})}export{n as t};
