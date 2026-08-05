@@ -36,6 +36,7 @@ const en: Dict = {
   'nav.savedJobs': 'Saved Jobs',
   'nav.myApplications': 'My Applications',
   'nav.myJobs': 'My Job Postings',
+  'nav.pricing': 'Pricing',
   'nav.roleAdmin': 'Admin',
   'nav.roleEmployer': 'Employer',
   'nav.roleCandidate': 'Candidate',

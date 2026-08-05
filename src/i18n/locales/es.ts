@@ -35,6 +35,7 @@ const es: Dict = {
   'nav.savedJobs': 'Empleos guardados',
   'nav.myApplications': 'Mis postulaciones',
   'nav.myJobs': 'Mis vacantes',
+  'nav.pricing': 'Precios',
   'nav.roleAdmin': 'Admin',
   'nav.roleEmployer': 'Empleador',
   'nav.roleCandidate': 'Candidato',

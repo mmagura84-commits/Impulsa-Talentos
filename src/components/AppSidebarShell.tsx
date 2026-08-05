@@ -22,6 +22,7 @@ import {
   Shield,
   Heart,
   FileText,
+  DollarSign,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
@@ -58,6 +59,7 @@ export const EMPLOYER_NAV: NavItemDef[] = [
   { to: '/employer', icon: <LayoutDashboard className="size-4" />, labelKey: 'common.dashboard' },
   { to: '/employer/jobs', icon: <Briefcase className="size-4" />, labelKey: 'nav.myJobs' },
   { to: '/employer/post-job', icon: <PlusCircle className="size-4" />, labelKey: 'postJob.step2.title' },
+  { to: '/pricing', icon: <DollarSign className="size-4" />, labelKey: 'nav.pricing' },
   { to: '/profile', icon: <User className="size-4" />, labelKey: 'common.profile' },
 ]
 
