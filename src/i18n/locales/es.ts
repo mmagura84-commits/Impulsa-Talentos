@@ -391,7 +391,8 @@ const es: Dict = {
   'employers.pricingTitle': 'Empieza gratis', 'employers.pricingDesc': 'Obtén 2 créditos incluidos. Las vacantes adicionales empiezan en $49.', 'employers.pricingCta': 'Ver precios',
   'employers.footerTitle': '¿Listo para encontrar tu próximo talento?',
   'pricing.leadTitle': 'Desbloquea los precios para empleadores', 'pricing.leadEmail': 'Correo laboral', 'pricing.leadPhone': 'Teléfono', 'pricing.leadName': 'Tu nombre', 'pricing.leadCompany': 'Empresa', 'pricing.leadSubmit': 'Ver precios', 'pricing.leadSubmitting': 'Enviando…', 'pricing.leadError': 'No pudimos guardar tus datos. Intenta de nuevo.',
-  'hq.leadsTitle': 'Leads de empleadores', 'hq.leadsAdminOnly': 'Se requiere acceso de administrador para ver los leads.'
+  'hq.leadsTitle': 'Leads de empleadores', 'hq.leadsAdminOnly': 'Se requiere acceso de administrador para ver los leads.',
+  'profile.employer.meeting.title': 'Configuración de reuniones', 'profile.employer.meeting.desc': 'Establece tu enlace de videoconferencia predeterminado para entrevistas.', 'profile.employer.meeting.providerLabel': 'Proveedor', 'profile.employer.meeting.providerPlaceholder': 'Seleccionar proveedor...', 'profile.employer.meeting.linkLabel': 'Enlace de reunión', 'profile.employer.meeting.linkPlaceholder': 'https://meet.google.com/...', 'profile.employer.meeting.saved': 'Configuración de reuniones guardada'
 }
 
 export default es

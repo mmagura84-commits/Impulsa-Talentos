@@ -20,6 +20,7 @@ import { supabase } from '@/lib/supabase'
 import type { AppUser } from '@/hooks/useAuth'
 import {
   User,
+  Video,
   Save,
   MapPin,
   Phone,
@@ -85,6 +86,8 @@ const EMPTY_FORM = {
   desiredSalaryMin: '',
   desiredSalaryMax: '',
   preferredLocationType: '',
+  meetingProvider: '',
+  meetingLink: '',
 }
 
 const MAX_AVATAR_BYTES = 4 * 1024 * 1024
@@ -308,6 +311,8 @@ function ProfilePage() {
         desiredSalaryMin: profile.desiredSalaryMin?.toString() ?? '',
         desiredSalaryMax: profile.desiredSalaryMax?.toString() ?? '',
         preferredLocationType: '',
+        meetingProvider: profile.meetingProvider ?? '',
+        meetingLink: profile.meetingLink ?? '',
       })
     } else if (!isLoading && !hydrated) {
       setForm({
@@ -326,6 +331,8 @@ function ProfilePage() {
         desiredSalaryMin: '',
         desiredSalaryMax: '',
         preferredLocationType: '',
+        meetingProvider: '',
+        meetingLink: '',
       })
     }
     setHydrated(true)
@@ -413,6 +420,8 @@ function ProfilePage() {
             experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
             desiredSalaryMin: form.desiredSalaryMin ? Number(form.desiredSalaryMin) : undefined,
             desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
+            meetingProvider: form.meetingProvider || undefined,
+            meetingLink: form.meetingLink.trim() || undefined,
             ...(profile.avatarUrl ? {} : { avatarUrl: form.avatarUrl || undefined }),
           },
         })
@@ -434,6 +443,8 @@ function ProfilePage() {
           experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
           desiredSalaryMin: form.desiredSalaryMin ? Number(form.desiredSalaryMin) : undefined,
           desiredSalaryMax: form.desiredSalaryMax ? Number(form.desiredSalaryMax) : undefined,
+          meetingProvider: form.meetingProvider || undefined,
+          meetingLink: form.meetingLink.trim() || undefined,
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
       }
@@ -861,6 +872,15 @@ function ProfilePage() {
             {/* Company affiliation — employer only */}
             <FadeIn delay={0.08}>
               <EmployerCompanyCard employerId={user?.id ?? ''} companyId={profile ? '' : undefined} />
+            </FadeIn>
+            <FadeIn delay={0.1}>
+              <Card className="mb-6">
+                <CardHeader><CardTitle className="text-lg flex items-center gap-2"><Video className="size-5 text-primary" /> {t('profile.employer.meeting.title')}</CardTitle><CardDescription>{t('profile.employer.meeting.desc')}</CardDescription></CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="space-y-2"><Label htmlFor="meetingProvider">{t('profile.employer.meeting.providerLabel')}</Label><select id="meetingProvider" value={form.meetingProvider} onChange={e => update('meetingProvider', e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="">{t('profile.employer.meeting.providerPlaceholder')}</option><option value="zoom">Zoom</option><option value="meet">Google Meet</option><option value="teams">Microsoft Teams</option><option value="manual">Manual</option></select></div>
+                  <div className="space-y-2"><Label htmlFor="meetingLink">{t('profile.employer.meeting.linkLabel')}</Label><Input id="meetingLink" type="url" value={form.meetingLink} onChange={e => update('meetingLink', e.target.value)} placeholder={t('profile.employer.meeting.linkPlaceholder')} /></div>
+                </CardContent>
+              </Card>
             </FadeIn>
           </>
         )}
