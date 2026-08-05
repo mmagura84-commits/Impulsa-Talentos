@@ -7,7 +7,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/emailSender'
 
-const NOTIFY_EMAIL = 'info@impulsatalentos.expert'
+const NOTIFY_EMAIL = 'partners@impulsatalentos.expert'
 
 function buildLeadEmail(form: { email: string; phone: string; name: string; company: string }) {
   const name = form.name || '(not provided)'

@@ -11,7 +11,7 @@ export interface EmailPayload {
 }
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM = 'Impulsa Talentos <info@impulsatalentos.expert>'
+const FROM = 'Impulsa Talentos <partners@impulsatalentos.expert>'
 
 export async function sendEmail(payload: EmailPayload): Promise<void> {
   const key = import.meta.env.VITE_RESEND_API_KEY

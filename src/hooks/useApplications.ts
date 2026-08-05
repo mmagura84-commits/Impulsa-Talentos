@@ -3,7 +3,7 @@ import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows 
 import type { Application, Job, Profile } from '@/types'
 import { sendEmail } from '@/lib/emailSender'
 
-const NOTIFY_EMAIL = 'info@impulsatalentos.expert'
+const NOTIFY_EMAIL = 'partners@impulsatalentos.expert'
 
 
 // ─── Query key factories ───
