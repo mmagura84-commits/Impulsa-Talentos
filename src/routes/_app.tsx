@@ -24,8 +24,8 @@ import { PublicHeader } from '@/components/PublicHeader'
  */
 function AppLayout() {
   const matchRoute = useMatchRoute()
-  const { user } = useAuth()
-  const { data: profile } = useProfile(user?.id)
+  const { user, isLoading: authLoading } = useAuth()
+  const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
   // Check if the currently matched route is one of the public ones.
   // We check by full path (the public URLs) so we don't have to
   // know the internal route id at the call site. Only unauthenticated
@@ -42,11 +42,13 @@ function AppLayout() {
     return <><PublicHeader transparentOnTop={false} /><Outlet /></>
   }
 
+  // Never choose a workspace chrome while auth/profile is unresolved. This
+  // prevents an MD session from briefly receiving candidate navigation during
+  // the profile query, which can make the wrong dashboard appear on redirect.
+  if (authLoading || (user && profileLoading)) {
+    return <div className="flex items-center justify-center min-h-dvh"><div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" /></div>
+  }
   const role = profile?.role
-  // Candidate workspace by default; employers and admins get the
-  // employer sidebar (with the HQ link for admins). Users who haven't
-  // completed a profile default to the candidate view and are prompted
-  // to finish their profile from the candidate dashboard.
   const sidebar = role === 'md' ? <MdSidebar /> : role === 'employer' || role === 'admin' ? <EmployerSidebar /> : <CandidateSidebar />
 
   return (
