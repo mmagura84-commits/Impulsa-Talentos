@@ -130,6 +130,10 @@ const es: Dict = {
   'auth.fallback.employerDashboardDesc': 'Publica vacantes, gestiona postulaciones y revisa candidatos para tu empresa.',
   'auth.fallback.employerJobs': 'Inicia sesión para gestionar tus vacantes',
   'auth.fallback.employerJobsDesc': 'Revisa, edita y gestiona los candidatos de tus puestos activos.',
+  'auth.fallback.apply': 'Inicia sesión para aplicar',
+  'auth.fallback.applyDesc': 'Crea una cuenta o inicia sesión para postularte a esta posición.',
+  'apply.accessDenied': 'Solo candidatos pueden aplicar',
+  'apply.accessDeniedDesc': 'Las cuentas de empleador y administrador no pueden postularse. Cambia a una cuenta de candidato para aplicar.',
 
   // Mobile app (phone-first)
   'mobile.appName': 'Impulsa',

@@ -1,9 +1,12 @@
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
-import { useRef, type ReactNode } from 'react'
+import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-router'
+import { useLayoutEffect, useRef, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthGate } from '@/components/AuthGate'
+import { useAuth } from '@/hooks/useAuth'
+import { useProfile } from '@/hooks/useProfile'
+import { toast } from 'sonner'
 import { useJob, useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApplicationById } from '@/hooks/useApplications'
@@ -81,6 +84,18 @@ function ApplyConfirmPage() {
   const { data: allJobs } = useJobs()
   const { t } = useI18n()
 
+
+  /* ── Candidate-only gate: redirect non-candidates ── */
+  const { user } = useAuth()
+  const { data: profile } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useLayoutEffect(() => {
+    if (!profile) return
+    if (profile.role !== 'candidate') {
+      toast.error(t('apply.accessDenied'), { description: t('apply.accessDeniedDesc') })
+      navigate({ to: '/jobs/' + id, replace: true })
+    }
+  }, [profile, navigate, id, t])
   const isLoading = appLoading || jobLoading
 
   const similarJobs: Job[] = (allJobs ?? [])
@@ -89,7 +104,7 @@ function ApplyConfirmPage() {
 
   if (isLoading) {
     return (
-      <AuthGate>
+      <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
         <div className="p-6 max-w-3xl mx-auto">
           <div className="h-20 w-20 rounded-full bg-muted animate-pulse mx-auto mb-6" />
           <div className="h-8 w-64 rounded bg-muted animate-pulse mx-auto mb-3" />
@@ -105,7 +120,7 @@ function ApplyConfirmPage() {
   const coverNote = extractCoverNote(app?.coverLetter)
 
   return (
-    <AuthGate>
+    <AuthGate fallbackKey="auth.fallback.apply" fallbackDescKey="auth.fallback.applyDesc">
       <div className="p-6 max-w-3xl mx-auto">
         {/* Hero: success state */}
         <FadeIn>
