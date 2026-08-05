@@ -1,6 +1,9 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
-import type { Application } from '@/types'
+import type { Application, Job, Profile } from '@/types'
+import { sendEmail } from '@/lib/emailSender'
+
+const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
 
 // ─── Query key factories ───
@@ -135,7 +138,7 @@ export function useApply() {
         status: 'pending',
       })
     },
-    onSuccess: (_result, variables) => {
+    onSuccess: async (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all })
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byCandidate(variables.candidateId),
@@ -143,7 +146,25 @@ export function useApply() {
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byJob(variables.jobId),
       })
+
+      notifyJobsOfApplication(variables.jobId, variables.candidateId).catch(e =>
+        console.warn('[useApply] jobs@ notification failed:', e)
+      )
     },
+  })
+}
+
+async function notifyJobsOfApplication(jobId: string, candidateId: string) {
+  const job = await getRow<Job>('jobs', jobId)
+  if (!job) return
+  const candidate = await getRow<Profile>('profiles', candidateId)
+  const candidateName = candidate?.fullName || 'A candidate'
+
+  await sendEmail({
+    to: JOBS_EMAIL,
+    subject: `[New Application] ${candidateName} → ${job.title}`,
+    text: `${candidateName} applied for "${job.title}".`,
+    html: `<p><strong>${candidateName}</strong> applied for <strong>${job.title}</strong>.</p>`,
   })
 }
 

@@ -1,6 +1,6 @@
 /**
  * Application notifications — fires the candidate confirmation email
- * after a successful apply.
+ * and a lightweight heads-up to jobs@ after a successful apply.
  *
  * Employers are NEVER emailed directly. They review applications
  * exclusively through their Impulsa Talentos dashboard.
@@ -14,8 +14,10 @@ import {
   type CandidateEmailInput,
 } from '@/lib/emailTemplates'
 import type { Application, Job, Company } from '@/types'
-import { getRow } from '@/lib/supabase'
+import { getRow, countRows } from '@/lib/supabase'
 import type { Locale } from '@/lib/emailTemplates'
+
+const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
 // Re-export for callers
 export type { Locale }
@@ -23,17 +25,11 @@ export type { Locale }
 export interface NotificationContext {
   app: Application
   job: Job
-  /** Lookup of the candidate's profile. */
   candidateProfile: { fullName?: string; email?: string; notificationPrefs?: { applicationUpdates?: boolean } } | null
-  /** Locale to render the emails in. */
   locale: Locale
-  /** Public dashboard URL for the candidate. */
   dashboardUrl: string
-  /** Public jobs list URL. */
   jobsUrl: string
-  /** Resume public URL (file upload or link) if any. */
   resumeUrl: string | null
-  /** Cover note as the candidate typed it. */
   coverNote: string
 }
 
@@ -42,75 +38,58 @@ interface SendOutcome {
 }
 
 /**
- * Dispatch the candidate confirmation email.
+ * Dispatch the candidate confirmation email + jobs@ notification.
  * Always returns an outcome object — never throws.
- *
- * Employers are NOT emailed. They discover applications in their dashboard.
- * The platform (partners@) is NOT notified — that inbox is for employer
- * correspondence only (lead capture, inquiries).
  */
 export async function sendApplicationNotifications(
   ctx: NotificationContext,
 ): Promise<SendOutcome> {
-  const out: SendOutcome = {
-    candidate: { ok: false },
-  }
+  const out: SendOutcome = { candidate: { ok: false } }
 
   try {
-    const candidateName =
-      ctx.candidateProfile?.fullName?.trim() ||
-      'Candidate'
+    const candidateName = ctx.candidateProfile?.fullName?.trim() || 'Candidate'
     const candidateEmail = ctx.candidateProfile?.email?.trim() || undefined
-    const candidateOptedOut =
-      ctx.candidateProfile?.notificationPrefs?.applicationUpdates === false
+    const candidateOptedOut = ctx.candidateProfile?.notificationPrefs?.applicationUpdates === false
 
+    // 1. Candidate confirmation
     if (candidateEmail && !candidateOptedOut) {
       const input: CandidateEmailInput = {
-        locale: ctx.locale,
-        app: ctx.app,
-        job: ctx.job,
+        locale: ctx.locale, app: ctx.app, job: ctx.job,
         companyName: await resolveCompanyName(ctx.job.companyId),
-        candidateName,
-        candidateEmail,
-        resumeUrl: ctx.resumeUrl,
-        coverNote: ctx.coverNote,
-        dashboardUrl: ctx.dashboardUrl,
-        jobsUrl: ctx.jobsUrl,
+        candidateName, candidateEmail,
+        resumeUrl: ctx.resumeUrl, coverNote: ctx.coverNote,
+        dashboardUrl: ctx.dashboardUrl, jobsUrl: ctx.jobsUrl,
       }
-      const email = buildCandidateEmail(input)
       try {
-        await sendEmail({
-          to: candidateEmail,
-          subject: email.subject,
-          html: email.html,
-          text: email.text,
-        })
+        await sendEmail({ to: candidateEmail, subject: buildCandidateEmail(input).subject, html: buildCandidateEmail(input).html, text: buildCandidateEmail(input).text })
         out.candidate = { ok: true }
       } catch (err) {
         out.candidate = { ok: false, error: err instanceof Error ? err.message : String(err) }
         console.warn('[notifyApplication] candidate email failed', err)
       }
-    } else if (candidateEmail) {
-      out.candidate = { ok: false, error: 'candidate opted out of application emails' }
-    } else {
-      out.candidate = { ok: false, error: 'no candidate email on profile' }
     }
+
+    // 2. jobs@ notification (fire-and-forget)
+    const companyName = await resolveCompanyName(ctx.job.companyId)
+    const total = await countApplicationsForJob(ctx.job.id)
+    sendEmail({
+      to: JOBS_EMAIL,
+      subject: `[New Application] ${candidateName} → ${ctx.job.title} at ${companyName}`,
+      text: `${candidateName} applied for "${ctx.job.title}" at ${companyName}. Total apps: ${total}.`,
+      html: `<p><strong>${candidateName}</strong> applied for <strong>${ctx.job.title}</strong> at ${companyName}.</p><p>Total: ${total}</p>`,
+    }).catch(e => console.warn('[notifyApplication] jobs@ notification failed', e))
   } catch (err) {
     console.warn('[notifyApplication] unexpected error', err)
   }
   return out
 }
 
-/* ── Internal data lookups ─────────────────────────────── */
 async function fetchCompany(companyId: string): Promise<Company | null> {
-  try {
-    return (await getRow<Company>('companies', companyId)) ?? null
-  } catch {
-    return null
-  }
+  try { return (await getRow<Company>('companies', companyId)) ?? null } catch { return null }
 }
-
+async function countApplicationsForJob(jobId: string): Promise<number> {
+  try { return await countRows('applications', { jobId }) } catch { return 1 }
+}
 async function resolveCompanyName(companyId: string): Promise<string> {
-  const c = await fetchCompany(companyId)
-  return c?.name || 'the company'
+  const c = await fetchCompany(companyId); return c?.name || 'the company'
 }
