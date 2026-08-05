@@ -1,4 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -17,6 +18,10 @@ export const Route = createFileRoute('/_app/candidate/saved')({
 function SavedJobsPage() {
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (profile && profile.role !== 'candidate') navigate({ to: '/dashboard', replace: true })
+  }, [profile, navigate])
   const { data: savedJobs, isLoading } = useMySavedJobs(profile?.id)
   const { t } = useI18n()
 

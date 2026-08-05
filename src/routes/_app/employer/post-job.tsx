@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useRef, useState, type ReactNode } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useRef, useState, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -83,6 +83,10 @@ const EMPTY_COMPANY = {
 function PostJobPage() {
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (profile && profile.role !== 'employer') navigate({ to: '/dashboard', replace: true })
+  }, [profile, navigate])
   const { data: existingCompany, isLoading: companyLoading } = useCompany(user?.id)
   const { t } = useI18n()
 

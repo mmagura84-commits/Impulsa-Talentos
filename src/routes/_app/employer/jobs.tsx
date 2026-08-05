@@ -1,6 +1,8 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useEffect } from 'react'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
+import { useProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useCompany } from '@/hooks/useCompanies'
 import { useCompanyJobs } from '@/hooks/useJobs'
@@ -15,6 +17,11 @@ export const Route = createFileRoute('/_app/employer/jobs')({
 /** Employer workspace — full list of the employer's own job postings. */
 function EmployerJobsPage() {
   const { user } = useAuth()
+  const { data: profile } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (profile && profile.role !== 'employer') navigate({ to: '/dashboard', replace: true })
+  }, [profile, navigate])
   const { t } = useI18n()
   const { data: company, isLoading: companyLoading } = useCompany(user?.id)
   const { data: jobs, isLoading: jobsLoading } = useCompanyJobs(company?.id)

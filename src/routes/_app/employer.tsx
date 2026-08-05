@@ -1,29 +1,28 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useEffect } from 'react'
-import { useAuth, useIsMd } from '@/hooks/useAuth'
+import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 
 /**
- * Pathless MD layout — role-gates every /md/* page.
- * Redirects non-MD users to /dashboard before any child content renders.
+ * Pathless employer layout — role-gates every /employer/* page.
+ * Redirects non-employers to /dashboard before any child content renders.
  */
-export const Route = createFileRoute('/_app/md')({
-  component: MdLayout,
+export const Route = createFileRoute('/_app/employer')({
+  component: EmployerLayout,
 })
 
-function MdLayout() {
+function EmployerLayout() {
   const { user } = useAuth()
-  const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
-  const isMd = useIsMd()
+  const { data: profile, isLoading } = useProfile(user?.id)
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (!profileLoading && !isMd) {
+    if (!isLoading && profile && profile.role !== 'employer') {
       navigate({ to: '/dashboard', replace: true })
     }
-  }, [profileLoading, isMd, navigate])
+  }, [isLoading, profile, navigate])
 
-  if (profileLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
