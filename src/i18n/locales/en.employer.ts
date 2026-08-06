@@ -54,6 +54,7 @@ const enEmployer: Dict = {
   'postJob.job.detailsCardDesc': 'Complete all fields to maximize match quality.',
   'postJob.job.publish': 'Publish Job',
   'postJob.job.publishing': 'Publishing...',
+  'postJob.job.saving': 'Saving...',
   'postJob.job.success': 'Job published',
   'postJob.job.successDesc': 'Our proprietary technology will analyze it to find the best matches.',
   'postJob.job.error': 'Could not publish job',

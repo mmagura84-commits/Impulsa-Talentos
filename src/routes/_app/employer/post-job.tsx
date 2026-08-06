@@ -28,8 +28,10 @@ import {
   Send,
   Building2,
   AlertCircle,
+  BadgeCheck,
   CheckCircle2,
   ChevronRight,
+  Clock,
   Mail,
   Save,
   Sparkles,
@@ -445,6 +447,59 @@ function PostJobPage() {
                   <Button asChild className="mt-5">
                     <Link to="/pricing">{t('postJob.credits.cta')}</Link>
                   </Button>
+                </CardContent>
+              </Card>
+            </FadeIn>
+          </div>
+        </AuthGate>
+      )
+    }
+
+    // Verification gate: unverified companies cannot publish jobs.
+    // Drafts are still allowed so employers can prepare listings while awaiting approval.
+    if (existingCompany && !existingCompany.verified) {
+      const isRequested = !!existingCompany.verificationRequested
+      return (
+        <AuthGate>
+          <div className="p-6 max-w-3xl mx-auto">
+            <FadeIn>
+              <div className="mb-8">
+                <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('postJob.step2.kicker')}</p>
+                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+                  <PlusCircle className="size-7 text-primary" />
+                  {t('postJob.step2.title')}
+                </h1>
+              </div>
+            </FadeIn>
+            <FadeIn delay={0.05}>
+              <Card className="border-amber-500/30">
+                <CardContent className="py-10 text-center">
+                  <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full mb-3 ${isRequested ? 'bg-amber-500/10' : 'bg-destructive/10'}`}>
+                    {isRequested
+                      ? <Clock className="size-6 text-amber-600" />
+                      : <BadgeCheck className="size-6 text-destructive" />
+                    }
+                  </div>
+                  <p className="font-medium text-foreground">{isRequested ? t('verification.pendingPublishTitle') : t('verification.unverifiedPublishTitle')}</p>
+                  <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">{isRequested ? t('verification.pendingPublishDesc') : t('verification.unverifiedPublishDesc')}</p>
+                  <div className="mt-5 flex items-center justify-center gap-3 flex-wrap">
+                    <Button variant="outline" size="sm" asChild className="gap-1.5">
+                      <Link to="/employer">
+                        <BadgeCheck className="size-3.5" />
+                        {isRequested ? t('common.back') : t('verification.request')}
+                      </Link>
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="gap-1.5"
+                      disabled={createJob.isPending}
+                      onClick={() => handleCreateJob('draft')}
+                    >
+                      <Save className="size-3.5" />
+                      {createJob.isPending ? t('postJob.job.saving') : t('postJob.job.saveAsDraft')}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </FadeIn>
