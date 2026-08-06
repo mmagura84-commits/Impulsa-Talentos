@@ -40,6 +40,7 @@ create table if not exists public.companies (
   contact_email text,
   verified boolean not null default false,
   verification_requested boolean not null default false,
+  -- NOTE: Must match NEW_COMPANY_TRIAL_CREDITS in src/lib/pricing.ts (currently 2).
   job_credits integer not null default 2,
   created_at timestamptz not null default now()
 );
@@ -74,6 +75,7 @@ create index if not exists jobs_created_at_idx on public.jobs (created_at desc);
 create table if not exists public.applications (
   id uuid primary key default gen_random_uuid(),
   job_id uuid not null references public.jobs(id) on delete cascade,
+  -- NOTE: Migration 012 fixes candidate_id to uuid + FK. Code passes profiles.id.
   candidate_id text not null,
   status text not null default 'pending' check (status in ('pending','reviewed','interview','offered','hired','rejected')),
   cover_letter text,
@@ -89,6 +91,7 @@ create unique index if not exists applications_job_candidate_uniq on public.appl
 -- ── saved_jobs ───────────────────────────────────────────────────────────────
 create table if not exists public.saved_jobs (
   id uuid primary key default gen_random_uuid(),
+  -- NOTE: Migration 012 fixes candidate_id to uuid + FK. Code passes profiles.id.
   candidate_id text not null,
   job_id uuid not null references public.jobs(id) on delete cascade,
   created_at timestamptz not null default now(),
