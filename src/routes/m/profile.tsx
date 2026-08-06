@@ -209,9 +209,9 @@ function MobileProfile() {
               onClick={() => avatarInputRef.current?.click()}
               className="relative h-24 w-24 rounded-full ring-2 ring-border overflow-hidden active:opacity-80"
             >
-              {form.avatarUrl ? (
+              {avatarDisplayUrl ? (
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={form.avatarUrl} alt={form.fullName} />
+                  <AvatarImage src={avatarDisplayUrl} alt={form.fullName} />
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary font-serif">
                     {avatarInitial}
                   </AvatarFallback>

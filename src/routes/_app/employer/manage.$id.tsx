@@ -291,7 +291,8 @@ function ApplicationDrawer({
   const updateStatus = useUpdateApplicationStatus()
   const [pending, setPending] = useState<Application['status'] | null>(null)
 
-  const resumeUrl = extractResumeUrl(app.coverLetter)
+  const resumePointer = extractResumeUrl(app.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
 
