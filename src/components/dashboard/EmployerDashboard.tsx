@@ -292,7 +292,7 @@ export function EmployerDashboard({ employerId }: { employerId: string }) {
 function RecentActivityRow({ app }: { app: { id: string; candidateId: string; status: string; createdAt: string } }) {
   const { data: profile } = useProfileById(app.candidateId)
   const { t } = useI18n()
-  const displayName = profile?.fullName ?? app.candidateId.slice(0, 8)
+  const displayName = profile?.fullName ?? `${t('dashboard.candidateFallback')} ${app.candidateId.slice(0, 6)}`
   return (
     <div className="flex items-center justify-between rounded border p-3 text-sm">
       <span className="font-medium truncate">{displayName}</span>

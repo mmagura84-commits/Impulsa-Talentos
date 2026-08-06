@@ -46,6 +46,7 @@ const enDashboard: Dict = {
   'dashboard.noCompany': 'You haven\'t registered your company yet. Complete the first step to post jobs.',
   'dashboard.noEmployerJobs': 'You haven\'t posted any jobs yet.',
   'dashboard.firstJob': 'Post your first job',
+  'dashboard.candidateFallback': 'Candidate',
   'dashboard.loading': 'Loading your dashboard...',
   'dashboard.needProfile.title': 'Complete your profile to continue',
   'dashboard.needProfile.desc': 'We need a few basic details before showing you applications or personalized matches.',

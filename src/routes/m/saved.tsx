@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import type { Job } from '@/types'
 
 export const Route = createFileRoute('/m/saved')({
@@ -135,7 +136,7 @@ function SavedJobRow({
         </p>
         <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-muted-foreground">
           <span className="inline-flex items-center gap-1">
-            <MapPin className="size-3" /> {job.locationType}
+            <MapPin className="size-3" /> {formatLocationType(job.locationType, t)}
           </span>
           <span className="text-accent font-semibold truncate">{salary}</span>
         </div>

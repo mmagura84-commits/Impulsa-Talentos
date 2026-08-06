@@ -148,7 +148,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? 'Signing in…' : 'Sign in with password'}
+                  {sending ? t('auth.signingIn') : t('auth.signInWithPassword')}
                 </Button>
               </form>
             ) : (
@@ -171,7 +171,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim()} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? 'Sending…' : t('auth.signInCta')}
+                  {sending ? t('auth.sending') : t('auth.signInCta')}
                 </Button>
               </form>
             )}
@@ -180,14 +180,14 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
               onClick={() => { setUsePassword(!usePassword); setSent(false); setErrorMsg('') }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
-              {usePassword ? 'Send magic link instead' : 'Sign in with password instead'}
+              {usePassword ? t('auth.sendMagicInstead') : t('auth.signInPasswordInstead')}
             </button>
             <button
               type="button"
               onClick={() => setShowReset(true)}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer block"
             >
-              Forgot your password?
+              {t('auth.forgotPassword')}
             </button>
             <div className="flex justify-center pt-1">
               <LanguageToggle compact />

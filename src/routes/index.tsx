@@ -29,6 +29,7 @@ import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useAllJobs } from '@/hooks/useJobs'
 import { useAllCompanies } from '@/hooks/useCompanies'
 import { BrandMark } from '@/components/BrandMark'
@@ -181,7 +182,7 @@ function JobFeedPreview() {
     const salary = job.currency === 'USD' ? `$${job.salaryMin.toLocaleString()}–$${job.salaryMax.toLocaleString()}` : `${job.currency} ${job.salaryMin.toLocaleString()}–${job.salaryMax.toLocaleString()}`
     return <Link to="/jobs/$id" params={{ id: job.id }} className="group flex items-start gap-3 p-4 transition-colors hover:bg-white/5">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-sm font-bold text-accent">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full rounded-lg object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
-      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p><p className="truncate text-xs text-white/60">{company?.name ?? 'Impulsa Talentos partner'}</p><div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/60"><span className="inline-flex items-center gap-1"><MapPin className="size-3" />{job.locationType}</span><span className="font-medium text-white/80">{salary}</span><span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{job.languagesRequired}</span></div></div><ArrowRight className="size-4 shrink-0 self-center text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p><p className="truncate text-xs text-white/60">{company?.name ?? 'Impulsa Talentos partner'}</p><div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/60"><span className="inline-flex items-center gap-1"><MapPin className="size-3" />{formatLocationType(job.locationType, t)}</span><span className="font-medium text-white/80">{salary}</span><span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></div></div><ArrowRight className="size-4 shrink-0 self-center text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
     </Link>
   }
   return <div data-testid="hero-live-feed" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} className="w-full overflow-hidden rounded-2xl border border-white/15 bg-black/35 shadow-2xl backdrop-blur-md" aria-label={t('landing.feedTitle')}>

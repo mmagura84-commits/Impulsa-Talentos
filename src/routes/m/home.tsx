@@ -20,6 +20,7 @@ import { useCompanyJobs, useJobs, useDeleteJob } from '@/hooks/useJobs'
 import { useMyApplications } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { rankJobs, type MatchScore } from '@/lib/matchScore'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -399,7 +400,7 @@ function SavedJobRow({ job, candidateId }: { job: Job; candidateId: string }) {
       <div className="min-w-0 flex-1">
         <p className="text-xs font-semibold text-foreground truncate">{job.title}</p>
         <p className="text-[10px] text-muted-foreground truncate">
-          {job.locationType} · {salary}
+          {formatLocationType(job.locationType, t)} · {salary}
         </p>
       </div>
       <button
@@ -445,7 +446,7 @@ function JobRow({ job, score }: { job: Job; score?: MatchScore }) {
           )}
         </div>
         <p className="text-[10px] text-muted-foreground truncate">
-          {job.locationType} · {formatPosted(job.createdAt, t)}
+          {formatLocationType(job.locationType, t)} · {formatPosted(job.createdAt, t)}
         </p>
       </div>
       <ArrowUpRight className="size-3.5 text-muted-foreground shrink-0" />

@@ -80,7 +80,7 @@ function EmployerJobsPage() {
                     <span className={`inline-block h-1.5 w-1.5 rounded-full ${
                       job.status === 'open' ? 'bg-emerald-500' : job.status === 'closed' ? 'bg-muted-foreground' : 'bg-amber-500'
                     }`} />
-                    {job.status}
+                    {['open', 'closed', 'draft'].includes(job.status) ? t(`dashboard.jobStatus.${job.status}`) : job.status}
                   </span>
                   {job.moderationStatus === 'pending' && (
                     <span className="text-xs text-amber-600">· {t('moderation.pending')}</span>

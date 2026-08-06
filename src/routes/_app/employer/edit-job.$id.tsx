@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useParams } from '@tanstack/react-router'
+import { createFileRoute, Link, useBlocker, useParams } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
@@ -7,12 +7,23 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthGate } from '@/components/AuthGate'
+import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany } from '@/hooks/useCompanies'
 import { useJob, useUpdateJob } from '@/hooks/useJobs'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import {
+  LOCATION_TYPES,
+  LOCATION_TYPE_KEYS,
+  LANGUAGE_LEVELS,
+  LANGUAGE_LEVEL_KEYS,
+  normalizeLanguageToken,
+  parseLocationType,
+  buildLocationType,
+  type LocationType,
+} from '@/lib/jobEnums'
 import {
   Pencil,
   Save,
@@ -47,12 +58,12 @@ const EMPTY_FORM = {
   title: '',
   description: '',
   level: 'Mid',
-  locationType: 'Remoto',
+  locationType: 'Remote',
   salaryMin: '',
   salaryMax: '',
   currency: 'COP',
   skillsRequired: '',
-  languagesRequired: 'Ingles B2+',
+  languagesRequired: 'English B2+',
   status: 'open' as 'open' | 'closed' | 'draft',
 }
 
@@ -127,7 +138,7 @@ function EditJobPage() {
           title: form.title,
           description: form.description,
           level: form.level,
-          locationType: form.locationType,
+          locationType: buildLocationType(form.locationType as LocationType, locationCity),
           salaryMin: Number.isFinite(salaryMin) ? salaryMin : 0,
           salaryMax: Number.isFinite(salaryMax) ? salaryMax : 0,
           currency: form.currency,
@@ -137,6 +148,7 @@ function EditJobPage() {
         },
       })
       setForm(prev => ({ ...prev, status: nextStatus }))
+      setDirty(false)
       toast.success(t('dashboard.jobUpdated'), {
         description: form.title,
       })
@@ -256,9 +268,7 @@ function EditJobPage() {
         <FadeIn delay={0.05}>
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <span className="font-mono text-xs text-muted-foreground">id: {job.id}</span>
-              </CardTitle>
+              <CardTitle className="text-lg">{t('editJob.title')}</CardTitle>
               <CardDescription>{job.title}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -269,7 +279,14 @@ function EditJobPage() {
                   value={form.title}
                   onChange={e => update('title', e.target.value)}
                   placeholder={t('postJob.job.titlePlaceholder')}
+                  aria-invalid={!!errors.title}
+                  aria-describedby={errors.title ? 'title-error' : undefined}
                 />
+                {errors.title && (
+                  <p id="title-error" role="alert" className="text-xs text-destructive">
+                    {errors.title}
+                  </p>
+                )}
               </div>
 
               <div className="space-y-2">
@@ -282,6 +299,11 @@ function EditJobPage() {
                   placeholder={t('postJob.job.descriptionPlaceholder')}
                   rows={8}
                 />
+                {errors.description && (
+                  <p id="description-error" role="alert" className="text-xs text-destructive">
+                    {errors.description}
+                  </p>
+                )}
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
@@ -306,8 +328,8 @@ function EditJobPage() {
                     onChange={e => update('locationType', e.target.value)}
                     className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
                   >
-                    {['Remoto', 'Hibrido', 'Presencial'].map(lt => (
-                      <option key={lt} value={lt}>{lt}</option>
+                    {LOCATION_TYPES.map(lt => (
+                      <option key={lt} value={lt}>{t(LOCATION_TYPE_KEYS[lt])}</option>
                     ))}
                   </select>
                 </div>
@@ -372,6 +394,11 @@ function EditJobPage() {
                   onChange={e => update('skillsRequired', e.target.value)}
                   placeholder={t('postJob.job.skillsPlaceholder')}
                 />
+                {errors.salary && (
+                  <p id="salary-error" role="alert" className="text-xs text-destructive">
+                    {errors.salary}
+                  </p>
+                )}
                 <p className="text-xs text-muted-foreground">{t('postJob.job.skillsHint')}</p>
               </div>
 
@@ -433,6 +460,15 @@ function EditJobPage() {
           </div>
         </FadeIn>
       </div>
+      <UnsavedChangesDialog
+        open={blocker.status === 'blocked'}
+        title={t('form.unsaved.title')}
+        description={t('form.unsaved.desc')}
+        confirmLabel={t('form.unsaved.leave')}
+        cancelLabel={t('form.unsaved.stay')}
+        onConfirm={() => blocker.proceed()}
+        onCancel={() => blocker.reset()}
+      />
     </AuthGate>
   )
 }

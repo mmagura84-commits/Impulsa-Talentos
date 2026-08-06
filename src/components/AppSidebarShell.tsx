@@ -81,6 +81,7 @@ function NavItem({ item, collapsed, label, accent }: { item: NavItemDef; collaps
         accent === 'ink' ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
         active && activeClass,
       )}
+      aria-current={active ? 'page' : undefined}
     >
       <span className="shrink-0">{item.icon}</span>
       {!collapsed && <span className="truncate">{label}</span>}

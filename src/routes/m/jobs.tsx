@@ -7,6 +7,7 @@ import { useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useSaveJob, useSavedJobIds } from '@/hooks/useSavedJobs'
@@ -185,7 +186,7 @@ function MobileJobCard({
       </div>
       <div className="mt-2.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
         <span className="inline-flex items-center gap-1">
-          <MapPin className="size-3" /> {job.locationType}
+          <MapPin className="size-3" /> {formatLocationType(job.locationType, t)}
         </span>
         {job.level && (
           <span className="inline-flex items-center gap-1">

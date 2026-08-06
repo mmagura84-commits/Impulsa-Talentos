@@ -9,6 +9,7 @@ import { useInfiniteJobs, JOBS_PAGE_SIZE, fetchJobsPage } from '@/hooks/useJobs'
 import { useCompanyById, fetchAllCompanies } from '@/hooks/useCompanies'
 import { INDUSTRIES } from '@/lib/industries'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { SocialShare } from '@/components/SocialShare'
 import { SaveJobButton } from '@/components/SaveJobButton'
 import {
@@ -160,7 +161,7 @@ function JobListItem({
           <CardContent className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
-                <MapPin className="size-3" /> {job.locationType}
+                <MapPin className="size-3" /> {formatLocationType(job.locationType, t)}
               </span>
               {job.level && (
                 <span className="flex items-center gap-1">
@@ -264,10 +265,10 @@ function JobsPage() {
       )
     }
     if (locationFilter) {
-      result = result.filter(j => (j.locationType || '').toLowerCase().includes(locationFilter.toLowerCase()))
+      result = result.filter(j => formatLocationType(j.locationType, t).toLowerCase().includes(locationFilter.toLowerCase()))
     }
     if (languageFilter) {
-      result = result.filter(j => (j.languagesRequired || '').toLowerCase().includes(languageFilter.toLowerCase()))
+      result = result.filter(j => formatLanguageList(j.languagesRequired, t).toLowerCase().includes(languageFilter.toLowerCase()))
     }
     if (industryFilter) {
       const canonical = INDUSTRIES.find(x => x.slug === industryFilter)?.canonical
@@ -280,7 +281,7 @@ function JobsPage() {
       }
     }
     return result
-  }, [loadedJobs, search, locationFilter, languageFilter, salaryFilter, industryFilter])
+  }, [loadedJobs, search, locationFilter, languageFilter, salaryFilter, industryFilter, t])
 
   const levels = useMemo(() => {
     if (!loadedJobs) return []
@@ -289,14 +290,14 @@ function JobsPage() {
 
   const locations = useMemo(() => {
     if (!loadedJobs) return []
-    return [...new Set(loadedJobs.map(j => j.locationType).filter(Boolean))]
+    return [...new Set(loadedJobs.map(j => formatLocationType(j.locationType, t)).filter(Boolean))]
   }, [loadedJobs])
 
   const languages = useMemo(() => {
     if (!loadedJobs) return []
     const all = new Set<string>()
     loadedJobs.forEach(j => {
-      (j.languagesRequired || '').split(/[,;|]/).map(s => s.trim()).filter(Boolean).forEach(l => all.add(l))
+      formatLanguageList(j.languagesRequired, t).split(/[,;|]/).map(s => s.trim()).filter(Boolean).forEach(l => all.add(l))
     })
     return [...all].sort()
   }, [loadedJobs])
@@ -305,8 +306,8 @@ function JobsPage() {
     let result = allJobs
     const s = search.trim().toLowerCase()
     if (s) result = result.filter(j => j.title.toLowerCase().includes(s) || (j.description ?? '').toLowerCase().includes(s))
-    if (locationFilter) result = result.filter(j => (j.locationType || '').toLowerCase().includes(locationFilter.toLowerCase()))
-    if (languageFilter) result = result.filter(j => (j.languagesRequired || '').toLowerCase().includes(languageFilter.toLowerCase()))
+    if (locationFilter) result = result.filter(j => formatLocationType(j.locationType, t).toLowerCase().includes(locationFilter.toLowerCase()))
+    if (languageFilter) result = result.filter(j => formatLanguageList(j.languagesRequired, t).toLowerCase().includes(languageFilter.toLowerCase()))
     if (industryFilter) {
       const canonical = INDUSTRIES.find(x => x.slug === industryFilter)?.canonical
       if (canonical) result = result.filter(j => j.industry === canonical)

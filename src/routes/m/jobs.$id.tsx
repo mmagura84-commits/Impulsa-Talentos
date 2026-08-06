@@ -8,6 +8,7 @@ import { useJob } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApply, useMyApplications } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useSaveJob, useSavedJobIds, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { sendApplicationNotifications } from '@/lib/notifyApplication'
 import { MarkdownPreview } from '@/components/MarkdownPreview'
@@ -163,11 +164,11 @@ function MobileJobDetail() {
 
         {/* Meta chips */}
         <div className="mt-4 grid grid-cols-2 gap-2 text-xs">
-          <MetaChip icon={MapPin} label={t('jobDetail.modality')} value={job.locationType} />
+          <MetaChip icon={MapPin} label={t('jobDetail.modality')} value={formatLocationType(job.locationType, t)} />
           {job.level && <MetaChip icon={Briefcase} label={t('jobDetail.level')} value={job.level} />}
           <MetaChip icon={DollarSign} label={t('jobDetail.salary')} value={salary} />
           {job.languagesRequired && (
-            <MetaChip icon={Globe} label={t('jobDetail.languages')} value={job.languagesRequired} />
+            <MetaChip icon={Globe} label={t('jobDetail.languages')} value={formatLanguageList(job.languagesRequired, t)} />
           )}
         </div>
 
