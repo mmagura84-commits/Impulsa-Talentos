@@ -120,8 +120,15 @@ export function useApply() {
           .from('cvs')
           .upload(path, resumeFile, { upsert: true })
         if (error) throw error
-        const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-        finalResumeUrl = pub.publicUrl
+        // CVs are private; use a time-limited signed URL rather than exposing
+        // a permanent public object URL in applications and notifications.
+        const { data: signed, error: signedError } = await supabase.storage
+          .from('cvs')
+          .createSignedUrl(path, 60 * 60 * 24 * 7)
+        if (signedError || !signed?.signedUrl) {
+          throw signedError ?? new Error('Could not secure uploaded resume')
+        }
+        finalResumeUrl = signed.signedUrl
       }
 
       // 2) Persist the application. coverLetter carries the resume URL when
