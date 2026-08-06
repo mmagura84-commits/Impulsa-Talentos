@@ -42,3 +42,31 @@ create policy "cvs_select_candidate_or_employer" on storage.objects
       or public.current_user_role() = 'admin'
     )
   );
+
+-- Legacy profile uploads use avatars/<auth-user-id>/... and cvs/<auth-user-id>/...
+-- Keep those objects private while allowing only their owner, an employer with
+-- an application for the candidate, or an admin to read.
+create policy "cvs_insert_profile_owned" on storage.objects
+  for insert to authenticated
+  with check (
+    bucket_id = 'cvs'
+    and (storage.foldername(name))[1] in ('avatars', 'cvs')
+    and exists (select 1 from public.profiles p where p.user_id = (storage.foldername(name))[2] and p.user_id = auth.uid()::text)
+  );
+create policy "cvs_select_profile_authorized" on storage.objects
+  for select to authenticated
+  using (
+    bucket_id = 'cvs'
+    and (storage.foldername(name))[1] in ('avatars', 'cvs')
+    and (
+      exists (select 1 from public.profiles p where p.user_id = (storage.foldername(name))[2] and p.user_id = auth.uid()::text)
+      or public.current_user_role() = 'admin'
+      or (storage.foldername(name))[1] = 'cvs' and exists (
+        select 1 from public.profiles p
+        join public.applications a on a.candidate_id = p.id
+        join public.jobs j on j.id = a.job_id
+        join public.companies c on c.id = j.company_id
+        where p.user_id = (storage.foldername(name))[2] and c.employer_id = auth.uid()::text
+      )
+    )
+  );
