@@ -1,0 +1,20 @@
+# robots.txt — served as a real static file so crawlers don't get the SPA shell.
+# The seo-aeo skill customizes this per app (block private/auth/api paths,
+# set the absolute Sitemap URL to the deployed domain).
+
+User-agent: *
+Allow: /
+
+# AI answer engines — allow retrieval/citation by default so the app can be
+# cited in ChatGPT / Perplexity / Claude / Google AI Overviews.
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+# Sitemap (absolute URL, regenerated at build time by scripts/generate-sitemap.mjs)
+Sitemap: https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/sitemap.xml

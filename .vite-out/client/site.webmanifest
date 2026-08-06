@@ -1,0 +1,13 @@
+{
+  "name": "Impulsa Talentos",
+  "short_name": "Impulsa",
+  "start_url": "/m",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#fafafa",
+  "theme_color": "#1f3a8a",
+  "description": "Bilingual talent platform connecting professionals in Colombia with local and international employers.",
+  "icons": [
+    { "src": "/favicon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

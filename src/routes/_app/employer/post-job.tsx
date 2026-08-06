@@ -92,10 +92,7 @@ const EMPTY_COMPANY = {
 function PostJobPage() {
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
-  const navigate = useNavigate()
-  useEffect(() => {
-    if (profile && profile.role !== 'employer') navigate({ to: '/dashboard', replace: true })
-  }, [profile, navigate])
+  // Role gate is handled by _app/employer.tsx layout — no per-page guard needed.
   const { data: existingCompany, isLoading: companyLoading } = useCompany(user?.id)
   const { t } = useI18n()
 
