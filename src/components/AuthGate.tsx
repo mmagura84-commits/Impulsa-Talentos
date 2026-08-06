@@ -52,7 +52,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
       await sendMagicLink(email.trim(), window.location.origin + returnPath)
       setSent(true)
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Could not send the link')
+      setErrorMsg(err instanceof Error ? err.message : t('auth.error.sendLink'))
     } finally {
       setSending(false)
     }
@@ -138,7 +138,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     type="email"
                     value={email}
                     onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
-                    placeholder="you@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="pl-9 text-center"
                     required
                     autoFocus
@@ -151,7 +151,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     type="password"
                     value={password}
                     onChange={e => { setPassword(e.target.value); setErrorMsg('') }}
-                    placeholder="Password"
+                    placeholder={t('auth.passwordPlaceholder')}
                     className="pl-9 text-center"
                     required
                     autoComplete="current-password"
@@ -173,7 +173,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     type="email"
                     value={email}
                     onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
-                    placeholder="you@example.com"
+                    placeholder={t('auth.emailPlaceholder')}
                     className="pl-9 text-center"
                     required
                     autoFocus
