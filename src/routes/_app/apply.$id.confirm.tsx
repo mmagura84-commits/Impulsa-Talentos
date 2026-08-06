@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
+import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { toast } from 'sonner'
 import { useJob, useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
@@ -117,7 +118,8 @@ function ApplyConfirmPage() {
   }
 
   const companyName = company?.name ?? t('jobDetail.confidential')
-  const resumeUrl = extractResumeUrl(app?.coverLetter)
+  const resumePointer = extractResumeUrl(app?.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app?.coverLetter)
 
   return (
