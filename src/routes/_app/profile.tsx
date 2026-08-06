@@ -278,9 +278,19 @@ function ProfilePage() {
   const updateProfile = useUpdateProfile()
   const { locale, t } = useI18n()
 
-  // Prevent role escalation: existing candidates cannot change their role
+  // Prevent role escalation: existing users cannot change their role
+  // New users (no profile) see candidate + employer. Existing users are locked.
+  // Admin and MD roles are only visible to users who already hold them.
   const effectiveRole = profile?.role ?? null
   const isCandidate = effectiveRole === 'candidate'
+  const isEmployer = effectiveRole === 'employer'
+  const isAdmin = effectiveRole === 'admin'
+  const isMd = effectiveRole === 'md'
+  const isRoleLocked = isCandidate || isEmployer || isAdmin || isMd
+  // New users see only candidate/employer; existing admins see admin; existing MDs see MD
+  const allowedRoles: Role[] = isRoleLocked
+    ? [effectiveRole as Role]
+    : ['candidate', 'employer']
 
   const [form, setForm] = useState(EMPTY_FORM)
   const [hydrated, setHydrated] = useState(false)
@@ -408,8 +418,8 @@ function ProfilePage() {
     if (!user) return
     if (!form.fullName.trim()) { toast.error(t('profile.nameRequired')); return }
     if (!consent) { toast.error(t('profile.consentRequired')); return }
-    // Prevent role escalation: force 'candidate' for existing candidate profiles
-    const saveRole = isCandidate ? 'candidate' : form.role
+    // Prevent role escalation: lock to existing role for all established profiles
+    const saveRole = isRoleLocked ? (effectiveRole as Role) : form.role
     try {
       if (profile) {
         await updateProfile.mutateAsync({
@@ -473,8 +483,8 @@ function ProfilePage() {
 
   const isPending = createProfile.isPending || updateProfile.isPending
   const avatarInitial = (form.fullName.trim().charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase()
-  // Lock the rendered role section for existing candidates — they always see candidate UI
-  const currentRole = isCandidate ? 'candidate' : form.role
+  // Lock the rendered role section for all established profiles
+  const currentRole = isRoleLocked ? (effectiveRole as Role) : form.role
 
   return (
     <AuthGate fallbackKey="auth.fallback.profile">
@@ -555,8 +565,8 @@ function ProfilePage() {
           </Card>
         </FadeIn>
 
-        {/* Role selector — hidden for existing candidates to prevent role escalation */}
-        {!isCandidate && (
+        {/* Role selector — hidden for established profiles to prevent role escalation */}
+        {!isRoleLocked && (
         <FadeIn delay={0.03}>
           <Card className="mb-6">
             <CardHeader>
@@ -566,8 +576,8 @@ function ProfilePage() {
               <CardDescription>{t('profile.role.desc')}</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                {(['candidate', 'employer', 'admin', 'md'] as Role[]).map(r => (
+              <div className="grid sm:grid-cols-2 gap-3">
+                {allowedRoles.map(r => (
                   <button key={r} type="button" onClick={() => update('role', r)}
                     className={`text-left rounded-lg border p-4 transition-all ${
                       form.role === r ? 'border-primary bg-primary/5 ring-1 ring-primary' : 'border-border hover:border-primary/40 hover:bg-accent/30'
