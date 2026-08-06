@@ -58,9 +58,10 @@ export const JOB_PACKAGES: JobPostingPackage[] = [
 /**
  * Free posting credits granted to every new company so the marketplace is
  * usable while Stripe is pending. Set to 0 when payments go live to make
- * every posting require a purchase.
+ * every posting require a purchase. NOTE: Must match companies.job_credits DB
+ * default in supabase/migrations/001_schema.sql:44.
  */
-export const NEW_COMPANY_TRIAL_CREDITS = 2
+ export const NEW_COMPANY_TRIAL_CREDITS = 2
 
 /** A posting consumes exactly one credit. */
 export const CREDITS_PER_POSTING = 1
