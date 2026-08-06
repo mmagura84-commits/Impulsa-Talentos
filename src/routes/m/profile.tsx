@@ -24,7 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
-import { storagePointer } from '@/hooks/useSignedStorageUrl'
+import { storagePointer, useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { useProfile, useCreateProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
@@ -61,6 +61,8 @@ function MobileProfile() {
   const createProfile = useCreateProfile()
   const updateProfile = useUpdateProfile()
   const { t, locale } = useI18n()
+  const avatarDisplayUrl = useSignedStorageUrl(form.avatarUrl)
+  const cvDisplayUrl = useSignedStorageUrl(form.cvUrl)
   const search = useSearch({ from: '/m/profile' })
   const [form, setForm] = useState(EMPTY)
   const [hydrated, setHydrated] = useState(false)
