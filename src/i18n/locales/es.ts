@@ -148,6 +148,8 @@ const es: Dict = {
   'auth.signInCta': 'Iniciar sesión',
   'auth.checkEmail': 'Revisa tu correo electrónico',
   'auth.magicLinkSent': 'Enviamos un enlace para iniciar sesión a {email}. Ábrelo para continuar.',
+  'auth.emailPlaceholder': 'tú@ejemplo.com',
+  'auth.passwordPlaceholder': 'Contraseña',
   'auth.signInWithPassword': 'Iniciar sesión con contraseña',
   'auth.signingIn': 'Iniciando sesión…',
   'auth.sending': 'Enviando…',

@@ -149,6 +149,8 @@ const en: Dict = {
   'auth.signInCta': 'Sign in',
   'auth.checkEmail': 'Check your email',
   'auth.magicLinkSent': 'We sent a sign-in link to {email}. Open it to continue.',
+  'auth.emailPlaceholder': 'you@example.com',
+  'auth.passwordPlaceholder': 'Password',
   'auth.signInWithPassword': 'Sign in with password',
   'auth.signingIn': 'Signing in…',
   'auth.sending': 'Sending…',
