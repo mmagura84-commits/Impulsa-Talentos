@@ -50,22 +50,10 @@ function EmployerLayout() {
     )
   }
 
-  // ── Gate 0: No user — should not reach here (AuthGate in child would catch),
-  //    but defensive: show sign-in prompt ──
+  // ── Gate 0: No user — pass through to children; every child wraps in AuthGate
+  //    which renders the full sign-in form (email + button).
   if (!user) {
-    return (
-      <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <Card className="max-w-md w-full text-center border-border shadow-lg">
-          <CardHeader>
-            <div className="mx-auto mb-4 flex items-center justify-center">
-              <BrandMark className="size-12 rounded-lg" title={t('brand.name')} />
-            </div>
-            <CardTitle className="font-serif text-xl">{t('auth.signInTitle')}</CardTitle>
-            <CardDescription>{t('auth.signInDescription')}</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
-    )
+    return <Outlet />
   }
 
   // ── Gate 1: Email not verified ──
