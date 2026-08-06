@@ -23,7 +23,7 @@ interface AuthGateProps {
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
-  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signInWithGoogle, signInWithApple } = useAuth()
+  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
   const [usePassword, setUsePassword] = useState(false)
@@ -63,7 +63,12 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     setSending(true)
     setErrorMsg('')
     try {
-      await signInWithPassword(email.trim(), password)
+      if (authMode === 'signUp') {
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + '/employer')
+        if (!result.data.session) setSent(true)
+      } else {
+        await signInWithPassword(email.trim(), password)
+      }
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Invalid email or password')
     } finally {
@@ -95,6 +100,15 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <CardDescription>{desc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
+              {(['signIn', 'signUp'] as const).map(mode => (
+                <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
+                  onClick={() => { setAuthMode(mode); setErrorMsg(''); setSent(false) }}
+                  className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
+                  {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
+                </button>
+              ))}
+            </div>
             {!usePassword && sent ? (
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
