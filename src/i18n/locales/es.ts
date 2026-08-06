@@ -143,6 +143,12 @@ const es: Dict = {
   'landing.footer.tagline': 'Medellín, Colombia',
 
   // Auth gate
+  'auth.signUpTitle': 'Crea tu cuenta',
+  'auth.signUpDescription': 'Crea tu cuenta para contratar talento bilingüe o encontrar tu próximo empleo.',
+  'auth.modeLabel': 'Elige una acción de autenticación',
+  'auth.signInTab': 'Iniciar sesión',
+  'auth.signUpTab': 'Registrarse',
+  'auth.signUpCta': 'Crear cuenta',
   'auth.signInTitle': 'Inicia sesión para continuar',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
