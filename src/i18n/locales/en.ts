@@ -144,6 +144,12 @@ const en: Dict = {
   'landing.footer.tagline': 'Medellin, Colombia',
 
   // Auth gate
+  'auth.signUpTitle': 'Create your account',
+  'auth.signUpDescription': 'Create your workspace account to hire bilingual talent or find your next role.',
+  'auth.modeLabel': 'Choose an authentication action',
+  'auth.signInTab': 'Sign in',
+  'auth.signUpTab': 'Sign up',
+  'auth.signUpCta': 'Create account',
   'auth.signInTitle': 'Sign in to continue',
   'auth.signInDescription': 'Sign in to your workspace — post jobs and hire talent, or find your next bilingual role.',
   'auth.signInCta': 'Sign in',
