@@ -144,6 +144,9 @@ const es: Dict = {
 
   // Auth gate
   'auth.signInTitle': 'Inicia sesión para continuar',
+  'auth.modeLabel': 'Modo de acceso a la cuenta',
+  'auth.signInTab': 'Iniciar sesión',
+  'auth.signUpTab': 'Crear cuenta',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
   'auth.checkEmail': 'Revisa tu correo electrónico',
