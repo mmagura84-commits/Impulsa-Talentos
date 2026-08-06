@@ -38,9 +38,25 @@ if (!existsSync(SRC)) {
 mkdirSync(DEST, { recursive: true })
 
 for (const entry of readdirSync(SRC)) {
-  try {
-    cpSync(join(SRC, entry), join(DEST, entry), { recursive: true, force: true })
-  } catch (e) {
+  const source = join(SRC, entry)
+  const target = join(DEST, entry)
+  let copied = false
+  let lastError
+  // Build output can still be flushed by the prerenderer on slower filesystems;
+  // retry transient ENOENT rather than publishing a partial tree.
+  for (let attempt = 1; attempt <= 3 && !copied; attempt++) {
+    try {
+      if (!existsSync(source)) throw Object.assign(new Error(`missing source ${source}`), { code: 'ENOENT' })
+      cpSync(source, target, { recursive: true, force: true })
+      copied = true
+    } catch (e) {
+      lastError = e
+      if (e.code === 'ENOENT' && attempt < 3) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100)
+    }
+  }
+  if (!copied) {
+    const e = lastError
+
     // ONLY the platform-pre-injected `_redirects` may be skipped: it's read-only,
     // already in dist/, and byte-identical to ours. ANY other failed entry (assets/,
     // index.html, route html) would leave dist/index.html pointing at missing or
