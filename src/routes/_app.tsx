@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { CandidateSidebar } from '@/components/CandidateSidebar'
 import { EmployerSidebar } from '@/components/EmployerSidebar'
+import { AdminSidebar } from '@/components/AdminSidebar'
 import { MdSidebar } from '@/components/MdSidebar'
 import { PublicHeader } from '@/components/PublicHeader'
 
@@ -55,7 +56,7 @@ function AppLayout() {
   // navigation (e.g. MD session seeing candidate sidebar).
   const isLoading = authLoading || (user && profileLoading)
   const role = profile?.role
-  const sidebar = role === 'md' ? <MdSidebar /> : role === 'employer' || role === 'admin' ? <EmployerSidebar /> : <CandidateSidebar />
+  const sidebar = role === 'md' ? <MdSidebar /> : role === 'employer' ? <EmployerSidebar /> : role === 'admin' ? <AdminSidebar /> : <CandidateSidebar />
 
   return (
     <BlinkClientBoundary

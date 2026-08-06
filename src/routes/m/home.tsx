@@ -9,6 +9,7 @@ import {
   FileText,
   TrendingUp,
   X,
+  Pencil,
   Sparkles,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -286,6 +287,9 @@ function EmployerHome() {
                       ? t('dashboard.jobStatus.closed')
                       : t('dashboard.jobStatus.draft')}
                 </span>
+                <Button asChild size="icon" variant="ghost" className="shrink-0 h-8 w-8" aria-label={t('mobile.edit')}>
+                  <Link to="/m/edit-job/$id" params={{ id: job.id }}><Pencil className="size-4" /></Link>
+                </Button>
                 <Button
                   size="icon"
                   variant="ghost"
