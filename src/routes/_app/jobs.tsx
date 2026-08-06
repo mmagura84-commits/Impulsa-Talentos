@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate } from '@tanstack/react-router'
 import { useRef, useState, useMemo, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
@@ -202,6 +202,20 @@ function JobListItem({
 /* ── Page ──────────────────────────────────────────────── */
 function JobsPage() {
   const { locale, t } = useI18n()
+  const matchRoute = useMatchRoute()
+
+  // When a child detail route (/jobs/$id) is active, render ONLY the
+  // detail component — don't show the list heading, filters, or search.
+  // The <Outlet /> is required because the route tree generator makes
+  // jobs.$id a child of jobs (file: jobs.$id.tsx → parent: jobs).
+  if (matchRoute({ to: '/jobs/$id' })) {
+    return (
+      <div className="p-6 max-w-4xl mx-auto">
+        <Outlet />
+      </div>
+    )
+  }
+
   const [search, setSearch] = useState('')
   const [levelFilter, setLevelFilter] = useState('')
   const [locationFilter, setLocationFilter] = useState('')

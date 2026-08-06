@@ -32,7 +32,7 @@ function AppLayout() {
   // visitors get the bare job board — signed-in users keep their
   // workspace sidebar so they never lose navigation.
   const isPublicRoute =
-    !user && (!!matchRoute({ to: '/jobs' }) || !!matchRoute({ to: '/jobs/$id' }))
+    !user && (!!matchRoute({ to: '/jobs/$id' }) || !!matchRoute({ to: '/jobs', fuzzy: false }))
 
   if (!authLoading && !user) {
     // Unauthenticated pages must never inherit a candidate workspace shell.
