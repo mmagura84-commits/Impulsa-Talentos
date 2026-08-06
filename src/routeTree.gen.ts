@@ -48,11 +48,13 @@ import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
+import { Route as AppEmployerSettingsRouteImport } from './routes/_app/employer/settings'
 import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
 import { Route as AppEmployerOffersRouteImport } from './routes/_app/employer/offers'
 import { Route as AppEmployerMessagesRouteImport } from './routes/_app/employer/messages'
 import { Route as AppEmployerJobsRouteImport } from './routes/_app/employer/jobs'
 import { Route as AppEmployerApplicationsRouteImport } from './routes/_app/employer/applications'
+import { Route as AppEmployerAnalyticsRouteImport } from './routes/_app/employer/analytics'
 import { Route as AppCandidateSavedRouteImport } from './routes/_app/candidate/saved'
 import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
@@ -254,6 +256,11 @@ const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AppHqRoute,
 } as any)
+const AppEmployerSettingsRoute = AppEmployerSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
 const AppEmployerPostJobRoute = AppEmployerPostJobRouteImport.update({
   id: '/post-job',
   path: '/post-job',
@@ -277,6 +284,11 @@ const AppEmployerJobsRoute = AppEmployerJobsRouteImport.update({
 const AppEmployerApplicationsRoute = AppEmployerApplicationsRouteImport.update({
   id: '/applications',
   path: '/applications',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerAnalyticsRoute = AppEmployerAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
   getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
@@ -340,11 +352,13 @@ export interface FileRoutesByFullPath {
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
+  '/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/employer/applications': typeof AppEmployerApplicationsRoute
   '/employer/jobs': typeof AppEmployerJobsRoute
   '/employer/messages': typeof AppEmployerMessagesRoute
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
+  '/employer/settings': typeof AppEmployerSettingsRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -387,11 +401,13 @@ export interface FileRoutesByTo {
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
+  '/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/employer/applications': typeof AppEmployerApplicationsRoute
   '/employer/jobs': typeof AppEmployerJobsRoute
   '/employer/messages': typeof AppEmployerMessagesRoute
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
+  '/employer/settings': typeof AppEmployerSettingsRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -440,11 +456,13 @@ export interface FileRoutesById {
   '/_app/apply/$id': typeof AppApplyIdRouteWithChildren
   '/_app/candidate/applications': typeof AppCandidateApplicationsRoute
   '/_app/candidate/saved': typeof AppCandidateSavedRoute
+  '/_app/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/_app/employer/applications': typeof AppEmployerApplicationsRoute
   '/_app/employer/jobs': typeof AppEmployerJobsRoute
   '/_app/employer/messages': typeof AppEmployerMessagesRoute
   '/_app/employer/offers': typeof AppEmployerOffersRoute
   '/_app/employer/post-job': typeof AppEmployerPostJobRoute
+  '/_app/employer/settings': typeof AppEmployerSettingsRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
   '/_app/md/banking': typeof AppMdBankingRoute
@@ -493,11 +511,13 @@ export interface FileRouteTypes {
     | '/apply/$id'
     | '/candidate/applications'
     | '/candidate/saved'
+    | '/employer/analytics'
     | '/employer/applications'
     | '/employer/jobs'
     | '/employer/messages'
     | '/employer/offers'
     | '/employer/post-job'
+    | '/employer/settings'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -540,11 +560,13 @@ export interface FileRouteTypes {
     | '/apply/$id'
     | '/candidate/applications'
     | '/candidate/saved'
+    | '/employer/analytics'
     | '/employer/applications'
     | '/employer/jobs'
     | '/employer/messages'
     | '/employer/offers'
     | '/employer/post-job'
+    | '/employer/settings'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -592,11 +614,13 @@ export interface FileRouteTypes {
     | '/_app/apply/$id'
     | '/_app/candidate/applications'
     | '/_app/candidate/saved'
+    | '/_app/employer/analytics'
     | '/_app/employer/applications'
     | '/_app/employer/jobs'
     | '/_app/employer/messages'
     | '/_app/employer/offers'
     | '/_app/employer/post-job'
+    | '/_app/employer/settings'
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
     | '/_app/md/banking'
@@ -904,6 +928,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHqLeadsRouteImport
       parentRoute: typeof AppHqRoute
     }
+    '/_app/employer/settings': {
+      id: '/_app/employer/settings'
+      path: '/settings'
+      fullPath: '/employer/settings'
+      preLoaderRoute: typeof AppEmployerSettingsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
     '/_app/employer/post-job': {
       id: '/_app/employer/post-job'
       path: '/post-job'
@@ -937,6 +968,13 @@ declare module '@tanstack/react-router' {
       path: '/applications'
       fullPath: '/employer/applications'
       preLoaderRoute: typeof AppEmployerApplicationsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/analytics': {
+      id: '/_app/employer/analytics'
+      path: '/analytics'
+      fullPath: '/employer/analytics'
+      preLoaderRoute: typeof AppEmployerAnalyticsRouteImport
       parentRoute: typeof AppEmployerRoute
     }
     '/_app/candidate/saved': {
@@ -1001,22 +1039,26 @@ const AppCandidateRouteWithChildren = AppCandidateRoute._addFileChildren(
 )
 
 interface AppEmployerRouteChildren {
+  AppEmployerAnalyticsRoute: typeof AppEmployerAnalyticsRoute
   AppEmployerApplicationsRoute: typeof AppEmployerApplicationsRoute
   AppEmployerJobsRoute: typeof AppEmployerJobsRoute
   AppEmployerMessagesRoute: typeof AppEmployerMessagesRoute
   AppEmployerOffersRoute: typeof AppEmployerOffersRoute
   AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
+  AppEmployerSettingsRoute: typeof AppEmployerSettingsRoute
   AppEmployerIndexRoute: typeof AppEmployerIndexRoute
   AppEmployerEditJobIdRoute: typeof AppEmployerEditJobIdRoute
   AppEmployerManageIdRoute: typeof AppEmployerManageIdRoute
 }
 
 const AppEmployerRouteChildren: AppEmployerRouteChildren = {
+  AppEmployerAnalyticsRoute: AppEmployerAnalyticsRoute,
   AppEmployerApplicationsRoute: AppEmployerApplicationsRoute,
   AppEmployerJobsRoute: AppEmployerJobsRoute,
   AppEmployerMessagesRoute: AppEmployerMessagesRoute,
   AppEmployerOffersRoute: AppEmployerOffersRoute,
   AppEmployerPostJobRoute: AppEmployerPostJobRoute,
+  AppEmployerSettingsRoute: AppEmployerSettingsRoute,
   AppEmployerIndexRoute: AppEmployerIndexRoute,
   AppEmployerEditJobIdRoute: AppEmployerEditJobIdRoute,
   AppEmployerManageIdRoute: AppEmployerManageIdRoute,
