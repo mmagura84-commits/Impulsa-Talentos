@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
-import { useState } from 'react'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { useState, useEffect } from 'react'
 import { Heart, Building2, MapPin, Briefcase, Clock, AlertCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Button } from '@/components/ui/button'
@@ -19,7 +19,13 @@ export const Route = createFileRoute('/m/saved')({
 function MobileSaved() {
   const { t } = useI18n()
   const { user, login } = useAuth()
-  const { data: profile } = useProfile(user?.id)
+  const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
+  const navigate = useNavigate()
+  useEffect(() => {
+    if (!profileLoading && profile && (profile.role === 'employer' || profile.role === 'admin')) {
+      navigate({ to: '/m/home', replace: true })
+    }
+  }, [profileLoading, profile, navigate])
   const { data: savedJobs, isLoading } = useMySavedJobs(profile?.id)
   const unsave = useUnsaveJob()
   const [confirmId, setConfirmId] = useState<string | null>(null)

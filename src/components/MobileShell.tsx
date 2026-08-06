@@ -26,6 +26,7 @@ import {
   Monitor,
   Languages,
   PlusCircle,
+  Inbox,
   Check,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -262,7 +263,11 @@ export function MobileShell({ children, title }: MobileShellProps) {
         aria-label="Primary"
       >
         <ul className="grid grid-cols-4 h-16 max-w-md mx-auto">
-          <TabItem to="/m/jobs" icon={Briefcase} label={t('mobile.nav.jobs')} />
+          {isEmployer ? (
+            <TabItem to="/m/applications" icon={Inbox} label={t('mobile.nav.applications')} />
+          ) : (
+            <TabItem to="/m/jobs" icon={Briefcase} label={t('mobile.nav.jobs')} />
+          )}
           {isEmployer ? (
             <TabItem to="/m/post" icon={PlusCircle} label={t('mobile.nav.post')} />
           ) : (
