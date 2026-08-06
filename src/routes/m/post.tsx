@@ -416,6 +416,20 @@ function MobilePost() {
               toast.error(t('postJob.job.requiredFields'))
               return
             }
+            // Verification gate: unverified companies cannot publish jobs.
+            if (existingCompany && !existingCompany.verified) {
+              toast.error(
+                existingCompany.verificationRequested
+                  ? t('verification.pendingPublishTitle')
+                  : t('verification.unverifiedPublishTitle'),
+                {
+                  description: existingCompany.verificationRequested
+                    ? t('verification.pendingPublishDesc')
+                    : t('verification.unverifiedPublishDesc'),
+                },
+              )
+              return
+            }
             try {
               const salaryMin = jobForm.salaryMin ? Number(jobForm.salaryMin) : 0
               const salaryMax = jobForm.salaryMax ? Number(jobForm.salaryMax) : 0

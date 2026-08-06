@@ -54,6 +54,7 @@ const esEmployer: Dict = {
   'postJob.job.detailsCardDesc': 'Completa todos los campos para maximizar la calidad de los matches.',
   'postJob.job.publish': 'Publicar Vacante',
   'postJob.job.publishing': 'Publicando...',
+  'postJob.job.saving': 'Guardando...',
   'postJob.job.success': 'Vacante publicada',
   'postJob.job.successDesc': 'Nuestra tecnología propietaria la analizará para encontrar los mejores matches.',
   'postJob.job.error': 'No se pudo publicar la vacante',

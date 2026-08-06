@@ -73,8 +73,23 @@ export function useAuth() {
     login: () => {
       if (typeof window !== 'undefined') window.location.href = '/dashboard'
     },
+    /** Resend email verification to the current user (Supabase built-in). */
+    resendVerificationEmail: (email: string, redirectTo?: string) =>
+      supabase.auth.resend({
+        type: 'signup',
+        email,
+        options: redirectTo ? { emailRedirectTo: redirectTo } : undefined,
+      }),
     logout: () => supabase.auth.signOut(),
   }
+}
+
+/** Employer gate: checks whether the current user's profile has role === 'employer'. */
+export function useIsEmployer(): boolean {
+  const { user, isAuthenticated, isLoading } = useAuth()
+  const { data: profile } = useProfile(isAuthenticated && !isLoading ? user?.id : undefined)
+  if (!isAuthenticated || isLoading) return false
+  return profile?.role === 'employer'
 }
 
 /** Admin gate: checks whether the current user's profile has role === 'admin'. */
