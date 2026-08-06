@@ -66,6 +66,7 @@ const enJobs: Dict = {
   'apply.resume.fileSizeError': 'File is too large (max 8 MB).',
   'apply.resume.fileTypeError': 'Unsupported file type. Use PDF, DOC, DOCX or TXT.',
   'apply.resume.fileReady': 'Resume attached',
+  'apply.resume.remove': 'Remove selected resume',
   'apply.resume.linkReady': 'Resume link attached',
   'apply.message.title': 'Message to the employer',
   'apply.message.desc': 'A short note explaining why you\'re a great fit (optional but recommended).',

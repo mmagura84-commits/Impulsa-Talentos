@@ -66,6 +66,7 @@ const esJobs: Dict = {
   'apply.resume.fileSizeError': 'El archivo es demasiado grande (max 8 MB).',
   'apply.resume.fileTypeError': 'Tipo de archivo no soportado. Usa PDF, DOC, DOCX o TXT.',
   'apply.resume.fileReady': 'CV adjunto',
+  'apply.resume.remove': 'Quitar hoja de vida seleccionada',
   'apply.resume.linkReady': 'Enlace de CV adjunto',
   'apply.message.title': 'Mensaje al empleador',
   'apply.message.desc': 'Una nota breve explicando por que encajas bien (opcional pero recomendado).',
