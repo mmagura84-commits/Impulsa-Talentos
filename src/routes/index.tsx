@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowRight,
@@ -40,6 +40,7 @@ import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
 import { candidatesPhoto } from '@/lib/media'
 import { useRef, type ReactNode } from 'react'
 import { captureUTMParams, trackEvent } from '@/lib/marketing'
+import { setOnboardingIntent } from '@/lib/intent'
 
 export const Route = createFileRoute('/')({
   head: () => ({
@@ -134,6 +135,7 @@ function TopNav() {
 function LandingCTAs() {
   const { t } = useI18n()
   const { user, isLoading } = useAuth()
+  const navigate = useNavigate()
   if (isLoading) return null
   if (user) {
     return (
@@ -146,6 +148,7 @@ function LandingCTAs() {
       </Button>
     )
   }
+  const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer' }) }
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
       <Button asChild size="lg" className="h-12 gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90">
@@ -155,8 +158,8 @@ function LandingCTAs() {
           <ArrowRight className="size-4" />
         </Link>
       </Button>
-      <Button asChild variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-7 text-base font-semibold text-white hover:bg-white/10 hover:text-white">
-        <Link to="/for-employers"><Building2 className="size-4" />{t('landing.ctaHire')}</Link>
+      <Button variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-7 text-base font-semibold text-white hover:bg-white/10 hover:text-white" onClick={goEmployer}>
+        <Building2 className="size-4" />{t('landing.ctaHire')}
       </Button>
     </div>
   )
@@ -576,7 +579,7 @@ function LandingPage() {
       <section className="border-t border-border bg-primary/[.04]">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
           <div><p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-muted-foreground">{t('landing.employerCtaDesc')}</p></div>
-          <Button asChild size="lg" className="shrink-0"><Link to="/for-employers" onClick={() => trackEvent('employer_post_start')}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Link></Button>
+          <Button size="lg" className="shrink-0" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}
