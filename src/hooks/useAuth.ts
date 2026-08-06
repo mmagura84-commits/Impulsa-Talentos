@@ -32,19 +32,48 @@ export function useAuth() {
 
   useEffect(() => {
     let active = true
+    /** Once this flips to true, the auth state is final — no more loading. */
+    let resolved = false
+
+    function resolve(u: AppUser | null) {
+      if (!active || resolved) return
+      resolved = true
+      setUser(u)
+      setIsLoading(false)
+    }
+
+    /**
+     * getSession() may return null before the magic-link URL hash has been
+     * exchanged for a session. If the hash exchange hasn't completed yet we
+     * wait for onAuthStateChange to fire instead of flashing the sign-in
+     * form. A 3 s safety timeout prevents infinite loading.
+     */
+    const safety = setTimeout(() => {
+      if (!resolved) resolve(null)
+    }, 3000)
+
     // Restore the session on mount (refresh token, persisted session).
     supabase.auth.getSession().then(({ data }) => {
-      if (!active) return
-      setUser(data.session ? toAppUser(data.session.user) : null)
-      setIsLoading(false)
+      if (data.session) {
+        resolve(toAppUser(data.session.user))
+      }
+      // If no session, wait for onAuthStateChange — the URL hash
+      // may still be processing.
     })
-    // Keep in sync with sign-in/sign-out/refresh events.
+
+    // Keep in sync with sign-in/sign-out/refresh/token-exchange events.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session ? toAppUser(session.user) : null)
-      setIsLoading(false)
+      if (session) {
+        resolve(toAppUser(session.user))
+      } else if (!resolved) {
+        // No session AND no pending hash — genuinely unauthenticated.
+        resolve(null)
+      }
     })
+
     return () => {
       active = false
+      clearTimeout(safety)
       sub.subscription.unsubscribe()
     }
   }, [])
@@ -65,6 +94,9 @@ export function useAuth() {
     /** Sign in with email + password. */
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
+    /** Create an account with email + password. */
+    signUpWithPassword: (email: string, password: string, redirectTo?: string) =>
+      supabase.auth.signUp({ email, password, options: redirectTo ? { emailRedirectTo: redirectTo } : undefined }),
     /** Sign in with Google OAuth. Requires Google provider configured in Supabase dashboard. */
     signInWithGoogle: (redirectTo?: string) =>
       supabase.auth.signInWithOAuth({
