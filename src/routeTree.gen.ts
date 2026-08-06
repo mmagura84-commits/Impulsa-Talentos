@@ -25,6 +25,7 @@ import { Route as MProfileRouteImport } from './routes/m/profile'
 import { Route as MPostRouteImport } from './routes/m/post'
 import { Route as MJobsRouteImport } from './routes/m/jobs'
 import { Route as MHomeRouteImport } from './routes/m/home'
+import { Route as MApplicationsRouteImport } from './routes/m/applications'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppMdRouteImport } from './routes/_app/md'
@@ -37,6 +38,7 @@ import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
 import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
 import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
+import { Route as MEditJobIdRouteImport } from './routes/m/edit-job.$id'
 import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
 import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
 import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
@@ -47,6 +49,7 @@ import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
 import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
 import { Route as AppEmployerJobsRouteImport } from './routes/_app/employer/jobs'
+import { Route as AppEmployerApplicationsRouteImport } from './routes/_app/employer/applications'
 import { Route as AppCandidateSavedRouteImport } from './routes/_app/candidate/saved'
 import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
@@ -133,6 +136,11 @@ const MHomeRoute = MHomeRouteImport.update({
   path: '/home',
   getParentRoute: () => MRoute,
 } as any)
+const MApplicationsRoute = MApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
+  getParentRoute: () => MRoute,
+} as any)
 const CompaniesIdRoute = CompaniesIdRouteImport.update({
   id: '/companies/$id',
   path: '/companies/$id',
@@ -193,6 +201,11 @@ const MJobsIdRoute = MJobsIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => MJobsRoute,
 } as any)
+const MEditJobIdRoute = MEditJobIdRouteImport.update({
+  id: '/edit-job/$id',
+  path: '/edit-job/$id',
+  getParentRoute: () => MRoute,
+} as any)
 const AppMdProfileRoute = AppMdProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -241,6 +254,11 @@ const AppEmployerPostJobRoute = AppEmployerPostJobRouteImport.update({
 const AppEmployerJobsRoute = AppEmployerJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerApplicationsRoute = AppEmployerApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
   getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
@@ -292,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/md': typeof AppMdRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
+  '/m/applications': typeof MApplicationsRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -302,6 +321,7 @@ export interface FileRoutesByFullPath {
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
+  '/employer/applications': typeof AppEmployerApplicationsRoute
   '/employer/jobs': typeof AppEmployerJobsRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/hq/leads': typeof AppHqLeadsRoute
@@ -312,6 +332,7 @@ export interface FileRoutesByFullPath {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
+  '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate/': typeof AppCandidateIndexRoute
   '/employer/': typeof AppEmployerIndexRoute
@@ -333,6 +354,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AppJobsRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
+  '/m/applications': typeof MApplicationsRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -343,6 +365,7 @@ export interface FileRoutesByTo {
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
+  '/employer/applications': typeof AppEmployerApplicationsRoute
   '/employer/jobs': typeof AppEmployerJobsRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/hq/leads': typeof AppHqLeadsRoute
@@ -353,6 +376,7 @@ export interface FileRoutesByTo {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
+  '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate': typeof AppCandidateIndexRoute
   '/employer': typeof AppEmployerIndexRoute
@@ -380,6 +404,7 @@ export interface FileRoutesById {
   '/_app/md': typeof AppMdRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
+  '/m/applications': typeof MApplicationsRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -390,6 +415,7 @@ export interface FileRoutesById {
   '/_app/apply/$id': typeof AppApplyIdRouteWithChildren
   '/_app/candidate/applications': typeof AppCandidateApplicationsRoute
   '/_app/candidate/saved': typeof AppCandidateSavedRoute
+  '/_app/employer/applications': typeof AppEmployerApplicationsRoute
   '/_app/employer/jobs': typeof AppEmployerJobsRoute
   '/_app/employer/post-job': typeof AppEmployerPostJobRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
@@ -400,6 +426,7 @@ export interface FileRoutesById {
   '/_app/md/meetings': typeof AppMdMeetingsRoute
   '/_app/md/messages': typeof AppMdMessagesRoute
   '/_app/md/profile': typeof AppMdProfileRoute
+  '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
   '/_app/employer/': typeof AppEmployerIndexRoute
@@ -427,6 +454,7 @@ export interface FileRouteTypes {
     | '/md'
     | '/profile'
     | '/companies/$id'
+    | '/m/applications'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -437,6 +465,7 @@ export interface FileRouteTypes {
     | '/apply/$id'
     | '/candidate/applications'
     | '/candidate/saved'
+    | '/employer/applications'
     | '/employer/jobs'
     | '/employer/post-job'
     | '/hq/leads'
@@ -447,6 +476,7 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
+    | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/candidate/'
     | '/employer/'
@@ -468,6 +498,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/profile'
     | '/companies/$id'
+    | '/m/applications'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -478,6 +509,7 @@ export interface FileRouteTypes {
     | '/apply/$id'
     | '/candidate/applications'
     | '/candidate/saved'
+    | '/employer/applications'
     | '/employer/jobs'
     | '/employer/post-job'
     | '/hq/leads'
@@ -488,6 +520,7 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
+    | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/candidate'
     | '/employer'
@@ -514,6 +547,7 @@ export interface FileRouteTypes {
     | '/_app/md'
     | '/_app/profile'
     | '/companies/$id'
+    | '/m/applications'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -524,6 +558,7 @@ export interface FileRouteTypes {
     | '/_app/apply/$id'
     | '/_app/candidate/applications'
     | '/_app/candidate/saved'
+    | '/_app/employer/applications'
     | '/_app/employer/jobs'
     | '/_app/employer/post-job'
     | '/_app/hq/leads'
@@ -534,6 +569,7 @@ export interface FileRouteTypes {
     | '/_app/md/meetings'
     | '/_app/md/messages'
     | '/_app/md/profile'
+    | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/_app/candidate/'
     | '/_app/employer/'
@@ -671,6 +707,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MHomeRouteImport
       parentRoute: typeof MRoute
     }
+    '/m/applications': {
+      id: '/m/applications'
+      path: '/applications'
+      fullPath: '/m/applications'
+      preLoaderRoute: typeof MApplicationsRouteImport
+      parentRoute: typeof MRoute
+    }
     '/companies/$id': {
       id: '/companies/$id'
       path: '/companies/$id'
@@ -755,6 +798,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MJobsIdRouteImport
       parentRoute: typeof MJobsRoute
     }
+    '/m/edit-job/$id': {
+      id: '/m/edit-job/$id'
+      path: '/edit-job/$id'
+      fullPath: '/m/edit-job/$id'
+      preLoaderRoute: typeof MEditJobIdRouteImport
+      parentRoute: typeof MRoute
+    }
     '/_app/md/profile': {
       id: '/_app/md/profile'
       path: '/profile'
@@ -825,6 +875,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEmployerJobsRouteImport
       parentRoute: typeof AppEmployerRoute
     }
+    '/_app/employer/applications': {
+      id: '/_app/employer/applications'
+      path: '/applications'
+      fullPath: '/employer/applications'
+      preLoaderRoute: typeof AppEmployerApplicationsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
     '/_app/candidate/saved': {
       id: '/_app/candidate/saved'
       path: '/saved'
@@ -887,6 +944,7 @@ const AppCandidateRouteWithChildren = AppCandidateRoute._addFileChildren(
 )
 
 interface AppEmployerRouteChildren {
+  AppEmployerApplicationsRoute: typeof AppEmployerApplicationsRoute
   AppEmployerJobsRoute: typeof AppEmployerJobsRoute
   AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
   AppEmployerIndexRoute: typeof AppEmployerIndexRoute
@@ -895,6 +953,7 @@ interface AppEmployerRouteChildren {
 }
 
 const AppEmployerRouteChildren: AppEmployerRouteChildren = {
+  AppEmployerApplicationsRoute: AppEmployerApplicationsRoute,
   AppEmployerJobsRoute: AppEmployerJobsRoute,
   AppEmployerPostJobRoute: AppEmployerPostJobRoute,
   AppEmployerIndexRoute: AppEmployerIndexRoute,
@@ -996,21 +1055,25 @@ const MJobsRouteChildren: MJobsRouteChildren = {
 const MJobsRouteWithChildren = MJobsRoute._addFileChildren(MJobsRouteChildren)
 
 interface MRouteChildren {
+  MApplicationsRoute: typeof MApplicationsRoute
   MHomeRoute: typeof MHomeRoute
   MJobsRoute: typeof MJobsRouteWithChildren
   MPostRoute: typeof MPostRoute
   MProfileRoute: typeof MProfileRoute
   MSavedRoute: typeof MSavedRoute
   MIndexRoute: typeof MIndexRoute
+  MEditJobIdRoute: typeof MEditJobIdRoute
 }
 
 const MRouteChildren: MRouteChildren = {
+  MApplicationsRoute: MApplicationsRoute,
   MHomeRoute: MHomeRoute,
   MJobsRoute: MJobsRouteWithChildren,
   MPostRoute: MPostRoute,
   MProfileRoute: MProfileRoute,
   MSavedRoute: MSavedRoute,
   MIndexRoute: MIndexRoute,
+  MEditJobIdRoute: MEditJobIdRoute,
 }
 
 const MRouteWithChildren = MRoute._addFileChildren(MRouteChildren)
