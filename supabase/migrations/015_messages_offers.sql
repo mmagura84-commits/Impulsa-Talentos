@@ -1,5 +1,5 @@
 -- ─────────────────────────────────────────────────────────────────────────────
--- Impulsa Talentos — Messages & Offers (migration 014)
+-- Impulsa Talentos — Messages & Offers (migration 015)
 --
 -- Adds P1 employer-only workflows:
 --   1. messages — employer ↔ candidate messaging scoped to applications
