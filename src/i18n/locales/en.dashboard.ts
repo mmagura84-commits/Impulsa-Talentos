@@ -48,6 +48,8 @@ const enDashboard: Dict = {
   'dashboard.firstJob': 'Post your first job',
   'dashboard.candidateFallback': 'Candidate',
   'dashboard.loading': 'Loading your dashboard...',
+  'dashboard.degraded.profileUnavailable': 'Profile data is temporarily unavailable',
+  'dashboard.degraded.profileUnavailableDesc': 'We couldn\'t load your profile information. The dashboard is still usable, but some features may be limited. This usually resolves on its own — try refreshing in a moment.',
   'dashboard.needProfile.title': 'Complete your profile to continue',
   'dashboard.needProfile.desc': 'We need a few basic details before showing you applications or personalized matches.',
   'dashboard.needProfile.cta': 'Create my profile',

@@ -12,7 +12,7 @@ import { useCompany } from '@/hooks/useCompanies'
 import { useCompanyJobs } from '@/hooks/useJobs'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Building2, AlertCircle } from 'lucide-react'
+import { Building2, AlertCircle, AlertTriangle } from 'lucide-react'
 
 export const Route = createFileRoute('/_app/employer/')({
   component: EmployerHomePage,
@@ -65,6 +65,21 @@ function EmployerHomePage() {
   return (
     <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
       <div className="p-6 max-w-5xl mx-auto">
+        {/* ── Degraded-state banner: profile data unavailable ── */}
+        {profileTimedOut && (
+          <div className="mb-6 rounded-lg border border-destructive/30 bg-destructive/5 px-4 py-3 flex items-start gap-3">
+            <AlertTriangle className="size-5 text-destructive shrink-0 mt-0.5" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-destructive">
+                {t('dashboard.degraded.profileUnavailable')}
+              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {t('dashboard.degraded.profileUnavailableDesc')}
+              </p>
+            </div>
+          </div>
+        )}
+
         <FadeIn>
           <div className="mb-8">
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
