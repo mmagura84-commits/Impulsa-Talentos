@@ -16,7 +16,7 @@ import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany } from '@/hooks/useCompanies'
-import { useJobs, useDeleteJob } from '@/hooks/useJobs'
+import { useCompanyJobs, useJobs, useDeleteJob } from '@/hooks/useJobs'
 import { useMyApplications } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -212,8 +212,8 @@ function CandidateHome() {
 function EmployerHome() {
   const { user } = useAuth()
   const { data: company } = useCompany(user?.id)
-  const { data: jobs, isLoading } = useJobs()
-  const postedJobs = (jobs ?? []).filter(j => j.companyId === company?.id)
+  const { data: jobs, isLoading } = useCompanyJobs(company?.id)
+  const postedJobs = jobs ?? []
   const { t, locale } = useI18n()
   const deleteJob = useDeleteJob()
   const [confirmId, setConfirmId] = useState<string | null>(null)
