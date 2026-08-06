@@ -153,6 +153,7 @@ const en: Dict = {
   'auth.sendMagicInstead': 'Send magic link instead',
   'auth.signInPasswordInstead': 'Sign in with password instead',
   'auth.forgotPassword': 'Forgot your password?',
+  'auth.orContinueWith': 'or continue with',
   'auth.verifyEmail.title': 'Verify your email',
   'auth.verifyEmail.desc': 'Please verify your email address before accessing this workspace.',
   'auth.verifyEmail.emailLabel': 'Verification email was sent to',

@@ -65,6 +65,23 @@ export function useAuth() {
     /** Sign in with email + password. */
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
+    /** Sign in with Google OAuth. Requires Google provider configured in Supabase dashboard. */
+    signInWithGoogle: (redirectTo?: string) =>
+      supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: redirectTo ?? (typeof window !== 'undefined' ? window.location.origin + '/employer' : undefined),
+          queryParams: { access_type: 'offline', prompt: 'consent' },
+        },
+      }),
+    /** Sign in with Apple OAuth. Requires Apple provider configured in Supabase dashboard. */
+    signInWithApple: (redirectTo?: string) =>
+      supabase.auth.signInWithOAuth({
+        provider: 'apple',
+        options: {
+          redirectTo: redirectTo ?? (typeof window !== 'undefined' ? window.location.origin + '/employer' : undefined),
+        },
+      }),
     /**
      * Sign-in entry point for callers that don't collect an email inline
      * (hero CTAs, mobile menu). Navigates to the AuthGate-protected

@@ -152,6 +152,7 @@ const es: Dict = {
   'auth.sendMagicInstead': 'Enviar enlace mágico en su lugar',
   'auth.signInPasswordInstead': 'Iniciar sesión con contraseña en su lugar',
   'auth.forgotPassword': '¿Olvidaste tu contraseña?',
+  'auth.orContinueWith': 'o continúa con',
   'auth.verifyEmail.title': 'Verifica tu correo electrónico',
   'auth.verifyEmail.desc': 'Por favor verifica tu correo electrónico antes de acceder a este espacio de trabajo.',
   'auth.verifyEmail.emailLabel': 'El correo de verificación fue enviado a',
