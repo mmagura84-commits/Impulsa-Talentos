@@ -371,8 +371,9 @@ function ProfilePage() {
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const { data: signed, error: signedError } = await supabase.storage.from('cvs').createSignedUrl(path, 60 * 60 * 24 * 7)
+      if (signedError || !signed?.signedUrl) throw signedError ?? new Error('Could not secure uploaded file')
+      const publicUrl = signed.signedUrl
       update('avatarUrl', publicUrl)
       if (profile) {
         await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: publicUrl } })
@@ -405,8 +406,9 @@ function ProfilePage() {
       const path = `cvs/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file)
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const { data: signed, error: signedError } = await supabase.storage.from('cvs').createSignedUrl(path, 60 * 60 * 24 * 7)
+      if (signedError || !signed?.signedUrl) throw signedError ?? new Error('Could not secure uploaded file')
+      const publicUrl = signed.signedUrl
       update('cvUrl', publicUrl)
       toast.success('CV uploaded successfully')
     } catch (err) {
