@@ -23,7 +23,7 @@ interface AuthGateProps {
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
-  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
+  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword, signInWithGoogle, signInWithApple } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
   const [usePassword, setUsePassword] = useState(false)
@@ -32,6 +32,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn')
 
   if (isLoading) {
     return (
