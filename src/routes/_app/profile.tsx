@@ -68,7 +68,7 @@ function FadeIn({ children, className, delay = 0 }: { children: ReactNode; class
   )
 }
 
-type Role = 'candidate' | 'employer' | 'admin'
+type Role = 'candidate' | 'employer' | 'admin' | 'md'
 
 const EMPTY_FORM = {
   fullName: '',
@@ -278,6 +278,10 @@ function ProfilePage() {
   const updateProfile = useUpdateProfile()
   const { locale, t } = useI18n()
 
+  // Prevent role escalation: existing candidates cannot change their role
+  const effectiveRole = profile?.role ?? null
+  const isCandidate = effectiveRole === 'candidate'
+
   const [form, setForm] = useState(EMPTY_FORM)
   const [hydrated, setHydrated] = useState(false)
   const [savedFlag, setSavedFlag] = useState(false)
@@ -403,6 +407,9 @@ function ProfilePage() {
   const handleSave = async () => {
     if (!user) return
     if (!form.fullName.trim()) { toast.error(t('profile.nameRequired')); return }
+    if (!consent) { toast.error(t('profile.consentRequired')); return }
+    // Prevent role escalation: force 'candidate' for existing candidate profiles
+    const saveRole = isCandidate ? 'candidate' : form.role
     try {
       if (profile) {
         await updateProfile.mutateAsync({
@@ -414,7 +421,7 @@ function ProfilePage() {
             bio: form.bio,
             languages: form.languages,
             cvUrl: form.cvUrl,
-            role: form.role,
+            role: saveRole,
             skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
             desiredRole: form.positionTitle.trim() || undefined,
             experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
@@ -440,7 +447,7 @@ function ProfilePage() {
           languages: form.languages,
           cvUrl: form.cvUrl,
           avatarUrl: form.avatarUrl || '',
-          role: form.role,
+          role: saveRole,
           skills: form.skills.split(',').map(s => s.trim()).filter(Boolean),
           desiredRole: form.positionTitle.trim() || undefined,
           experienceYears: form.yearsOfExperience ? Number(form.yearsOfExperience) : undefined,
@@ -453,7 +460,7 @@ function ProfilePage() {
           emailConsent: consent,
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
-        if (form.role === 'md') {
+        if (saveRole === 'md') {
           sendEmail({ to: 'info@impulsatalentos.expert', subject: 'New MD signup requires approval', html: `<p>${form.fullName} (${form.email}) signed up as Managing Director and needs approval.</p><p><a href="${window.location.origin}/hq">Review in HQ</a></p>` }).catch(() => {})
         }
       }
@@ -466,7 +473,8 @@ function ProfilePage() {
 
   const isPending = createProfile.isPending || updateProfile.isPending
   const avatarInitial = (form.fullName.trim().charAt(0) || user?.email?.charAt(0) || 'U').toUpperCase()
-  const currentRole = form.role
+  // Lock the rendered role section for existing candidates — they always see candidate UI
+  const currentRole = isCandidate ? 'candidate' : form.role
 
   return (
     <AuthGate fallbackKey="auth.fallback.profile">
@@ -547,7 +555,8 @@ function ProfilePage() {
           </Card>
         </FadeIn>
 
-        {/* Role selector */}
+        {/* Role selector — hidden for existing candidates to prevent role escalation */}
+        {!isCandidate && (
         <FadeIn delay={0.03}>
           <Card className="mb-6">
             <CardHeader>
@@ -575,6 +584,7 @@ function ProfilePage() {
             </CardContent>
           </Card>
         </FadeIn>
+        )}
 
         {/* ─── ROLE-SPECIFIC SECTION — no cross-contamination ─── */}
 
