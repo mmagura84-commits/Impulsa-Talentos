@@ -378,6 +378,7 @@ const es: Dict = {
   'marketing.sourceLabel': '¿Cómo te enteraste de nosotros?',
   'marketing.sourceLinkedIn': 'LinkedIn', 'marketing.sourceReddit': 'Reddit', 'marketing.sourceUniversity': 'Universidad', 'marketing.sourceJobBoard': 'Portal de empleo', 'marketing.sourceReferral': 'Referido', 'marketing.sourceSearch': 'Buscador', 'marketing.sourceOther': 'Otro',
   'marketing.consent': 'Acepto recibir ocasionalmente correos sobre oportunidades laborales relevantes. Puedo cancelar la suscripción en cualquier momento.',
+  'profile.consentRequired': 'Debes aceptar las comunicaciones por correo electrónico antes de guardar tu perfil.',
   'profile.field.skills': 'Habilidades',
   'profile.field.skillsPlaceholder': 'React, TypeScript, Servicio al cliente',
   'profile.field.experienceYears': 'Años de experiencia',
