@@ -25,6 +25,7 @@ import { Route as MProfileRouteImport } from './routes/m/profile'
 import { Route as MPostRouteImport } from './routes/m/post'
 import { Route as MJobsRouteImport } from './routes/m/jobs'
 import { Route as MHomeRouteImport } from './routes/m/home'
+import { Route as MCompanyRouteImport } from './routes/m/company'
 import { Route as MApplicationsRouteImport } from './routes/m/applications'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -134,6 +135,11 @@ const MJobsRoute = MJobsRouteImport.update({
 const MHomeRoute = MHomeRouteImport.update({
   id: '/home',
   path: '/home',
+  getParentRoute: () => MRoute,
+} as any)
+const MCompanyRoute = MCompanyRouteImport.update({
+  id: '/company',
+  path: '/company',
   getParentRoute: () => MRoute,
 } as any)
 const MApplicationsRoute = MApplicationsRouteImport.update({
@@ -311,6 +317,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -355,6 +362,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -405,6 +413,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
   '/m/post': typeof MPostRoute
@@ -455,6 +464,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/company'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -499,6 +509,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/company'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -548,6 +559,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/company'
     | '/m/home'
     | '/m/jobs'
     | '/m/post'
@@ -705,6 +717,13 @@ declare module '@tanstack/react-router' {
       path: '/home'
       fullPath: '/m/home'
       preLoaderRoute: typeof MHomeRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/company': {
+      id: '/m/company'
+      path: '/company'
+      fullPath: '/m/company'
+      preLoaderRoute: typeof MCompanyRouteImport
       parentRoute: typeof MRoute
     }
     '/m/applications': {
@@ -1056,6 +1075,7 @@ const MJobsRouteWithChildren = MJobsRoute._addFileChildren(MJobsRouteChildren)
 
 interface MRouteChildren {
   MApplicationsRoute: typeof MApplicationsRoute
+  MCompanyRoute: typeof MCompanyRoute
   MHomeRoute: typeof MHomeRoute
   MJobsRoute: typeof MJobsRouteWithChildren
   MPostRoute: typeof MPostRoute
@@ -1067,6 +1087,7 @@ interface MRouteChildren {
 
 const MRouteChildren: MRouteChildren = {
   MApplicationsRoute: MApplicationsRoute,
+  MCompanyRoute: MCompanyRoute,
   MHomeRoute: MHomeRoute,
   MJobsRoute: MJobsRouteWithChildren,
   MPostRoute: MPostRoute,

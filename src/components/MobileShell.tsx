@@ -27,6 +27,7 @@ import {
   Languages,
   PlusCircle,
   Inbox,
+  Building2,
   Check,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -189,13 +190,29 @@ export function MobileShell({ children, title }: MobileShellProps) {
                     <User className="size-4 text-primary" /> {t('mobile.nav.profile')}
                   </Link>
                   {isEmployer && (
-                    <Link
-                      to="/m/post"
-                      onClick={() => setMenuOpen(false)}
-                      className="flex items-center gap-3 py-3 border-b border-border text-sm font-medium active:bg-accent"
-                    >
-                      <PlusCircle className="size-4 text-primary" /> {t('mobile.nav.post')}
-                    </Link>
+                    <>
+                      <Link
+                        to="/m/applications"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 py-3 border-b border-border text-sm font-medium active:bg-accent"
+                      >
+                        <Inbox className="size-4 text-primary" /> {t('mobile.nav.applications')}
+                      </Link>
+                      <Link
+                        to="/m/company"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 py-3 border-b border-border text-sm font-medium active:bg-accent"
+                      >
+                        <Building2 className="size-4 text-primary" /> {t('mobile.nav.company')}
+                      </Link>
+                      <Link
+                        to="/m/post"
+                        onClick={() => setMenuOpen(false)}
+                        className="flex items-center gap-3 py-3 border-b border-border text-sm font-medium active:bg-accent"
+                      >
+                        <PlusCircle className="size-4 text-primary" /> {t('mobile.nav.post')}
+                      </Link>
+                    </>
                   )}
                   <button
                     type="button"

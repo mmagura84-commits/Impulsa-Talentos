@@ -60,6 +60,7 @@ const enDashboard: Dict = {
   'dashboard.jobStatus.open': 'Active',
   'dashboard.jobStatus.closed': 'Closed',
   'dashboard.jobStatus.draft': 'Draft',
+  'dashboard.jobStatus.status': 'Status',
   'dashboard.view': 'View',
   'dashboard.edit': 'Edit',
   'dashboard.delete': 'Delete',

@@ -11,6 +11,9 @@ import {
   X,
   Pencil,
   Sparkles,
+  Users,
+  CheckCircle2,
+  Building2,
 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -18,7 +21,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany } from '@/hooks/useCompanies'
 import { useCompanyJobs, useJobs, useDeleteJob } from '@/hooks/useJobs'
-import { useMyApplications } from '@/hooks/useApplications'
+import { useMyApplications, useApplicationsByCompany } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
@@ -216,6 +219,11 @@ function EmployerHome() {
   const { data: company } = useCompany(user?.id)
   const { data: jobs, isLoading } = useCompanyJobs(company?.id)
   const postedJobs = jobs ?? []
+  const { data: applications = [], isLoading: appsLoading } = useApplicationsByCompany(
+    postedJobs.length ? postedJobs.map(j => j.id) : undefined,
+  )
+  const hires = applications.filter(a => a.status === 'hired').length
+  const appCount = (jobId: string) => applications.filter(a => a.jobId === jobId).length
   const { t, locale } = useI18n()
   const deleteJob = useDeleteJob()
   const [confirmId, setConfirmId] = useState<string | null>(null)
@@ -234,7 +242,30 @@ function EmployerHome() {
             value={String(postedJobs.length)}
             icon={FileText}
           />
+          <StatTile
+            label={t('dashboard.stat.totalApplicants')}
+            value={String(appsLoading ? '…' : applications.length)}
+            icon={Users}
+          />
+          <StatTile
+            label={t('dashboard.stat.hires')}
+            value={String(appsLoading ? '…' : hires)}
+            icon={CheckCircle2}
+          />
         </div>
+      </FadeIn>
+
+      <FadeIn delay={0.02}>
+        <Link
+          to="/m/company"
+          className="flex items-center justify-between gap-2 rounded-xl border border-border bg-card p-3 active:bg-accent/30"
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <Building2 className="size-4 text-primary shrink-0" />
+            <p className="text-sm font-medium truncate">{company ? company.name : t('dashboard.noCompany')}</p>
+          </div>
+          <span className="text-xs text-primary shrink-0">{t('mobile.companySettings')}</span>
+        </Link>
       </FadeIn>
 
       <FadeIn delay={0.04}>
@@ -287,6 +318,15 @@ function EmployerHome() {
                       ? t('dashboard.jobStatus.closed')
                       : t('dashboard.jobStatus.draft')}
                 </span>
+                {appCount(job.id) > 0 && (
+                  <Link
+                    to="/m/applications"
+                    className="inline-flex shrink-0 items-center gap-1 rounded-full border border-primary/30 bg-primary/5 px-2 py-0.5 text-[10px] font-medium text-primary"
+                    aria-label={t('nav.applications')}
+                  >
+                    <Users className="size-3" /> {appCount(job.id)}
+                  </Link>
+                )}
                 <Button asChild size="icon" variant="ghost" className="shrink-0 h-8 w-8" aria-label={t('mobile.edit')}>
                   <Link to="/m/edit-job/$id" params={{ id: job.id }}><Pencil className="size-4" /></Link>
                 </Button>

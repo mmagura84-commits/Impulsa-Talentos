@@ -39,6 +39,7 @@ const esEmployer: Dict = {
   'postJob.job.descriptionPlaceholder': 'Describe el rol, responsabilidades, requisitos y lo que ofreces...',
   'postJob.job.level': 'Nivel de Experiencia',
   'postJob.job.modality': 'Modalidad',
+  'postJob.job.city': 'Ciudad (opcional)',
   'postJob.job.salaryMin': 'Salario Minimo',
   'postJob.job.salaryMax': 'Salario Maximo',
   'postJob.job.currency': 'Moneda',
