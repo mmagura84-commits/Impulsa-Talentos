@@ -145,6 +145,9 @@ const en: Dict = {
 
   // Auth gate
   'auth.signInTitle': 'Sign in to continue',
+  'auth.modeLabel': 'Account access mode',
+  'auth.signInTab': 'Sign in',
+  'auth.signUpTab': 'Create account',
   'auth.signInDescription': 'Sign in to your workspace — post jobs and hire talent, or find your next bilingual role.',
   'auth.signInCta': 'Sign in',
   'auth.checkEmail': 'Check your email',
