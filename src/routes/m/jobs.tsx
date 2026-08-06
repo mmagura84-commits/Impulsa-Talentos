@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { useMemo, useState } from 'react'
 import { Search, MapPin, Briefcase, Clock, AlertCircle, Heart, Building2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -20,6 +20,18 @@ export const Route = createFileRoute('/m/jobs')({
 
 function MobileJobs() {
   const { t } = useI18n()
+  const matchRoute = useMatchRoute()
+
+  // When the child detail route (/m/jobs/$id) is active, render only
+  // the detail component.
+  if (matchRoute({ to: '/m/jobs/$id' })) {
+    return (
+      <div className="px-4 pt-4 pb-2">
+        <Outlet />
+      </div>
+    )
+  }
+
   const { data: jobs, isLoading, isError, error, refetch } = useJobs()
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)

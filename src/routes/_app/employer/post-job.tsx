@@ -105,16 +105,12 @@ function PostJobPage() {
   const update = (field: string, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
-  // FIXME(owner): setState during render — React anti-pattern.
-  // Calling setCompanyId() / setStep() in the component body (not useEffect
-  // or event handler) can cause "Maximum update depth exceeded" in Strict
-  // Mode. Move into a useEffect that reacts to (step, companyLoading,
-  // existingCompany, companyId). Currently works by accident because
-  // !companyId guards against re-entry. Assigned to full-stack owner.
-  if (step === 'company' && !companyLoading && existingCompany && !companyId) {
-    setCompanyId(existingCompany.id)
-    setStep('job')
-  }
+  useEffect(() => {
+    if (step === 'company' && !companyLoading && existingCompany && !companyId) {
+      setCompanyId(existingCompany.id)
+      setStep('job')
+    }
+  }, [step, companyLoading, existingCompany, companyId])
 
   const handleCreateCompany = async () => {
     if (!user) return
