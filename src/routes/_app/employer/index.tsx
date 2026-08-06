@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -34,7 +35,17 @@ function EmployerHomePage() {
   const displayName =
     profile?.fullName ?? user?.displayName ?? user?.email?.split('@')[0] ?? ''
 
-  if (isLoading) {
+  // ── Safety timeout for profile loading ──
+  // If the profile query hangs (network issue, Supabase outage) the UI
+  // must degrade instead of showing a skeleton forever.
+  const [profileTimedOut, setProfileTimedOut] = useState(false)
+  useEffect(() => {
+    if (!isLoading) { setProfileTimedOut(false); return }
+    const t = setTimeout(() => setProfileTimedOut(true), 8000)
+    return () => clearTimeout(t)
+  }, [isLoading])
+
+  if (isLoading && !profileTimedOut) {
     return (
       <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
         <div className="p-6 max-w-5xl mx-auto">

@@ -41,8 +41,9 @@ function EmployerLayout() {
     }
   }, [authLoading, profileLoading, profile, navigate])
 
-  // ── Loading ──
-  if (authLoading || profileLoading) {
+  // ── Loading — only block on auth. Profile may take a moment but the
+  //    useLayoutEffect below handles role redirect once it resolves.
+  if (authLoading) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]">
         <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
