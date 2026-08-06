@@ -484,6 +484,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
 }
 
 function JobRow({ job, companyName }: { job: Job; companyName: string }) {
+  const { t } = useI18n()
   const skills = job.skillsRequired
     ? job.skillsRequired.split(',').map(s => s.trim()).filter(Boolean)
     : []
