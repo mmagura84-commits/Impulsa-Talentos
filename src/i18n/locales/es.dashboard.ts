@@ -48,6 +48,8 @@ const esDashboard: Dict = {
   'dashboard.firstJob': 'Publicar Primera Vacante',
   'dashboard.candidateFallback': 'Candidato',
   'dashboard.loading': 'Cargando tu dashboard...',
+  'dashboard.degraded.profileUnavailable': 'Datos de perfil temporalmente no disponibles',
+  'dashboard.degraded.profileUnavailableDesc': 'No pudimos cargar la información de tu perfil. El dashboard sigue siendo utilizable, pero algunas funciones pueden estar limitadas. Esto normalmente se resuelve solo — intenta recargar en un momento.',
   'dashboard.needProfile.title': 'Completa tu perfil para continuar',
   'dashboard.needProfile.desc': 'Necesitamos algunos datos basicos antes de mostrarte postulaciones o matches personalizados.',
   'dashboard.needProfile.cta': 'Crear mi perfil',
