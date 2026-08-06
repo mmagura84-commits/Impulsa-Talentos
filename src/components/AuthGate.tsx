@@ -47,7 +47,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     setSending(true)
     setErrorMsg('')
     try {
-      await sendMagicLink(email.trim())
+      const returnPath = window.location.pathname + window.location.search
+      await sendMagicLink(email.trim(), window.location.origin + returnPath)
       setSent(true)
     } catch (err) {
       setErrorMsg(err instanceof Error ? err.message : 'Could not send the link')

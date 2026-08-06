@@ -53,9 +53,15 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user,
-    /** Send a passwordless magic link to an email address. */
-    sendMagicLink: (email: string) =>
-      supabase.auth.signInWithOtp({ email, options: { shouldCreateUser: true } }),
+    /** Send a passwordless magic link to an email address. Optionally redirect back to a relative app path after sign-in. */
+    sendMagicLink: (email: string, redirectTo?: string) =>
+      supabase.auth.signInWithOtp({
+        email,
+        options: {
+          shouldCreateUser: true,
+          ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
+        },
+      }),
     /** Sign in with email + password. */
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
