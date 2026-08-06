@@ -146,6 +146,8 @@ const es: Dict = {
   'auth.signInTitle': 'Inicia sesión para continuar',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
+  'auth.checkEmail': 'Revisa tu correo electrónico',
+  'auth.magicLinkSent': 'Enviamos un enlace para iniciar sesión a {email}. Ábrelo para continuar.',
   'auth.signInWithPassword': 'Iniciar sesión con contraseña',
   'auth.signingIn': 'Iniciando sesión…',
   'auth.sending': 'Enviando…',

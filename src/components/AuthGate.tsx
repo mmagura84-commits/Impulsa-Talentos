@@ -114,10 +114,9 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
                   <CheckCircle2 className="size-8 text-emerald-600" />
-                  <p className="text-sm font-medium text-foreground">Check your email</p>
+                  <p className="text-sm font-medium text-foreground">{t('auth.checkEmail')}</p>
                   <p className="text-xs text-muted-foreground">
-                    We sent a sign-in link to <span className="font-medium text-foreground">{email}</span>.
-                    Open it to continue.
+                    {t('auth.magicLinkSent', { email })}
                   </p>
                 </div>
                 <Button

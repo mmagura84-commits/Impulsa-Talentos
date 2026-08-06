@@ -147,6 +147,8 @@ const en: Dict = {
   'auth.signInTitle': 'Sign in to continue',
   'auth.signInDescription': 'Sign in to your workspace — post jobs and hire talent, or find your next bilingual role.',
   'auth.signInCta': 'Sign in',
+  'auth.checkEmail': 'Check your email',
+  'auth.magicLinkSent': 'We sent a sign-in link to {email}. Open it to continue.',
   'auth.signInWithPassword': 'Sign in with password',
   'auth.signingIn': 'Signing in…',
   'auth.sending': 'Sending…',
