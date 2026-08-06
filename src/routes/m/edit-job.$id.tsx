@@ -125,6 +125,20 @@ function MobileEditJob() {
   const handleSave = async () => {
     const salaryMin = form.salaryMin ? Number(form.salaryMin) : 0
     const salaryMax = form.salaryMax ? Number(form.salaryMax) : 0
+    // Verification gate: unverified companies cannot publish jobs (mirrors desktop edit-job + m/post).
+    if (form.status === 'open' && company && !company.verified) {
+      toast.error(
+        company.verificationRequested
+          ? t('verification.pendingPublishTitle')
+          : t('verification.unverifiedPublishTitle'),
+        {
+          description: company.verificationRequested
+            ? t('verification.pendingPublishDesc')
+            : t('verification.unverifiedPublishDesc'),
+        },
+      )
+      return
+    }
     try {
       await updateJob.mutateAsync({
         id,
