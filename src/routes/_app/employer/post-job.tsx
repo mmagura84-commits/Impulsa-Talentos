@@ -11,6 +11,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany, useCreateCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useCreateJob } from '@/hooks/useJobs'
+import { supabase } from '@/lib/supabase'
 import { NEW_COMPANY_TRIAL_CREDITS, CREDITS_PER_POSTING } from '@/lib/pricing'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -92,7 +93,7 @@ function PostJobPage() {
 
   const createCompany = useCreateCompany()
   const createJob = useCreateJob()
-  const saveCompany = useUpdateCompany()
+  const saveCompany = useUpdateCompany() // kept for hook order; unused — credits now decremented via RPC
 
   const [step, setStep] = useState<Step>('company')
   const [companyId, setCompanyId] = useState<string | null>(null)
@@ -104,6 +105,12 @@ function PostJobPage() {
   const update = (field: string, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }))
 
+  // FIXME(owner): setState during render — React anti-pattern.
+  // Calling setCompanyId() / setStep() in the component body (not useEffect
+  // or event handler) can cause "Maximum update depth exceeded" in Strict
+  // Mode. Move into a useEffect that reacts to (step, companyLoading,
+  // existingCompany, companyId). Currently works by accident because
+  // !companyId guards against re-entry. Assigned to full-stack owner.
   if (step === 'company' && !companyLoading && existingCompany && !companyId) {
     setCompanyId(existingCompany.id)
     setStep('job')
@@ -174,11 +181,13 @@ function PostJobPage() {
         status,
       })
       // Consume one credit for every OPEN posting (drafts are free).
+      // Uses atomic server-side decrement (migration 013) to avoid the
+      // stale-write race that happens with client-side math.
       if (status === 'open' && existingCompany) {
-        await saveCompany.mutateAsync({
-          id: existingCompany.id,
-          data: { jobCredits: Math.max(0, (existingCompany.jobCredits ?? 0) - CREDITS_PER_POSTING) },
-        }).catch(() => { /* credit decrement is best-effort */ })
+        await supabase
+          .rpc('decrement_company_credits', { company_id: existingCompany.id })
+          .then(() => { /* credit consumed */ })
+          .catch(() => { /* best-effort: don't block job creation */ })
       }
       setStep(status === 'draft' ? 'company' : 'done')
       if (status === 'draft') {
