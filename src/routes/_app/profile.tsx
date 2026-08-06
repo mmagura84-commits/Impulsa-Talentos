@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch'
 import type { NotificationPrefs, Profile } from '@/types'
 import { DEFAULT_NOTIFICATION_PREFS } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { storagePointer, useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { sendEmail } from '@/lib/emailSender'
 import type { AppUser } from '@/hooks/useAuth'
 import {
@@ -293,6 +294,8 @@ function ProfilePage() {
     : ['candidate', 'employer']
 
   const [form, setForm] = useState(EMPTY_FORM)
+  const avatarDisplayUrl = useSignedStorageUrl(form.avatarUrl)
+  const cvDisplayUrl = useSignedStorageUrl(form.cvUrl)
   const [hydrated, setHydrated] = useState(false)
   const [savedFlag, setSavedFlag] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
@@ -371,8 +374,7 @@ function ProfilePage() {
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('avatarUrl', publicUrl)
       if (profile) {
         await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: publicUrl } })
@@ -405,8 +407,7 @@ function ProfilePage() {
       const path = `cvs/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file)
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('cvUrl', publicUrl)
       toast.success('CV uploaded successfully')
     } catch (err) {
@@ -519,7 +520,7 @@ function ProfilePage() {
             <CardContent>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5">
                 <Avatar className="h-20 w-20 shrink-0 ring-2 ring-border">
-                  {form.avatarUrl ? <AvatarImage src={form.avatarUrl} alt={form.fullName || 'avatar'} /> : null}
+                  {avatarDisplayUrl ? <AvatarImage src={avatarDisplayUrl} alt={form.fullName || 'avatar'} /> : null}
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary font-serif">{avatarInitial}</AvatarFallback>
                 </Avatar>
                 <div className="flex-1 min-w-0 space-y-2">
@@ -534,7 +535,7 @@ function ProfilePage() {
                         <><Upload className="size-3.5" />{form.avatarUrl ? t('profile.avatar.change') : t('profile.avatar.upload')}</>
                       )}
                     </Button>
-                    {form.avatarUrl && (
+                    {avatarDisplayUrl && (
                       <Button type="button" size="sm" variant="ghost" onClick={handleRemoveAvatar}
                         disabled={uploadingAvatar} className="gap-1.5 text-muted-foreground hover:text-destructive">
                         <Trash2 className="size-3.5" />{t('profile.avatar.remove')}
@@ -797,7 +798,7 @@ function ProfilePage() {
                         </p>
                         <div className="flex items-center gap-2 mt-0.5">
                           <a
-                            href={form.cvUrl}
+                            href={cvDisplayUrl || form.cvUrl}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-xs text-primary hover:underline inline-flex items-center gap-0.5"

@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows, snakeToCamel } from '@/lib/supabase'
 import type { Application, Job, Profile } from '@/types'
 import { sendEmail } from '@/lib/emailSender'
+import { storagePointer } from '@/hooks/useSignedStorageUrl'
 
 const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
@@ -120,8 +121,7 @@ export function useApply() {
           .from('cvs')
           .upload(path, resumeFile, { upsert: true })
         if (error) throw error
-        const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-        finalResumeUrl = pub.publicUrl
+        finalResumeUrl = storagePointer(path)
       }
 
       // 2) Persist the application. coverLetter carries the resume URL when

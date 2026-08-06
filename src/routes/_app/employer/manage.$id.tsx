@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useProfileById } from '@/hooks/useProfile'
+import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { useJob } from '@/hooks/useJobs'
 import { useCompany, useCompanyById } from '@/hooks/useCompanies'
 import {
@@ -106,7 +107,8 @@ function ApplicationRow({ app, jobId }: { app: Application; jobId: string }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
-  const resumeUrl = extractResumeUrl(app.coverLetter)
+  const resumePointer = extractResumeUrl(app.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
 
@@ -289,7 +291,8 @@ function ApplicationDrawer({
   const updateStatus = useUpdateApplicationStatus()
   const [pending, setPending] = useState<Application['status'] | null>(null)
 
-  const resumeUrl = extractResumeUrl(app.coverLetter)
+  const resumePointer = extractResumeUrl(app.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
 

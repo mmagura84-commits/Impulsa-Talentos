@@ -4,6 +4,7 @@
  * Integrates with Blink auth for user display and sign-out.
  */
 import { useState, useCallback, type ReactNode } from 'react'
+import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import {
@@ -127,7 +128,7 @@ export function AppSidebarShell({ navItems, accent = 'navy' }: { navItems?: NavI
     user?.email?.split('@')[0] ||
     'User'
   const userEmail = user?.email ?? ''
-  const avatarUrl = profile?.avatarUrl || undefined
+  const avatarUrl = useSignedStorageUrl(profile?.avatarUrl)
   const avatarInitial = (displayName.charAt(0) ?? 'U').toUpperCase()
 
   return (

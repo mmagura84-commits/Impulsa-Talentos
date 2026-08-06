@@ -24,6 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { storagePointer, useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { useProfile, useCreateProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
@@ -62,6 +63,8 @@ function MobileProfile() {
   const { t, locale } = useI18n()
   const search = useSearch({ from: '/m/profile' })
   const [form, setForm] = useState(EMPTY)
+  const avatarDisplayUrl = useSignedStorageUrl(form.avatarUrl)
+  const cvDisplayUrl = useSignedStorageUrl(form.cvUrl)
   const [hydrated, setHydrated] = useState(false)
   const [uploading, setUploading] = useState(false)
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
@@ -133,8 +136,7 @@ function MobileProfile() {
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('avatarUrl', publicUrl)
       if (profile) {
         await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: publicUrl } })
@@ -207,9 +209,9 @@ function MobileProfile() {
               onClick={() => avatarInputRef.current?.click()}
               className="relative h-24 w-24 rounded-full ring-2 ring-border overflow-hidden active:opacity-80"
             >
-              {form.avatarUrl ? (
+              {avatarDisplayUrl ? (
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={form.avatarUrl} alt={form.fullName} />
+                  <AvatarImage src={avatarDisplayUrl} alt={form.fullName} />
                   <AvatarFallback className="text-2xl bg-primary/10 text-primary font-serif">
                     {avatarInitial}
                   </AvatarFallback>
