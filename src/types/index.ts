@@ -123,6 +123,29 @@ export interface Application {
   interviewDate?: string
 }
 
+
+/** Employer ↔ candidate message scoped to an application. */
+export interface Message {
+  id: string
+  applicationId: string
+  senderId: string
+  body: string
+  createdAt: string
+}
+
+/** Offer created by an employer for a candidate application. */
+export interface Offer {
+  id: string
+  applicationId: string
+  salary: number
+  currency: string
+  startDate?: string
+  notes?: string
+  status: 'pending' | 'revised' | 'accepted' | 'declined' | 'withdrawn'
+  createdAt: string
+  updatedAt: string
+}
+
 export interface SavedJob {
   id: string
   candidateId: string
