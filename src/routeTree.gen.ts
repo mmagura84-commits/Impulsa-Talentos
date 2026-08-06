@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as MRouteImport } from './routes/m'
 import { Route as ForEmployersRouteImport } from './routes/for-employers'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as MIndexRouteImport } from './routes/m/index'
@@ -72,6 +74,11 @@ const ResetPasswordRoute = ResetPasswordRouteImport.update({
   path: '/reset-password',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfilesRoute = ProfilesRouteImport.update({
+  id: '/profiles',
+  path: '/profiles',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
@@ -95,6 +102,11 @@ const ForEmployersRoute = ForEmployersRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApplicationsRoute = ApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppRoute = AppRouteImport.update({
@@ -325,11 +337,13 @@ const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/applications': typeof ApplicationsRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profiles': typeof ProfilesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/candidate': typeof AppCandidateRouteWithChildren
@@ -378,10 +392,12 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/applications': typeof ApplicationsRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profiles': typeof ProfilesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/dashboard': typeof AppDashboardRoute
@@ -429,11 +445,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
+  '/applications': typeof ApplicationsRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
+  '/profiles': typeof ProfilesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/terms': typeof TermsRoute
   '/_app/candidate': typeof AppCandidateRouteWithChildren
@@ -484,11 +502,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/applications'
     | '/contact'
     | '/for-employers'
     | '/m'
     | '/pricing'
     | '/privacy'
+    | '/profiles'
     | '/reset-password'
     | '/terms'
     | '/candidate'
@@ -537,10 +557,12 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/applications'
     | '/contact'
     | '/for-employers'
     | '/pricing'
     | '/privacy'
+    | '/profiles'
     | '/reset-password'
     | '/terms'
     | '/dashboard'
@@ -587,11 +609,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/_app'
+    | '/applications'
     | '/contact'
     | '/for-employers'
     | '/m'
     | '/pricing'
     | '/privacy'
+    | '/profiles'
     | '/reset-password'
     | '/terms'
     | '/_app/candidate'
@@ -642,11 +666,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
+  ApplicationsRoute: typeof ApplicationsRoute
   ContactRoute: typeof ContactRoute
   ForEmployersRoute: typeof ForEmployersRoute
   MRoute: typeof MRouteWithChildren
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
+  ProfilesRoute: typeof ProfilesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   CompaniesIdRoute: typeof CompaniesIdRoute
@@ -667,6 +693,13 @@ declare module '@tanstack/react-router' {
       path: '/reset-password'
       fullPath: '/reset-password'
       preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profiles': {
+      id: '/profiles'
+      path: '/profiles'
+      fullPath: '/profiles'
+      preLoaderRoute: typeof ProfilesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -702,6 +735,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/applications': {
+      id: '/applications'
+      path: '/applications'
+      fullPath: '/applications'
+      preLoaderRoute: typeof ApplicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -1186,11 +1226,13 @@ const MRouteWithChildren = MRoute._addFileChildren(MRouteChildren)
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
+  ApplicationsRoute: ApplicationsRoute,
   ContactRoute: ContactRoute,
   ForEmployersRoute: ForEmployersRoute,
   MRoute: MRouteWithChildren,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
+  ProfilesRoute: ProfilesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   CompaniesIdRoute: CompaniesIdRoute,
