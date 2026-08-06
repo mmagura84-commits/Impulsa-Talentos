@@ -17,6 +17,7 @@ import { Switch } from '@/components/ui/switch'
 import type { NotificationPrefs, Profile } from '@/types'
 import { DEFAULT_NOTIFICATION_PREFS } from '@/types'
 import { supabase } from '@/lib/supabase'
+import { storagePointer } from '@/hooks/useSignedStorageUrl'
 import { sendEmail } from '@/lib/emailSender'
 import type { AppUser } from '@/hooks/useAuth'
 import {
@@ -371,8 +372,7 @@ function ProfilePage() {
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('avatarUrl', publicUrl)
       if (profile) {
         await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: publicUrl } })
@@ -405,8 +405,7 @@ function ProfilePage() {
       const path = `cvs/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file)
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('cvUrl', publicUrl)
       toast.success('CV uploaded successfully')
     } catch (err) {

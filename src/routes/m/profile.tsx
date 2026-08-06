@@ -24,6 +24,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { storagePointer } from '@/hooks/useSignedStorageUrl'
 import { useProfile, useCreateProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
@@ -133,8 +134,7 @@ function MobileProfile() {
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
       const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
       if (error) throw error
-      const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-      const publicUrl = pub.publicUrl
+      const publicUrl = storagePointer(path)
       update('avatarUrl', publicUrl)
       if (profile) {
         await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: publicUrl } })
