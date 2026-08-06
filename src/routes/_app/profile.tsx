@@ -278,8 +278,6 @@ function ProfilePage() {
   const createProfile = useCreateProfile()
   const updateProfile = useUpdateProfile()
   const { locale, t } = useI18n()
-  const avatarDisplayUrl = useSignedStorageUrl(form.avatarUrl)
-  const cvDisplayUrl = useSignedStorageUrl(form.cvUrl)
 
   // Prevent role escalation: existing users cannot change their role
   // New users (no profile) see candidate + employer. Existing users are locked.
@@ -296,6 +294,8 @@ function ProfilePage() {
     : ['candidate', 'employer']
 
   const [form, setForm] = useState(EMPTY_FORM)
+  const avatarDisplayUrl = useSignedStorageUrl(form.avatarUrl)
+  const cvDisplayUrl = useSignedStorageUrl(form.cvUrl)
   const [hydrated, setHydrated] = useState(false)
   const [savedFlag, setSavedFlag] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)

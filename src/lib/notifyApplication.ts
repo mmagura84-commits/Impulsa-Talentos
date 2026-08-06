@@ -14,7 +14,7 @@ import {
   type CandidateEmailInput,
 } from '@/lib/emailTemplates'
 import type { Application, Job, Company } from '@/types'
-import { getRow, countRows } from '@/lib/supabase'
+import { getRow, countRows, supabase } from '@/lib/supabase'
 import type { Locale } from '@/lib/emailTemplates'
 
 const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
@@ -50,6 +50,7 @@ export async function sendApplicationNotifications(
     const candidateName = ctx.candidateProfile?.fullName?.trim() || 'Candidate'
     const candidateEmail = ctx.candidateProfile?.email?.trim() || undefined
     const candidateOptedOut = ctx.candidateProfile?.notificationPrefs?.applicationUpdates === false
+    const resolvedResumeUrl = await resolveResumeUrl(ctx.resumeUrl)
 
     // 1. Candidate confirmation
     if (candidateEmail && !candidateOptedOut) {
@@ -57,7 +58,7 @@ export async function sendApplicationNotifications(
         locale: ctx.locale, app: ctx.app, job: ctx.job,
         companyName: await resolveCompanyName(ctx.job.companyId),
         candidateName, candidateEmail,
-        resumeUrl: ctx.resumeUrl, coverNote: ctx.coverNote,
+        resumeUrl: resolvedResumeUrl, coverNote: ctx.coverNote,
         dashboardUrl: ctx.dashboardUrl, jobsUrl: ctx.jobsUrl,
       }
       try {
@@ -92,4 +93,11 @@ async function countApplicationsForJob(jobId: string): Promise<number> {
 }
 async function resolveCompanyName(companyId: string): Promise<string> {
   const c = await fetchCompany(companyId); return c?.name || 'the company'
+}
+
+async function resolveResumeUrl(value: string | null): Promise<string | null> {
+  if (!value || !value.startsWith('storage:cvs:')) return value
+  const path = value.slice('storage:cvs:'.length)
+  const { data, error } = await supabase.storage.from('cvs').createSignedUrl(path, 60 * 60)
+  return error ? null : data?.signedUrl ?? null
 }
