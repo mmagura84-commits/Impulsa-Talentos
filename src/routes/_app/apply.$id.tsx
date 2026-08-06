@@ -260,7 +260,7 @@ function ResumeInput({
                   size="sm"
                   onClick={() => handleFile(null)}
                   className="text-muted-foreground hover:text-destructive"
-                  aria-label="Remove"
+                  aria-label={t('apply.resume.remove')}
                 >
                   <X className="size-4" />
                 </Button>
