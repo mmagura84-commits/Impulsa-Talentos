@@ -11,6 +11,7 @@ import { useAllJobs } from '@/hooks/useJobs'
 import { useCompanyReviews, useCreateReview } from '@/hooks/useCompanyReviews'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import {
   Building2,
   MapPin,
@@ -499,7 +500,7 @@ function JobRow({ job, companyName }: { job: Job; companyName: string }) {
             {job.title}
           </h4>
           <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-2">
-            <span className="flex items-center gap-1"><MapPin className="size-3" />{job.locationType}</span>
+            <span className="flex items-center gap-1"><MapPin className="size-3" />{formatLocationType(job.locationType, t)}</span>
             <span>·</span>
             <span>{formatSalary(job)}</span>
             <span>·</span>

@@ -11,6 +11,7 @@ import { useJob, useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApplicationById } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { SocialShare } from '@/components/SocialShare'
 import {
   CheckCircle2,
@@ -309,7 +310,7 @@ function ApplyConfirmPage() {
                       <p className="font-medium text-sm text-foreground line-clamp-2 group-hover:text-primary transition-colors">
                         {j.title}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-0.5">{j.locationType}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{formatLocationType(j.locationType, t)}</p>
                       {skills.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {skills.map(s => (

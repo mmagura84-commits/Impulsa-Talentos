@@ -23,6 +23,15 @@ import { useCompany, useCreateCompany, useUpdateCompany } from '@/hooks/useCompa
 import { useCreateJob } from '@/hooks/useJobs'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
+import {
+  LOCATION_TYPES,
+  LOCATION_TYPE_KEYS,
+  LANGUAGE_LEVELS,
+  LANGUAGE_LEVEL_KEYS,
+} from '@/lib/jobEnums'
+import { CANONICAL_INDUSTRIES, industryLabelKey, matchIndustry } from '@/lib/industries'
+import { useBlocker } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/m/post')({
@@ -48,12 +57,12 @@ const EMPTY_JOB = {
   title: '',
   description: '',
   level: 'Mid',
-  locationType: 'Remoto',
+  locationType: 'Remote',
   salaryMin: '',
   salaryMax: '',
   currency: 'COP',
   skillsRequired: '',
-  languagesRequired: 'Ingles B2+',
+  languagesRequired: 'English B2+',
 }
 
 function MobilePost() {
@@ -88,7 +97,7 @@ function MobilePost() {
     setCompanyId(existingCompany.id)
     setCompanyForm({
       name: existingCompany.name,
-      industry: existingCompany.industry || '',
+      industry: matchIndustry(existingCompany.industry) ?? '',
       size: existingCompany.size || '',
       location: existingCompany.location || '',
       website: existingCompany.website || '',
@@ -189,12 +198,17 @@ function MobilePost() {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label={t('postJob.company.industry')}>
-                  <Input
+                  <select
                     value={companyForm.industry}
                     onChange={e => updateCompany_('industry', e.target.value)}
-                    placeholder={t('postJob.company.industryPlaceholder')}
-                    className="h-11"
-                  />
+                    className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
+                  >
+                    <option value="">{t('postJob.company.industryPlaceholder')}</option>
+                    {CANONICAL_INDUSTRIES.map(c => {
+                      const key = industryLabelKey(c)
+                      return <option key={c} value={c}>{key ? t(key) : c}</option>
+                    })}
+                  </select>
                 </Field>
                 <Field label={t('postJob.company.size')}>
                   <select
@@ -334,8 +348,8 @@ function MobilePost() {
                   onChange={e => updateJob('locationType', e.target.value)}
                   className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
                 >
-                  {['Remoto', 'Hibrido', 'Presencial'].map(lt => (
-                    <option key={lt} value={lt}>{lt}</option>
+                  {LOCATION_TYPES.map(lt => (
+                    <option key={lt} value={lt}>{t(LOCATION_TYPE_KEYS[lt])}</option>
                   ))}
                 </select>
               </Field>
@@ -385,8 +399,8 @@ function MobilePost() {
                 onChange={e => updateJob('languagesRequired', e.target.value)}
                 className="h-11 w-full rounded-md border border-input bg-background px-3 text-sm"
               >
-                {['Ingles A2', 'Ingles B1', 'Ingles B2', 'Ingles B2+', 'Ingles C1', 'Ingles C2'].map(l => (
-                  <option key={l} value={l}>{l}</option>
+                {LANGUAGE_LEVELS.map(l => (
+                  <option key={l} value={l}>{t(LANGUAGE_LEVEL_KEYS[l])}</option>
                 ))}
               </select>
             </Field>

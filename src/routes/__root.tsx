@@ -7,7 +7,7 @@ import {
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
-import { I18nProvider } from '@/i18n/I18nProvider'
+import { I18nProvider, useI18n } from '@/i18n/I18nProvider'
 import type { ReactNode } from 'react'
 import indexCss from '../index.css?url'
 import { devicePrePaintScript } from '@/lib/device'
@@ -144,22 +144,30 @@ function RootDocument({ children }: { children: ReactNode }) {
                 Global legal footer strip — Terms / Privacy linked from every
                 route (landing, dashboard, legal pages, mobile).
               */}
-              <footer className="border-t border-border/60 py-4 px-5 text-center">
-                <nav className="flex items-center justify-center gap-4 text-[11px] text-muted-foreground">
-                  <span>© {new Date().getFullYear()} Impulsa Talentos</span>
-                  <a href="/jobs" className="hover:text-foreground hover:underline underline-offset-4">Jobs</a>
-                  <a href="/companies" className="hover:text-foreground hover:underline underline-offset-4">Companies</a>
-                  <a href="/dashboard" className="hover:text-foreground hover:underline underline-offset-4">For Employers</a>
-                  <a href="/pricing" className="hover:text-foreground hover:underline underline-offset-4">Pricing</a>
-                  <a href="/terms" className="hover:text-foreground hover:underline underline-offset-4">Terms of Service</a>
-                  <a href="/privacy" className="hover:text-foreground hover:underline underline-offset-4">Privacy Policy</a>
-                </nav>
-              </footer>
+              <GlobalFooter />
             </TooltipProvider>
           </I18nProvider>
         </QueryClientProvider>
         <Scripts />
       </body>
     </html>
+  )
+}
+
+/** Global legal footer strip — localized (EN/ES) on every route. */
+function GlobalFooter() {
+  const { t } = useI18n()
+  return (
+    <footer className="border-t border-border/60 py-4 px-5 text-center">
+      <nav aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'} className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+        <span>© {new Date().getFullYear()} Impulsa Talentos</span>
+        <a href="/jobs" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.jobs')}</a>
+        <a href="/companies" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.companies')}</a>
+        <a href="/dashboard" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.forEmployers')}</a>
+        <a href="/pricing" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.pricing')}</a>
+        <a href="/terms" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.terms')}</a>
+        <a href="/privacy" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.privacy')}</a>
+      </nav>
+    </footer>
   )
 }

@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useBlocker, useNavigate } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthGate } from '@/components/AuthGate'
+import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany, useCreateCompany, useUpdateCompany } from '@/hooks/useCompanies'
@@ -15,6 +16,13 @@ import { supabase } from '@/lib/supabase'
 import { NEW_COMPANY_TRIAL_CREDITS, CREDITS_PER_POSTING } from '@/lib/pricing'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
+import {
+  LOCATION_TYPES,
+  LOCATION_TYPE_KEYS,
+  LANGUAGE_LEVELS,
+  LANGUAGE_LEVEL_KEYS,
+} from '@/lib/jobEnums'
+import { CANONICAL_INDUSTRIES, industryLabelKey } from '@/lib/industries'
 import {
   PlusCircle,
   Send,
@@ -53,12 +61,12 @@ const EMPTY_FORM = {
   title: '',
   description: '',
   level: 'Mid',
-  locationType: 'Remoto',
+  locationType: 'Remote',
   salaryMin: '',
   salaryMax: '',
   currency: 'COP',
   skillsRequired: '',
-  languagesRequired: 'Ingles B2+',
+  languagesRequired: 'English B2+',
 }
 
 const CURRENCY_OPTIONS = [
@@ -99,11 +107,28 @@ function PostJobPage() {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [companyForm, setCompanyForm] = useState(EMPTY_COMPANY)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [dirty, setDirty] = useState(false)
+  const [companyErrors, setCompanyErrors] = useState<{ name?: string; contactEmail?: string }>({})
+  const [jobErrors, setJobErrors] = useState<{ title?: string; description?: string; salary?: string }>({})
 
-  const updateCompany = (field: string, value: string) =>
+  const updateCompany = (field: string, value: string) => {
+    setDirty(true)
     setCompanyForm(prev => ({ ...prev, [field]: value }))
-  const update = (field: string, value: string) =>
+    if (field === 'name') setCompanyErrors(prev => ({ ...prev, name: undefined }))
+    if (field === 'contactEmail') setCompanyErrors(prev => ({ ...prev, contactEmail: undefined }))
+  }
+  const update = (field: string, value: string) => {
+    setDirty(true)
     setForm(prev => ({ ...prev, [field]: value }))
+    if (field === 'title') setJobErrors(prev => ({ ...prev, title: undefined }))
+    if (field === 'description') setJobErrors(prev => ({ ...prev, description: undefined }))
+    if (field === 'salaryMin' || field === 'salaryMax') setJobErrors(prev => ({ ...prev, salary: undefined }))
+  }
+
+  const blocker = useBlocker(
+    { shouldBlockFn: () => true, enableBeforeUnload: true, withResolver: true },
+    dirty && step !== 'done',
+  )
 
   useEffect(() => {
     if (step === 'company' && !companyLoading && existingCompany && !companyId) {
@@ -114,15 +139,18 @@ function PostJobPage() {
 
   const handleCreateCompany = async () => {
     if (!user) return
-    if (!companyForm.name.trim()) {
-      toast.error(t('postJob.company.nameRequired'))
-      return
-    }
+    const nextErrors: { name?: string; contactEmail?: string } = {}
+    if (!companyForm.name.trim()) nextErrors.name = t('postJob.company.nameRequired')
     // The application-inbox email is the ONLY way the platform can
     // notify the employer about new candidates — make it required.
     const contactEmail = companyForm.contactEmail.trim()
     if (!contactEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contactEmail)) {
-      toast.error(t('postJob.company.contactEmailRequired'))
+      nextErrors.contactEmail = t('postJob.company.contactEmailRequired')
+    }
+    if (nextErrors.name || nextErrors.contactEmail) {
+      setCompanyErrors(nextErrors)
+      const first = document.getElementById(nextErrors.name ? 'company-name' : 'contactEmail')
+      first?.focus()
       return
     }
     try {
@@ -147,18 +175,23 @@ function PostJobPage() {
 
   const handleCreateJob = async (status: 'open' | 'draft' = 'open') => {
     if (!companyId) return
-    if (status === 'open' && (!form.title.trim() || !form.description.trim())) {
-      toast.error(t('postJob.job.requiredFields'))
-      return
+    const nextErrors: { title?: string; description?: string; salary?: string } = {}
+    if (!form.title.trim()) nextErrors.title = t('postJob.job.titleRequired')
+    if (status === 'open' && !form.description.trim()) {
+      nextErrors.description = t('postJob.job.descriptionRequired')
     }
-    if (status === 'draft' && !form.title.trim()) {
-      toast.error(t('postJob.job.requiredFields'))
+    const salaryMin = form.salaryMin ? Number(form.salaryMin) : 0
+    const salaryMax = form.salaryMax ? Number(form.salaryMax) : 0
+    if (salaryMin > 0 && salaryMax > 0 && salaryMax < salaryMin) {
+      nextErrors.salary = t('postJob.job.salaryRangeError')
+    }
+    if (nextErrors.title || nextErrors.description || nextErrors.salary) {
+      setJobErrors(nextErrors)
+      const first = document.getElementById(nextErrors.title ? 'title' : nextErrors.description ? 'description' : 'salaryMin')
+      first?.focus()
       return
     }
     try {
-      const salaryMin = form.salaryMin ? Number(form.salaryMin) : 0
-      const salaryMax = form.salaryMax ? Number(form.salaryMax) : 0
-
       if (salaryMin > 0 && salaryMax > 0 && salaryMax < salaryMin) {
         toast.error(t('postJob.job.salaryRangeError'))
         return
@@ -176,6 +209,7 @@ function PostJobPage() {
         languagesRequired: form.languagesRequired,
         status,
       })
+      setDirty(false)
       // Consume one credit for every OPEN posting (drafts are free).
       // Uses atomic server-side decrement (migration 013) to avoid the
       // stale-write race that happens with client-side math.
@@ -245,18 +279,33 @@ function PostJobPage() {
                     value={companyForm.name}
                     onChange={e => updateCompany('name', e.target.value)}
                     placeholder={t('postJob.company.namePlaceholder')}
+                    aria-invalid={!!companyErrors.name}
+                    aria-describedby={companyErrors.name ? 'company-name-error' : undefined}
                   />
+                  {companyErrors.name && (
+                    <p id="company-name-error" role="alert" className="text-xs text-destructive">
+                      {companyErrors.name}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="industry">{t('postJob.company.industry')}</Label>
-                    <Input
+                    <select
                       id="industry"
                       value={companyForm.industry}
                       onChange={e => updateCompany('industry', e.target.value)}
-                      placeholder={t('postJob.company.industryPlaceholder')}
-                    />
+                      className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                    >
+                      <option value="">{t('postJob.company.industryPlaceholder')}</option>
+                      {CANONICAL_INDUSTRIES.map(c => {
+                        const key = industryLabelKey(c)
+                        return (
+                          <option key={c} value={c}>{key ? t(key) : c}</option>
+                        )
+                      })}
+                    </select>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="size">{t('postJob.company.size')}</Label>
@@ -268,7 +317,7 @@ function PostJobPage() {
                     >
                       <option value="">{t('postJob.company.sizePlaceholder')}</option>
                       {['1-10', '11-50', '51-200', '201-500', '501-1000', '1000+'].map(s => (
-                        <option key={s} value={s}>{s} {s === '1000+' ? '' : ''}</option>
+                        <option key={s} value={s}>{s}</option>
                       ))}
                     </select>
                   </div>
@@ -308,7 +357,14 @@ function PostJobPage() {
                     value={companyForm.contactEmail}
                     onChange={e => updateCompany('contactEmail', e.target.value)}
                     placeholder={t('postJob.company.contactEmailPlaceholder')}
+                    aria-invalid={!!companyErrors.contactEmail}
+                    aria-describedby={companyErrors.contactEmail ? 'contactEmail-error' : undefined}
                   />
+                  {companyErrors.contactEmail && (
+                    <p id="contactEmail-error" role="alert" className="text-xs text-destructive">
+                      {companyErrors.contactEmail}
+                    </p>
+                  )}
                   <p className="text-xs text-muted-foreground">
                     {t('postJob.company.contactEmailHint')}
                   </p>
@@ -348,6 +404,15 @@ function PostJobPage() {
             </div>
           </FadeIn>
         </div>
+        <UnsavedChangesDialog
+          open={blocker.status === 'blocked'}
+          title={t('form.unsaved.title')}
+          description={t('form.unsaved.desc')}
+          confirmLabel={t('form.unsaved.leave')}
+          cancelLabel={t('form.unsaved.stay')}
+          onConfirm={() => blocker.proceed()}
+          onCancel={() => blocker.reset()}
+        />
       </AuthGate>
     )
   }
@@ -425,7 +490,14 @@ function PostJobPage() {
                     value={form.title}
                     onChange={e => update('title', e.target.value)}
                     placeholder={t('postJob.job.titlePlaceholder')}
+                    aria-invalid={!!jobErrors.title}
+                    aria-describedby={jobErrors.title ? 'title-error' : undefined}
                   />
+                  {jobErrors.title && (
+                    <p id="title-error" role="alert" className="text-xs text-destructive">
+                      {jobErrors.title}
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-2">
@@ -438,6 +510,11 @@ function PostJobPage() {
                     placeholder={t('postJob.job.descriptionPlaceholder')}
                     rows={8}
                   />
+                  {jobErrors.description && (
+                    <p id="description-error" role="alert" className="text-xs text-destructive">
+                      {jobErrors.description}
+                    </p>
+                  )}
                 </div>
 
                 <div className="grid sm:grid-cols-2 gap-4">
@@ -462,8 +539,8 @@ function PostJobPage() {
                       onChange={e => update('locationType', e.target.value)}
                       className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
                     >
-                      {['Remoto', 'Hibrido', 'Presencial'].map(lt => (
-                        <option key={lt} value={lt}>{lt}</option>
+                      {LOCATION_TYPES.map(lt => (
+                        <option key={lt} value={lt}>{t(LOCATION_TYPE_KEYS[lt])}</option>
                       ))}
                     </select>
                   </div>
@@ -506,6 +583,11 @@ function PostJobPage() {
                     </select>
                   </div>
                 </div>
+                {jobErrors.salary && (
+                  <p id="salary-error" role="alert" className="text-xs text-destructive">
+                    {jobErrors.salary}
+                  </p>
+                )}
 
                 <div className="space-y-2">
                   <Label htmlFor="skillsRequired">{t('postJob.job.skills')}</Label>
@@ -526,8 +608,8 @@ function PostJobPage() {
                     onChange={e => update('languagesRequired', e.target.value)}
                     className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
                   >
-                    {['Ingles A2', 'Ingles B1', 'Ingles B2', 'Ingles B2+', 'Ingles C1', 'Ingles C2'].map(l => (
-                      <option key={l} value={l}>{l}</option>
+                    {LANGUAGE_LEVELS.map(l => (
+                      <option key={l} value={l}>{t(LANGUAGE_LEVEL_KEYS[l])}</option>
                     ))}
                   </select>
                 </div>
@@ -568,6 +650,15 @@ function PostJobPage() {
             </div>
           </FadeIn>
         </div>
+        <UnsavedChangesDialog
+          open={blocker.status === 'blocked'}
+          title={t('form.unsaved.title')}
+          description={t('form.unsaved.desc')}
+          confirmLabel={t('form.unsaved.leave')}
+          cancelLabel={t('form.unsaved.stay')}
+          onConfirm={() => blocker.proceed()}
+          onCancel={() => blocker.reset()}
+        />
       </AuthGate>
     )
   }

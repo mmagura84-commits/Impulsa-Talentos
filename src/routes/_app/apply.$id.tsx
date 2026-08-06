@@ -13,6 +13,7 @@ import { useJob } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApply, useMyApplications } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { sendApplicationNotifications } from '@/lib/notifyApplication'
 import {
   FileText,
@@ -521,14 +522,14 @@ function ApplyPage() {
             </CardHeader>
             <CardContent className="grid sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-accent" /> {job.locationType}
+                <MapPin className="size-3.5 text-accent" /> {formatLocationType(job.locationType, t)}
               </span>
               <span className="flex items-center gap-1.5">
                 <DollarSign className="size-3.5 text-accent" /> {formatSalary(job, locale)}
               </span>
               {job.languagesRequired && (
                 <span className="flex items-center gap-1.5">
-                  <Globe className="size-3.5 text-accent" /> {job.languagesRequired}
+                  <Globe className="size-3.5 text-accent" /> {formatLanguageList(job.languagesRequired, t)}
                 </span>
               )}
             </CardContent>

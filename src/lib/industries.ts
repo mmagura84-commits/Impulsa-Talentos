@@ -45,3 +45,26 @@ export const INDUSTRY_FAMILIES: { slug: string; icon: string; members: string[] 
 
 /** Convenience: canonical strings in canonical order. */
 export const CANONICAL_INDUSTRIES: string[] = INDUSTRIES.map((i) => i.canonical)
+
+const INDUSTRY_KEY_BY_CANONICAL: Record<string, string> = Object.fromEntries(
+  INDUSTRIES.map((i) => [i.canonical, `industry.${i.slug}`]),
+)
+
+/** i18n key for a canonical industry label (resolved through t()). */
+export function industryLabelKey(canonical: string): string | null {
+  return INDUSTRY_KEY_BY_CANONICAL[canonical] ?? null
+}
+
+/**
+ * Backward-compatible matching: maps a stored free-text industry value to a
+ * canonical industry when it contains a known canonical name (case-insensitive).
+ * Returns null when no match — callers should fall back to a blank select.
+ */
+export function matchIndustry(value?: string | null): string | null {
+  if (!value) return null
+  const v = value.trim().toLowerCase()
+  const exact = CANONICAL_INDUSTRIES.find(
+    (c) => c.toLowerCase() === v || c.toLowerCase().includes(v) || v.includes(c.toLowerCase()),
+  )
+  return exact ?? null
+}
