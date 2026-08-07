@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useLayoutEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
+import { AuthGate } from '@/components/AuthGate'
 import { useProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { Button } from '@/components/ui/button'
@@ -43,23 +44,14 @@ function CandidateLayout() {
     )
   }
 
-  // ── No user (defensive) ──
+  // ── No user — AuthGate renders the bilingual sign-in/create-account form.
   if (!user) {
     return (
-      <div className="flex items-center justify-center min-h-[60vh] px-4">
-        <Card className="max-w-md w-full text-center border-border shadow-lg">
-          <CardHeader>
-            <div className="mx-auto mb-4 flex items-center justify-center">
-              <BrandMark className="size-12 rounded-lg" title={t('brand.name')} />
-            </div>
-            <CardTitle className="font-serif text-xl">{t('auth.signInTitle')}</CardTitle>
-            <CardDescription>{t('auth.signInDescription')}</CardDescription>
-          </CardHeader>
-        </Card>
-      </div>
+      <AuthGate fallbackKey="auth.signInTitle" fallbackDescKey="auth.signInDescription">
+        <Outlet />
+      </AuthGate>
     )
   }
-
   // ── Email verification gate ──
   if (!user.emailVerified) {
     const handleResend = async () => {
