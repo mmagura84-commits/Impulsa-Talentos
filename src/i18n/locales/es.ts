@@ -148,6 +148,8 @@ const es: Dict = {
   'auth.modeLabel': 'Modo de acceso a la cuenta',
   'auth.signInTab': 'Iniciar sesión',
   'auth.signUpTab': 'Crear cuenta',
+  'auth.resendLink': 'Reenviar enlace',
+  'auth.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo.',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
   'auth.checkEmail': 'Revisa tu correo electrónico',
