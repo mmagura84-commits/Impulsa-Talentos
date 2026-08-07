@@ -100,7 +100,7 @@ function TopNav() {
         </nav>
         <div className="flex items-center gap-2">
           <LanguageToggle compact className={scrolled ? undefined : 'text-white hover:text-white'} />
-          <button type="button" aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)} className={`inline-flex size-9 items-center justify-center rounded-md md:hidden ${scrolled ? 'text-foreground' : 'text-white'}`}>
+          <button type="button" aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)} className={`inline-flex size-9 items-center justify-center rounded-md md:hidden ${scrolled ? 'text-foreground' : 'text-white'}`}>
             {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </button>
           {isLoading ? (

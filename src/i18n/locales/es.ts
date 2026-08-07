@@ -81,6 +81,7 @@ const es: Dict = {
   'nav.openMenu': 'Abrir Menú',
   'nav.collapseMenu': 'Colapsar Menú',
   'nav.expandMenu': 'Expandir Menú',
+  'dashboard.matchScoreLabel': 'Puntuación de coincidencia con IA',
   'nav.main': 'Navegación principal',
   'nav.mobile': 'Navegación móvil',
   'nav.primary': 'Navegación principal',
