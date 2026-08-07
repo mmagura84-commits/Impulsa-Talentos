@@ -65,7 +65,10 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     setErrorMsg('')
     try {
       if (authMode === 'signUp') {
-        const result = await signUpWithPassword(email.trim(), password, window.location.origin + '/employer')
+        // Preserve the lane where signup started (candidate, employer, etc.) so
+        // email confirmation returns to the correct role-gated route.
+        const returnPath = window.location.pathname + window.location.search
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath)
         if (!result.data.session) setSent(true)
       } else {
         await signInWithPassword(email.trim(), password)
