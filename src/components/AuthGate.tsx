@@ -32,6 +32,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const [errorKey, setErrorKey] = useState<string | null>(null)
+  const clearError = () => { setErrorMsg(''); setErrorKey(null) }
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn')
 
   if (isLoading) {
@@ -52,7 +54,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
       await sendMagicLink(email.trim(), window.location.origin + returnPath)
       setSent(true)
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : t('auth.error.sendLink'))
+      setErrorKey(null); setErrorMsg(err instanceof Error ? err.message : t('auth.error.sendLink'))
     } finally {
       setSending(false)
     }
@@ -62,11 +64,12 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     e.preventDefault()
     if (!email.trim() || !password || sending) return
     if (password.length < 8) {
-      setErrorMsg(t('auth.passwordTooShort'))
+      setErrorKey('auth.passwordTooShort')
+      setErrorMsg('')
       return
     }
     setSending(true)
-    setErrorMsg('')
+    clearError()
     try {
       if (authMode === 'signUp') {
         // Preserve the lane where signup started (candidate, employer, etc.) so
@@ -111,7 +114,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
               {(['signIn', 'signUp'] as const).map(mode => (
                 <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
-                  onClick={() => { setAuthMode(mode); setErrorMsg(''); setSent(false) }}
+                  onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
                   className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                   {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
                 </button>
@@ -144,7 +147,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="email"
                     value={email}
-                    onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
+                    onChange={e => { setEmail(e.target.value); clearError() }}
                     placeholder={t('auth.emailPlaceholder')}
                     className="pl-9 text-center"
                     required
@@ -157,15 +160,15 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="password"
                     value={password}
-                    onChange={e => { setPassword(e.target.value); setErrorMsg('') }}
+                    onChange={e => { setPassword(e.target.value); clearError() }}
                     placeholder={t('auth.passwordPlaceholder')}
                     className="pl-9 text-center"
                     required
                     autoComplete="current-password"
                   />
                 </div>
-                {errorMsg && (
-                  <p className="text-xs text-destructive">{errorMsg}</p>
+                {(errorMsg || errorKey) && (
+                  <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
@@ -179,7 +182,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="email"
                     value={email}
-                    onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
+                    onChange={e => { setEmail(e.target.value); clearError() }}
                     placeholder={t('auth.emailPlaceholder')}
                     className="pl-9 text-center"
                     required
@@ -187,8 +190,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     autoComplete="email"
                   />
                 </div>
-                {errorMsg && (
-                  <p className="text-xs text-destructive">{errorMsg}</p>
+                {(errorMsg || errorKey) && (
+                  <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim()} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
@@ -198,7 +201,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             )}
             <button
               type="button"
-              onClick={() => { setUsePassword(!usePassword); setSent(false); setErrorMsg('') }}
+              onClick={() => { setUsePassword(!usePassword); setSent(false); clearError() }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {usePassword ? t('auth.sendMagicInstead') : t('auth.signInPasswordInstead')}
