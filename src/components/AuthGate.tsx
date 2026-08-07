@@ -74,7 +74,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
         await signInWithPassword(email.trim(), password)
       }
     } catch (err) {
-      setErrorMsg(err instanceof Error ? err.message : 'Invalid email or password')
+      setErrorMsg(t('auth.invalidCredentials'))
     } finally {
       setSending(false)
     }
@@ -130,7 +130,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   onClick={handleMagicLink}
                 >
                   {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Mail className="size-3.5" />}
-                  Resend link
+                  {t('auth.resendLink')}
                 </Button>
               </>
             ) : usePassword ? (
