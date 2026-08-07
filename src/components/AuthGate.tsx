@@ -61,6 +61,10 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password || sending) return
+    if (password.length < 8) {
+      setErrorMsg(t('auth.passwordTooShort'))
+      return
+    }
     setSending(true)
     setErrorMsg('')
     try {
