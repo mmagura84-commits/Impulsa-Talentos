@@ -92,7 +92,7 @@ function TopNav() {
             Impulsa Talentos
           </span>
         </Link>
-        <nav className="hidden items-center gap-4 text-sm font-medium md:flex" aria-label="Main navigation">
+        <nav className="hidden items-center gap-4 text-sm font-medium md:flex" aria-label={t('nav.main')}>
           <Link to="/jobs" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('nav.jobs')}</Link>
           <Link to="/companies" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('landing.companiesTitle')}</Link>
           <Link to="/dashboard" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('nav.forEmployers')}</Link>
@@ -120,7 +120,7 @@ function TopNav() {
         </div>
       </div>
       {menuOpen && <div className={`border-t px-5 py-4 md:hidden ${scrolled ? 'border-border bg-background' : 'border-white/15 bg-slate-950/95 backdrop-blur-md'}`}>
-        <nav className="flex flex-col gap-3 text-sm font-semibold" aria-label="Mobile navigation">
+        <nav className="flex flex-col gap-3 text-sm font-semibold" aria-label={t('nav.mobile')}>
           <Link to="/jobs" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('nav.jobs')}</Link>
           <Link to="/companies" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('landing.companiesTitle')}</Link>
           <Link to="/dashboard" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('nav.forEmployers')}</Link>

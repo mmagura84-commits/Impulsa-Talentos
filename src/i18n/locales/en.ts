@@ -82,6 +82,8 @@ const en: Dict = {
   'nav.openMenu': 'Open menu',
   'nav.collapseMenu': 'Collapse menu',
   'nav.expandMenu': 'Expand menu',
+  'nav.main': 'Main navigation',
+  'nav.mobile': 'Mobile navigation',
 
   // Landing
   'landing.hero.badge': 'Powered by Our Proprietary Technology',
