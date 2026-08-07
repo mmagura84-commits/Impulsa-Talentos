@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
-import { useLayoutEffect, useState } from 'react'
+import { useEffect, useLayoutEffect, useState } from 'react'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -31,6 +31,13 @@ function DashboardRedirect() {
   const { t } = useI18n()
   const navigate = useNavigate()
   const [choosing, setChoosing] = useState(false)
+  const [loadTimedOut, setLoadTimedOut] = useState(false)
+  // Bound auth/profile hydration so a failed session or profile request cannot leave users on a permanent spinner.
+  useEffect(() => {
+    if (choosing || loadTimedOut || (!authLoading && !profileLoading)) return
+    const timer = window.setTimeout(() => setLoadTimedOut(true), 10000)
+    return () => window.clearTimeout(timer)
+  }, [authLoading, profileLoading, choosing, loadTimedOut])
 
   // Wait for BOTH auth and profile to resolve before redirecting.
   // Without the authLoading gate, the effect fires when useProfile is
@@ -67,10 +74,16 @@ function DashboardRedirect() {
   if (!choosing) {
     return (
       <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">
-        <div className="flex items-center justify-center min-h-[50vh]">
+        <div className="flex items-center justify-center min-h-[50vh] px-4">
           <div className="text-center space-y-3">
-            <div className="mx-auto animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
-            <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+            {loadTimedOut ? (
+              <>
+                <p className="text-sm text-destructive">{t('dashboard.loadingTimeout')}</p>
+                <Button type="button" variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
+              </>
+            ) : (
+              <><div className="mx-auto animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" /><p className="text-sm text-muted-foreground">{t('common.loading')}</p></>
+            )}
           </div>
         </div>
       </AuthGate>
