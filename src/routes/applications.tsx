@@ -9,5 +9,8 @@ import { createFileRoute, Navigate } from '@tanstack/react-router'
 export const Route = createFileRoute('/applications')({ component: ApplicationsAlias })
 
 function ApplicationsAlias() {
-  return <Navigate to="/dashboard" replace />
+  // Keep legacy application links in the candidate lane. This lets the
+  // candidate layout render its dedicated bilingual AuthGate instead of the
+  // generic role chooser (which can send first-time visitors to employers).
+  return <Navigate to="/candidate/applications" replace />
 }
