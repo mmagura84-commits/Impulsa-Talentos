@@ -182,6 +182,17 @@ const es: Dict = {
   'auth.profileStatus.rejectedDesc': 'Tu cuenta de empleador no fue aprobada. Por favor contáctanos para más detalles.',
   'auth.profileStatus.pendingTitle': 'Cuenta en revisión',
   'auth.profileStatus.pendingDesc': 'Tu cuenta de empleador está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.',
+  // Password reset
+  'reset.title': 'Restablece tu contraseña',
+  'reset.emailLabel': 'Correo electrónico',
+  'reset.send': 'Enviar enlace de restablecimiento',
+  'reset.sending': 'Enviando…',
+  'reset.back': 'Volver a iniciar sesión',
+  'reset.invalid': 'Enlace inválido o expirado',
+  'reset.invalidDesc': 'Enlace inválido o expirado. Solicita uno nuevo.',
+  'reset.newPassword': 'Nueva contraseña',
+  'reset.minChars': 'Mín. 8 caracteres',
+  'reset.success': 'Contraseña restablecida correctamente',
   // Job enum labels (canonical values, displayed per locale)
   'jobEnums.location.remote': 'Remoto',
   'jobEnums.location.hybrid': 'Híbrido',

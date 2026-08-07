@@ -66,7 +66,7 @@ export function ResetPassword({ onBack }: ResetPasswordProps) {
           <br />
           <button onClick={onBack} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <ArrowLeft className="size-3.5" />
-            Back to sign in
+            {t('reset.back')}
           </button>
         </CardContent>
       </Card>
@@ -79,7 +79,7 @@ export function ResetPassword({ onBack }: ResetPasswordProps) {
         <div className="mx-auto mb-4 flex items-center justify-center">
           <BrandMark className="size-12 rounded-lg" title={t('brand.name')} />
         </div>
-        <CardTitle className="font-serif text-xl text-center">Reset your password</CardTitle>
+        <CardTitle className="font-serif text-xl text-center">{t('reset.title')}</CardTitle>
         <CardDescription className="text-center">
           Enter the email address associated with your account and we'll send you a link to reset your password.
         </CardDescription>
@@ -87,7 +87,7 @@ export function ResetPassword({ onBack }: ResetPasswordProps) {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-1.5">
-            <Label htmlFor="reset-email">Email address</Label>
+            <Label htmlFor="reset-email">{t('reset.emailLabel')}</Label>
             <div className="relative">
               <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
               <Input
@@ -113,14 +113,14 @@ export function ResetPassword({ onBack }: ResetPasswordProps) {
 
           <Button type="submit" disabled={status === 'loading' || !email.trim()} className="w-full gap-2 font-medium">
             {status === 'loading' ? <Loader2 className="size-4 animate-spin" /> : <Mail className="size-4" />}
-            {status === 'loading' ? 'Sending...' : 'Send reset link'}
+            {status === 'loading' ? t('reset.sending') : t('reset.send')}
           </Button>
         </form>
 
         <div className="mt-4 text-center">
           <button onClick={onBack} className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer">
             <ArrowLeft className="size-3.5" />
-            Back to sign in
+            {t('reset.back')}
           </button>
         </div>
       </CardContent>

@@ -183,6 +183,17 @@ const en: Dict = {
   'auth.profileStatus.rejectedDesc': 'Your employer account was not approved. Please contact us for more details.',
   'auth.profileStatus.pendingTitle': 'Account under review',
   'auth.profileStatus.pendingDesc': 'Your employer account is being reviewed by our team. We will notify you when it is approved.',
+  // Password reset
+  'reset.title': 'Reset your password',
+  'reset.emailLabel': 'Email address',
+  'reset.send': 'Send reset link',
+  'reset.sending': 'Sending…',
+  'reset.back': 'Back to sign in',
+  'reset.invalid': 'Invalid or expired reset link',
+  'reset.invalidDesc': 'Invalid or expired reset link. Please request a new one.',
+  'reset.newPassword': 'New password',
+  'reset.minChars': 'Min. 8 characters',
+  'reset.success': 'Password reset successful',
   // Job enum labels (canonical values, displayed per locale)
   'jobEnums.location.remote': 'Remote',
   'jobEnums.location.hybrid': 'Hybrid',

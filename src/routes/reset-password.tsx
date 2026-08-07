@@ -74,14 +74,14 @@ function ResetPasswordPage() {
       const { error } = await supabase.auth.updateUser({ password })
       if (error) throw error
       setStatus('done')
-      toast.success('Password reset successful')
+      toast.success(t('reset.success'))
       // Redirect to dashboard after a moment
       setTimeout(() => {
         window.location.href = '/dashboard'
       }, 2500)
     } catch (err) {
       setStatus('error')
-      const msg = err instanceof Error ? err.message : 'Invalid or expired reset link'
+      const msg = err instanceof Error ? err.message : t('reset.invalid')
       setErrorMsg(msg)
     }
   }
@@ -131,19 +131,19 @@ function ResetPasswordPage() {
           {status === 'error' && (
             <div className="flex items-start gap-2 rounded-md border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
               <AlertCircle className="size-4 shrink-0 mt-0.5" />
-              <span>{errorMsg || 'Invalid or expired reset link. Please request a new one.'}</span>
+              <span>{errorMsg || t('reset.invalidDesc')}</span>
             </div>
           )}
           {status !== 'error' && ready ? (
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
-                <Label htmlFor="new-password">New password</Label>
+                <Label htmlFor="new-password">{t('reset.newPassword')}</Label>
                 <div className="relative">
                   <Key className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
                     id="new-password"
                     type={showPassword ? 'text' : 'password'}
-                    placeholder="Min. 8 characters"
+                    placeholder={t('reset.minChars')}
                     value={password}
                     onChange={e => { setPassword(e.target.value); setErrorMsg('') }}
                     className="pl-9 pr-9"
