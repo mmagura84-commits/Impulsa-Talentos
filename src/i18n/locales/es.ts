@@ -155,6 +155,8 @@ const es: Dict = {
   'auth.passwordTooShort': 'La contraseña debe tener al menos 8 caracteres.',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
+  'auth.signUpCta': 'Crear cuenta',
+  'auth.signingUp': 'Creando cuenta…',
   'auth.checkEmail': 'Revisa tu correo electrónico',
   'auth.magicLinkSent': 'Enviamos un enlace para iniciar sesión a {email}. Ábrelo para continuar.',
   'auth.emailPlaceholder': 'tú@ejemplo.com',
