@@ -83,6 +83,7 @@ const es: Dict = {
   'nav.expandMenu': 'Expandir Menú',
   'nav.main': 'Navegación principal',
   'nav.mobile': 'Navegación móvil',
+  'nav.primary': 'Navegación principal',
 
   // Landing
   'landing.hero.badge': 'Impulsado por Nuestra Tecnología Propietaria',

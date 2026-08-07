@@ -84,6 +84,7 @@ const en: Dict = {
   'nav.expandMenu': 'Expand menu',
   'nav.main': 'Main navigation',
   'nav.mobile': 'Mobile navigation',
+  'nav.primary': 'Primary navigation',
 
   // Landing
   'landing.hero.badge': 'Powered by Our Proprietary Technology',

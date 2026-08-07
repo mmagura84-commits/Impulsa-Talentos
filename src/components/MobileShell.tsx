@@ -277,7 +277,7 @@ export function MobileShell({ children, title }: MobileShellProps) {
       <nav
         className="fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md border-t border-border"
         style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
-        aria-label="Primary"
+        aria-label={t('nav.primary')}
       >
         <ul className="grid grid-cols-4 h-16 max-w-md mx-auto">
           {isEmployer ? (
