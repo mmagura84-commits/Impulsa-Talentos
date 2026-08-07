@@ -156,6 +156,8 @@ const en: Dict = {
   'auth.passwordTooShort': 'Password must be at least 8 characters.',
   'auth.signInDescription': 'Sign in to your workspace — post jobs and hire talent, or find your next bilingual role.',
   'auth.signInCta': 'Sign in',
+  'auth.signUpCta': 'Create account',
+  'auth.signingUp': 'Creating account…',
   'auth.checkEmail': 'Check your email',
   'auth.magicLinkSent': 'We sent a sign-in link to {email}. Open it to continue.',
   'auth.emailPlaceholder': 'you@example.com',

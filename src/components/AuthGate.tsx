@@ -172,7 +172,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? t('auth.signingIn') : t('auth.signInWithPassword')}
+                  {sending ? (authMode === 'signUp' ? t('auth.signingUp') : t('auth.signingIn')) : (authMode === 'signUp' ? t('auth.signUpCta') : t('auth.signInWithPassword'))}
                 </Button>
               </form>
             ) : (
