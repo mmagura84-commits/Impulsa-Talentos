@@ -72,22 +72,26 @@ function DashboardRedirect() {
   }, [authLoading, profileLoading, profile?.role, navigate])
 
   if (!choosing) {
-    return (
-      <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">
+    const loadingView = (
+      <div className="flex items-center justify-center min-h-[50vh] px-4">
+        <div className="text-center space-y-3">
+          <div className="mx-auto animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
+          <p className="text-sm text-muted-foreground">{t('common.loading')}</p>
+        </div>
+      </div>
+    )
+    // Render timeout outside AuthGate so a hung auth provider cannot hide the recovery UI.
+    if (loadTimedOut) {
+      return (
         <div className="flex items-center justify-center min-h-[50vh] px-4">
           <div className="text-center space-y-3">
-            {loadTimedOut ? (
-              <>
-                <p className="text-sm text-destructive">{t('dashboard.loadingTimeout')}</p>
-                <Button type="button" variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
-              </>
-            ) : (
-              <><div className="mx-auto animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" /><p className="text-sm text-muted-foreground">{t('common.loading')}</p></>
-            )}
+            <p className="text-sm text-destructive">{t('dashboard.loadingTimeout')}</p>
+            <Button type="button" variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
           </div>
         </div>
-      </AuthGate>
-    )
+      )
+    }
+    return <AuthGate fallbackKey="auth.fallback.dashboard" fallbackDescKey="auth.fallback.dashboardDesc">{loadingView}</AuthGate>
   }
 
   return (
