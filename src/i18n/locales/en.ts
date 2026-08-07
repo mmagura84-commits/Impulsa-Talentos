@@ -151,6 +151,7 @@ const en: Dict = {
   'auth.signUpTab': 'Create account',
   'auth.resendLink': 'Resend link',
   'auth.invalidCredentials': 'Please check your email and password and try again.',
+  'auth.passwordTooShort': 'Password must be at least 8 characters.',
   'auth.signInDescription': 'Sign in to your workspace — post jobs and hire talent, or find your next bilingual role.',
   'auth.signInCta': 'Sign in',
   'auth.checkEmail': 'Check your email',
