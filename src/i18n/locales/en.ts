@@ -82,6 +82,7 @@ const en: Dict = {
   'nav.openMenu': 'Open menu',
   'nav.collapseMenu': 'Collapse menu',
   'nav.expandMenu': 'Expand menu',
+  'dashboard.matchScoreLabel': 'AI-powered match score',
   'nav.main': 'Main navigation',
   'nav.mobile': 'Mobile navigation',
   'nav.primary': 'Primary navigation',

@@ -68,7 +68,7 @@ function AiMatchBadge({ score }: { score: number }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${color}`}
-      title="AI-powered match score"
+      title={t('dashboard.matchScoreLabel')}
     >
       <Brain className="size-3" />
       {score}%
