@@ -119,7 +119,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
               {(['signIn', 'signUp'] as const).map(mode => (
                 <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
-                  onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
+                  onClick={() => { setAuthMode(mode); setUsePassword(mode === 'signUp'); clearError(); setSent(false) }}
                   className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                   {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
                 </button>
