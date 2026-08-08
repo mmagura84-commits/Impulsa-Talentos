@@ -51,6 +51,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handleMagicLink = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || sending) return
+    if (!validEmail) { setErrorKey('auth.invalidEmail'); return }
     setSending(true)
     setErrorMsg('')
     try {
@@ -206,7 +207,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
-                <Button type="submit" size="lg" disabled={sending || !email.trim()} className="w-full gap-2 font-medium">
+                <Button type="submit" size="lg" disabled={sending || !validEmail} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
                   {sending ? (authMode === 'signUp' ? t('auth.signingUpWithEmail') : t('auth.sending')) : (authMode === 'signUp' ? t('auth.signUpMagicLinkCta') : t('auth.signInCta'))}
                 </Button>
