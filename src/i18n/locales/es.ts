@@ -153,6 +153,7 @@ const es: Dict = {
   'auth.signInTab': 'Iniciar sesión',
   'auth.signUpTab': 'Crear cuenta',
   'auth.resendLink': 'Reenviar enlace',
+  'auth.invalidEmail': 'Ingresa un correo electrónico válido.',
   'auth.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo.',
   'auth.passwordTooShort': 'La contraseña debe tener al menos 8 caracteres.',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',

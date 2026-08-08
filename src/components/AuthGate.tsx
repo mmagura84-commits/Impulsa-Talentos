@@ -32,6 +32,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [confirmPassword, setConfirmPassword] = useState('')
   const [fullName, setFullName] = useState('')
   const candidateSignup = typeof window !== 'undefined' && window.location.pathname.startsWith('/candidate')
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -66,6 +67,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password || sending) return
+    if (!validEmail) { setErrorKey('auth.invalidEmail'); return }
     if (authMode === 'signUp' && candidateSignup && !fullName.trim()) { setErrorKey('auth.nameRequired'); return }
     if (authMode === 'signUp' && candidateSignup && password !== confirmPassword) { setErrorKey('auth.passwordMismatch'); return }
     if (password.length < 8) {
@@ -181,7 +183,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
-                <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
+                <Button type="submit" size="lg" disabled={sending || !validEmail || !password || (authMode === 'signUp' && candidateSignup && (!fullName.trim() || !confirmPassword))} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
                   {sending ? (authMode === 'signUp' ? t('auth.signingUp') : t('auth.signingIn')) : (authMode === 'signUp' ? t('auth.signUpCta') : t('auth.signInWithPassword'))}
                 </Button>
