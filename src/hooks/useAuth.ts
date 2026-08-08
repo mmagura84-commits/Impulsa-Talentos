@@ -95,8 +95,8 @@ export function useAuth() {
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
     /** Create an account with email + password. */
-    signUpWithPassword: (email: string, password: string, redirectTo?: string) =>
-      supabase.auth.signUp({ email, password, options: redirectTo ? { emailRedirectTo: redirectTo } : undefined }),
+    signUpWithPassword: (email: string, password: string, redirectTo?: string, fullName?: string) =>
+      supabase.auth.signUp({ email, password, options: { ...(redirectTo ? { emailRedirectTo: redirectTo } : {}), ...(fullName ? { data: { full_name: fullName } } : {}) } }),
     /** Sign in with Google OAuth. Requires Google provider configured in Supabase dashboard. */
     signInWithGoogle: (redirectTo?: string) =>
       supabase.auth.signInWithOAuth({
