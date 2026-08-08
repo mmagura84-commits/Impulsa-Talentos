@@ -1,18 +1,17 @@
 import { createClient } from '@supabase/supabase-js'
 
 /**
- * Impulsa Talentos — Supabase client (replaces the Blink SDK).
- *
- * Credentials come from build-time env vars; the values below are the
- * project defaults provided for this deployment.
+ * Supabase credentials are required at build time. Never silently fall back to
+ * production: an unconfigured preview must not access another environment.
  */
-const supabaseUrl =
-  import.meta.env.VITE_SUPABASE_URL ||
-  'https://wpnkeryyhsdsislqaegb.supabase.co'
-const supabaseAnonKey =
-  import.meta.env.VITE_SUPABASE_ANON_KEY ||
-  'sb_publishable_k5kORoRSOzJffgewGUZvcg_1r3igrAi'
-
+const configuredUrl = import.meta.env.VITE_SUPABASE_URL?.trim()
+const configuredAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY?.trim()
+export const isSupabaseConfigured = Boolean(configuredUrl && configuredAnonKey)
+const supabaseUrl = configuredUrl || 'https://missing-supabase-config.invalid'
+const supabaseAnonKey = configuredAnonKey || 'missing-supabase-anon-key'
+if (!isSupabaseConfigured && typeof window !== 'undefined') {
+  console.error('[supabase] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY')
+}
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
