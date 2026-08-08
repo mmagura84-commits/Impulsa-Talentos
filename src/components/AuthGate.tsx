@@ -29,6 +29,9 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [usePassword, setUsePassword] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
+  const [fullName, setFullName] = useState('')
+  const candidateSignup = typeof window !== 'undefined' && window.location.pathname.startsWith('/candidate')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
@@ -63,6 +66,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password || sending) return
+    if (authMode === 'signUp' && candidateSignup && !fullName.trim()) { setErrorKey('auth.nameRequired'); return }
+    if (authMode === 'signUp' && candidateSignup && password !== confirmPassword) { setErrorKey('auth.passwordMismatch'); return }
     if (password.length < 8) {
       setErrorKey('auth.passwordTooShort')
       setErrorMsg('')
@@ -75,7 +80,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
         // Preserve the lane where signup started (candidate, employer, etc.) so
         // email confirmation returns to the correct role-gated route.
         const returnPath = window.location.pathname + window.location.search
-        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath)
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath, candidateSignup ? fullName.trim() : undefined)
         if (!result.data.session) setSent(true)
       } else {
         await signInWithPassword(email.trim(), password)
@@ -142,6 +147,9 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
               </>
             ) : usePassword ? (
               <form onSubmit={handlePassword} className="space-y-3">
+                {authMode === 'signUp' && candidateSignup && (
+                  <Input type="text" value={fullName} onChange={e => { setFullName(e.target.value); clearError() }} placeholder={t('auth.fullNamePlaceholder')} required autoComplete="name" />
+                )}
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
                   <Input
@@ -167,6 +175,9 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     autoComplete="current-password"
                   />
                 </div>
+                {authMode === 'signUp' && candidateSignup && (
+                  <Input type="password" value={confirmPassword} onChange={e => { setConfirmPassword(e.target.value); clearError() }} placeholder={t('auth.confirmPasswordPlaceholder')} required autoComplete="new-password" />
+                )}
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
