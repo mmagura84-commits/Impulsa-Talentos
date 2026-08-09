@@ -32,9 +32,8 @@ import path from 'node:path'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 
-const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'https://wpnkeryyhsdsislqaegb.supabase.co'
-const SUPABASE_ANON_KEY =
-  process.env.VITE_SUPABASE_ANON_KEY || 'sb_publishable_k5kORoRSOzJffgewGUZvcg_1r3igrAi'
+const SUPABASE_URL = process.env.VITE_SUPABASE_URL
+const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY
 // Published domain — the ONLY address the owner/crawlers can open.
 const SITE_URL = (process.env.SITE_URL || 'https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app').replace(/\/+$/, '')
 
@@ -55,11 +54,20 @@ function escapeXml(s) {
 }
 
 async function main() {
-  // 1. Fetch the exact public sets from the data source (RLS = same filter).
-  const jobs = await fetchJson(
-    '/rest/v1/jobs?select=id&status=eq.open&moderation_status=eq.approved',
-  )
-  const companies = await fetchJson('/rest/v1/companies?select=id')
+  // Dynamic URLs are optional at build time. Never fall back to credentials;
+  // static routes remain safe when staging data is unavailable.
+  let jobs = []
+  let companies = []
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    try {
+      jobs = await fetchJson('/rest/v1/jobs?select=id&status=eq.open&moderation_status=eq.approved')
+      companies = await fetchJson('/rest/v1/companies?select=id')
+    } catch (err) {
+      console.warn(`[generate-sitemap] dynamic routes unavailable; using static routes: ${err.message}`)
+    }
+  } else {
+    console.warn('[generate-sitemap] Supabase env unavailable; using static routes only')
+  }
 
   // 2. Build the URL list.
   const locs = [
