@@ -17,6 +17,7 @@ const es: Dict = {
   'common.cancel': 'Cancelar',
   'common.save': 'Guardar',
   'common.continue': 'Continuar',
+  'dashboard.dataError': 'No se pudieron cargar algunos datos del panel. Inténtalo de nuevo.',
   'common.retry': 'Reintentar',
   'dashboard.loadingTimeout': 'No pudimos cargar tu espacio de trabajo. Inténtalo de nuevo.',
   'common.back': 'Volver',
