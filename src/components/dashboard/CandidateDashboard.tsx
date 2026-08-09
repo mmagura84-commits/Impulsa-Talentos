@@ -59,6 +59,7 @@ function MatchBadge({ score }: { score: number }) {
 
 /* ── AI Match badge ────────────────────────────────────── */
 function AiMatchBadge({ score }: { score: number }) {
+  const { t } = useI18n()
   const color =
     score >= 80
       ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5'
