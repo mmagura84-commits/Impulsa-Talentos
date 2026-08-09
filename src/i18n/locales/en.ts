@@ -18,6 +18,7 @@ const en: Dict = {
   'common.cancel': 'Cancel',
   'common.save': 'Save',
   'common.continue': 'Continue',
+  'dashboard.dataError': 'Some dashboard data could not be loaded. Please try again.',
   'common.retry': 'Retry',
   'dashboard.loadingTimeout': 'We could not load your workspace. Please try again.',
   'common.back': 'Back',

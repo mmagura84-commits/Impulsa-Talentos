@@ -403,9 +403,9 @@ export function SavedJobRow({ job, candidateId }: { job: Job; candidateId: strin
 export function CandidateDashboard({ candidateProfileId }: { candidateProfileId: string }) {
   const { t } = useI18n()
   const { data: profile } = useProfileById(candidateProfileId)
-  const { data: applications, isLoading: appsLoading } = useMyApplications(candidateProfileId)
-  const { data: jobs, isLoading: jobsLoading } = useJobs()
-  const { data: savedJobs, isLoading: savedLoading } = useMySavedJobs(candidateProfileId)
+  const { data: applications, isLoading: appsLoading, isError: appsError } = useMyApplications(candidateProfileId)
+  const { data: jobs, isLoading: jobsLoading, isError: jobsError } = useJobs()
+  const { data: savedJobs, isLoading: savedLoading, isError: savedError } = useMySavedJobs(candidateProfileId)
   const withdraw = useWithdrawApplication()
   const completion = useProfileCompletion(profile ?? null)
   const hasProfileSignal = !!(profile?.bio?.trim() || profile?.languages?.trim() || profile?.location?.trim())
@@ -423,6 +423,14 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   return (
     <div className="space-y-6">
       {completion.percent < 100 && <FadeIn delay={0.04}><Card className="border-amber-500/20"><CardContent className="p-4"><div className="flex flex-wrap items-center gap-3"><Target className="size-5 text-amber-500"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{t('profileCompletion.title')} · {completion.percent}%</p><div className="mt-1.5 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{width:`${completion.percent}%`}}/></div><p className="mt-1 text-xs text-muted-foreground">{completion.missingLabels.slice(0,2).join(', ')}</p></div><Button size="sm" variant="outline" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div></CardContent></Card></FadeIn>}
+      {(appsError || jobsError || savedError) && (
+        <Card role="alert" className="border-destructive/30 bg-destructive/5">
+          <CardContent className="flex items-center justify-between gap-3 p-4">
+            <p className="text-sm text-destructive">{t('dashboard.dataError')}</p>
+            <Button size="sm" variant="outline" onClick={() => window.location.reload()}>{t('common.retry')}</Button>
+          </CardContent>
+        </Card>
+      )}
       <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0} accent="gold"/><StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0.05} accent="gold"/><StatCard icon={Star} label={t('dashboard.stat.inProgress')} value={String((applications ?? []).filter(a => ['pending','reviewed','interview'].includes(a.status)).length)} delay={0.1} accent="gold"/></div>
       <FadeIn delay={0.08}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Sparkles className="size-4 text-primary"/>{t('dashboard.matches.title')}</CardTitle><CardDescription>{hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.exploreMore')}</Link></Button></CardHeader><CardContent className="space-y-2">{jobsLoading || aiLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !matches.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.matches.weakDesc')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div> : matches.map(({job,score})=><JobCard key={job.id} job={job} score={typeof score === 'number' ? (score as unknown as MatchScore) : undefined}/>)}</CardContent></Card></FadeIn>
       <FadeIn delay={0.12}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4 text-primary"/>{t('timeline.title')}</CardTitle><CardDescription>{t('dashboard.myApplications.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></CardHeader><CardContent>{appsLoading ? <div className="space-y-3">{[1,2,3].map(i=><div key={i} className="h-12 rounded bg-muted animate-pulse"/>)}</div> : !recentApps.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('timeline.empty')}<br/><Button size="sm" className="mt-3" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></div> : <>{recentApps.map((app,i)=><ApplicationTimelineItem key={app.id} app={app} isLast={i===recentApps.length-1} onWithdraw={handleWithdraw}/>)}{(applications?.length ?? 0)>5 && <Link className="block pt-2 text-center text-xs text-primary hover:underline" to="/candidate/applications">{t('timeline.viewAll')} ({applications?.length})</Link>}</>}</CardContent></Card></FadeIn>
