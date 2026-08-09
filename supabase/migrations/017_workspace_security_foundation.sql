@@ -202,6 +202,8 @@ as $$
  end
 $$;
 
+revoke execute on function public.record_audit_event(uuid,text,text,text,text,text,text,jsonb,jsonb) from public;
+revoke execute on function public.decide_approval(uuid,text,text) from public;
 grant execute on function public.record_audit_event(uuid,text,text,text,text,text,text,jsonb,jsonb) to authenticated;
 grant execute on function public.decide_approval(uuid,text,text) to authenticated;
 
