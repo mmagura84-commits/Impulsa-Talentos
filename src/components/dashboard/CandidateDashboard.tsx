@@ -412,7 +412,7 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   const hasProfileSignal = !!(profile?.bio?.trim() || profile?.languages?.trim() || profile?.location?.trim())
   const ranked = useMemo(() => hasProfileSignal ? rankJobs(profile ?? null, jobs ?? []) : [], [hasProfileSignal, profile, jobs])
   const fallbackJobs = (jobs ?? []).filter(j => j.status === 'open').slice(0, 5)
-  const { data: aiMatches, isLoading: aiLoading } = useAiTopMatches(candidateProfileId, hasProfileSignal)
+  const { data: aiMatches, isLoading: aiLoading } = useAiTopMatches(profile, jobs, 5)
   const recentApps = (applications ?? []).slice(0, 5)
   const recentSaved = (savedJobs ?? []).slice(0, 3)
   const handleWithdraw = async (appId: string) => {
