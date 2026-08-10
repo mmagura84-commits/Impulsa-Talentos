@@ -26,6 +26,7 @@ function CandidateLayout() {
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
   const [resendError, setResendError] = useState('')
+  const [authChoice, setAuthChoice] = useState<'signIn' | 'signUp' | null>(null)
 
   useLayoutEffect(() => {
     // Wait for both auth and profile to settle before deciding.
@@ -46,8 +47,24 @@ function CandidateLayout() {
 
   // ── No user — AuthGate renders the bilingual sign-in/create-account form.
   if (!user) {
+    if (!authChoice) {
+      return (
+        <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
+          <Card className="w-full max-w-md border-border shadow-lg">
+            <CardHeader className="text-center">
+              <CardTitle className="font-serif text-xl">{t('auth.signInTitle')}</CardTitle>
+              <CardDescription>{t('auth.signInDescription')}</CardDescription>
+            </CardHeader>
+            <CardContent className="grid gap-3 sm:grid-cols-2">
+              <Button type="button" size="lg" onClick={() => setAuthChoice('signIn')}>{t('auth.signInTab')}</Button>
+              <Button type="button" size="lg" variant="outline" onClick={() => setAuthChoice('signUp')}>{t('auth.signUpTab')}</Button>
+            </CardContent>
+          </Card>
+        </div>
+      )
+    }
     return (
-      <AuthGate fallbackKey="auth.signInTitle" fallbackDescKey="auth.signInDescription">
+      <AuthGate initialMode={authChoice} hideModeTabs fallbackKey={authChoice === 'signUp' ? 'auth.signUpTitle' : 'auth.signInTitle'} fallbackDescKey={authChoice === 'signUp' ? 'auth.signUpDescription' : 'auth.signInDescription'}>
         <Outlet />
       </AuthGate>
     )

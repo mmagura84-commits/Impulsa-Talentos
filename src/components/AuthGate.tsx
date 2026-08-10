@@ -20,9 +20,13 @@ interface AuthGateProps {
   /** Optional raw override (takes priority over the key). */
   fallbackMessage?: string
   fallbackDescription?: string
+  /** Initial auth lane for role-specific entry funnels. */
+  initialMode?: 'signIn' | 'signUp'
+  /** Hide the mode switch when the parent owns the entry choices. */
+  hideModeTabs?: boolean
 }
 
-function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn', hideModeTabs = false }: AuthGateProps) {
   const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
@@ -34,7 +38,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [errorMsg, setErrorMsg] = useState('')
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const clearError = () => { setErrorMsg(''); setErrorKey(null) }
-  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn')
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>(initialMode)
 
   if (isLoading) {
     return (
@@ -111,7 +115,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <CardDescription>{desc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
+            {!hideModeTabs && <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
               {(['signIn', 'signUp'] as const).map(mode => (
                 <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
                   onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
@@ -119,7 +123,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
                 </button>
               ))}
-            </div>
+            </div>}
             {!usePassword && sent ? (
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
@@ -225,7 +229,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   return <>{children}</>
 }
 
-export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode, hideModeTabs }: AuthGateProps) {
   return (
     <BlinkClientBoundary
       fallback={
@@ -239,6 +243,8 @@ export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessa
         fallbackDescKey={fallbackDescKey}
         fallbackMessage={fallbackMessage}
         fallbackDescription={fallbackDescription}
+        initialMode={initialMode}
+        hideModeTabs={hideModeTabs}
       >
         {children}
       </AuthGateInner>
