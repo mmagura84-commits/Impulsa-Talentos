@@ -183,6 +183,10 @@ const es: Dict = {
   'auth.profileStatus.pendingTitle': 'Cuenta en revisión',
   'auth.profileStatus.pendingDesc': 'Tu cuenta de empleador está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.',
   // Password reset
+  'reset.requestTitle': '¿Olvidaste tu contraseña?',
+  'reset.requestDescription': 'Ingresa tu correo y enviaremos un enlace si existe una cuenta.',
+  'reset.requestSent': 'Si existe una cuenta, enviamos un enlace de restablecimiento.',
+  'reset.requestError': 'No pudimos enviar el enlace. Inténtalo de nuevo.',
   'reset.title': 'Restablece tu contraseña',
   'reset.emailLabel': 'Correo electrónico',
   'reset.send': 'Enviar enlace de restablecimiento',

@@ -184,6 +184,10 @@ const en: Dict = {
   'auth.profileStatus.pendingTitle': 'Account under review',
   'auth.profileStatus.pendingDesc': 'Your employer account is being reviewed by our team. We will notify you when it is approved.',
   // Password reset
+  'reset.requestTitle': 'Forgot your password?',
+  'reset.requestDescription': 'Enter your email and we will send a reset link if an account exists.',
+  'reset.requestSent': 'If an account exists, a reset link was sent.',
+  'reset.requestError': 'We could not send the reset link. Please try again.',
   'reset.title': 'Reset your password',
   'reset.emailLabel': 'Email address',
   'reset.send': 'Send reset link',

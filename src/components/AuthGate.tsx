@@ -28,6 +28,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [showReset, setShowReset] = useState(false)
   const [usePassword, setUsePassword] = useState(false)
   const [email, setEmail] = useState('')
+  const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const [password, setPassword] = useState('')
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
@@ -46,7 +47,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
 
   const handleMagicLink = async (e: FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || sending) return
+    if (!validEmail || sending) return
     setSending(true)
     setErrorMsg('')
     try {
@@ -62,7 +63,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
 
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
-    if (!email.trim() || !password || sending) return
+    if (!validEmail || !password || sending) return
     if (password.length < 8) {
       setErrorKey('auth.passwordTooShort')
       setErrorMsg('')
@@ -170,7 +171,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
-                <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
+                <Button type="submit" size="lg" disabled={sending || !validEmail || !password} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
                   {sending ? (authMode === 'signUp' ? t('auth.signingUp') : t('auth.signingIn')) : (authMode === 'signUp' ? t('auth.signUpCta') : t('auth.signInWithPassword'))}
                 </Button>
@@ -193,7 +194,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}
-                <Button type="submit" size="lg" disabled={sending || !email.trim()} className="w-full gap-2 font-medium">
+                <Button type="submit" size="lg" disabled={sending || !validEmail} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
                   {sending ? (authMode === 'signUp' ? t('auth.signingUpWithEmail') : t('auth.sending')) : (authMode === 'signUp' ? t('auth.signUpMagicLinkCta') : t('auth.signInCta'))}
                 </Button>

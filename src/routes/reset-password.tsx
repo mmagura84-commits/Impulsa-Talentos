@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { BrandMark } from '@/components/BrandMark'
 import {
   Key,
+  Mail,
   ArrowLeft,
   CheckCircle2,
   AlertCircle,
@@ -30,7 +31,8 @@ function ResetPasswordPage() {
   const [ready, setReady] = useState(false)
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [status, setStatus] = useState<'loading' | 'done' | 'error'>('loading')
+  const [status, setStatus] = useState<'request' | 'loading' | 'sent' | 'done' | 'error'>('request')
+  const [email, setEmail] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
@@ -44,6 +46,12 @@ function ResetPasswordPage() {
     if (authError) {
       setStatus('error')
       setErrorMsg(authError)
+      return
+    }
+    // A plain visit is the password-recovery request entry point. Only links
+    // carrying recovery state should attempt to exchange a session.
+    if (!tokenHash && !window.location.hash) {
+      setStatus('request')
       return
     }
     let settled = false
@@ -83,6 +91,23 @@ function ResetPasswordPage() {
     return () => subscription.subscription.unsubscribe()
   }, [t])
 
+  const handleRequestReset = async (e: FormEvent) => {
+    e.preventDefault()
+    const normalized = email.trim()
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) return
+    setStatus('loading')
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(normalized, {
+        redirectTo: typeof window !== 'undefined' ? `${window.location.origin}/reset-password` : undefined,
+      })
+      if (error) throw error
+      setStatus('sent')
+      toast.success(t('reset.requestSent'))
+    } catch (error) {
+      setStatus('error')
+      setErrorMsg(error instanceof Error ? error.message : t('reset.requestError'))
+    }
+  }
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!ready || !password.trim()) return
@@ -109,6 +134,31 @@ function ResetPasswordPage() {
     }
   }
 
+  if (status === 'request') {
+    return (
+      <div className="flex items-center justify-center min-h-dvh px-4">
+        <Card className="max-w-md w-full border-border shadow-lg">
+          <CardHeader className="pb-4">
+            <div className="mx-auto mb-4 flex items-center justify-center"><BrandMark className="size-12 rounded-lg" title={t('brand.name')} /></div>
+            <CardTitle className="font-serif text-xl text-center">{t('reset.requestTitle')}</CardTitle>
+            <CardDescription className="text-center">{t('reset.requestDescription')}</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleRequestReset} className="space-y-4">
+              <div className="space-y-1.5"><Label htmlFor="reset-email">{t('reset.emailLabel')}</Label><Input id="reset-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com" required autoFocus autoComplete="email" /></div>
+              <Button type="submit" disabled={!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())} className="w-full gap-2"><Mail className="size-4" />{t('reset.send')}</Button>
+            </form>
+            <div className="mt-4 text-center"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">{t('reset.back')}</Link></div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+  if (status === 'sent') {
+    return (
+      <div className="flex items-center justify-center min-h-dvh px-4"><Card className="max-w-md w-full border-border shadow-lg"><CardHeader className="text-center"><div className="mx-auto mb-4 flex items-center justify-center h-14 w-14 rounded-full bg-emerald-500/10 text-emerald-600"><CheckCircle2 className="size-7" /></div><CardTitle className="font-serif text-xl">{t('reset.requestSent')}</CardTitle><CardDescription>{t('reset.requestDescription')}</CardDescription></CardHeader><CardContent className="text-center"><Link to="/" className="text-sm text-muted-foreground hover:text-foreground">{t('reset.back')}</Link></CardContent></Card></div>
+    )
+  }
   if (status === 'done') {
     return (
       <div className="flex items-center justify-center min-h-dvh px-4">
