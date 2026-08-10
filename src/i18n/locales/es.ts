@@ -47,6 +47,7 @@ const es: Dict = {
   'nav.myJobs': 'Mis vacantes',
   'nav.pricing': 'Precios',
   'nav.applications': 'Postulaciones',
+  'nav.team': 'Equipo',
   'mobile.nav.applications': 'Postulaciones',
   'applications.subtitle': 'Revisa candidatos de tus vacantes activas.',
   'applications.empty': 'Aún no hay postulaciones.',
