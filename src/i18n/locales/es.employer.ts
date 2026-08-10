@@ -168,6 +168,27 @@ const esEmployer: Dict = {
   'profile.notif.marketingDesc': 'Noticias del producto, consejos y eventos. Enviamos pocos correos.',
   'profile.notif.saved': 'Preferencias guardadas',
   'profile.notif.createFirst': 'Crea tu perfil para gestionar las preferencias de correo.',
-}
+
+  // Team management
+  'team.title': 'Gestión de Equipo',
+  'team.noCompany': 'No se encontró empresa. Crea una empresa primero.',
+  'team.inviteTitle': 'Invitar Miembro',
+  'team.emailLabel': 'Correo',
+  'team.emailPlaceholder': 'colega@empresa.com',
+  'team.roleLabel': 'Rol',
+  'team.role.owner': 'Dueño',
+  'team.role.admin': 'Administrador',
+  'team.role.member': 'Miembro',
+  'team.sendInvite': 'Enviar Invitación',
+  'team.inviteFailed': 'Invitación fallida',
+  'team.membersTitle': 'Miembros del Equipo',
+  'team.emptyState': 'Aún no hay miembros. Invita a tu primer colega arriba.',
+  'team.statusLabel': 'Estado',
+  'team.status.active': 'Activo',
+  'team.status.pending': 'Pendiente',
+  'team.status.declined': 'Rechazado',
+  'team.pendingLabel': 'pendiente',
+  'team.removeConfirm': '¿Eliminar este miembro?',
+  }
 
 export default esEmployer
