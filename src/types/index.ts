@@ -46,6 +46,18 @@ export interface Profile {
   whatsappNumber?: string
   tiktokUrl?: string
   youtubeUrl?: string
+  /** Candidate enrichment fields (migration 018) */
+  headline?: string
+  preferredLanguage?: 'es' | 'en' | 'pt'
+  timezone?: string
+  employmentStatus?: 'employed' | 'unemployed' | 'student' | 'freelance'
+  availabilityDate?: string
+  employmentPreference?: 'full_time' | 'part_time' | 'contract' | 'freelance' | 'any'
+  currencyPreference?: string
+  willingToRelocate?: boolean
+  workAuthorization?: string
+  portfolioUrl?: string
+  preferredContactMethod?: 'email' | 'whatsapp' | 'sms' | 'in_app'
 }
 
 /** Per-user email notification preferences. */
@@ -109,11 +121,28 @@ export interface Job {
   industry?: string
 }
 
+export type ApplicationStatus =
+  | 'draft'
+  | 'applied'
+  | 'under_review'
+  | 'recruiter_screening'
+  | 'interview_scheduled'
+  | 'assessment_required'
+  | 'assessment_submitted'
+  | 'submitted_to_client'
+  | 'client_interview'
+  | 'final_interview'
+  | 'offer'
+  | 'hired'
+  | 'not_selected'
+  | 'position_closed'
+  | 'withdrawn'
+
 export interface Application {
   id: string
   jobId: string
   candidateId: string
-  status: 'pending' | 'reviewed' | 'interview' | 'offered' | 'hired' | 'rejected'
+  status: ApplicationStatus
   coverLetter: string
   createdAt: string
   updatedAt: string
@@ -121,6 +150,26 @@ export interface Application {
   interviewLink?: string
   /** ISO datetime when the interview is scheduled. */
   interviewDate?: string
+  /** Assigned recruiter */
+  recruiterId?: string
+  /** Next action the candidate needs to take */
+  nextAction?: string
+  /** Due date for next action */
+  nextActionDue?: string
+  /** Feedback for candidate */
+  feedback?: string
+  /** Reason if withdrawn */
+  withdrawnReason?: string
+}
+
+/** Status history entry for an application. */
+export interface ApplicationStatusHistory {
+  id: string
+  applicationId: string
+  status: ApplicationStatus
+  note?: string
+  changedBy?: string
+  createdAt: string
 }
 
 
@@ -174,6 +223,22 @@ export interface JobReport {
   /** Free-form detail the reporter wrote. */
   note: string
   createdAt: string
+}
+
+/** Team member on an employer company. */
+export type TeamMemberRole = 'owner' | 'admin' | 'member'
+export type TeamMemberStatus = 'active' | 'pending' | 'declined'
+
+export interface TeamMember {
+  id: string
+  companyId: string
+  userId: string
+  role: TeamMemberRole
+  invitedBy?: string
+  inviteEmail?: string
+  status: TeamMemberStatus
+  createdAt: string
+  updatedAt: string
 }
 
 /** Employer lead captured from gated pricing page or other acquisition channels. */
