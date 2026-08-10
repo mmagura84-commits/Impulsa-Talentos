@@ -23,6 +23,7 @@ import { sendInterviewNotification } from '@/lib/notifyInterview'
 import { JobAnalytics } from '@/components/manage/JobAnalytics'
 import { PipelineKanban } from '@/components/employer/PipelineKanban'
 import { FeedbackPanel } from '@/components/employer/FeedbackPanel'
+import { InterviewsPanel } from '@/components/employer/InterviewsPanel'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   ArrowLeft,
@@ -612,6 +613,10 @@ function ManageApplicationsPage() {
         {/* Analytics (Gap 10) */}
         <FadeIn delay={0.08}>
           <JobAnalytics job={job} applications={apps} />
+        </FadeIn>
+        {/* Interviews (migration 020 data layer) */}
+        <FadeIn delay={0.09}>
+          <InterviewsPanel jobId={id} companyId={job.companyId} applications={apps} />
         </FadeIn>
         {/* Candidate Pipeline */}
         <FadeIn delay={0.1}>
