@@ -21,6 +21,7 @@ import {
 } from '@/hooks/useApplications'
 import { sendInterviewNotification } from '@/lib/notifyInterview'
 import { JobAnalytics } from '@/components/manage/JobAnalytics'
+import { PipelineKanban } from '@/components/employer/PipelineKanban'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   ArrowLeft,
@@ -543,6 +544,7 @@ function ManageApplicationsPage() {
   }
 
   const apps = applications ?? []
+  const [kanbanView, setKanbanView] = useState<'kanban' | 'list'>('kanban')
   const statusCounts = STATUS_FLOW.reduce<Record<string, number>>(
     (acc, s) => ({ ...acc, [s]: 0 }),
     {},
@@ -606,22 +608,42 @@ function ManageApplicationsPage() {
         <FadeIn delay={0.08}>
           <JobAnalytics job={job} applications={apps} />
         </FadeIn>
-        {/* List */}
+        {/* Candidate Pipeline */}
         <FadeIn delay={0.1}>
           <Card>
-            <CardHeader>
-              <CardTitle className="text-base flex items-center gap-2">
-                <ListChecks className="size-4 text-primary" />
-                {t('manage.list')}
-              </CardTitle>
-              <CardDescription>
-                {apps.length === 0
-                  ? t('manage.empty')
-                  : t('manage.listDesc', { count: apps.length, plural: apps.length === 1 ? '' : 's' })}
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-base flex items-center gap-2">
+                  <ListChecks className="size-4 text-primary" />
+                  {t('manage.list')}
+                </CardTitle>
+                <CardDescription>
+                  {apps.length === 0
+                    ? t('manage.empty')
+                    : t('manage.listDesc', { count: apps.length, plural: apps.length === 1 ? '' : 's' })}
+                </CardDescription>
+              </div>
+              <div className="flex items-center gap-1 bg-muted rounded-lg p-0.5">
+                <button
+                  type="button"
+                  onClick={() => setKanbanView('kanban')}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${kanbanView === 'kanban' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  {t('kanban.viewKanban')}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setKanbanView('list')}
+                  className={`px-3 py-1 rounded-md text-xs font-medium transition-colors cursor-pointer ${kanbanView === 'list' ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}
+                >
+                  {t('kanban.viewList')}
+                </button>
+              </div>
             </CardHeader>
-            <CardContent className="space-y-2">
-              {apps.length === 0 ? (
+            <CardContent>
+              {kanbanView === 'kanban' ? (
+                <PipelineKanban applications={apps} />
+              ) : apps.length === 0 ? (
                 <div className="text-center py-10">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
                     <Briefcase className="size-6 text-primary" />
@@ -631,9 +653,11 @@ function ManageApplicationsPage() {
                   </p>
                 </div>
               ) : (
-                apps.map(app => (
-                  <ApplicationRow key={app.id} app={app} jobId={id} />
-                ))
+                <div className="space-y-2">
+                  {apps.map(app => (
+                    <ApplicationRow key={app.id} app={app} jobId={id} />
+                  ))}
+                </div>
               )}
             </CardContent>
           </Card>
