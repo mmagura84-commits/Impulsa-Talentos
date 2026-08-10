@@ -221,6 +221,20 @@ const enDashboard: Dict = {
   'application.interview.title': 'Interview scheduled',
   'application.interview.date': 'Date',
   'application.interview.link': 'Join interview',
+
+  // ── Messenger ────────────────────────────────────────────────────
+  'messenger.title': 'Messages',
+  'messenger.subtitle': 'Communicate directly about this application.',
+  'messenger.noMessages': 'No messages yet',
+  'messenger.startConversation': 'Send a message to start the conversation.',
+  'messenger.inputPlaceholder': 'Type your message...',
+  'messenger.send': 'Send',
+  'messenger.you': 'You',
+  'messenger.recruiter': 'Recruiter',
+  'messenger.antiScam': 'Impulsa Talentos never charges candidates placement fees. Only communicate through this platform. Report suspicious messages immediately.',
+  'messenger.error': 'Could not load messages.',
+  'messenger.open': 'Messages',
+  'messenger.close': 'Close messenger',
 }
 
 export default enDashboard

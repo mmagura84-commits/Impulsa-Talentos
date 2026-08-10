@@ -221,6 +221,20 @@ const esDashboard: Dict = {
   'application.interview.title': 'Entrevista agendada',
   'application.interview.date': 'Fecha',
   'application.interview.link': 'Unirse a la entrevista',
+
+  // ── Messenger ────────────────────────────────────────────────────
+  'messenger.title': 'Mensajes',
+  'messenger.subtitle': 'Comunícate directamente sobre esta postulación.',
+  'messenger.noMessages': 'Aún no hay mensajes',
+  'messenger.startConversation': 'Envía un mensaje para iniciar la conversación.',
+  'messenger.inputPlaceholder': 'Escribe tu mensaje...',
+  'messenger.send': 'Enviar',
+  'messenger.you': 'Tú',
+  'messenger.recruiter': 'Reclutador',
+  'messenger.antiScam': 'Impulsa Talentos nunca cobra tarifas de colocación a los candidatos. Solo comunícate a través de esta plataforma. Reporta mensajes sospechosos de inmediato.',
+  'messenger.error': 'No se pudieron cargar los mensajes.',
+  'messenger.open': 'Mensajes',
+  'messenger.close': 'Cerrar mensajería',
 }
 
 export default esDashboard
