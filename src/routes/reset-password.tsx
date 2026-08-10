@@ -40,25 +40,48 @@ function ResetPasswordPage() {
     if (typeof window === 'undefined') return
     const params = new URLSearchParams(window.location.search)
     const tokenHash = params.get('token_hash')
+    const authError = params.get('error_description') ?? params.get('error')
+    if (authError) {
+      setStatus('error')
+      setErrorMsg(authError)
+      return
+    }
+    let settled = false
+    const markSession = (session: { user?: unknown } | null) => {
+      if (settled) return
+      if (session) {
+        settled = true
+        setReady(true)
+        setStatus('loading')
+      }
+    }
+    const { data: subscription } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN') markSession(session)
+    })
     if (tokenHash) {
-      supabase.auth
-        .verifyOtp({ token_hash: tokenHash, type: 'recovery' })
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' })
         .then(({ error }) => {
-          if (error) {
-            setStatus('error')
-            setErrorMsg(error.message)
-            return
-          }
-          setReady(true)
+          if (error) { setStatus('error'); setErrorMsg(error.message); return }
+          markSession({ user: {} })
+        })
+        .catch((error: unknown) => {
+          setStatus('error')
+          setErrorMsg(error instanceof Error ? error.message : t('reset.invalid'))
         })
     } else {
-      // Fragment-session path: wait a tick for onAuthStateChange to fire.
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) setReady(true)
-        else setStatus('error')
+      // Hash sessions may arrive asynchronously; only fail after checking
+      // both the current session and auth events rather than racing them.
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (error) { setStatus('error'); setErrorMsg(error.message); return }
+        if (data.session) markSession(data.session)
+        else window.setTimeout(() => { if (!settled) { setStatus('error'); setErrorMsg(t('reset.invalidDesc')) } }, 1500)
+      }).catch((error: unknown) => {
+        setStatus('error')
+        setErrorMsg(error instanceof Error ? error.message : t('reset.invalid'))
       })
     }
-  }, [])
+    return () => subscription.subscription.unsubscribe()
+  }, [t])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
