@@ -50,7 +50,7 @@ function CandidateLayout() {
       <AuthGate
         fallbackKey="auth.candidateSignInTitle"
         fallbackDescKey="auth.candidateSignInDescription"
-        initialMode="signIn"
+        initialMode={typeof window !== 'undefined' && new URLSearchParams(window.location.search).get('mode') === 'signUp' ? 'signUp' : 'signIn'}
         showModeTabs
         signupRedirectPath="/profile"
       >
