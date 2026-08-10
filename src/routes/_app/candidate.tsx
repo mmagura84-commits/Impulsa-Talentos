@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Outlet, useLocation, useNavigate } from '@tanstack/react-router'
 import { useLayoutEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
 import { AuthGate } from '@/components/AuthGate'
@@ -23,6 +23,7 @@ function CandidateLayout() {
   const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
   const { t } = useI18n()
   const navigate = useNavigate()
+  const location = useLocation()
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
   const [resendError, setResendError] = useState('')
@@ -46,8 +47,13 @@ function CandidateLayout() {
 
   // ── No user — AuthGate renders the bilingual sign-in/create-account form.
   if (!user) {
+    const isCreateAccount = location.pathname.endsWith('/create-account')
     return (
-      <AuthGate fallbackKey="auth.signInTitle" fallbackDescKey="auth.signInDescription">
+      <AuthGate
+        initialMode={isCreateAccount ? 'signUp' : 'signIn'}
+        fallbackKey={isCreateAccount ? 'auth.signUpTitle' : 'auth.signInTitle'}
+        fallbackDescKey={isCreateAccount ? 'auth.signUpDescription' : 'auth.signInDescription'}
+      >
         <Outlet />
       </AuthGate>
     )

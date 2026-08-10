@@ -20,9 +20,11 @@ interface AuthGateProps {
   /** Optional raw override (takes priority over the key). */
   fallbackMessage?: string
   fallbackDescription?: string
+  /** Initial lane shown when this gate is used as a dedicated signup entry point. */
+  initialMode?: 'signIn' | 'signUp'
 }
 
-function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn' }: AuthGateProps) {
   const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
@@ -34,7 +36,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [errorMsg, setErrorMsg] = useState('')
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const clearError = () => { setErrorMsg(''); setErrorKey(null) }
-  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn')
+  const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>(initialMode)
 
   if (isLoading) {
     return (
@@ -225,7 +227,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   return <>{children}</>
 }
 
-export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode }: AuthGateProps) {
   return (
     <BlinkClientBoundary
       fallback={
@@ -239,6 +241,7 @@ export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessa
         fallbackDescKey={fallbackDescKey}
         fallbackMessage={fallbackMessage}
         fallbackDescription={fallbackDescription}
+        initialMode={initialMode}
       >
         {children}
       </AuthGateInner>
