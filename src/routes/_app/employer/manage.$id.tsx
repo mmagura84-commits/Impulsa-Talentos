@@ -22,6 +22,7 @@ import {
 import { sendInterviewNotification } from '@/lib/notifyInterview'
 import { JobAnalytics } from '@/components/manage/JobAnalytics'
 import { PipelineKanban } from '@/components/employer/PipelineKanban'
+import { FeedbackPanel } from '@/components/employer/FeedbackPanel'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   ArrowLeft,
@@ -104,7 +105,7 @@ function statusColor(s: Application['status']): string {
 }
 
 /* ── Application row + drawer ──────────────────────────── */
-function ApplicationRow({ app, jobId }: { app: Application; jobId: string }) {
+function ApplicationRow({ app, jobId, companyId }: { app: Application; jobId: string; companyId: string }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
@@ -170,6 +171,7 @@ function ApplicationRow({ app, jobId }: { app: Application; jobId: string }) {
         open={open}
         onClose={() => setOpen(false)}
         jobId={jobId}
+        companyId={companyId}
       />
     </>
   )
@@ -282,11 +284,13 @@ function ApplicationDrawer({
   open,
   onClose,
   jobId,
+  companyId,
 }: {
   app: Application
   open: boolean
   onClose: () => void
   jobId: string
+  companyId: string
 }) {
   const { t } = useI18n()
   const updateStatus = useUpdateApplicationStatus()
@@ -462,6 +466,7 @@ function ApplicationDrawer({
                 </div>
               </div>
               <InterviewScheduler app={app} jobId={jobId} />
+              <FeedbackPanel applicationId={app.id} companyId={companyId} />
             </div>
           </motion.aside>
         </>
@@ -655,7 +660,7 @@ function ManageApplicationsPage() {
               ) : (
                 <div className="space-y-2">
                   {apps.map(app => (
-                    <ApplicationRow key={app.id} app={app} jobId={id} />
+                    <ApplicationRow key={app.id} app={app} jobId={id} companyId={job.companyId} />
                   ))}
                 </div>
               )}

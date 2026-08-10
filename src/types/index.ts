@@ -254,3 +254,25 @@ export interface Lead {
   createdAt: string
   updatedAt: string
 }
+
+/** Visibility of structured feedback: internal-only or visible to the candidate. */
+export type FeedbackVisibility = 'internal' | 'candidate_visible'
+
+/** Structured employer feedback on an application (migration 021). */
+export interface ApplicationFeedback {
+  id: string
+  applicationId: string
+  /** profiles.id of the team member who wrote the feedback. */
+  authorId: string
+  companyId: string
+  /** Pipeline stage the feedback was given at (e.g. screening, interview). */
+  stage?: string
+  /** 1–5 rating, nullable when qualitative feedback only. */
+  rating?: number | null
+  strengths?: string
+  concerns?: string
+  nextSteps?: string
+  visibility: FeedbackVisibility
+  createdAt: string
+  updatedAt: string
+}
