@@ -34,31 +34,56 @@ function ResetPasswordPage() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    // Supabase recovery link arrives either as ?token_hash=…&type=recovery
-    // (PKCE) or as a #access_token fragment that supabase-js detects and
-    // exchanges automatically (detectSessionInUrl: true).
+    // Supabase recovery links arrive either as ?token_hash=…&type=recovery
+    // (PKCE) or as a #access_token fragment that supabase-js exchanges when
+    // detectSessionInUrl is enabled. Keep the page in a bounded loading state
+    // while that exchange completes instead of racing getSession().
     if (typeof window === 'undefined') return
+    let active = true
+    let settled = false
+    const finish = (next: 'ready' | 'error', message?: string) => {
+      if (!active || settled) return
+      settled = true
+      if (next === 'ready') setReady(true)
+      else {
+        setStatus('error')
+        setErrorMsg(message || t('reset.invalidDesc'))
+      }
+    }
+    const hash = new URLSearchParams(window.location.hash.replace(/^#/, ''))
+    const hashError = hash.get('error_description') || hash.get('error')
+    if (hashError) finish('error', decodeURIComponent(hashError.replace(/\\+/g, ' ')))
     const params = new URLSearchParams(window.location.search)
     const tokenHash = params.get('token_hash')
-    if (tokenHash) {
+    let timer: ReturnType<typeof setTimeout> | undefined
+    if (!hashError && tokenHash) {
       supabase.auth
         .verifyOtp({ token_hash: tokenHash, type: 'recovery' })
         .then(({ error }) => {
-          if (error) {
-            setStatus('error')
-            setErrorMsg(error.message)
-            return
-          }
-          setReady(true)
+          if (error) finish('error', error.message)
+          else finish('ready')
         })
-    } else {
-      // Fragment-session path: wait a tick for onAuthStateChange to fire.
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) setReady(true)
-        else setStatus('error')
+        .catch(() => finish('error'))
+    } else if (!hashError) {
+      const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
+        if (session && (event === 'PASSWORD_RECOVERY' || event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) finish('ready')
       })
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (data.session) finish('ready')
+        else if (error) finish('error', error.message)
+      }).catch(() => finish('error'))
+      timer = setTimeout(() => finish('error'), 5000)
+      return () => {
+        active = false
+        if (timer) clearTimeout(timer)
+        sub.subscription.unsubscribe()
+      }
     }
-  }, [])
+    return () => {
+      active = false
+      if (timer) clearTimeout(timer)
+    }
+  }, [t])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
