@@ -168,6 +168,27 @@ const enEmployer: Dict = {
   'profile.notif.marketingDesc': 'Product news, tips and events. We email rarely.',
   'profile.notif.saved': 'Preferences saved',
   'profile.notif.createFirst': 'Create your profile to manage email preferences.',
-}
+
+  // Team management
+  'team.title': 'Team Management',
+  'team.noCompany': 'No company found. Create a company first.',
+  'team.inviteTitle': 'Invite Team Member',
+  'team.emailLabel': 'Email',
+  'team.emailPlaceholder': 'colleague@company.com',
+  'team.roleLabel': 'Role',
+  'team.role.owner': 'Owner',
+  'team.role.admin': 'Admin',
+  'team.role.member': 'Member',
+  'team.sendInvite': 'Send Invite',
+  'team.inviteFailed': 'Invite failed',
+  'team.membersTitle': 'Team Members',
+  'team.emptyState': 'No team members yet. Invite your first colleague above.',
+  'team.statusLabel': 'Status',
+  'team.status.active': 'Active',
+  'team.status.pending': 'Pending',
+  'team.status.declined': 'Declined',
+  'team.pendingLabel': 'pending',
+  'team.removeConfirm': 'Remove this member?',
+  }
 
 export default enEmployer

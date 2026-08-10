@@ -14,6 +14,7 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MdPreviewRouteImport } from './routes/md-preview'
 import { Route as MRouteImport } from './routes/m'
 import { Route as ForEmployersRouteImport } from './routes/for-employers'
 import { Route as ContactRouteImport } from './routes/contact'
@@ -50,6 +51,7 @@ import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
+import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team'
 import { Route as AppEmployerSettingsRouteImport } from './routes/_app/employer/settings'
 import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
 import { Route as AppEmployerOffersRouteImport } from './routes/_app/employer/offers'
@@ -87,6 +89,11 @@ const PrivacyRoute = PrivacyRouteImport.update({
 const PricingRoute = PricingRouteImport.update({
   id: '/pricing',
   path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MdPreviewRoute = MdPreviewRouteImport.update({
+  id: '/md-preview',
+  path: '/md-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MRoute = MRouteImport.update({
@@ -268,6 +275,11 @@ const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AppHqRoute,
 } as any)
+const AppEmployerTeamRoute = AppEmployerTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
 const AppEmployerSettingsRoute = AppEmployerSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -341,6 +353,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -373,6 +386,7 @@ export interface FileRoutesByFullPath {
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/employer/settings': typeof AppEmployerSettingsRoute
+  '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -395,6 +409,7 @@ export interface FileRoutesByTo {
   '/applications': typeof ApplicationsRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -424,6 +439,7 @@ export interface FileRoutesByTo {
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/employer/settings': typeof AppEmployerSettingsRoute
+  '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -449,6 +465,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -481,6 +498,7 @@ export interface FileRoutesById {
   '/_app/employer/offers': typeof AppEmployerOffersRoute
   '/_app/employer/post-job': typeof AppEmployerPostJobRoute
   '/_app/employer/settings': typeof AppEmployerSettingsRoute
+  '/_app/employer/team': typeof AppEmployerTeamRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
   '/_app/md/banking': typeof AppMdBankingRoute
@@ -506,6 +524,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/for-employers'
     | '/m'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -538,6 +557,7 @@ export interface FileRouteTypes {
     | '/employer/offers'
     | '/employer/post-job'
     | '/employer/settings'
+    | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -560,6 +580,7 @@ export interface FileRouteTypes {
     | '/applications'
     | '/contact'
     | '/for-employers'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -589,6 +610,7 @@ export interface FileRouteTypes {
     | '/employer/offers'
     | '/employer/post-job'
     | '/employer/settings'
+    | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -613,6 +635,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/for-employers'
     | '/m'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -645,6 +668,7 @@ export interface FileRouteTypes {
     | '/_app/employer/offers'
     | '/_app/employer/post-job'
     | '/_app/employer/settings'
+    | '/_app/employer/team'
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
     | '/_app/md/banking'
@@ -670,6 +694,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   ForEmployersRoute: typeof ForEmployersRoute
   MRoute: typeof MRouteWithChildren
+  MdPreviewRoute: typeof MdPreviewRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfilesRoute: typeof ProfilesRoute
@@ -714,6 +739,13 @@ declare module '@tanstack/react-router' {
       path: '/pricing'
       fullPath: '/pricing'
       preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/md-preview': {
+      id: '/md-preview'
+      path: '/md-preview'
+      fullPath: '/md-preview'
+      preLoaderRoute: typeof MdPreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/m': {
@@ -968,6 +1000,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHqLeadsRouteImport
       parentRoute: typeof AppHqRoute
     }
+    '/_app/employer/team': {
+      id: '/_app/employer/team'
+      path: '/team'
+      fullPath: '/employer/team'
+      preLoaderRoute: typeof AppEmployerTeamRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
     '/_app/employer/settings': {
       id: '/_app/employer/settings'
       path: '/settings'
@@ -1086,6 +1125,7 @@ interface AppEmployerRouteChildren {
   AppEmployerOffersRoute: typeof AppEmployerOffersRoute
   AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
   AppEmployerSettingsRoute: typeof AppEmployerSettingsRoute
+  AppEmployerTeamRoute: typeof AppEmployerTeamRoute
   AppEmployerIndexRoute: typeof AppEmployerIndexRoute
   AppEmployerEditJobIdRoute: typeof AppEmployerEditJobIdRoute
   AppEmployerManageIdRoute: typeof AppEmployerManageIdRoute
@@ -1099,6 +1139,7 @@ const AppEmployerRouteChildren: AppEmployerRouteChildren = {
   AppEmployerOffersRoute: AppEmployerOffersRoute,
   AppEmployerPostJobRoute: AppEmployerPostJobRoute,
   AppEmployerSettingsRoute: AppEmployerSettingsRoute,
+  AppEmployerTeamRoute: AppEmployerTeamRoute,
   AppEmployerIndexRoute: AppEmployerIndexRoute,
   AppEmployerEditJobIdRoute: AppEmployerEditJobIdRoute,
   AppEmployerManageIdRoute: AppEmployerManageIdRoute,
@@ -1230,6 +1271,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   ForEmployersRoute: ForEmployersRoute,
   MRoute: MRouteWithChildren,
+  MdPreviewRoute: MdPreviewRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProfilesRoute: ProfilesRoute,

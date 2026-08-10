@@ -27,6 +27,7 @@ import {
   Inbox,
   BarChart3,
   Settings2,
+  Users,
 } from 'lucide-react'
 import { Link } from '@tanstack/react-router'
 import { cn } from '@/lib/utils'
@@ -64,6 +65,7 @@ export const EMPLOYER_NAV: NavItemDef[] = [
   { to: '/employer/jobs', icon: <Briefcase className="size-4" />, labelKey: 'nav.myJobs' },
   { to: '/employer/post-job', icon: <PlusCircle className="size-4" />, labelKey: 'postJob.step2.title' },
   { to: '/employer/applications', icon: <Inbox className="size-4" />, labelKey: 'nav.applications' },
+  { to: '/employer/team', icon: <Users className="size-4" />, labelKey: 'nav.team' },
   { to: '/employer/analytics', icon: <BarChart3 className="size-4" />, labelKey: 'nav.analytics' },
   { to: '/employer/settings', icon: <Settings2 className="size-4" />, labelKey: 'nav.settings' },
   { to: '/pricing', icon: <DollarSign className="size-4" />, labelKey: 'nav.pricing' },

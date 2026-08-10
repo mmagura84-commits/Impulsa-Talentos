@@ -48,6 +48,7 @@ const en: Dict = {
   'nav.myJobs': 'My Job Postings',
   'nav.pricing': 'Pricing',
   'nav.applications': 'Applications',
+  'nav.team': 'Team',
   'mobile.nav.applications': 'Applications',
   'applications.subtitle': 'Review candidates across your open roles.',
   'applications.empty': 'No applications yet.',
