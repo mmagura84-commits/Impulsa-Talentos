@@ -286,6 +286,30 @@ export interface InterviewScorecardQuestion {
   createdAt: string
 }
 
+/** Known in-app notification types (action-center routing). */
+export type NotificationType =
+  | 'application_received'
+  | 'status_changed'
+  | 'message_received'
+  | 'interview_scheduled'
+  | 'feedback_added'
+  | 'team_invite'
+
+/** In-app notification shown in the action center. */
+export interface Notification {
+  id: string
+  /** Auth user id (profiles.user_id), NOT profiles.id. */
+  userId: string
+  type: NotificationType
+  title: string
+  body: string
+  /** Opaque routing params (snake_case keys: job_id, application_id, …). */
+  data?: Record<string, unknown>
+  /** NULL while unread; set once the user acknowledges it. */
+  readAt?: string
+  createdAt: string
+}
+
 /** Employer lead captured from gated pricing page or other acquisition channels. */
 export interface Lead {
   id: string
