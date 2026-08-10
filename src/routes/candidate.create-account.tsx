@@ -22,7 +22,7 @@ function CandidateCreateAccountPage() {
         </CardHeader>
         <CardContent className="grid gap-3">
           <Button asChild size="lg" className="w-full">
-            <Link to="/candidate?mode=signIn">{t('auth.signInTab')}</Link>
+            <Link to="/candidate" search={{ mode: 'signIn' }}>{t('auth.signInTab')}</Link>
           </Button>
           <Button asChild size="lg" variant="outline" className="w-full">
             <Link to="/candidate" search={{ mode: 'signUp' }}>{t('auth.signUpTab')}</Link>
