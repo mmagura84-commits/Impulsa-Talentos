@@ -241,6 +241,51 @@ export interface TeamMember {
   updatedAt: string
 }
 
+/** Employer interview scheduled against a candidate application. */
+export type InterviewType = 'phone' | 'screening' | 'technical' | 'cultural' | 'final'
+export type InterviewStatus = 'scheduled' | 'completed' | 'cancelled' | 'no_show'
+
+export interface Interview {
+  id: string
+  jobId: string
+  candidateId: string
+  companyId: string
+  scheduledAt: string
+  durationMinutes: number
+  type: InterviewType
+  status: InterviewStatus
+  locationOrLink?: string
+  notes?: string
+  createdBy?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type ScorecardRecommendation = 'strong_yes' | 'yes' | 'maybe' | 'no' | 'strong_no'
+
+/** Internal employer evaluation of an interview (never shown to candidates). */
+export interface InterviewScorecard {
+  id: string
+  interviewId: string
+  reviewerId: string
+  overallRating: number
+  strengths?: string
+  concerns?: string
+  recommendation: ScorecardRecommendation
+  submittedAt?: string
+  createdAt: string
+}
+
+/** Per-question rating on a scorecard (structured feedback). */
+export interface InterviewScorecardQuestion {
+  id: string
+  scorecardId: string
+  question: string
+  rating?: number
+  answer?: string
+  createdAt: string
+}
+
 /** Employer lead captured from gated pricing page or other acquisition channels. */
 export interface Lead {
   id: string
