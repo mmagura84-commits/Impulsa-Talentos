@@ -183,6 +183,13 @@ const en: Dict = {
   'auth.profileStatus.rejectedDesc': 'Your employer account was not approved. Please contact us for more details.',
   'auth.profileStatus.pendingTitle': 'Account under review',
   'auth.profileStatus.pendingDesc': 'Your employer account is being reviewed by our team. We will notify you when it is approved.',
+  // Candidate entry page
+  'auth.candidateEntryTitle': 'Welcome to Impulsa Talentos',
+  'auth.candidateEntryDesc': 'Sign in to your account or create one to start your bilingual career journey.',
+  'auth.candidateSignInPageTitle': 'Sign in to your account',
+  'auth.candidateSignInPageDesc': 'Access your candidate dashboard to manage applications and find new opportunities.',
+  'auth.candidateCreateAccountPageTitle': 'Create your candidate account',
+  'auth.candidateCreateAccountPageDesc': 'Set up your profile and start applying to bilingual jobs in Colombia.',
   // Password reset
   'reset.requestTitle': 'Forgot your password?',
   'reset.requestDescription': 'Enter your email and we will send a reset link if an account exists.',

@@ -182,6 +182,13 @@ const es: Dict = {
   'auth.profileStatus.rejectedDesc': 'Tu cuenta de empleador no fue aprobada. Por favor contáctanos para más detalles.',
   'auth.profileStatus.pendingTitle': 'Cuenta en revisión',
   'auth.profileStatus.pendingDesc': 'Tu cuenta de empleador está siendo revisada por nuestro equipo. Te notificaremos cuando sea aprobada.',
+  // Candidate entry page
+  'auth.candidateEntryTitle': 'Bienvenido a Impulsa Talentos',
+  'auth.candidateEntryDesc': 'Inicia sesión o crea una cuenta para comenzar tu carrera bilingüe.',
+  'auth.candidateSignInPageTitle': 'Inicia sesión en tu cuenta',
+  'auth.candidateSignInPageDesc': 'Accede a tu panel de candidato para gestionar postulaciones y encontrar nuevas oportunidades.',
+  'auth.candidateCreateAccountPageTitle': 'Crea tu cuenta de candidato',
+  'auth.candidateCreateAccountPageDesc': 'Configura tu perfil y comienza a postularte a empleos bilingües en Colombia.',
   // Password reset
   'reset.requestTitle': '¿Olvidaste tu contraseña?',
   'reset.requestDescription': 'Ingresa tu correo y enviaremos un enlace si existe una cuenta.',

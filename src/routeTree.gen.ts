@@ -14,9 +14,11 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as ProfilesRouteImport } from './routes/profiles'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as MdPreviewRouteImport } from './routes/md-preview'
 import { Route as MRouteImport } from './routes/m'
 import { Route as ForEmployersRouteImport } from './routes/for-employers'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CandidatePreviewRouteImport } from './routes/candidate-preview'
 import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -30,6 +32,7 @@ import { Route as MHomeRouteImport } from './routes/m/home'
 import { Route as MCompanyRouteImport } from './routes/m/company'
 import { Route as MApplicationsRouteImport } from './routes/m/applications'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
+import { Route as CandidateCreateAccountRouteImport } from './routes/candidate.create-account'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppMdRouteImport } from './routes/_app/md'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
@@ -50,6 +53,7 @@ import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
+import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team'
 import { Route as AppEmployerSettingsRouteImport } from './routes/_app/employer/settings'
 import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
 import { Route as AppEmployerOffersRouteImport } from './routes/_app/employer/offers'
@@ -89,6 +93,11 @@ const PricingRoute = PricingRouteImport.update({
   path: '/pricing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MdPreviewRoute = MdPreviewRouteImport.update({
+  id: '/md-preview',
+  path: '/md-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const MRoute = MRouteImport.update({
   id: '/m',
   path: '/m',
@@ -102,6 +111,11 @@ const ForEmployersRoute = ForEmployersRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidatePreviewRoute = CandidatePreviewRouteImport.update({
+  id: '/candidate-preview',
+  path: '/candidate-preview',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplicationsRoute = ApplicationsRouteImport.update({
@@ -166,6 +180,11 @@ const MApplicationsRoute = MApplicationsRouteImport.update({
 const CompaniesIdRoute = CompaniesIdRouteImport.update({
   id: '/companies/$id',
   path: '/companies/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CandidateCreateAccountRoute = CandidateCreateAccountRouteImport.update({
+  id: '/candidate/create-account',
+  path: '/candidate/create-account',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AppProfileRoute = AppProfileRouteImport.update({
@@ -268,6 +287,11 @@ const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
   path: '/leads',
   getParentRoute: () => AppHqRoute,
 } as any)
+const AppEmployerTeamRoute = AppEmployerTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
 const AppEmployerSettingsRoute = AppEmployerSettingsRouteImport.update({
   id: '/settings',
   path: '/settings',
@@ -338,9 +362,11 @@ const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/candidate-preview': typeof CandidatePreviewRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -353,6 +379,7 @@ export interface FileRoutesByFullPath {
   '/jobs': typeof AppJobsRouteWithChildren
   '/md': typeof AppMdRouteWithChildren
   '/profile': typeof AppProfileRoute
+  '/candidate/create-account': typeof CandidateCreateAccountRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
   '/m/company': typeof MCompanyRoute
@@ -373,6 +400,7 @@ export interface FileRoutesByFullPath {
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/employer/settings': typeof AppEmployerSettingsRoute
+  '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -393,8 +421,10 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/candidate-preview': typeof CandidatePreviewRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -404,6 +434,7 @@ export interface FileRoutesByTo {
   '/hq': typeof AppHqRouteWithChildren
   '/jobs': typeof AppJobsRouteWithChildren
   '/profile': typeof AppProfileRoute
+  '/candidate/create-account': typeof CandidateCreateAccountRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
   '/m/company': typeof MCompanyRoute
@@ -424,6 +455,7 @@ export interface FileRoutesByTo {
   '/employer/offers': typeof AppEmployerOffersRoute
   '/employer/post-job': typeof AppEmployerPostJobRoute
   '/employer/settings': typeof AppEmployerSettingsRoute
+  '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
   '/md/banking': typeof AppMdBankingRoute
@@ -446,9 +478,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/applications': typeof ApplicationsRoute
+  '/candidate-preview': typeof CandidatePreviewRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
+  '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
   '/profiles': typeof ProfilesRoute
@@ -461,6 +495,7 @@ export interface FileRoutesById {
   '/_app/jobs': typeof AppJobsRouteWithChildren
   '/_app/md': typeof AppMdRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
+  '/candidate/create-account': typeof CandidateCreateAccountRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
   '/m/company': typeof MCompanyRoute
@@ -481,6 +516,7 @@ export interface FileRoutesById {
   '/_app/employer/offers': typeof AppEmployerOffersRoute
   '/_app/employer/post-job': typeof AppEmployerPostJobRoute
   '/_app/employer/settings': typeof AppEmployerSettingsRoute
+  '/_app/employer/team': typeof AppEmployerTeamRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
   '/_app/md/banking': typeof AppMdBankingRoute
@@ -503,9 +539,11 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/applications'
+    | '/candidate-preview'
     | '/contact'
     | '/for-employers'
     | '/m'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -518,6 +556,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/md'
     | '/profile'
+    | '/candidate/create-account'
     | '/companies/$id'
     | '/m/applications'
     | '/m/company'
@@ -538,6 +577,7 @@ export interface FileRouteTypes {
     | '/employer/offers'
     | '/employer/post-job'
     | '/employer/settings'
+    | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -558,8 +598,10 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/applications'
+    | '/candidate-preview'
     | '/contact'
     | '/for-employers'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -569,6 +611,7 @@ export interface FileRouteTypes {
     | '/hq'
     | '/jobs'
     | '/profile'
+    | '/candidate/create-account'
     | '/companies/$id'
     | '/m/applications'
     | '/m/company'
@@ -589,6 +632,7 @@ export interface FileRouteTypes {
     | '/employer/offers'
     | '/employer/post-job'
     | '/employer/settings'
+    | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
     | '/md/banking'
@@ -610,9 +654,11 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/applications'
+    | '/candidate-preview'
     | '/contact'
     | '/for-employers'
     | '/m'
+    | '/md-preview'
     | '/pricing'
     | '/privacy'
     | '/profiles'
@@ -625,6 +671,7 @@ export interface FileRouteTypes {
     | '/_app/jobs'
     | '/_app/md'
     | '/_app/profile'
+    | '/candidate/create-account'
     | '/companies/$id'
     | '/m/applications'
     | '/m/company'
@@ -645,6 +692,7 @@ export interface FileRouteTypes {
     | '/_app/employer/offers'
     | '/_app/employer/post-job'
     | '/_app/employer/settings'
+    | '/_app/employer/team'
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
     | '/_app/md/banking'
@@ -667,14 +715,17 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   ApplicationsRoute: typeof ApplicationsRoute
+  CandidatePreviewRoute: typeof CandidatePreviewRoute
   ContactRoute: typeof ContactRoute
   ForEmployersRoute: typeof ForEmployersRoute
   MRoute: typeof MRouteWithChildren
+  MdPreviewRoute: typeof MdPreviewRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
   ProfilesRoute: typeof ProfilesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
+  CandidateCreateAccountRoute: typeof CandidateCreateAccountRoute
   CompaniesIdRoute: typeof CompaniesIdRoute
   CompaniesIndexRoute: typeof CompaniesIndexRoute
 }
@@ -716,6 +767,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PricingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/md-preview': {
+      id: '/md-preview'
+      path: '/md-preview'
+      fullPath: '/md-preview'
+      preLoaderRoute: typeof MdPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/m': {
       id: '/m'
       path: '/m'
@@ -735,6 +793,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidate-preview': {
+      id: '/candidate-preview'
+      path: '/candidate-preview'
+      fullPath: '/candidate-preview'
+      preLoaderRoute: typeof CandidatePreviewRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/applications': {
@@ -826,6 +891,13 @@ declare module '@tanstack/react-router' {
       path: '/companies/$id'
       fullPath: '/companies/$id'
       preLoaderRoute: typeof CompaniesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/candidate/create-account': {
+      id: '/candidate/create-account'
+      path: '/candidate/create-account'
+      fullPath: '/candidate/create-account'
+      preLoaderRoute: typeof CandidateCreateAccountRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app/profile': {
@@ -968,6 +1040,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppHqLeadsRouteImport
       parentRoute: typeof AppHqRoute
     }
+    '/_app/employer/team': {
+      id: '/_app/employer/team'
+      path: '/team'
+      fullPath: '/employer/team'
+      preLoaderRoute: typeof AppEmployerTeamRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
     '/_app/employer/settings': {
       id: '/_app/employer/settings'
       path: '/settings'
@@ -1086,6 +1165,7 @@ interface AppEmployerRouteChildren {
   AppEmployerOffersRoute: typeof AppEmployerOffersRoute
   AppEmployerPostJobRoute: typeof AppEmployerPostJobRoute
   AppEmployerSettingsRoute: typeof AppEmployerSettingsRoute
+  AppEmployerTeamRoute: typeof AppEmployerTeamRoute
   AppEmployerIndexRoute: typeof AppEmployerIndexRoute
   AppEmployerEditJobIdRoute: typeof AppEmployerEditJobIdRoute
   AppEmployerManageIdRoute: typeof AppEmployerManageIdRoute
@@ -1099,6 +1179,7 @@ const AppEmployerRouteChildren: AppEmployerRouteChildren = {
   AppEmployerOffersRoute: AppEmployerOffersRoute,
   AppEmployerPostJobRoute: AppEmployerPostJobRoute,
   AppEmployerSettingsRoute: AppEmployerSettingsRoute,
+  AppEmployerTeamRoute: AppEmployerTeamRoute,
   AppEmployerIndexRoute: AppEmployerIndexRoute,
   AppEmployerEditJobIdRoute: AppEmployerEditJobIdRoute,
   AppEmployerManageIdRoute: AppEmployerManageIdRoute,
@@ -1227,14 +1308,17 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   ApplicationsRoute: ApplicationsRoute,
+  CandidatePreviewRoute: CandidatePreviewRoute,
   ContactRoute: ContactRoute,
   ForEmployersRoute: ForEmployersRoute,
   MRoute: MRouteWithChildren,
+  MdPreviewRoute: MdPreviewRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
   ProfilesRoute: ProfilesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
+  CandidateCreateAccountRoute: CandidateCreateAccountRoute,
   CompaniesIdRoute: CompaniesIdRoute,
   CompaniesIndexRoute: CompaniesIndexRoute,
 }
