@@ -20,13 +20,12 @@ interface AuthGateProps {
   /** Optional raw override (takes priority over the key). */
   fallbackMessage?: string
   fallbackDescription?: string
-  /** Initial auth lane for role-specific entry funnels. */
+  /** Initial auth mode and whether the mode switcher is shown. */
   initialMode?: 'signIn' | 'signUp'
-  /** Hide the mode switch when the parent owns the entry choices. */
-  hideModeTabs?: boolean
+  showModeTabs?: boolean
 }
 
-function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn', hideModeTabs = false }: AuthGateProps) {
+function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn', showModeTabs = true }: AuthGateProps) {
   const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
@@ -36,8 +35,6 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
-  const [errorKey, setErrorKey] = useState<string | null>(null)
-  const clearError = () => { setErrorMsg(''); setErrorKey(null) }
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>(initialMode)
 
   if (isLoading) {
@@ -58,7 +55,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
       await sendMagicLink(email.trim(), window.location.origin + returnPath)
       setSent(true)
     } catch (err) {
-      setErrorKey(null); setErrorMsg(err instanceof Error ? err.message : t('auth.error.sendLink'))
+      setErrorMsg(err instanceof Error ? err.message : 'Could not send the link')
     } finally {
       setSending(false)
     }
@@ -67,25 +64,17 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
     if (!email.trim() || !password || sending) return
-    if (password.length < 8) {
-      setErrorKey('auth.passwordTooShort')
-      setErrorMsg('')
-      return
-    }
     setSending(true)
-    clearError()
+    setErrorMsg('')
     try {
       if (authMode === 'signUp') {
-        // Preserve the lane where signup started (candidate, employer, etc.) so
-        // email confirmation returns to the correct role-gated route.
-        const returnPath = window.location.pathname + window.location.search
-        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath)
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + '/employer')
         if (!result.data.session) setSent(true)
       } else {
         await signInWithPassword(email.trim(), password)
       }
     } catch (err) {
-      setErrorMsg(t('auth.invalidCredentials'))
+      setErrorMsg(err instanceof Error ? err.message : 'Invalid email or password')
     } finally {
       setSending(false)
     }
@@ -115,10 +104,10 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <CardDescription>{desc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            {!hideModeTabs && <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
+            {showModeTabs && <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
               {(['signIn', 'signUp'] as const).map(mode => (
                 <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
-                  onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
+                  onClick={() => { setAuthMode(mode); setErrorMsg(''); setSent(false) }}
                   className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
                   {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
                 </button>
@@ -141,7 +130,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   onClick={handleMagicLink}
                 >
                   {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Mail className="size-3.5" />}
-                  {t('auth.resendLink')}
+                  Resend link
                 </Button>
               </>
             ) : usePassword ? (
@@ -151,8 +140,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="email"
                     value={email}
-                    onChange={e => { setEmail(e.target.value); clearError() }}
-                    placeholder={t('auth.emailPlaceholder')}
+                    onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
+                    placeholder="you@example.com"
                     className="pl-9 text-center"
                     required
                     autoFocus
@@ -164,19 +153,19 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="password"
                     value={password}
-                    onChange={e => { setPassword(e.target.value); clearError() }}
-                    placeholder={t('auth.passwordPlaceholder')}
+                    onChange={e => { setPassword(e.target.value); setErrorMsg('') }}
+                    placeholder="Password"
                     className="pl-9 text-center"
                     required
                     autoComplete="current-password"
                   />
                 </div>
-                {(errorMsg || errorKey) && (
-                  <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
+                {errorMsg && (
+                  <p className="text-xs text-destructive">{errorMsg}</p>
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim() || !password} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? (authMode === 'signUp' ? t('auth.signingUp') : t('auth.signingIn')) : (authMode === 'signUp' ? t('auth.signUpCta') : t('auth.signInWithPassword'))}
+                  {sending ? t('auth.signingIn') : t('auth.signInWithPassword')}
                 </Button>
               </form>
             ) : (
@@ -186,26 +175,26 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   <Input
                     type="email"
                     value={email}
-                    onChange={e => { setEmail(e.target.value); clearError() }}
-                    placeholder={t('auth.emailPlaceholder')}
+                    onChange={e => { setEmail(e.target.value); setErrorMsg('') }}
+                    placeholder="you@example.com"
                     className="pl-9 text-center"
                     required
                     autoFocus
                     autoComplete="email"
                   />
                 </div>
-                {(errorMsg || errorKey) && (
-                  <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
+                {errorMsg && (
+                  <p className="text-xs text-destructive">{errorMsg}</p>
                 )}
                 <Button type="submit" size="lg" disabled={sending || !email.trim()} className="w-full gap-2 font-medium">
                   {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? (authMode === 'signUp' ? t('auth.signingUpWithEmail') : t('auth.sending')) : (authMode === 'signUp' ? t('auth.signUpMagicLinkCta') : t('auth.signInCta'))}
+                  {sending ? t('auth.sending') : t('auth.signInCta')}
                 </Button>
               </form>
             )}
             <button
               type="button"
-              onClick={() => { setUsePassword(!usePassword); setSent(false); clearError() }}
+              onClick={() => { setUsePassword(!usePassword); setSent(false); setErrorMsg('') }}
               className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               {usePassword ? t('auth.sendMagicInstead') : t('auth.signInPasswordInstead')}
@@ -229,7 +218,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   return <>{children}</>
 }
 
-export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode, hideModeTabs }: AuthGateProps) {
+export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode, showModeTabs }: AuthGateProps) {
   return (
     <BlinkClientBoundary
       fallback={
@@ -244,7 +233,7 @@ export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessa
         fallbackMessage={fallbackMessage}
         fallbackDescription={fallbackDescription}
         initialMode={initialMode}
-        hideModeTabs={hideModeTabs}
+        showModeTabs={showModeTabs}
       >
         {children}
       </AuthGateInner>

@@ -1,9 +1,9 @@
 import { createFileRoute, Outlet, useNavigate } from '@tanstack/react-router'
 import { useLayoutEffect, useState } from 'react'
 import { useAuth } from '@/hooks/useAuth'
-import { AuthGate } from '@/components/AuthGate'
 import { useProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
+import { AuthGate } from '@/components/AuthGate'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BrandMark } from '@/components/BrandMark'
@@ -26,7 +26,6 @@ function CandidateLayout() {
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
   const [resendError, setResendError] = useState('')
-  const [authChoice, setAuthChoice] = useState<'signIn' | 'signUp' | null>(null)
 
   useLayoutEffect(() => {
     // Wait for both auth and profile to settle before deciding.
@@ -45,30 +44,20 @@ function CandidateLayout() {
     )
   }
 
-  // ── No user — AuthGate renders the bilingual sign-in/create-account form.
+  // ── No user: candidate's two-choice entry screen ──
   if (!user) {
-    if (!authChoice) {
-      return (
-        <div className="flex min-h-[60vh] items-center justify-center px-4 py-10">
-          <Card className="w-full max-w-md border-border shadow-lg">
-            <CardHeader className="text-center">
-              <CardTitle className="font-serif text-xl">{t('auth.signInTitle')}</CardTitle>
-              <CardDescription>{t('auth.signInDescription')}</CardDescription>
-            </CardHeader>
-            <CardContent className="grid gap-3 sm:grid-cols-2">
-              <Button type="button" size="lg" onClick={() => setAuthChoice('signIn')}>{t('auth.signInTab')}</Button>
-              <Button type="button" size="lg" variant="outline" onClick={() => setAuthChoice('signUp')}>{t('auth.signUpTab')}</Button>
-            </CardContent>
-          </Card>
-        </div>
-      )
-    }
     return (
-      <AuthGate initialMode={authChoice} hideModeTabs fallbackKey={authChoice === 'signUp' ? 'auth.signUpTitle' : 'auth.signInTitle'} fallbackDescKey={authChoice === 'signUp' ? 'auth.signUpDescription' : 'auth.signInDescription'}>
+      <AuthGate
+        fallbackKey="auth.candidateSignInTitle"
+        fallbackDescKey="auth.candidateSignInDescription"
+        initialMode="signIn"
+        showModeTabs
+      >
         <Outlet />
       </AuthGate>
     )
   }
+
   // ── Email verification gate ──
   if (!user.emailVerified) {
     const handleResend = async () => {
