@@ -166,13 +166,34 @@ const enDashboard: Dict = {
   'timeline.withdrawConfirmDesc': 'Your application will be withdrawn and the employer will be notified.',
   'timeline.withdrawn': 'Application withdrawn',
   'timeline.withdrawError': 'Could not withdraw the application',
+  'timeline.recruiter': 'Recruiter',
+  'timeline.statusHistory': 'Status history',
+  'timeline.nextActionRequired': 'Action required',
+  'timeline.dueDate': 'Due',
+  'timeline.takeAction': 'Take action',
+
+  // ── 15 Application Status Labels ───────────────────────────────────
+  'timeline.step.draft': 'Draft',
+  'timeline.step.applied': 'Submitted',
+  'timeline.step.underReview': 'Under review',
+  'timeline.step.recruiterScreening': 'Recruiter screening',
+  'timeline.step.interviewScheduled': 'Interview scheduled',
+  'timeline.step.assessmentRequired': 'Assessment required',
+  'timeline.step.assessmentSubmitted': 'Assessment submitted',
+  'timeline.step.submittedToClient': 'Submitted to client',
+  'timeline.step.clientInterview': 'Client interview',
+  'timeline.step.finalInterview': 'Final interview',
+  'timeline.step.offered': 'Offer received',
+  'timeline.step.hired': 'Hired',
+  'timeline.step.notSelected': 'Not selected',
+  'timeline.step.positionClosed': 'Position closed',
+  'timeline.step.withdrawn': 'Withdrawn',
+
+  // ── Legacy timeline step keys (deprecated, kept for compat) ──────
   'timeline.step.submitted': 'Application submitted',
   'timeline.step.reviewed': 'Under review',
   'timeline.step.interview': 'Interview scheduled',
-  'timeline.step.offered': 'Offer received',
-  'timeline.step.hired': 'Hired',
   'timeline.step.rejected': 'Not selected',
-  'timeline.step.withdrawn': 'Withdrawn',
 
   // ── Admin dashboard ───────────────────────────────────────────────
   'dashboard.admin.subtitle': 'Platform overview and administration.',

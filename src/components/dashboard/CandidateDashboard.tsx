@@ -7,7 +7,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useProfileById } from '@/hooks/useProfile'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useJobs, useJob as useJobRaw } from '@/hooks/useJobs'
-import { useMyApplications, useWithdrawApplication } from '@/hooks/useApplications'
+import { useMyApplications, useWithdrawApplication, useApplicationStatusHistory } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
 import { FadeIn, StatCard, formatSalary, formatPosted } from './shared'
@@ -26,6 +26,8 @@ import {
   Target,
   Activity,
   ChevronRight,
+  ChevronDown,
+  ChevronUp,
   Trash2,
   X,
   Brain,
@@ -34,6 +36,9 @@ import {
   Search,
   CalendarClock,
   ExternalLink,
+  UserCheck,
+  History,
+  AlarmClock,
 } from 'lucide-react'
 import type { Job, Application } from '@/types'
 
@@ -68,7 +73,7 @@ function AiMatchBadge({ score }: { score: number }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${color}`}
-      title={t('dashboard.matchScoreLabel')}
+      title="AI-powered match score"
     >
       <Brain className="size-3" />
       {score}%
@@ -211,34 +216,58 @@ function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typ
 
 /* ── Application timeline item ─────────────────────────── */
 const TIMELINE_STATUSES: Record<string, { step: number; color: string }> = {
-  rejected: { step: -1, color: 'border-destructive text-destructive' },
-  pending: { step: 0, color: 'border-muted-foreground text-muted-foreground' },
-  reviewed: { step: 1, color: 'border-blue-500 text-blue-700' },
-  interview: { step: 2, color: 'border-amber-500 text-amber-700' },
-  offered: { step: 3, color: 'border-primary text-primary' },
-  hired: { step: 4, color: 'border-emerald-500 text-emerald-700' },
+  not_selected:     { step: -1, color: 'border-destructive text-destructive' },
+  position_closed:  { step: -1, color: 'border-muted-foreground text-muted-foreground' },
+  withdrawn:        { step: -1, color: 'border-destructive text-destructive' },
+  draft:            { step: 0,  color: 'border-muted-foreground/50 text-muted-foreground/60' },
+  applied:          { step: 1,  color: 'border-blue-500 text-blue-700' },
+  under_review:     { step: 2,  color: 'border-blue-500 text-blue-700' },
+  recruiter_screening:  { step: 3,  color: 'border-indigo-500 text-indigo-700' },
+  interview_scheduled:  { step: 4,  color: 'border-amber-500 text-amber-700' },
+  assessment_required:  { step: 5,  color: 'border-amber-500 text-amber-700' },
+  assessment_submitted: { step: 6,  color: 'border-amber-500 text-amber-700' },
+  submitted_to_client:  { step: 7,  color: 'border-purple-500 text-purple-700' },
+  client_interview:     { step: 8,  color: 'border-purple-500 text-purple-700' },
+  final_interview:      { step: 9,  color: 'border-purple-500 text-purple-700' },
+  offer:            { step: 10, color: 'border-primary text-primary' },
+  hired:            { step: 11, color: 'border-emerald-500 text-emerald-700' },
 }
 
 export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Application; isLast: boolean; onWithdraw?: (id: string) => void }) {
   const { t, locale } = useI18n()
   const { data: job } = useJobRaw(app.jobId)
   const { data: company } = useCompanyById(job?.companyId)
+  const { data: recruiter } = useProfileById(app.recruiterId)
+  const { data: statusHistory } = useApplicationStatusHistory(app.id)
+  const [historyOpen, setHistoryOpen] = useState(false)
   const ts = TIMELINE_STATUSES[app.status] ?? { step: 0, color: 'border-muted-foreground text-muted-foreground' }
   const stepLabels: Record<string, string> = {
-    pending: t('timeline.step.submitted'),
-    reviewed: t('timeline.step.reviewed'),
-    interview: t('timeline.step.interview'),
-    offered: t('timeline.step.offered'),
+    draft: t('timeline.step.draft'),
+    applied: t('timeline.step.applied'),
+    under_review: t('timeline.step.underReview'),
+    recruiter_screening: t('timeline.step.recruiterScreening'),
+    interview_scheduled: t('timeline.step.interviewScheduled'),
+    assessment_required: t('timeline.step.assessmentRequired'),
+    assessment_submitted: t('timeline.step.assessmentSubmitted'),
+    submitted_to_client: t('timeline.step.submittedToClient'),
+    client_interview: t('timeline.step.clientInterview'),
+    final_interview: t('timeline.step.finalInterview'),
+    offer: t('timeline.step.offered'),
     hired: t('timeline.step.hired'),
-    rejected: t('timeline.step.rejected'),
+    not_selected: t('timeline.step.notSelected'),
+    position_closed: t('timeline.step.positionClosed'),
+    withdrawn: t('timeline.step.withdrawn'),
   }
-  const isMutable = app.status === 'pending'
+  const mutableStatuses = new Set(['draft', 'applied', 'under_review', 'recruiter_screening'])
+  const isMutable = mutableStatuses.has(app.status)
+  const hasNextAction = !!(app.nextAction?.trim())
+  const historyStatusLabel = (s: string) => stepLabels[s] ?? s
 
   return (
     <div className="flex gap-3">
       <div className="flex flex-col items-center pt-1">
         <div className={`flex items-center justify-center h-5 w-5 rounded-full border-2 bg-card ${ts.color}`}>
-          <div className={`h-1.5 w-1.5 rounded-full ${app.status === 'hired' ? 'bg-emerald-500' : app.status === 'rejected' ? 'bg-destructive' : app.status === 'pending' ? 'bg-muted-foreground/40' : 'bg-current opacity-40'}`} />
+          <div className={`h-1.5 w-1.5 rounded-full ${app.status === 'hired' ? 'bg-emerald-500' : app.status === 'not_selected' || app.status === 'withdrawn' ? 'bg-destructive' : app.status === 'draft' ? 'bg-muted-foreground/30' : app.status === 'applied' ? 'bg-blue-500' : 'bg-current opacity-40'}`} />
         </div>
         {!isLast && <div className="w-0.5 flex-1 min-h-[8px] bg-border" />}
       </div>
@@ -259,6 +288,15 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             {stepLabels[app.status] ?? app.status}
           </span>
         </div>
+
+        {/* Recruiter info */}
+        {recruiter && (
+          <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground">
+            <UserCheck className="size-3.5 shrink-0" />
+            <span>{t('timeline.recruiter')}: {recruiter.fullName || recruiter.email}</span>
+          </div>
+        )}
+
         <div className="mt-2 flex items-center gap-3">
           <Link
             to="/jobs/$id"
@@ -277,6 +315,29 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             </button>
           )}
         </div>
+
+        {/* Next Action Required widget */}
+        {hasNextAction && (
+          <div className="mt-2.5 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+            <p className="text-xs font-semibold text-amber-700 flex items-center gap-1.5">
+              <AlarmClock className="size-3.5" />
+              {t('timeline.nextActionRequired')}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">{app.nextAction}</p>
+            {app.nextActionDue && (
+              <p className="mt-1 text-[11px] text-amber-600">
+                {t('timeline.dueDate')}: {new Date(app.nextActionDue).toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
+              </p>
+            )}
+            <div className="mt-2">
+              <Button variant="outline" size="sm" className="h-7 text-[11px] gap-1 border-amber-500/30 text-amber-700 hover:bg-amber-500/10">
+                {t('timeline.takeAction')} <ExternalLink className="size-3" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Interview card */}
         {(app.interviewLink || app.interviewDate) && (
           <div className="mt-2.5 rounded-lg border border-amber-500/20 bg-amber-500/5 p-2.5 text-xs">
             <p className="font-medium text-amber-700 flex items-center gap-1.5">
@@ -302,6 +363,48 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
                 {t('application.interview.link')} <ExternalLink className="size-3" />
               </a>
             )}
+          </div>
+        )}
+
+        {/* Expandable status history */}
+        {statusHistory && statusHistory.length > 0 && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setHistoryOpen(!historyOpen)}
+              className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+            >
+              <History className="size-3" />
+              {t('timeline.statusHistory')} ({statusHistory.length})
+              {historyOpen ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
+            </button>
+            <AnimatePresence>
+              {historyOpen && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                  className="overflow-hidden"
+                >
+                  <div className="mt-2 space-y-1.5 pl-1 border-l-2 border-muted">
+                    {statusHistory.map((entry) => (
+                      <div key={entry.id} className="flex items-start gap-2 text-xs pl-3">
+                        <span className={`shrink-0 mt-0.5 h-1.5 w-1.5 rounded-full ${TIMELINE_STATUSES[entry.status]?.color?.replace(/border-|text-/g, 'bg-').replace(/\s.*$/, '') || 'bg-muted-foreground'}`} />
+                        <div className="min-w-0">
+                          <span className="font-medium text-foreground">{historyStatusLabel(entry.status)}</span>
+                          {entry.note && <span className="text-muted-foreground"> — {entry.note}</span>}
+                          <span className="block text-[10px] text-muted-foreground/70">
+                            {new Date(entry.createdAt).toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
+                            {entry.changedBy && ` · ${entry.changedBy}`}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         )}
       </div>
@@ -415,7 +518,7 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   const recentApps = (applications ?? []).slice(0, 5)
   const recentSaved = (savedJobs ?? []).slice(0, 3)
   const handleWithdraw = async (appId: string) => {
-    try { await withdraw.mutateAsync(appId); toast.success(t('timeline.withdrawn'), { duration: 1800 }) }
+    try { await withdraw.mutateAsync({ id: appId }); toast.success(t('timeline.withdrawn'), { duration: 1800 }) }
     catch (err) { toast.error(t('timeline.withdrawError'), { description: err instanceof Error ? err.message : '' }) }
   }
   const aiJobs = (aiMatches ?? []).map(result => ({ job: jobs?.find(j => j.id === result.jobId), score: result.score })).filter(x => x.job).slice(0, 5) as { job: Job; score: number }[]
@@ -423,7 +526,7 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   return (
     <div className="space-y-6">
       {completion.percent < 100 && <FadeIn delay={0.04}><Card className="border-amber-500/20"><CardContent className="p-4"><div className="flex flex-wrap items-center gap-3"><Target className="size-5 text-amber-500"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{t('profileCompletion.title')} · {completion.percent}%</p><div className="mt-1.5 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{width:`${completion.percent}%`}}/></div><p className="mt-1 text-xs text-muted-foreground">{completion.missingLabels.slice(0,2).join(', ')}</p></div><Button size="sm" variant="outline" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div></CardContent></Card></FadeIn>}
-      <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0} accent="gold"/><StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0.05} accent="gold"/><StatCard icon={Star} label={t('dashboard.stat.inProgress')} value={String((applications ?? []).filter(a => ['pending','reviewed','interview'].includes(a.status)).length)} delay={0.1} accent="gold"/></div>
+      <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0} accent="gold"/><StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0.05} accent="gold"/><StatCard icon={Star} label={t('dashboard.stat.inProgress')} value={String((applications ?? []).filter(a => !['hired','not_selected','position_closed','withdrawn'].includes(a.status)).length)} delay={0.1} accent="gold"/></div>
       <FadeIn delay={0.08}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Sparkles className="size-4 text-primary"/>{t('dashboard.matches.title')}</CardTitle><CardDescription>{hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.exploreMore')}</Link></Button></CardHeader><CardContent className="space-y-2">{jobsLoading || aiLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !matches.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.matches.weakDesc')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div> : matches.map(({job,score})=><JobCard key={job.id} job={job} score={typeof score === 'number' ? (score as unknown as MatchScore) : undefined}/>)}</CardContent></Card></FadeIn>
       <FadeIn delay={0.12}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4 text-primary"/>{t('timeline.title')}</CardTitle><CardDescription>{t('dashboard.myApplications.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></CardHeader><CardContent>{appsLoading ? <div className="space-y-3">{[1,2,3].map(i=><div key={i} className="h-12 rounded bg-muted animate-pulse"/>)}</div> : !recentApps.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('timeline.empty')}<br/><Button size="sm" className="mt-3" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></div> : <>{recentApps.map((app,i)=><ApplicationTimelineItem key={app.id} app={app} isLast={i===recentApps.length-1} onWithdraw={handleWithdraw}/>)}{(applications?.length ?? 0)>5 && <Link className="block pt-2 text-center text-xs text-primary hover:underline" to="/candidate/applications">{t('timeline.viewAll')} ({applications?.length})</Link>}</>}</CardContent></Card></FadeIn>
       <FadeIn delay={0.16}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Heart className="size-4 text-pink-600 fill-current"/>{t('savedJobs.title')}</CardTitle><CardDescription>{t('savedJobs.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></CardHeader><CardContent className="space-y-2">{savedLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentSaved.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('savedJobs.empty')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></div> : recentSaved.map(job=><SavedJobRow key={job.id} job={job} candidateId={candidateProfileId}/>)}</CardContent></Card></FadeIn>
