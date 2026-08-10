@@ -23,8 +23,9 @@
  *
  * Env overrides (same names the app uses):
  *   VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY, SITE_URL
- * Exit code 1 on fetch failure — a build must fail loudly rather than ship a
- * stale or partial sitemap.
+ * Dynamic lookups are best-effort: a build must still emit the static sitemap
+ * when Supabase is unavailable, unauthorized, or slow. Warnings preserve the
+ * failure evidence without making public/auth-independent pages unbuildable.
  */
 import { writeFileSync, readFileSync, existsSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
@@ -39,9 +40,12 @@ const SITE_URL = (process.env.SITE_URL || 'https://fd0b55b61392401b29d1842ca353f
 
 const STATIC_ROUTES = ['/', '/jobs', '/companies', '/pricing', '/terms', '/privacy']
 
+const SUPABASE_TIMEOUT_MS = 8_000
 async function fetchJson(pathname) {
+  const signal = AbortSignal.timeout(SUPABASE_TIMEOUT_MS)
   const res = await fetch(`${SUPABASE_URL}${pathname}`, {
     headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` },
+    signal,
   })
   if (!res.ok) {
     throw new Error(`GET ${pathname} -> HTTP ${res.status} ${(await res.text()).slice(0, 200)}`)
