@@ -166,13 +166,34 @@ const esDashboard: Dict = {
   'timeline.withdrawConfirmDesc': 'Tu postulación será retirada y el empleador será notificado.',
   'timeline.withdrawn': 'Postulación retirada',
   'timeline.withdrawError': 'No se pudo retirar la postulación',
+  'timeline.recruiter': 'Reclutador',
+  'timeline.statusHistory': 'Historial de estados',
+  'timeline.nextActionRequired': 'Acción requerida',
+  'timeline.dueDate': 'Fecha límite',
+  'timeline.takeAction': 'Tomar acción',
+
+  // ── 15 Application Status Labels ───────────────────────────────────
+  'timeline.step.draft': 'Borrador',
+  'timeline.step.applied': 'Enviada',
+  'timeline.step.underReview': 'En revisión',
+  'timeline.step.recruiterScreening': 'Filtro de reclutador',
+  'timeline.step.interviewScheduled': 'Entrevista agendada',
+  'timeline.step.assessmentRequired': 'Evaluación requerida',
+  'timeline.step.assessmentSubmitted': 'Evaluación enviada',
+  'timeline.step.submittedToClient': 'Enviada al cliente',
+  'timeline.step.clientInterview': 'Entrevista con cliente',
+  'timeline.step.finalInterview': 'Entrevista final',
+  'timeline.step.offered': 'Oferta recibida',
+  'timeline.step.hired': 'Contratado',
+  'timeline.step.notSelected': 'No seleccionado',
+  'timeline.step.positionClosed': 'Posición cerrada',
+  'timeline.step.withdrawn': 'Retirada',
+
+  // ── Legacy timeline step keys (deprecated, kept for compat) ──────
   'timeline.step.submitted': 'Postulación enviada',
   'timeline.step.reviewed': 'En revisión',
   'timeline.step.interview': 'Entrevista agendada',
-  'timeline.step.offered': 'Oferta recibida',
-  'timeline.step.hired': 'Contratado',
   'timeline.step.rejected': 'No seleccionado',
-  'timeline.step.withdrawn': 'Retirada',
 
   // ── Admin dashboard ───────────────────────────────────────────────
   'dashboard.admin.subtitle': 'Resumen y administracion de la plataforma.',

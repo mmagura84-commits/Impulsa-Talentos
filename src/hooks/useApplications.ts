@@ -1,8 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows, snakeToCamel } from '@/lib/supabase'
-import type { Application, Job, Profile } from '@/types'
+import type { Application, ApplicationStatusHistory, Job, Profile } from '@/types'
 import { sendEmail } from '@/lib/emailSender'
-import { storagePointer } from '@/hooks/useSignedStorageUrl'
 
 const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
@@ -121,7 +120,8 @@ export function useApply() {
           .from('cvs')
           .upload(path, resumeFile, { upsert: true })
         if (error) throw error
-        finalResumeUrl = storagePointer(path)
+        const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
+        finalResumeUrl = pub.publicUrl
       }
 
       // 2) Persist the application. coverLetter carries the resume URL when
@@ -135,7 +135,7 @@ export function useApply() {
         jobId,
         candidateId,
         coverLetter: fullCover,
-        status: 'pending',
+        status: 'applied',
       })
     },
     onSuccess: async (_result, variables) => {
@@ -169,7 +169,10 @@ async function notifyJobsOfApplication(jobId: string, candidateId: string) {
 }
 
 /**
- * Update an application's status (e.g. "reviewed", "interview", "offered", "hired", "rejected").
+ * Update an application's status to any of the 15 defined ApplicationStatus values:
+ * draft, applied, under_review, recruiter_screening, interview_scheduled,
+ * assessment_required, assessment_submitted, submitted_to_client, client_interview,
+ * final_interview, offer, hired, not_selected, position_closed, withdrawn.
  */
 export function useUpdateApplicationStatus() {
   const queryClient = useQueryClient()
@@ -242,16 +245,42 @@ export function useApplicationsByCompany(jobIds: string[] | undefined) {
 }
 
 /**
- * Withdraw (delete) a candidate's own application.
+ * Soft-withdraw a candidate's own application.
+ * Sets status='withdrawn' and optionally records a reason instead of hard-deleting.
  * Only allowed when the application is still in a mutable state.
  */
 export function useWithdrawApplication() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (id: string) => deleteRow('applications', id),
+    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
+      updateRow('applications', id, {
+        status: 'withdrawn' as const,
+        withdrawnReason: reason ?? null,
+        updatedAt: new Date().toISOString(),
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all })
     },
+  })
+}
+
+// ─── Status history ───
+
+async function fetchApplicationStatusHistory(applicationId: string): Promise<ApplicationStatusHistory[]> {
+  return listRows<ApplicationStatusHistory>('application_status_history', {
+    where: { applicationId },
+    orderBy: { createdAt: 'desc' },
+  })
+}
+
+/**
+ * Fetch the status change history for a specific application.
+ */
+export function useApplicationStatusHistory(applicationId: string | undefined) {
+  return useQuery({
+    queryKey: ['applicationStatusHistory', applicationId ?? ''],
+    queryFn: () => fetchApplicationStatusHistory(applicationId!),
+    enabled: !!applicationId,
   })
 }
