@@ -12,11 +12,13 @@ import {
   useSubmitScorecard,
 } from '@/hooks/useInterviews'
 import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import {
   CalendarClock,
+  Clock,
   Plus,
   MapPin,
   Video,
