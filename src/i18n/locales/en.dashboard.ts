@@ -75,7 +75,27 @@ const enDashboard: Dict = {
   'dashboard.jobDeleteError': 'Could not delete the job',
   'dashboard.jobUpdateError': 'Could not update the job',
   'dashboard.notYourJob': 'You can only manage your own jobs',
-  'dashboard.ownerOnlyEdit': 'Only the employer who posted this job can edit it.',
+    'dashboard.ownerOnlyEdit': 'Only the employer who posted this job can edit it.',
+  // ── Action center ─────────────────────────────────────────────
+  'dashboard.actions.title': 'Next actions',
+  'dashboard.actions.desc': 'What needs your attention at {company}.',
+  'dashboard.actions.descNoCompany': 'Get your company set up to start hiring.',
+  'dashboard.actions.postJob': 'Post a job',
+  'dashboard.actions.registerCompany': 'Register your company',
+  'dashboard.actions.registerCompanyDesc': 'Start posting jobs and reviewing candidates.',
+  'dashboard.actions.reviewApplicants': 'Review {count} new applicant{s}',
+  'dashboard.actions.reviewApplicantsDesc': 'Candidates are waiting in your pipeline.',
+  'dashboard.actions.interviews': '{count} interview{s} scheduled',
+  'dashboard.actions.interviewsDesc': 'See who is meeting your team next.',
+  'dashboard.actions.jobsPending': '{count} job{s} awaiting approval',
+  'dashboard.actions.jobsPendingDesc': 'Pending review before going live.',
+  'dashboard.actions.draftJobs': 'Activate {count} draft job{s}',
+  'dashboard.actions.draftJobsDesc': 'Publish them to start receiving applicants.',
+  'dashboard.actions.interviewStage': '{count} candidate{s} awaiting a decision',
+  'dashboard.actions.interviewStageDesc': 'Move the interview process forward.',
+  'dashboard.actions.allCaughtUp': 'You\'re all caught up',
+  'dashboard.actions.allCaughtUpDesc': 'No pending actions right now. Check back soon.',
+
   'dashboard.loadingJob': 'Loading...',
 
   // Saved jobs
