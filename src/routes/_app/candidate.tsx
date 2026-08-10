@@ -52,6 +52,7 @@ function CandidateLayout() {
         fallbackDescKey="auth.candidateSignInDescription"
         initialMode="signIn"
         showModeTabs
+        signupRedirectPath="/profile"
       >
         <Outlet />
       </AuthGate>

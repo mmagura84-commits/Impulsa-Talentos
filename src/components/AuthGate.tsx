@@ -23,9 +23,10 @@ interface AuthGateProps {
   /** Initial auth mode and whether the mode switcher is shown. */
   initialMode?: 'signIn' | 'signUp'
   showModeTabs?: boolean
+  signupRedirectPath?: string
 }
 
-function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn', showModeTabs = true }: AuthGateProps) {
+function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode = 'signIn', showModeTabs = true, signupRedirectPath = '/candidate' }: AuthGateProps) {
   const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
@@ -68,7 +69,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     setErrorMsg('')
     try {
       if (authMode === 'signUp') {
-        const result = await signUpWithPassword(email.trim(), password, window.location.origin + '/employer')
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + signupRedirectPath)
         if (!result.data.session) setSent(true)
       } else {
         await signInWithPassword(email.trim(), password)
@@ -218,7 +219,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   return <>{children}</>
 }
 
-export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode, showModeTabs }: AuthGateProps) {
+export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, initialMode, showModeTabs, signupRedirectPath }: AuthGateProps) {
   return (
     <BlinkClientBoundary
       fallback={
@@ -234,6 +235,7 @@ export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessa
         fallbackDescription={fallbackDescription}
         initialMode={initialMode}
         showModeTabs={showModeTabs}
+        signupRedirectPath={signupRedirectPath}
       >
         {children}
       </AuthGateInner>
