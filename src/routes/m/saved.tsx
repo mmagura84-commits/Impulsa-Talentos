@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { formatNumber } from '@/lib/formatters'
 import { useState, useEffect } from 'react'
 import { Heart, Building2, MapPin, Briefcase, Clock, AlertCircle, X } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -131,7 +132,7 @@ function SavedJobRow({
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatNumber(job.salaryMin)}-${formatNumber(job.salaryMax)} ${ccy}`
       : t('jobs.salaryTBD')
   return (
     <div className="rounded-xl border border-border bg-card p-4">

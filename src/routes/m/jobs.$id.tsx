@@ -1,4 +1,5 @@
 import { createFileRoute, Link, useNavigate, useParams } from '@tanstack/react-router'
+import { formatNumber } from '@/lib/formatters'
 import { useState } from 'react'
 import { ArrowLeft, MapPin, Briefcase, Globe, DollarSign, Clock, Heart, Send, Building2, AlertCircle, XCircle, Loader2, CheckCircle2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -81,7 +82,7 @@ function MobileJobDetail() {
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatNumber(job.salaryMin)}-${formatNumber(job.salaryMax)} ${ccy}`
       : t('jobs.salaryTBD')
 
   const handleApply = async () => {

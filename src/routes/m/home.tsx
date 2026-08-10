@@ -27,6 +27,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { rankJobs, type MatchScore } from '@/lib/matchScore'
 import { cn } from '@/lib/utils'
+import { formatNumber } from '@/lib/formatters'
 import { toast } from 'sonner'
 import type { Job, Application } from '@/types'
 
@@ -38,8 +39,8 @@ export const Route = createFileRoute('/m/home')({
 function formatSalary(job: Job, locale: 'en' | 'es'): string {
   if (!job.salaryMin && !job.salaryMax) return '—'
   const ccy = job.currency || 'COP'
-  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
-  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const min = job.salaryMin ? formatNumber(job.salaryMin, locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const max = job.salaryMax ? formatNumber(job.salaryMax, locale === 'es' ? 'es-CO' : 'en-US') : '?'
   return `${ccy} $${min} - $${max}`
 }
 
@@ -432,7 +433,7 @@ function SavedJobRow({ job, candidateId }: { job: Job; candidateId: string }) {
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatNumber(job.salaryMin)}-${formatNumber(job.salaryMax)} ${ccy}`
       : t('jobs.salaryTBD')
   return (
     <Link

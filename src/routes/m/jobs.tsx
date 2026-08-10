@@ -1,4 +1,5 @@
 import { createFileRoute, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { formatNumber } from '@/lib/formatters'
 import { useMemo, useState } from 'react'
 import { Search, MapPin, Briefcase, Clock, AlertCircle, Heart, Building2 } from 'lucide-react'
 import { Input } from '@/components/ui/input'
@@ -145,7 +146,7 @@ function MobileJobCard({
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatNumber(job.salaryMin)}-${formatNumber(job.salaryMax)} ${ccy}`
       : t('jobs.salaryTBD')
 
   return (
