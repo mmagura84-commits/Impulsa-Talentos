@@ -39,8 +39,10 @@ import {
   UserCheck,
   History,
   AlarmClock,
+  MessageSquare,
 } from 'lucide-react'
 import type { Job, Application } from '@/types'
+import { CandidateMessenger } from '@/components/messaging/CandidateMessenger'
 
 /* ── Match score pill ──────────────────────────────────── */
 function MatchBadge({ score }: { score: number }) {
@@ -240,6 +242,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
   const { data: recruiter } = useProfileById(app.recruiterId)
   const { data: statusHistory } = useApplicationStatusHistory(app.id)
   const [historyOpen, setHistoryOpen] = useState(false)
+  const [messengerOpen, setMessengerOpen] = useState(false)
   const ts = TIMELINE_STATUSES[app.status] ?? { step: 0, color: 'border-muted-foreground text-muted-foreground' }
   const stepLabels: Record<string, string> = {
     draft: t('timeline.step.draft'),
@@ -305,6 +308,14 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
           >
             View job <ChevronRight className="size-2.5 inline ml-0.5" />
           </Link>
+          <button
+            type="button"
+            onClick={() => setMessengerOpen(!messengerOpen)}
+            className="text-[11px] font-medium text-primary hover:underline flex items-center gap-1 cursor-pointer"
+          >
+            <MessageSquare className="size-3" />
+            {messengerOpen ? t('messenger.close') : t('messenger.open')}
+          </button>
           {isMutable && onWithdraw && (
             <button
               type="button"
@@ -315,6 +326,23 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             </button>
           )}
         </div>
+
+        {/* Messenger (expandable inline) */}
+        <AnimatePresence>
+          {messengerOpen && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="overflow-hidden"
+            >
+              <div className="mt-3">
+                <CandidateMessenger applicationId={app.id} candidateId={app.candidateId} />
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Next Action Required widget */}
         {hasNextAction && (
