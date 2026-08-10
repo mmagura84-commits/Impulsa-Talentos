@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useProfileById } from '@/hooks/useProfile'
 import { useUpdateApplicationStatus } from '@/hooks/useApplications'
+import { createRow } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   Users,
@@ -20,8 +21,11 @@ import {
   GripVertical,
   MessageSquare,
   RotateCcw,
+  CheckCheck,
+  Table,
+  Columns2,
 } from 'lucide-react'
-import type { Application } from '@/types'
+import type { Application, ApplicationStatusHistory } from '@/types'
 
 /* ── Kanban column definitions ─────────────────────────────── */
 interface KanbanColumn {
@@ -49,13 +53,13 @@ const KANBAN_COLUMNS: KanbanColumn[] = [
 ]
 
 /* ── Time in stage helper ───────────────────────────────────── */
-function timeInStage(createdAt: string): string {
+function timeInStageLabel(createdAt: string, t: (k: string, p?: Record<string, unknown>) => string): string {
   const days = Math.floor((Date.now() - new Date(createdAt).getTime()) / 86_400_000)
-  if (days <= 0) return 'Today'
-  if (days === 1) return '1d'
-  if (days < 7) return `${days}d`
-  if (days < 30) return `${Math.floor(days / 7)}w`
-  return `${Math.floor(days / 30)}mo`
+  if (days <= 0) return t('kanban.today')
+  if (days === 1) return t('kanban.oneDay')
+  if (days < 7) return t('kanban.nDays', { n: days })
+  if (days < 30) return t('kanban.nWeeks', { n: Math.floor(days / 7) })
+  return t('kanban.nMonths', { n: Math.floor(days / 30) })
 }
 
 /* ── Applicant card ─────────────────────────────────────────── */
@@ -85,7 +89,7 @@ function ApplicantCard({
         type="button"
         className="absolute top-2 right-2 z-10 cursor-pointer"
         onClick={(e) => { e.stopPropagation(); onToggleSelect(app.id) }}
-        aria-label={isSelected ? 'Deselect' : 'Select'}
+        aria-label={isSelected ? t('kanban.deselect') : t('kanban.select')}
       >
         {isSelected
           ? <CheckSquare className="size-4 text-primary" />
@@ -100,7 +104,7 @@ function ApplicantCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">{candidateName}</p>
-          <p className="text-[10px] text-muted-foreground">{timeInStage(app.createdAt)} in stage</p>
+          <p className="text-[10px] text-muted-foreground">{t('kanban.inStage', { time: timeInStageLabel(app.createdAt, t) })}</p>
         </div>
       </div>
 
@@ -111,7 +115,7 @@ function ApplicantCard({
           className="w-full flex items-center justify-between rounded border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-accent cursor-pointer"
           onClick={(e) => { e.stopPropagation(); setStatusOpen(!statusOpen) }}
         >
-          <span>{column.labelEn}</span>
+          <span>{t(`kanban.column.${column.key}`)}</span>
           <ChevronDown className="size-3" />
         </button>
         <AnimatePresence>
@@ -133,7 +137,7 @@ function ApplicantCard({
                       className="w-full text-left text-xs px-2.5 py-1.5 rounded hover:bg-accent cursor-pointer"
                       onClick={(e) => { e.stopPropagation(); onStatusChange(app.id, s); setStatusOpen(false) }}
                     >
-                      Move to {c.labelEn}
+                      {t('kanban.moveTo', { stage: t(`kanban.column.${c.key}`) })}
                     </button>
                   ))
                 ))}
@@ -221,6 +225,7 @@ function KanbanFilterBar({
   selectedCount: number
   onBulkStatus: (status: Application['status']) => void
   onClearSelection: () => void
+  onSelectAllVisible: () => void
   t: (k: string, p?: Record<string, unknown>) => string
 }) {
   const [bulkOpen, setBulkOpen] = useState(false)
@@ -270,7 +275,7 @@ function KanbanFilterBar({
                       <button key={s} type="button"
                         className="w-full text-left text-xs px-2.5 py-1.5 rounded hover:bg-accent cursor-pointer"
                         onClick={() => { onBulkStatus(s); setBulkOpen(false) }}>
-                        Move all to {c.labelEn}
+                        {t('kanban.moveAllTo', { stage: t(`kanban.column.${c.key}`) })}
                       </button>
                     )))}
                   </motion.div>
@@ -284,6 +289,11 @@ function KanbanFilterBar({
           </Button>
         </div>
       )}
+      {/* Select all visible — always visible when there are apps */}
+      <Button variant="ghost" size="sm" className="h-8 text-xs text-muted-foreground ml-auto" onClick={onSelectAllVisible}>
+        <CheckCheck className="size-3 mr-1" />
+        {t('kanban.selectAllVisible')}
+      </Button>
     </div>
   )
 }
@@ -338,6 +348,12 @@ export function PipelineKanban({ applications }: { applications: Application[] }
   const handleStatusChange = useCallback(async (id: string, status: Application['status']) => {
     try {
       await updateStatus.mutateAsync({ id, status })
+      // Write to status history
+      await createRow<ApplicationStatusHistory>('application_status_history', {
+        applicationId: id,
+        status,
+        note: `Moved to ${status} via kanban`,
+      }).catch(() => { /* history is best-effort */ })
       toast.success(t('kanban.stageChanged'))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('common.retry'))
@@ -348,6 +364,11 @@ export function PipelineKanban({ applications }: { applications: Application[] }
     try {
       for (const id of selectedIds) {
         await updateStatus.mutateAsync({ id, status })
+        await createRow<ApplicationStatusHistory>('application_status_history', {
+          applicationId: id,
+          status,
+          note: `Bulk moved to ${status} via kanban`,
+        }).catch(() => {})
       }
       toast.success(t('kanban.bulkMoved', { count: selectedIds.size }))
       setSelectedIds(new Set())
@@ -358,6 +379,10 @@ export function PipelineKanban({ applications }: { applications: Application[] }
 
   const handleClearSelection = useCallback(() => setSelectedIds(new Set()), [])
 
+  const handleSelectAllVisible = useCallback(() => {
+    setSelectedIds(new Set(filteredApps.map(a => a.id)))
+  }, [filteredApps])
+
   return (
     <div>
       {/* Filters */}
@@ -367,6 +392,7 @@ export function PipelineKanban({ applications }: { applications: Application[] }
         selectedCount={selectedIds.size}
         onBulkStatus={handleBulkStatus}
         onClearSelection={handleClearSelection}
+        onSelectAllVisible={handleSelectAllVisible}
         t={t}
       />
 
