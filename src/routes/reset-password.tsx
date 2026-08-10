@@ -34,31 +34,46 @@ function ResetPasswordPage() {
   const [errorMsg, setErrorMsg] = useState('')
 
   useEffect(() => {
-    // Supabase recovery link arrives either as ?token_hash=…&type=recovery
-    // (PKCE) or as a #access_token fragment that supabase-js detects and
-    // exchanges automatically (detectSessionInUrl: true).
+    // Supabase recovery links arrive as either ?token_hash=…&type=recovery
+    // (PKCE) or a #access_token fragment. The fragment exchange is async, so
+    // do not treat the first null getSession() result as an expired link.
     if (typeof window === 'undefined') return
+    let active = true
+    let settled = false
+    const settle = (next: 'ready' | 'error', message = '') => {
+      if (!active || settled) return
+      settled = true
+      setReady(next === 'ready')
+      setStatus(next === 'ready' ? 'loading' : 'error')
+      if (message) setErrorMsg(message)
+    }
+    const timeout = window.setTimeout(() => {
+      settle('error', t('reset.invalidDesc'))
+    }, 6000)
+    const { data: authSubscription } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session) settle('ready')
+    })
     const params = new URLSearchParams(window.location.search)
     const tokenHash = params.get('token_hash')
     if (tokenHash) {
-      supabase.auth
-        .verifyOtp({ token_hash: tokenHash, type: 'recovery' })
-        .then(({ error }) => {
-          if (error) {
-            setStatus('error')
-            setErrorMsg(error.message)
-            return
-          }
-          setReady(true)
-        })
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: 'recovery' }).then(({ error }) => {
+        if (error) settle('error', error.message)
+        else settle('ready')
+      })
     } else {
-      // Fragment-session path: wait a tick for onAuthStateChange to fire.
-      supabase.auth.getSession().then(({ data }) => {
-        if (data.session) setReady(true)
-        else setStatus('error')
+      // Give detectSessionInUrl/onAuthStateChange time to process the hash.
+      supabase.auth.getSession().then(({ data, error }) => {
+        if (error) settle('error', error.message)
+        else if (data.session) settle('ready')
+        // A link with no token is handled by the bounded timeout above.
       })
     }
-  }, [])
+    return () => {
+      active = false
+      window.clearTimeout(timeout)
+      authSubscription.subscription.unsubscribe()
+    }
+  }, [t])
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
