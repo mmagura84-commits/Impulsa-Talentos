@@ -45,7 +45,7 @@ import {
   ChevronDown,
   ExternalLink,
 } from 'lucide-react'
-import type { Application } from '@/types'
+import type { Application, Job } from '@/types'
 
 export const Route = createFileRoute('/_app/employer/manage/$id')({
   component: ManageApplicationsPage,
@@ -110,6 +110,8 @@ function statusColor(s: Application['status']): string {
 function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobId: string; companyId: string; job: Job }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  const resumePointer = extractResumeUrl(app.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
 
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
