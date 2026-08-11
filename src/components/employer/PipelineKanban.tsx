@@ -69,12 +69,14 @@ function ApplicantCard({
   isSelected,
   onToggleSelect,
   onStatusChange,
+  onOpen,
 }: {
   app: Application
   column: KanbanColumn
   isSelected: boolean
   onToggleSelect: (id: string) => void
   onStatusChange: (id: string, status: Application['status']) => void
+  onOpen: (app: Application) => void
 }) {
   const { t, locale } = useI18n()
   const { data: candidate } = useProfileById(app.candidateId)
@@ -83,7 +85,16 @@ function ApplicantCard({
   const initials = candidateName.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase()
 
   return (
-    <div className={`rounded-lg border bg-card p-3 cursor-pointer hover:shadow-sm transition-shadow relative ${isSelected ? 'ring-2 ring-primary border-primary/50' : 'border-border'}`}>
+    <div
+      role="button"
+      tabIndex={0}
+      onClick={() => onOpen(app)}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen(app) }
+      }}
+      aria-label={t('kanban.reviewCandidate', { name: candidateName })}
+      className={`rounded-lg border bg-card p-3 cursor-pointer hover:shadow-sm transition-shadow relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${isSelected ? 'ring-2 ring-primary border-primary/50' : 'border-border'}`}
+    >
       {/* Selection checkbox */}
       <button
         type="button"
@@ -157,6 +168,7 @@ function KanbanColumnView({
   selectedIds,
   onToggleSelect,
   onStatusChange,
+  onOpenApplication,
   t,
 }: {
   column: KanbanColumn
@@ -164,6 +176,7 @@ function KanbanColumnView({
   selectedIds: Set<string>
   onToggleSelect: (id: string) => void
   onStatusChange: (id: string, status: Application['status']) => void
+  onOpenApplication: (app: Application) => void
   t: (k: string, p?: Record<string, unknown>) => string
 }) {
   const label = t(`kanban.column.${column.key}`) || column.labelEn
@@ -198,6 +211,7 @@ function KanbanColumnView({
               isSelected={selectedIds.has(app.id)}
               onToggleSelect={onToggleSelect}
               onStatusChange={onStatusChange}
+              onOpen={onOpenApplication}
             />
           ))
         )}
@@ -218,6 +232,7 @@ function KanbanFilterBar({
   selectedCount,
   onBulkStatus,
   onClearSelection,
+  onSelectAllVisible,
   t,
 }: {
   filters: KanbanFilters
@@ -301,7 +316,14 @@ function KanbanFilterBar({
 /* ════════════════════════════════════════════════════════════════
    PipelineKanban — main component
    ════════════════════════════════════════════════════════════════ */
-export function PipelineKanban({ applications }: { applications: Application[] }) {
+export function PipelineKanban({
+  applications,
+  onOpenApplication,
+}: {
+  applications: Application[]
+  onOpenApplication?: (app: Application) => void
+}) {
+  const openApp = onOpenApplication ?? (() => {})
   const { t } = useI18n()
   const updateStatus = useUpdateApplicationStatus()
   const [filters, setFilters] = useState<KanbanFilters>({ search: '', stages: new Set() })
@@ -406,6 +428,7 @@ export function PipelineKanban({ applications }: { applications: Application[] }
               selectedIds={selectedIds}
               onToggleSelect={handleToggleSelect}
               onStatusChange={handleStatusChange}
+              onOpenApplication={openApp}
               t={t}
             />
           </div>
