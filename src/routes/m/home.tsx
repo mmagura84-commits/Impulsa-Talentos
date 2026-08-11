@@ -24,6 +24,7 @@ import { useCompanyJobs, useJobs, useDeleteJob } from '@/hooks/useJobs'
 import { useMyApplications, useApplicationsByCompany } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { rankJobs, type MatchScore } from '@/lib/matchScore'
 import { cn } from '@/lib/utils'
@@ -432,7 +433,7 @@ function SavedJobRow({ job, candidateId }: { job: Job; candidateId: string }) {
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatSalaryValue(job.salaryMin, locale)}-${formatSalaryValue(job.salaryMax, locale)} ${ccy}`
       : t('jobs.salaryTBD')
   return (
     <Link
