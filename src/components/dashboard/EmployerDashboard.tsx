@@ -12,6 +12,8 @@ import { useProfileById } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { FadeIn, StatCard, formatSalary, formatPosted, statusLabel } from './shared'
 import { UpcomingInterviewsWidget } from './UpcomingInterviewsWidget'
+import { ActionCenter } from './ActionCenter'
+import { useUpcomingInterviews } from '@/hooks/useInterviews'
 import {
   Briefcase,
   FileText,
@@ -276,10 +278,19 @@ export function EmployerDashboard({ employerId }: { employerId: string }) {
       const postedJobs = (companyJobs ?? []).filter(j => j.companyId === company?.id)
       const jobIds = postedJobs.map(j => j.id)
       const { data: allApplications = [], isLoading: appsLoading } = useApplicationsByCompany(jobIds)
+      const { data: upcomingInterviews = [], isLoading: upcomingLoading } = useUpcomingInterviews(company?.id)
       const applications = allApplications.filter(a => jobIds.includes(a.jobId))
       const hires = applications.filter(a => a.status === 'hired').length
       const recentApplications = applications.slice(0, 5)
   return <div className="space-y-6">
+    <FadeIn delay={0.05}><ActionCenter
+      companyId={company?.id}
+      companyName={company?.name}
+      jobs={postedJobs}
+      applications={applications}
+      upcomingInterviews={upcomingInterviews}
+      isLoading={companyLoading || jobsLoading || appsLoading || upcomingLoading}
+    /></FadeIn>
     <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.activeJobs')} value={String(postedJobs.filter(j=>j.status==='open').length)} delay={0}/><StatCard icon={Users} label={t('dashboard.stat.totalApplicants')} value={String(applications.length)} delay={0.05}/><StatCard icon={CheckCircle2} label={t('dashboard.stat.hires')} value={String(hires)} delay={0.1}/></div>
     {company && <FadeIn delay={0.1}><div className="space-y-4"><CompanyContactEmailCard company={company} /><VerificationCard company={company} /></div></FadeIn>}
     <FadeIn delay={0.14}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base">{t('dashboard.employerJobs.title')}</CardTitle><CardDescription>{company ? company.name : t('dashboard.noCompany')}</CardDescription></div><Button size="sm" asChild><Link to="/employer/post-job"><Plus className="size-3.5 mr-1"/>{t('dashboard.newJob')}</Link></Button></CardHeader><CardContent className="space-y-2">{companyLoading || jobsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !company ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noCompany')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.registerCompany')}</Link></Button></div> : !postedJobs.length ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noEmployerJobs')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.firstJob')}</Link></Button></div> : postedJobs.map(job=><EmployerJobRow key={job.id} job={job} appCount={allApplications.filter(a=>a.jobId===job.id).length}/>)}</CardContent></Card></FadeIn>
