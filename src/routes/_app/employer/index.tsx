@@ -37,7 +37,7 @@ function EmployerHomePage() {
   if (isLoading) {
     return (
       <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
-        <div className="p-6 max-w-5xl mx-auto">
+        <div className="p-6 max-w-5xl mx-auto min-w-0 overflow-x-clip">
           <div className="h-8 w-48 rounded bg-muted animate-pulse mb-2" />
           <div className="h-4 w-72 rounded bg-muted animate-pulse mb-8" />
           <div className="grid sm:grid-cols-3 gap-4 mb-6">
@@ -53,10 +53,10 @@ function EmployerHomePage() {
 
   return (
     <AuthGate fallbackKey="auth.fallback.employerDashboard" fallbackDescKey="auth.fallback.employerDashboardDesc">
-      <div className="p-6 max-w-5xl mx-auto">
+      <div className="p-6 max-w-5xl mx-auto min-w-0 overflow-x-clip">
         <FadeIn>
           <div className="mb-8">
-            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
+            <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2 flex-wrap break-words min-w-0">
               <Building2 className="size-7 text-primary" />
               {t('dashboard.greeting', { name: displayName })}
             </h1>
