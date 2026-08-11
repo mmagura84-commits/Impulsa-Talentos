@@ -9,6 +9,7 @@ import { useCompanyJobs } from '@/hooks/useJobs'
 import { useApplicationsByCompany, useUpdateApplicationStatus } from '@/hooks/useApplications'
 import { useOffersByApplication, useCreateOffer, useUpdateOffer } from '@/hooks/useOffers'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatSalaryValue } from '@/lib/formatSalary'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -60,7 +61,7 @@ function EmployerOffersPage() {
   const { data: jobs } = useCompanyJobs(company?.id)
   const jobIds = jobs?.map(j => j.id) ?? []
   const { data: applications, isLoading: appsLoading } = useApplicationsByCompany(jobIds.length > 0 ? jobIds : undefined)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [creatingFor, setCreatingFor] = useState<string | null>(null) // application id
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
 
@@ -147,6 +148,7 @@ function ApplicationOfferRow({
   onCancelEdit: () => void
   t: (k: string, p?: Record<string, unknown>) => string
 }) {
+  const { locale } = useI18n()
   const { data: candidate } = useProfileById(application.candidateId as string)
   const { data: offers } = useOffersByApplication(application.id)
   const { data: profile } = useProfile(useAuth().user?.id)
@@ -218,7 +220,7 @@ function ApplicationOfferRow({
                   {t(`offers.status.${latestOffer.status}`)}
                 </span>
                 <span className="text-xs text-muted-foreground">
-                  {latestOffer.currency} {latestOffer.salary.toLocaleString()}
+                  {latestOffer.currency} {latestOffer.salary != null ? formatSalaryValue(latestOffer.salary, locale) : '—'}
                 </span>
               </div>
             )}
@@ -240,7 +242,7 @@ function ApplicationOfferRow({
                   <span className={`px-1.5 py-0.5 rounded font-medium ${STATUS_COLORS[o.status]}`}>
                     {t(`offers.status.${o.status}`)}
                   </span>
-                  <span className="text-muted-foreground">{o.currency} {o.salary.toLocaleString()}</span>
+                  <span className="text-muted-foreground">{o.currency} {o.salary != null ? formatSalaryValue(o.salary, locale) : '—'}</span>
                   {o.startDate && <span className="text-muted-foreground">{o.startDate}</span>}
                 </div>
                 <div className="flex gap-1">
