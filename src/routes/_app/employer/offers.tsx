@@ -148,6 +148,7 @@ function ApplicationOfferRow({
   onCancelEdit: () => void
   t: (k: string, p?: Record<string, unknown>) => string
 }) {
+  const { locale } = useI18n()
   const { data: candidate } = useProfileById(application.candidateId as string)
   const { data: offers } = useOffersByApplication(application.id)
   const { data: profile } = useProfile(useAuth().user?.id)
