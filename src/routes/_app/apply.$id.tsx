@@ -301,6 +301,7 @@ function ApplyPage() {
   const navigate = useNavigate()
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
+  const { locale, t } = useI18n()
 
   /* ── Candidate-only gate: redirect non-candidates before any content ── */
   useLayoutEffect(() => {
@@ -314,7 +315,6 @@ function ApplyPage() {
   const { data: company } = useCompanyById(job?.companyId)
   const { data: myApps, isLoading: myAppsLoading } = useMyApplications(profile?.id)
   const apply = useApply()
-  const { locale, t } = useI18n()
 
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [file, setFile] = useState<File | null>(null)
@@ -383,6 +383,21 @@ function ApplyPage() {
     )
   }
 
+  // Already applied — short-circuit to confirmation page (deferred to avoid render-side navigate).
+  // Declared unconditionally ABOVE the early returns so every render calls the
+  // same hooks in the same order (React #310). No-op when not applied.
+  useEffect(() => {
+    if (alreadyApplied) {
+      const lastApp = myApps?.find(a => a.jobId === id)
+      if (lastApp) {
+        navigate({
+          to: '/apply/$id/confirm',
+          params: { id },
+          search: { appId: lastApp.id },
+        })
+      }
+    }
+  }, [alreadyApplied, myApps, id, navigate])
   // Profile must exist before applying
   if (!profile?.id) {
     return (
@@ -406,19 +421,6 @@ function ApplyPage() {
     )
   }
 
-  // Already applied — short-circuit to confirmation page (deferred to avoid render-side navigate)
-  useEffect(() => {
-    if (alreadyApplied) {
-      const lastApp = myApps?.find(a => a.jobId === id)
-      if (lastApp) {
-        navigate({
-          to: '/apply/$id/confirm',
-          params: { id },
-          search: { appId: lastApp.id },
-        })
-      }
-    }
-  }, [alreadyApplied, myApps, id, navigate])
 
   const companyName = company?.name ?? t('jobDetail.confidential')
   const skills = splitList(job.skillsRequired)

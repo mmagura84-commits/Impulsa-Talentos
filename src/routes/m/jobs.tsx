@@ -21,7 +21,6 @@ export const Route = createFileRoute('/m/jobs')({
 })
 
 function MobileJobs() {
-  const { t } = useI18n()
   const matchRoute = useMatchRoute()
 
   // When the child detail route (/m/jobs/$id) is active, render only
@@ -33,7 +32,14 @@ function MobileJobs() {
       </div>
     )
   }
+  // List content lives in a separate component so ALL hooks are
+  // unconditional per component — the conditional child-route branch above
+  // would otherwise change the hook count between renders (React #310).
+  return <MobileJobsList />
+}
 
+function MobileJobsList() {
+  const { t } = useI18n()
   const { data: jobs, isLoading, isError, error, refetch } = useJobs()
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
