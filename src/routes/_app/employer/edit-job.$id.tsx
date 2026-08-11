@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany } from '@/hooks/useCompanies'
 import { useJob, useUpdateJob } from '@/hooks/useJobs'
+import { JobManagementPanel } from '@/components/employer/JobManagementPanel'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
 import {
@@ -432,6 +433,12 @@ function EditJobPage() {
               </div>
             </CardContent>
           </Card>
+        </FadeIn>
+
+        <FadeIn delay={0.09}>
+          <div className="mt-6">
+            <JobManagementPanel job={job} />
+          </div>
         </FadeIn>
 
         <FadeIn delay={0.1}>

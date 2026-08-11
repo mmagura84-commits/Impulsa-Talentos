@@ -1,1 +1,0 @@
-import{$t as e,Qt as t}from"./index-TwEpWIcO.js";var n=e();function r({children:e,fallback:r=null}){return(0,n.jsx)(t,{fallback:r,children:e})}export{r as t};

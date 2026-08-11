@@ -1,1 +1,0 @@
-var e=`impulsa_onboarding_intent`;function t(t){if(!(typeof window>`u`))try{sessionStorage.setItem(e,t)}catch{}}function n(){if(typeof window>`u`)return null;try{let t=sessionStorage.getItem(e);if(t===`candidate`||t===`employer`)return t}catch{}return null}function r(){if(!(typeof window>`u`))try{sessionStorage.removeItem(e)}catch{}}export{n,t as r,r as t};
