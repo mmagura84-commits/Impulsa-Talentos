@@ -137,8 +137,15 @@ for (let attempt = 1; ; attempt++) {
         if (!(await file.exists())) {
           file = Bun.file(`${STATIC_DIR}/${filePath}/index.html`);
           if (!(await file.exists())) {
-            // SPA fallback: serve index.html for any unmatched route
-            file = Bun.file(`${STATIC_DIR}/index.html`);
+            // SPA fallback: serve the neutral spa-fallback.html shell (empty
+            // body) instead of index.html — index.html is the fully prerendered
+            // HOME page, and hydrating it against e.g. /employer's tree throws
+            // Minified React error #418 (text-node divergence). An empty body is
+            // a valid hydration target for any route (no mismatch possible).
+            file = Bun.file(`${STATIC_DIR}/spa-fallback.html`);
+            if (!(await file.exists())) {
+              file = Bun.file(`${STATIC_DIR}/index.html`);
+            }
           }
         }
         return new Response(file);
