@@ -8,6 +8,7 @@ import { useJob } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApply, useMyApplications } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useSaveJob, useSavedJobIds, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { sendApplicationNotifications } from '@/lib/notifyApplication'
@@ -81,7 +82,7 @@ function MobileJobDetail() {
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatSalaryValue(job.salaryMin, locale)}-${formatSalaryValue(job.salaryMax, locale)} ${ccy}`
       : t('jobs.salaryTBD')
 
   const handleApply = async () => {

@@ -7,6 +7,7 @@ import { useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
@@ -138,14 +139,14 @@ function MobileJobCard({
   onToggleSave: () => void
 }) {
   const { data: company } = useCompanyById(job.companyId)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const skills = job.skillsRequired
     ? job.skillsRequired.split(',').map(s => s.trim()).filter(Boolean).slice(0, 3)
     : []
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatSalaryValue(job.salaryMin, locale)}-${formatSalaryValue(job.salaryMax, locale)} ${ccy}`
       : t('jobs.salaryTBD')
 
   return (

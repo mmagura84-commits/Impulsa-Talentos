@@ -8,6 +8,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useI18n } from '@/i18n/I18nProvider'
+import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import type { Job } from '@/types'
 
@@ -127,11 +128,11 @@ function SavedJobRow({
   onConfirmEnd: () => void
 }) {
   const { data: company } = useCompanyById(job.companyId)
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const ccy = job.currency || 'COP'
   const salary =
     job.salaryMin && job.salaryMax
-      ? `${job.salaryMin.toLocaleString()}-${job.salaryMax.toLocaleString()} ${ccy}`
+      ? `${formatSalaryValue(job.salaryMin, locale)}-${formatSalaryValue(job.salaryMax, locale)} ${ccy}`
       : t('jobs.salaryTBD')
   return (
     <div className="rounded-xl border border-border bg-card p-4">
