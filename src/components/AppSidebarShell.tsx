@@ -105,7 +105,7 @@ function NavItem({ item, collapsed, label, accent }: { item: NavItemDef; collaps
   )
 }
 
-export function AppSidebarShell({ navItems, accent = 'navy' }: { navItems?: NavItemDef[]; accent?: 'gold' | 'navy' | 'ink' }) {
+export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { navItems?: NavItemDef[]; accent?: 'gold' | 'navy' | 'ink'; headerActions?: ReactNode }) {
   const { user, logout } = useAuth()
   const { data: profile } = useProfile(user?.id)
   const { t } = useI18n()
@@ -178,6 +178,7 @@ export function AppSidebarShell({ navItems, accent = 'navy' }: { navItems?: NavI
               {collapsed ? t('nav.expandMenu') : t('nav.collapseMenu')}
             </TooltipContent>
           </Tooltip>
+          {headerActions}
         </div>
 
         {/* ── Nav ───────────────────────────────────────── */}

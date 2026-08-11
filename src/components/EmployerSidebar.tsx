@@ -4,7 +4,8 @@
  * No candidate or admin tools.
  */
 import { AppSidebarShell } from '@/components/AppSidebarShell'
+import { NotificationCenter } from '@/components/dashboard/NotificationCenter'
 
 export function EmployerSidebar() {
-  return <AppSidebarShell accent="navy" />
+  return <AppSidebarShell accent="navy" headerActions={<NotificationCenter />} />
 }
