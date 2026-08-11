@@ -32,17 +32,49 @@ CREATE INDEX IF NOT EXISTS team_members_status_idx ON public.team_members (statu
 -- 2. Enable RLS
 ALTER TABLE public.team_members ENABLE ROW LEVEL SECURITY;
 
--- 3. RLS Policies
+-- 2b. SECURITY DEFINER membership helpers (2026-08-11 fix):
+--     The original 019 policies SELECTed FROM team_members inside a
+--     team_members policy → PostgreSQL 42P17 "infinite recursion detected in
+--     policy for relation team_members" on ANY query. These helpers perform
+--     the membership check definer-side (RLS bypassed on the inner read),
+--     which breaks the recursion; the policies below call them.
+--     Mirrors the live fix bundle (migrations-019-022-plus-rls-fix-v2.sql).
+CREATE OR REPLACE FUNCTION public.is_team_member(p_company_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.team_members tm
+    WHERE tm.company_id = p_company_id
+      AND tm.user_id = auth.uid()::text
+      AND tm.status = 'active'
+  );
+$$;
 
+CREATE OR REPLACE FUNCTION public.is_team_admin(p_company_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.team_members tm
+    WHERE tm.company_id = p_company_id
+      AND tm.user_id = auth.uid()::text
+      AND tm.status = 'active'
+      AND tm.role IN ('owner', 'admin')
+  );
+$$;
+
+-- 3. RLS Policies (2026-08-11 fix: helper-based → non-recursive)
 -- Company members can view their own company's team
 DROP POLICY IF EXISTS "team_members_select_company" ON public.team_members;
 CREATE POLICY "team_members_select_company" ON public.team_members
-  FOR SELECT USING (
-    company_id IN (
-      SELECT tm.company_id FROM public.team_members tm
-      WHERE tm.user_id = auth.uid()::text AND tm.status = 'active'
-    )
-  );
+  FOR SELECT USING (public.is_team_member(company_id));
 
 -- User can always see their own memberships
 DROP POLICY IF EXISTS "team_members_select_own" ON public.team_members;
@@ -57,50 +89,18 @@ CREATE POLICY "team_members_select_admin" ON public.team_members
 -- Company owners/admins can insert new members
 DROP POLICY IF EXISTS "team_members_insert_owner" ON public.team_members;
 CREATE POLICY "team_members_insert_owner" ON public.team_members
-  FOR INSERT WITH CHECK (
-    -- Must be owner or admin of the target company
-    EXISTS (
-      SELECT 1 FROM public.team_members tm
-      WHERE tm.company_id = company_id
-        AND tm.user_id = auth.uid()::text
-        AND tm.status = 'active'
-        AND tm.role IN ('owner', 'admin')
-    )
-  );
+  FOR INSERT WITH CHECK (public.is_team_admin(company_id));
 
 -- Company owners/admins can update members
 DROP POLICY IF EXISTS "team_members_update_owner" ON public.team_members;
 CREATE POLICY "team_members_update_owner" ON public.team_members
-  FOR UPDATE USING (
-    EXISTS (
-      SELECT 1 FROM public.team_members tm
-      WHERE tm.company_id = team_members.company_id
-        AND tm.user_id = auth.uid()::text
-        AND tm.status = 'active'
-        AND tm.role IN ('owner', 'admin')
-    )
-  ) WITH CHECK (
-    EXISTS (
-      SELECT 1 FROM public.team_members tm
-      WHERE tm.company_id = team_members.company_id
-        AND tm.user_id = auth.uid()::text
-        AND tm.status = 'active'
-        AND tm.role IN ('owner', 'admin')
-    )
-  );
+  FOR UPDATE USING (public.is_team_admin(company_id))
+  WITH CHECK (public.is_team_admin(company_id));
 
 -- Company owners/admins can remove members
 DROP POLICY IF EXISTS "team_members_delete_owner" ON public.team_members;
 CREATE POLICY "team_members_delete_owner" ON public.team_members
-  FOR DELETE USING (
-    EXISTS (
-      SELECT 1 FROM public.team_members tm
-      WHERE tm.company_id = team_members.company_id
-        AND tm.user_id = auth.uid()::text
-        AND tm.status = 'active'
-        AND tm.role IN ('owner', 'admin')
-    )
-  );
+  FOR DELETE USING (public.is_team_admin(company_id));
 
 -- 4. Auto-create team_member when company is created (employer is owner)
 -- Function: creates an owner team_member row for the company creator

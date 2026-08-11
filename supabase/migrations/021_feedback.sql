@@ -45,13 +45,18 @@ CREATE POLICY "feedback_select_company_member" ON public.application_feedback
   );
 
 -- Candidates can view candidate_visible feedback on their own applications
+-- NOTE (2026-08-11 fix): applications.candidate_id is UUID; comparing it to
+-- auth.uid()::text (text) fails with 42883 "operator does not exist: uuid = text"
+-- on live. Use the house pattern — uuid-to-uuid via the profiles lookup.
 DROP POLICY IF EXISTS "feedback_select_candidate_visible" ON public.application_feedback;
 CREATE POLICY "feedback_select_candidate_visible" ON public.application_feedback
   FOR SELECT USING (
     visibility = 'candidate_visible'
     AND application_id IN (
       SELECT a.id FROM public.applications a
-      WHERE a.candidate_id = auth.uid()::text
+      WHERE a.candidate_id IN (
+        SELECT id FROM public.profiles WHERE user_id = auth.uid()::text
+      )
     )
   );
 
