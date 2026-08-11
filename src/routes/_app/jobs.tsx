@@ -202,7 +202,6 @@ function JobListItem({
 
 /* ── Page ──────────────────────────────────────────────── */
 function JobsPage() {
-  const { locale, t } = useI18n()
   const matchRoute = useMatchRoute()
 
   // When a child detail route (/jobs/$id) is active, render ONLY the
@@ -216,7 +215,15 @@ function JobsPage() {
       </div>
     )
   }
+  // List content lives in a separate component so ALL hooks (useState,
+  // useEffect, useInfiniteJobs, useLoaderData, useMemo) are unconditional
+  // per component — the conditional child-route branch above would otherwise
+  // change the hook count between renders (React #310).
+  return <JobsListView />
+}
 
+function JobsListView() {
+  const { locale, t } = useI18n()
   const [search, setSearch] = useState('')
   const [levelFilter, setLevelFilter] = useState('')
   const [locationFilter, setLocationFilter] = useState('')

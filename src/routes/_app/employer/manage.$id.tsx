@@ -469,6 +469,11 @@ function ManageApplicationsPage() {
   const { data: applications, isLoading: appsLoading } = useApplications(id)
   const { t } = useI18n()
   const navigate = useNavigate()
+  // ── Hooks must be declared unconditionally, ABOVE all early returns ──
+  // (React #310 "Rendered more hooks than during the previous render":
+  // loading render called 8 hooks, data render called 10)
+  const [kanbanView, setKanbanView] = useState<'kanban' | 'list'>('kanban')
+  const [reviewApp, setReviewApp] = useState<Application | null>(null)
 
   const isOwner = !!job && !!company && job.companyId === company.id
 
@@ -533,8 +538,6 @@ function ManageApplicationsPage() {
   }
 
   const apps = applications ?? []
-  const [kanbanView, setKanbanView] = useState<'kanban' | 'list'>('kanban')
-  const [reviewApp, setReviewApp] = useState<Application | null>(null)
   const statusCounts = STATUS_FLOW.reduce<Record<string, number>>(
     (acc, s) => ({ ...acc, [s]: 0 }),
     {},
