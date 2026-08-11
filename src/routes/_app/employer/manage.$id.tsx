@@ -24,6 +24,7 @@ import { JobAnalytics } from '@/components/manage/JobAnalytics'
 import { PipelineKanban } from '@/components/employer/PipelineKanban'
 import { FeedbackPanel } from '@/components/employer/FeedbackPanel'
 import { InterviewsPanel } from '@/components/employer/InterviewsPanel'
+import { CandidateReviewPanel } from '@/components/employer/CandidateReviewPanel'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   ArrowLeft,
@@ -106,12 +107,10 @@ function statusColor(s: Application['status']): string {
 }
 
 /* ── Application row + drawer ──────────────────────────── */
-function ApplicationRow({ app, jobId, companyId }: { app: Application; jobId: string; companyId: string }) {
+function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobId: string; companyId: string; job: Job }) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
-  const resumePointer = extractResumeUrl(app.coverLetter)
-  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
 
@@ -173,6 +172,7 @@ function ApplicationRow({ app, jobId, companyId }: { app: Application; jobId: st
         onClose={() => setOpen(false)}
         jobId={jobId}
         companyId={companyId}
+        job={job}
       />
     </>
   )
@@ -286,12 +286,14 @@ function ApplicationDrawer({
   onClose,
   jobId,
   companyId,
+  job,
 }: {
   app: Application
   open: boolean
   onClose: () => void
   jobId: string
   companyId: string
+  job: Job
 }) {
   const { t } = useI18n()
   const updateStatus = useUpdateApplicationStatus()
@@ -407,29 +409,8 @@ function ApplicationDrawer({
                 </div>
               )}
 
-              {/* Resume */}
-              <div className="rounded-lg border border-border bg-muted/30 p-3">
-                <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
-                  <FileText className="size-3" /> {t('apply.review.resume')}
-                </p>
-                {resumeUrl ? (
-                  <a
-                    href={resumeUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                  >
-                    <Eye className="size-3.5" />
-                    {t('manage.openResume')}
-                    <ExternalLink className="size-3" />
-                  </a>
-                ) : (
-                  <p className="text-xs text-muted-foreground italic">
-                    {t('apply.review.notAttached')}
-                  </p>
-                )}
-              </div>
-
+              {/* Candidate review: profile snapshot + CV preview + relevance estimate + shortlist/notes */}
+              <CandidateReviewPanel app={app} job={job} />
               {/* Status update */}
               <div>
                 <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
@@ -551,6 +532,7 @@ function ManageApplicationsPage() {
 
   const apps = applications ?? []
   const [kanbanView, setKanbanView] = useState<'kanban' | 'list'>('kanban')
+  const [reviewApp, setReviewApp] = useState<Application | null>(null)
   const statusCounts = STATUS_FLOW.reduce<Record<string, number>>(
     (acc, s) => ({ ...acc, [s]: 0 }),
     {},
@@ -652,7 +634,7 @@ function ManageApplicationsPage() {
             </CardHeader>
             <CardContent>
               {kanbanView === 'kanban' ? (
-                <PipelineKanban applications={apps} />
+                <PipelineKanban applications={apps} onOpenApplication={setReviewApp} />
               ) : apps.length === 0 ? (
                 <div className="text-center py-10">
                   <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 mb-3">
@@ -665,7 +647,7 @@ function ManageApplicationsPage() {
               ) : (
                 <div className="space-y-2">
                   {apps.map(app => (
-                    <ApplicationRow key={app.id} app={app} jobId={id} companyId={job.companyId} />
+                    <ApplicationRow key={app.id} app={app} jobId={id} companyId={job.companyId} job={job} />
                   ))}
                 </div>
               )}
@@ -673,6 +655,16 @@ function ManageApplicationsPage() {
           </Card>
         </FadeIn>
       </div>
+      {reviewApp && (
+        <ApplicationDrawer
+          app={reviewApp}
+          open
+          onClose={() => setReviewApp(null)}
+          jobId={id}
+          companyId={job.companyId}
+          job={job}
+        />
+      )}
     </AuthGate>
   )
 }
