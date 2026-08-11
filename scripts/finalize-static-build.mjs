@@ -24,7 +24,7 @@
  * SPA-only routes (auth-protected dashboards) — all prerendered paths are served as
  * static files because NO redirect rule matches them.
  */
-import { cpSync, existsSync, mkdirSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 
 const SRC = '.vite-out/client'
@@ -80,29 +80,31 @@ const REDIRECTS = `\
 # Impulsa Talentos — explicit SPA fallback rules
 # Prerendered pages (/jobs/*, /companies/*, /, /contact, /pricing, /privacy,
 # /terms, /for-employers) are served as static files — no redirect rule needed.
-# Only auth-protected SPA routes fall back to index.html for client-side routing.
+# Only auth-protected SPA routes fall back to the neutral spa-fallback.html shell
+# (NOT index.html — the fully prerendered HOME page; hydrating the home DOM against
+# e.g. /employer throws Minified React error #418 on every text-node divergence).
 
 # ── Auth-protected workspace routes ──
-/candidate          /index.html   200
-/candidate/*        /index.html   200
-/employer           /index.html   200
-/employer/*         /index.html   200
-/md                 /index.html   200
-/md/*               /index.html   200
-/hq                 /index.html   200
-/hq/*               /index.html   200
+/candidate          /spa-fallback.html   200
+/candidate/*        /spa-fallback.html   200
+/employer           /spa-fallback.html   200
+/employer/*         /spa-fallback.html   200
+/md                 /spa-fallback.html   200
+/md/*               /spa-fallback.html   200
+/hq                 /spa-fallback.html   200
+/hq/*               /spa-fallback.html   200
 
 # ── Profile & dashboard ──
-/profile            /index.html   200
-/dashboard          /index.html   200
-/apply/*            /index.html   200
+/profile            /spa-fallback.html   200
+/dashboard          /spa-fallback.html   200
+/apply/*            /spa-fallback.html   200
 
 # ── Mobile SPA routes ──
-/m                  /index.html   200
-/m/*                /index.html   200
+/m                  /spa-fallback.html   200
+/m/*                /spa-fallback.html   200
 
 # ── Reset password (no prerender) ──
-/reset-password     /index.html   200
+/reset-password     /spa-fallback.html   200
 `
 
 try {
@@ -116,6 +118,47 @@ try {
     throw e
   }
 }
+
+// ── Strip stale prerendered SPA-only route dirs ──
+// `prerender.crawlLinks: true` statically renders EVERY reachable route,
+// including auth-gated workspaces (/employer, /candidate, /md, /hq, ...).
+// Those prerendered shells are static LOGIN pages; an AUTHENTICATED client
+// hydrates them against the DASHBOARD tree → Minified React error #418
+// (text vs ''). These routes are SPA-only: the neutral spa-fallback.html
+// shell is served instead (see _redirects + serve.ts), so the client renders
+// whatever its auth state actually is. Remove their prerendered dirs so both
+// serve paths hit the shell for them.
+const SPA_ONLY_ROUTES = [
+  'employer', 'candidate', 'md', 'hq', 'profile', 'dashboard',
+  'applications', 'apply', 'm', 'reset-password',
+  'candidate-preview', 'md-preview',
+]
+for (const route of SPA_ONLY_ROUTES) {
+  rmSync(join(DEST, route), { recursive: true, force: true })
+}
+console.log('[finalize] ✓ stale SPA-only route dirs stripped (neutral shell serves them)')
+
+// ── Generate spa-fallback.html (neutral shell for SPA-only routes) ──
+// index.html is the fully prerendered HOME page. Serving it for SPA-only
+// routes (auth workspaces, /apply/*, /m/*, etc.) makes the client hydrate the
+// HOME DOM against e.g. /employer's tree — the first text-node divergence
+// throws Minified React error #418 (args text vs ''). A neutral shell with an
+// EMPTY <body> (same head + module script) is a valid hydration target for ANY
+// route: hydrateRoot(document) fills the empty body with the route's own tree,
+// so no mismatch is possible. Serve this for every non-prerendered route.
+const spaIndexHtml = readFileSync(join(DEST, 'index.html'), 'utf8')
+const headEnd = spaIndexHtml.indexOf('</head>')
+const moduleScriptMatch = spaIndexHtml.match(/<script type="module"[^>]*src="[^"]*"[^>]*><\/script>/)
+if (headEnd === -1 || !moduleScriptMatch) {
+  console.error('[finalize] FAILED deriving spa-fallback.html from index.html (no </head> or module script)')
+  process.exit(1)
+}
+writeFileSync(
+  join(DEST, 'spa-fallback.html'),
+  spaIndexHtml.slice(0, headEnd + '</head>'.length) +
+    `<body>${moduleScriptMatch[0]}</body></html>`,
+)
+console.log('[finalize] ✓ spa-fallback.html generated (neutral SPA shell — no hydration mismatch)')
 
 if (!existsSync(join(DEST, 'index.html'))) {
   console.error('[finalize] dist/index.html missing after flatten — build is not publishable')
