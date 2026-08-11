@@ -32,45 +32,58 @@ export function useAuth() {
 
   useEffect(() => {
     let active = true
-    /** Once this flips to true, the auth state is final — no more loading. */
-    let resolved = false
-
-    function resolve(u: AppUser | null) {
-      if (!active || resolved) return
-      resolved = true
+    /**
+     * True once the initial auth state has been resolved (restored
+     * session, first SIGNED_IN, or the 3 s safety timeout). Unlike a
+     * permanent latch it ONLY gates the safety timeout from clobbering a
+     * pending magic-link hash exchange — later SIGNED_IN events are
+     * ALWAYS honored (P0: password sign-in after the timeout resolved
+     * null used to be dropped, leaving the UI stuck on the login form).
+     */
+    let loaded = false
+    function setAuth(u: AppUser | null) {
+      if (!active) return
       setUser(u)
       setIsLoading(false)
     }
-
     /**
      * getSession() may return null before the magic-link URL hash has been
      * exchanged for a session. If the hash exchange hasn't completed yet we
      * wait for onAuthStateChange to fire instead of flashing the sign-in
-     * form. A 3 s safety timeout prevents infinite loading.
+     * form. A 3 s safety timeout prevents infinite loading.
      */
     const safety = setTimeout(() => {
-      if (!resolved) resolve(null)
+      if (!loaded) {
+        loaded = true
+        setAuth(null)
+      }
     }, 3000)
-
     // Restore the session on mount (refresh token, persisted session).
     supabase.auth.getSession().then(({ data }) => {
+      if (!active) return
       if (data.session) {
-        resolve(toAppUser(data.session.user))
+        loaded = true
+        setAuth(toAppUser(data.session.user))
       }
       // If no session, wait for onAuthStateChange — the URL hash
       // may still be processing.
     })
-
     // Keep in sync with sign-in/sign-out/refresh/token-exchange events.
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!active) return
       if (session) {
-        resolve(toAppUser(session.user))
-      } else if (!resolved) {
-        // No session AND no pending hash — genuinely unauthenticated.
-        resolve(null)
+        // ALWAYS honor a real session — including password/OAuth/magic
+        // link sign-in that happens AFTER the safety timeout resolved
+        // null. The previous permanent `resolved` latch dropped these.
+        loaded = true
+        setAuth(toAppUser(session.user))
+      } else if (loaded) {
+        // SIGNED_OUT / token expiry with no session — clear the user.
+        setAuth(null)
       }
+      // Else: no session AND hydration not done yet — likely a pending
+      // magic-link hash exchange; the safety timeout covers it.
     })
-
     return () => {
       active = false
       clearTimeout(safety)
