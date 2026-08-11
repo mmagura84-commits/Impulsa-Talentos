@@ -77,11 +77,25 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
         // email confirmation returns to the correct role-gated route.
         const returnPath = window.location.pathname + window.location.search
         const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath)
-        if (!result.data.session) setSent(true)
+        if (result.error) {
+          // supabase-js v2 returns { data, error } on HTTP 4xx instead of
+          // throwing — surface the failure instead of silently falling
+          // through to the "check your email" state.
+          setErrorMsg(t('auth.signUpFailed'))
+        } else if (!result.data.session) {
+          setSent(true)
+        }
       } else {
-        await signInWithPassword(email.trim(), password)
+        const result = await signInWithPassword(email.trim(), password)
+        if (result.error) {
+          // supabase-js v2 returns { data, error } on invalid credentials
+          // (HTTP 400) instead of throwing — without this check the form
+          // stayed silent (QA: silent auth failure UX).
+          setErrorMsg(t('auth.invalidCredentials'))
+        }
       }
-    } catch (err) {
+    } catch {
+      // Network-level failures (fetch throws) — same friendly message.
       setErrorMsg(t('auth.invalidCredentials'))
     } finally {
       setSending(false)
