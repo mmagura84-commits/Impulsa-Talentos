@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useBlocker, useParams } from '@tanstack/react-router'
+import { createFileRoute, Link, useParams } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthGate } from '@/components/AuthGate'
-import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
 import { useCompany } from '@/hooks/useCompanies'
@@ -154,7 +153,7 @@ function EditJobPage() {
           title: form.title,
           description: form.description,
           level: form.level,
-          locationType: buildLocationType(form.locationType as LocationType, locationCity),
+          locationType: buildLocationType(form.locationType as LocationType),
           salaryMin: Number.isFinite(salaryMin) ? salaryMin : 0,
           salaryMax: Number.isFinite(salaryMax) ? salaryMax : 0,
           currency: form.currency,
@@ -164,7 +163,6 @@ function EditJobPage() {
         },
       })
       setForm(prev => ({ ...prev, status: nextStatus }))
-      setDirty(false)
       toast.success(t('dashboard.jobUpdated'), {
         description: form.title,
       })
@@ -295,14 +293,7 @@ function EditJobPage() {
                   value={form.title}
                   onChange={e => update('title', e.target.value)}
                   placeholder={t('postJob.job.titlePlaceholder')}
-                  aria-invalid={!!errors.title}
-                  aria-describedby={errors.title ? 'title-error' : undefined}
                 />
-                {errors.title && (
-                  <p id="title-error" role="alert" className="text-xs text-destructive">
-                    {errors.title}
-                  </p>
-                )}
               </div>
 
               <div className="space-y-2">
@@ -315,11 +306,6 @@ function EditJobPage() {
                   placeholder={t('postJob.job.descriptionPlaceholder')}
                   rows={8}
                 />
-                {errors.description && (
-                  <p id="description-error" role="alert" className="text-xs text-destructive">
-                    {errors.description}
-                  </p>
-                )}
               </div>
 
               <div className="grid sm:grid-cols-3 gap-4">
@@ -410,11 +396,6 @@ function EditJobPage() {
                   onChange={e => update('skillsRequired', e.target.value)}
                   placeholder={t('postJob.job.skillsPlaceholder')}
                 />
-                {errors.salary && (
-                  <p id="salary-error" role="alert" className="text-xs text-destructive">
-                    {errors.salary}
-                  </p>
-                )}
                 <p className="text-xs text-muted-foreground">{t('postJob.job.skillsHint')}</p>
               </div>
 
@@ -482,15 +463,6 @@ function EditJobPage() {
           </div>
         </FadeIn>
       </div>
-      <UnsavedChangesDialog
-        open={blocker.status === 'blocked'}
-        title={t('form.unsaved.title')}
-        description={t('form.unsaved.desc')}
-        confirmLabel={t('form.unsaved.leave')}
-        cancelLabel={t('form.unsaved.stay')}
-        onConfirm={() => blocker.proceed()}
-        onCancel={() => blocker.reset()}
-      />
     </AuthGate>
   )
 }
