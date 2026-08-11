@@ -148,17 +148,26 @@ console.log('[finalize] ✓ stale SPA-only route dirs stripped (neutral shell se
 // so no mismatch is possible. Serve this for every non-prerendered route.
 const spaIndexHtml = readFileSync(join(DEST, 'index.html'), 'utf8')
 const headEnd = spaIndexHtml.indexOf('</head>')
-const moduleScriptMatch = spaIndexHtml.match(/<script type="module"[^>]*src="[^"]*"[^>]*><\/script>/)
-if (headEnd === -1 || !moduleScriptMatch) {
-  console.error('[finalize] FAILED deriving spa-fallback.html from index.html (no </head> or module script)')
+const bodyStart = spaIndexHtml.indexOf('<body')
+const bodyEnd = spaIndexHtml.indexOf('</body>')
+if (headEnd === -1 || bodyStart === -1 || bodyEnd === -1) {
+  console.error('[finalize] FAILED deriving spa-fallback.html from index.html (missing </head>/<body> markers)')
   process.exit(1)
 }
+// Keep EVERYTHING from the first <body> script onward (the TanStack
+// bootstrap chain — sessionStorage scroll-restore helper, the
+// $tsr-stream-barrier script carrying the full router manifest + $_TSR.e(),
+// and the entry module script) but drop the SSR'd React markup that
+// precedes it. WITHOUT the barrier the client entry cannot boot (blank
+// page + "Invariant failed"); without the markup there is nothing to
+// hydrate against, so no React #418 mismatch can occur.
+const bodyBootstrap = spaIndexHtml.slice(spaIndexHtml.indexOf('<script', bodyStart), bodyEnd)
 writeFileSync(
   join(DEST, 'spa-fallback.html'),
   spaIndexHtml.slice(0, headEnd + '</head>'.length) +
-    `<body>${moduleScriptMatch[0]}</body></html>`,
+    `<body>${bodyBootstrap}</body></html>`,
 )
-console.log('[finalize] ✓ spa-fallback.html generated (neutral SPA shell — no hydration mismatch)')
+console.log('[finalize] ✓ spa-fallback.html generated (neutral shell + TanStack bootstrap — no hydration mismatch)')
 
 if (!existsSync(join(DEST, 'index.html'))) {
   console.error('[finalize] dist/index.html missing after flatten — build is not publishable')
