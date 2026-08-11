@@ -334,6 +334,27 @@ function ApplyPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.cvUrl])
 
+  // Already applied — short-circuit to confirmation page (deferred to avoid render-side navigate).
+  // Declared unconditionally ABOVE every early return so all renders call the
+  // same hooks in the same order (React #310 — loading render: 16 hooks, loaded: 17).
+  // No-op while loading or when not applied.
+  // Already applied — short-circuit to confirmation page (deferred to avoid render-side navigate).
+  // Declared unconditionally ABOVE the early returns so every render calls the
+  // same hooks in the same order (React #310). No-op when not applied.
+  useEffect(() => {
+    if (!profile?.id || !alreadyApplied) return
+    if (alreadyApplied) {
+      const lastApp = myApps?.find(a => a.jobId === id)
+      if (lastApp) {
+        navigate({
+          to: '/apply/$id/confirm',
+          params: { id },
+          search: { appId: lastApp.id },
+        })
+      }
+    }
+  }, [alreadyApplied, myApps, id, navigate])
+
   /* ── Loading skeleton ───────────────────────────────── */
   if (isLoading || myAppsLoading) {
     return (
@@ -383,21 +404,6 @@ function ApplyPage() {
     )
   }
 
-  // Already applied — short-circuit to confirmation page (deferred to avoid render-side navigate).
-  // Declared unconditionally ABOVE the early returns so every render calls the
-  // same hooks in the same order (React #310). No-op when not applied.
-  useEffect(() => {
-    if (alreadyApplied) {
-      const lastApp = myApps?.find(a => a.jobId === id)
-      if (lastApp) {
-        navigate({
-          to: '/apply/$id/confirm',
-          params: { id },
-          search: { appId: lastApp.id },
-        })
-      }
-    }
-  }, [alreadyApplied, myApps, id, navigate])
   // Profile must exist before applying
   if (!profile?.id) {
     return (
