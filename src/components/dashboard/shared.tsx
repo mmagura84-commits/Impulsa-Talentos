@@ -74,12 +74,29 @@ export function formatPosted(iso: string, t: (k: string, v?: Record<string, stri
 }
 
 export function statusLabel(s: Application['status'], t: (k: string) => string): string {
-  const map: Record<Application['status'], string> = {
+  // Covers the full 15-status application vocabulary (DB) plus the legacy
+  // kanban vocabulary still used by STATUS_FLOW / older data.
+  const map: Record<string, string> = {
+    draft: t('dashboard.status.draft'),
+    applied: t('dashboard.status.applied'),
+    under_review: t('dashboard.status.under_review'),
+    recruiter_screening: t('dashboard.status.recruiter_screening'),
+    interview_scheduled: t('dashboard.status.interview_scheduled'),
+    assessment_required: t('dashboard.status.assessment_required'),
+    assessment_submitted: t('dashboard.status.assessment_submitted'),
+    submitted_to_client: t('dashboard.status.submitted_to_client'),
+    client_interview: t('dashboard.status.client_interview'),
+    final_interview: t('dashboard.status.final_interview'),
+    offer: t('dashboard.status.offer'),
+    hired: t('dashboard.status.hired'),
+    not_selected: t('dashboard.status.not_selected'),
+    position_closed: t('dashboard.status.position_closed'),
+    withdrawn: t('dashboard.status.withdrawn'),
+    // legacy kanban vocabulary
     pending: t('dashboard.status.pending'),
     reviewed: t('dashboard.status.reviewed'),
     interview: t('dashboard.status.interview'),
     offered: t('dashboard.status.offered'),
-    hired: t('dashboard.status.hired'),
     rejected: t('dashboard.status.rejected'),
   }
   return map[s] ?? s
