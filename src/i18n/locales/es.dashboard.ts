@@ -17,6 +17,8 @@ const esDashboard: Dict = {
   'dashboard.stat.companyStatus': 'Empresa',
   'dashboard.stat.companyRegistered': 'Registrada',
   'dashboard.stat.companyPending': 'Pendiente',
+  'dashboard.stat.totalApplicants': 'Total de postulantes',
+  'dashboard.stat.hires': 'Contrataciones',
   'dashboard.company.contactEmailLabel': 'Bandeja de postulaciones',
   'dashboard.company.contactEmailSet': 'Configurada',
   'dashboard.company.contactEmailMissing': 'Sin configurar',

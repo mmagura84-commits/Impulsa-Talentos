@@ -17,6 +17,8 @@ const enDashboard: Dict = {
   'dashboard.stat.companyStatus': 'Company',
   'dashboard.stat.companyRegistered': 'Registered',
   'dashboard.stat.companyPending': 'Pending',
+  'dashboard.stat.totalApplicants': 'Total applicants',
+  'dashboard.stat.hires': 'Hires',
   'dashboard.company.contactEmailLabel': 'Application inbox',
   'dashboard.company.contactEmailSet': 'Configured',
   'dashboard.company.contactEmailMissing': 'Not set',
