@@ -156,6 +156,7 @@ const es: Dict = {
   'auth.resendLink': 'Reenviar enlace',
   'auth.invalidCredentials': 'Revisa tu correo y contraseña e inténtalo de nuevo.',
   'auth.passwordTooShort': 'La contraseña debe tener al menos 8 caracteres.',
+  'auth.signUpFailed': 'No pudimos crear tu cuenta. Inténtalo de nuevo.',
   'auth.signInDescription': 'Inicia sesión en tu espacio de trabajo: publica vacantes y contrata talento, o encuentra tu próximo empleo bilingüe.',
   'auth.signInCta': 'Iniciar sesión',
   'auth.signUpCta': 'Crear cuenta',
