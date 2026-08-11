@@ -154,18 +154,23 @@ if (headEnd === -1 || bodyStart === -1 || bodyEnd === -1) {
   console.error('[finalize] FAILED deriving spa-fallback.html from index.html (missing </head>/<body> markers)')
   process.exit(1)
 }
-// Keep EVERYTHING from the first <body> script onward (the TanStack
-// bootstrap chain — sessionStorage scroll-restore helper, the
-// $tsr-stream-barrier script carrying the full router manifest + $_TSR.e(),
-// and the entry module script) but drop the SSR'd React markup that
-// precedes it. WITHOUT the barrier the client entry cannot boot (blank
-// page + "Invariant failed"); without the markup there is nothing to
-// hydrate against, so no React #418 mismatch can occur.
-const bodyBootstrap = spaIndexHtml.slice(spaIndexHtml.indexOf('<script', bodyStart), bodyEnd)
+// Keep ONLY the <body> script tags (the TanStack bootstrap chain —
+// sessionStorage scroll-restore helper, the $tsr-stream-barrier script
+// carrying the full router manifest + $_TSR.e(), and the entry module
+// script) and drop ALL other body content (SSR'd React markup, comments,
+// the footer — the home page's SSR body also contains a <!--/$--> marker
+// and a <footer> BEFORE the first <script>, so slicing from the first
+// <script> is not enough; the body must contain the scripts ONLY, otherwise
+// hasSsrContent() sees the footer and hydrateRoot(document) mismatches it
+// against the route tree → React #418). WITHOUT the barrier the client
+// entry cannot boot (blank page + "Invariant failed"); with an EMPTY body
+// (scripts self-remove at parse) there is nothing to hydrate against, so
+// no React #418 mismatch can occur.
+const bodyScripts = (spaIndexHtml.slice(bodyStart, bodyEnd).match(/<script[\s\S]*?<\/script>/g) || []).join('')
 writeFileSync(
   join(DEST, 'spa-fallback.html'),
   spaIndexHtml.slice(0, headEnd + '</head>'.length) +
-    `<body>${bodyBootstrap}</body></html>`,
+    `<body>${bodyScripts}</body></html>`,
 )
 console.log('[finalize] ✓ spa-fallback.html generated (neutral shell + TanStack bootstrap — no hydration mismatch)')
 
