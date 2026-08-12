@@ -119,6 +119,16 @@ export interface Job {
   moderationReason?: string
   /** Industry tag from the canonical list (see src/hooks/useIndustries.ts), e.g. 'Technology'. */
   industry?: string
+  /** When the job was paused (migration 024); null = active. */
+  pausedAt?: string | null
+  /** When the job was archived (migration 024); null = live. */
+  archivedAt?: string | null
+  /** When the job went live (migration 024). */
+  publishedAt?: string | null
+  /** When the listing expires (migration 024). */
+  expiresAt?: string | null
+  /** Assigned team member (team_members.id, migration 024). */
+  assigneeId?: string | null
 }
 
 export type ApplicationStatus =
