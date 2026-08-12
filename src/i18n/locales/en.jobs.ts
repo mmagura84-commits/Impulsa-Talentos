@@ -215,8 +215,6 @@ const enJobs: Dict = {
   'kanban.column.hired': 'Hired',
   'kanban.column.rejected': 'Rejected',
 
-  'kanban.column.hired': 'Hired',
-  'kanban.column.rejected': 'Rejected',
   // -- Feedback -------------------------------------------------
   'feedback.title': 'Feedback',
   'feedback.subtitle': 'Structured notes shared by the hiring team on this application.',
@@ -347,6 +345,8 @@ const enJobs: Dict = {
   'review.skills': 'Skills',
   'review.languages': 'Languages',
   'review.experienceYears': 'Experience',
+  'review.experienceYearsOne': '1 yr',
+  'review.experienceYearsMany': '{count} yrs',
   'review.desiredRole': 'Desired role',
   'review.employmentStatus': 'Employment status',
   'review.availabilityDate': 'Available from',

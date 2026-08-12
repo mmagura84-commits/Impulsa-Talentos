@@ -215,8 +215,6 @@ const esJobs: Dict = {
   'kanban.column.hired': 'Contratados',
   'kanban.column.rejected': 'Rechazados',
 
-  'kanban.column.hired': 'Contratados',
-  'kanban.column.rejected': 'Rechazados',
   // -- Feedback -------------------------------------------------
   'feedback.title': 'Retroalimentación',
   'feedback.subtitle': 'Notas estructuradas compartidas por el equipo de contratación sobre esta postulación.',
@@ -347,6 +345,8 @@ const esJobs: Dict = {
   'review.skills': 'Habilidades',
   'review.languages': 'Idiomas',
   'review.experienceYears': 'Experiencia',
+  'review.experienceYearsOne': '1 año',
+  'review.experienceYearsMany': '{count} años',
   'review.desiredRole': 'Rol deseado',
   'review.employmentStatus': 'Situación laboral',
   'review.availabilityDate': 'Disponible desde',

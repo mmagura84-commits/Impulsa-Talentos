@@ -306,6 +306,15 @@ function ApplicationDrawer({
   const coverNote = extractCoverNote(app.coverLetter)
   const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
 
+  // Escape closes the drawer (a11y follow-up).
+  useEffect(() => {
+    if (!open) return
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose()
+    }
+    document.addEventListener('keydown', onKeyDown)
+    return () => document.removeEventListener('keydown', onKeyDown)
+  }, [open, onClose])
   const handleStatusChange = async (next: Application['status']) => {
     setPending(next)
     try {
