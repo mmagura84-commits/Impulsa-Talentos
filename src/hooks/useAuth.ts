@@ -26,6 +26,32 @@ function toAppUser(u: User): AppUser {
   }
 }
 
+/**
+ * Initial-session restore hardening (flaky-request gap): GoTrue occasionally
+ * returns a transient 500 ("Database error finding user") on cold
+ * authenticated loads. We retry a bounded number of times with backoff for
+ * 5xx / network failures ONLY — never for 4xx (invalid credentials / 401 are
+ * deterministic and must surface immediately). When retries are exhausted we
+ * resolve the same { data, error } object so the caller keeps the existing
+ * loading semantics (no blank page, no error flash — the 3 s safety timeout
+ * and onAuthStateChange still carry the flow).
+ */
+const SESSION_RETRY_DELAYS_MS = [400, 1200]
+function isTransientAuthError(err: { status?: number } | null | undefined): boolean {
+  if (!err) return false
+  const s = err.status ?? 0
+  return s === 0 || s >= 500
+}
+async function fetchSessionWithRetry(): Promise<Awaited<ReturnType<typeof supabase.auth.getSession>>> {
+  for (let attempt = 0; ; attempt++) {
+    const res = await supabase.auth.getSession()
+    if (!res.error || !isTransientAuthError(res.error) || attempt >= SESSION_RETRY_DELAYS_MS.length) {
+      return res
+    }
+    await new Promise((r) => setTimeout(r, SESSION_RETRY_DELAYS_MS[attempt]))
+  }
+}
+
 export function useAuth() {
   const [user, setUser] = useState<AppUser | null>(null)
   const [isLoading, setIsLoading] = useState(true)
@@ -58,8 +84,9 @@ export function useAuth() {
         setAuth(null)
       }
     }, 3000)
-    // Restore the session on mount (refresh token, persisted session).
-    supabase.auth.getSession().then(({ data }) => {
+    // Restore the session on mount (refresh token, persisted session). Bounded
+    // retry on transient 5xx/network failures (flaky-request gap).
+    fetchSessionWithRetry().then(({ data }) => {
       if (!active) return
       if (data.session) {
         loaded = true
