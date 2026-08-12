@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { dictionaries, defaultLocale, type Dict, type Locale } from './translations'
+import { dictionaries, defaultLocale, loadLocaleDict, type Dict, type Locale } from './translations'
 
 const STORAGE_KEY = 'it_locale'
 
@@ -36,6 +36,22 @@ function detectInitial(): Locale {
 
 export function I18nProvider({ children }: { children: ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>(detectInitial)
+  // Non-default dictionaries are async chunks; load on demand (index chunk reduction).
+  const [lazyDicts, setLazyDicts] = useState<Partial<Record<Locale, Dict>>>({})
+  useEffect(() => {
+    let active = true
+    if (locale === 'en' || lazyDicts[locale]) return
+    loadLocaleDict(locale)
+      .then((dict) => {
+        if (active) setLazyDicts((prev) => (prev[locale] ? prev : { ...prev, [locale]: dict }))
+      })
+      .catch(() => {
+        /* Loading failed — stay on the EN fallback rather than crashing. */
+      })
+    return () => {
+      active = false
+    }
+  }, [locale, lazyDicts])
 
   // Persist + sync <html lang>
   useEffect(() => {
@@ -50,8 +66,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
   }, [locale])
 
   const value = useMemo<Ctx>(() => {
-    const dict: Dict = dictionaries[locale] ?? dictionaries[defaultLocale]
-    const fallback: Dict = dictionaries[defaultLocale]
+    const dict: Dict = locale === 'en' ? dictionaries.en : (lazyDicts[locale] ?? dictionaries.en)
+    const fallback: Dict = dictionaries.en
     return {
       locale,
       setLocale: (l: Locale) => setLocaleState(l),
@@ -60,7 +76,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
         return interpolate(raw, vars)
       },
     }
-  }, [locale])
+  }, [locale, lazyDicts])
 
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>
 }
