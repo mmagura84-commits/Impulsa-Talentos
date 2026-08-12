@@ -1,0 +1,23 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm install",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist",
+  "rewrites": [
+    { "source": "/candidate", "destination": "/spa-fallback.html" },
+    { "source": "/candidate/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/employer", "destination": "/spa-fallback.html" },
+    { "source": "/employer/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/md", "destination": "/spa-fallback.html" },
+    { "source": "/md/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/hq", "destination": "/spa-fallback.html" },
+    { "source": "/hq/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/profile", "destination": "/spa-fallback.html" },
+    { "source": "/dashboard", "destination": "/spa-fallback.html" },
+    { "source": "/apply/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/m", "destination": "/spa-fallback.html" },
+    { "source": "/m/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/reset-password", "destination": "/spa-fallback.html" }
+  ]
+}
