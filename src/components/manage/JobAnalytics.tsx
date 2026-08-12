@@ -23,16 +23,7 @@ import { useAllProfiles } from '@/hooks/useProfile'
 import { scoreMatch } from '@/lib/matchScore'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { Job, Application } from '@/types'
-
-const STATUSES = ['pending', 'reviewed', 'interview', 'offered', 'hired', 'rejected'] as const
-const STATUS_COLORS: Record<string, string> = {
-  pending: '#94a3b8',
-  reviewed: '#3b82f6',
-  interview: '#f59e0b',
-  offered: '#8b5cf6',
-  hired: '#10b981',
-  rejected: '#ef4444',
-}
+import { PIPELINE_STATUSES, STATUS_HEX_COLORS } from '@/lib/applicationStatus'
 
 export function JobAnalytics({ job, applications }: { job: Job; applications: Application[] }) {
   const { t, locale } = useI18n()
@@ -94,7 +85,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
   /* Status breakdown for the donut. */
   const statusData = useMemo(
     () =>
-      STATUSES.map(s => ({
+      PIPELINE_STATUSES.map(s => ({
         status: s,
         name: t(`dashboard.status.${s}`),
         value: applications.filter(a => a.status === s).length,
@@ -115,7 +106,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
   }, [scores])
 
   const maxStatus = Math.max(1, ...statusData.map(d => d.value))
-  const funnel = STATUSES.filter(s => s !== 'rejected').map(s => ({
+  const funnel = PIPELINE_STATUSES.map(s => ({
     status: s,
     count: applications.filter(a => a.status === s).length,
     label: t(`dashboard.status.${s}`),
@@ -166,7 +157,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
               <Clock className="size-3" /> {t('manage.analytics.interviews')}
             </p>
             <p className="text-2xl font-bold font-serif text-foreground mt-1">
-              {applications.filter(a => a.status === 'interview').length}
+              {applications.filter(a => a.status === 'interview_scheduled').length}
             </p>
           </div>
         </div>
@@ -205,7 +196,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
                       strokeWidth={0}
                     >
                       {statusData.map(d => (
-                        <Cell key={d.name} fill={STATUS_COLORS[d.status] ?? '#94a3b8'} />
+                        <Cell key={d.name} fill={STATUS_HEX_COLORS[d.status] ?? '#94a3b8'} />
                       ))}
                     </Pie>
                     <Tooltip contentStyle={{ fontSize: 12, borderRadius: 8 }} />
@@ -239,7 +230,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
                         className="h-full rounded-md transition-all"
                         style={{
                           width: `${(f.count / maxStatus) * 100}%`,
-                          backgroundColor: STATUS_COLORS[f.status],
+                          backgroundColor: STATUS_HEX_COLORS[f.status],
                         }}
                       />
                     </div>

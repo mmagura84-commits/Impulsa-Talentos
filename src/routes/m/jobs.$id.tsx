@@ -110,7 +110,6 @@ function MobileJobDetail() {
         locale,
         dashboardUrl: `${origin}/dashboard`,
         jobsUrl: `${origin}/jobs`,
-        reviewUrl: `${origin}/manage/${job.id}`,
         resumeUrl: profile.cvUrl || null,
         coverNote: '',
       })

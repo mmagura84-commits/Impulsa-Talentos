@@ -198,18 +198,18 @@ function OverviewTab({
     .reduce((sum, j) => sum + (j.salaryMax || 0), 0)
   const gmvFmt = gmv > 1_000_000 ? `$${(gmv / 1_000_000).toFixed(1)}M` : `$${(gmv / 1_000).toFixed(0)}K`
 
-  // Funnel
-  const funnelLabels: Record<string, string> = {
-    pending: t('hq.funnel.submitted'),
-    reviewed: t('hq.funnel.reviewed'),
-    interview: t('hq.funnel.interview'),
-    offered: t('hq.funnel.offered'),
-    hired: t('hq.funnel.hired'),
+  // Funnel (15-status pipeline)
+  const funnelStatuses: Application['status'][] = ['applied', 'under_review', 'recruiter_screening', 'interview_scheduled', 'assessment_required', 'assessment_submitted', 'submitted_to_client', 'client_interview', 'final_interview', 'offer', 'hired']
+  const funnelColor: Record<string, string> = {
+    applied: 'bg-blue-500', under_review: 'bg-cyan-500', recruiter_screening: 'bg-indigo-500',
+    interview_scheduled: 'bg-amber-500', assessment_required: 'bg-orange-500', assessment_submitted: 'bg-orange-500',
+    submitted_to_client: 'bg-purple-500', client_interview: 'bg-purple-500', final_interview: 'bg-violet-500',
+    offer: 'bg-pink-500', hired: 'bg-emerald-500',
   }
-  const funnelData = Object.entries(funnelLabels).map(([status, label]) => ({
-    label,
+  const funnelData = funnelStatuses.map((status) => ({
+    label: t(`dashboard.status.${status}`),
     value: applications.filter(a => a.status === status).length,
-    color: status === 'hired' ? 'bg-emerald-500' : status === 'offered' ? 'bg-primary' : status === 'interview' ? 'bg-amber-500' : status === 'reviewed' ? 'bg-blue-500' : 'bg-muted-foreground/40',
+    color: funnelColor[status] ?? 'bg-muted-foreground/40',
   }))
 
   // By role

@@ -124,10 +124,12 @@ function PostJobPage() {
     if (field === 'salaryMin' || field === 'salaryMax') setJobErrors(prev => ({ ...prev, salary: undefined }))
   }
 
-  const blocker = useBlocker(
-    { shouldBlockFn: () => true, enableBeforeUnload: true, withResolver: true },
-    dirty && step !== 'done',
-  )
+  const blocker = useBlocker({
+    shouldBlockFn: () => true,
+    enableBeforeUnload: true,
+    withResolver: true,
+    disabled: !(dirty && step !== 'done'),
+  })
 
   useEffect(() => {
     if (step === 'company' && !companyLoading && existingCompany && !companyId) {
@@ -409,8 +411,8 @@ function PostJobPage() {
           description={t('form.unsaved.desc')}
           confirmLabel={t('form.unsaved.leave')}
           cancelLabel={t('form.unsaved.stay')}
-          onConfirm={() => blocker.proceed()}
-          onCancel={() => blocker.reset()}
+          onConfirm={() => blocker.proceed?.()}
+          onCancel={() => blocker.reset?.()}
         />
       </AuthGate>
     )
@@ -708,8 +710,8 @@ function PostJobPage() {
           description={t('form.unsaved.desc')}
           confirmLabel={t('form.unsaved.leave')}
           cancelLabel={t('form.unsaved.stay')}
-          onConfirm={() => blocker.proceed()}
-          onCancel={() => blocker.reset()}
+          onConfirm={() => blocker.proceed?.()}
+          onCancel={() => blocker.reset?.()}
         />
       </AuthGate>
     )

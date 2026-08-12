@@ -12,7 +12,8 @@ const FROM = 'Impulsa Talentos <partners@impulsatalentos.expert>'
 
 /** Sends email from the server so the Resend credential never enters client code. */
 export const sendEmailServer = createServerFn({ method: 'POST' })
-  .handler(async ({ data }: { data: EmailPayload }) => {
+  .inputValidator((d: EmailPayload) => d)
+  .handler(async ({ data }) => {
     const key = process.env.RESEND_API_KEY
     if (!key) {
       console.warn('[emailSender] No RESEND_API_KEY set — email not sent')
