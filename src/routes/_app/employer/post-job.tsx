@@ -215,10 +215,11 @@ function PostJobPage() {
       // Uses atomic server-side decrement (migration 013) to avoid the
       // stale-write race that happens with client-side math.
       if (status === 'open' && existingCompany) {
-        await supabase
-          .rpc('decrement_company_credits', { company_id: existingCompany.id })
-          .then(() => { /* credit consumed */ })
-          .catch(() => { /* best-effort: don't block job creation */ })
+        try {
+          await supabase.rpc('decrement_company_credits', { company_id: existingCompany.id })
+        } catch {
+          /* best-effort: don't block job creation */
+        }
       }
       setStep(status === 'draft' ? 'company' : 'done')
       if (status === 'draft') {
