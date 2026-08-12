@@ -158,6 +158,10 @@ export interface Application {
   nextActionDue?: string
   /** Feedback for candidate */
   feedback?: string
+  /** Candidate shortlisted by the employer (candidate review, migration 023). */
+  shortlisted?: boolean
+  /** Private employer notes on the application (candidate review, migration 023). */
+  notes?: string
   /** Reason if withdrawn */
   withdrawnReason?: string
 }
