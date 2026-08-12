@@ -110,7 +110,11 @@ function ProfileSnapshot({ profile, loading }: { profile: Profile | null; loadin
     {
       icon: GraduationCap,
       label: t('review.experienceYears'),
-      value: profile.experienceYears != null ? `${profile.experienceYears} yr${profile.experienceYears === 1 ? '' : 's'}` : null,
+      value: profile.experienceYears != null
+        ? profile.experienceYears === 1
+          ? t('review.experienceYearsOne')
+          : t('review.experienceYearsMany', { count: profile.experienceYears })
+        : null,
     },
     { icon: Heart, label: t('review.employmentStatus'), value: empStatus },
     { icon: CalendarClock, label: t('review.availabilityDate'), value: profile.availabilityDate ? formatDate(profile.availabilityDate, locale) : null },
