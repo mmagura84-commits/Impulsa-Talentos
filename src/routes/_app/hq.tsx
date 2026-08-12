@@ -16,6 +16,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { ModerationTab } from '@/components/hq/ModerationTab'
 import { listRows, updateRow } from '@/lib/supabase'
 import type { Profile } from '@/types'
+import { APPLICATION_STATUS_FLOW, STATUS_PILL_CLASSES } from '@/lib/applicationStatus'
 import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
 import {
   LayoutDashboard,
@@ -77,19 +78,18 @@ function timeAgo(iso: string): string {
   return `${Math.floor(days / 30)}mo ago`
 }
 
+/** Role badge colors (admin/employer/candidate) — not application statuses. */
+const ROLE_BADGE_CLASSES: Record<string, string> = {
+  admin: 'border-primary/30 text-primary bg-primary/5',
+  employer: 'border-amber-500/30 text-amber-700 bg-amber-500/5',
+  candidate: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
+}
 function statusBadge(status: string) {
   const map: Record<string, string> = {
-    pending: 'border-muted-foreground/30 text-muted-foreground bg-muted/30',
-    reviewed: 'border-blue-500/30 text-blue-700 bg-blue-500/5',
-    interview: 'border-amber-500/30 text-amber-700 bg-amber-500/5',
-    offered: 'border-primary/30 text-primary bg-primary/5',
-    hired: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
-    rejected: 'border-destructive/30 text-destructive bg-destructive/5',
     open: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
     closed: 'border-destructive/30 text-destructive bg-destructive/5',
-    draft: 'border-muted-foreground/30 text-muted-foreground bg-muted/30',
   }
-  return `inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${map[status] ?? 'border-border text-muted-foreground'}` as string
+  return `inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${map[status] ?? STATUS_PILL_CLASSES[status as keyof typeof STATUS_PILL_CLASSES] ?? 'border-border text-muted-foreground'}` as string
 }
 
 function copyToClipboard(text: string, label: string) {
@@ -562,8 +562,8 @@ function ApplicationsTab({ applications, jobs, profiles }: {
                 onChange={e => handleStatusChange(app.id, e.target.value as Application['status'])}
                 className="h-7 rounded border border-border bg-background px-2 text-[11px] text-foreground outline-none focus-visible:border-ring"
               >
-                {['pending', 'reviewed', 'interview', 'offered', 'hired', 'rejected'].map(s => (
-                  <option key={s} value={s}>{s}</option>
+                {APPLICATION_STATUS_FLOW.map(s => (
+                  <option key={s} value={s}>{t(`dashboard.status.${s}`)}</option>
                 ))}
               </select>
             </td>
@@ -1037,7 +1037,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
             <td className="py-2.5 px-2 font-medium text-xs text-foreground">{p.fullName ?? '—'}</td>
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{p.email ?? '—'}</td>
             <td className="py-2.5 px-2">
-              <span className={statusBadge(p.role === 'admin' ? 'offered' : p.role === 'employer' ? 'interview' : 'open')}>
+              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${ROLE_BADGE_CLASSES[p.role] ?? 'border-border text-muted-foreground'}`}>
                 {p.role}
               </span>
             </td>
