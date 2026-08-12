@@ -30,17 +30,18 @@ import { rankJobs, type MatchScore } from '@/lib/matchScore'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Job, Application } from '@/types'
+import type { Locale } from '@/i18n/types'
 
 export const Route = createFileRoute('/m/home')({
   head: () => ({ meta: [{ title: 'Home — Impulsa (mobile)' }] }),
   component: MobileHome,
 })
 
-function formatSalary(job: Job, locale: 'en' | 'es'): string {
+function formatSalary(job: Job, locale: Locale): string {
   if (!job.salaryMin && !job.salaryMax) return '—'
   const ccy = job.currency || 'COP'
-  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
-  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
   return `${ccy} $${min} - $${max}`
 }
 
