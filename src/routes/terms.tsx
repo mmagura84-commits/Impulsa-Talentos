@@ -16,7 +16,7 @@ export const Route = createFileRoute('/terms')({
 
 interface Section { title: string; body: string }
 
-const CONTENT: Record<Locale, { title: string; updated: string; intro: string; sections: Section[] }> = {
+const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: string; sections: Section[] }> = {
   en: {
     title: 'Terms of Service',
     updated: 'Last updated: August 2026',
@@ -57,7 +57,7 @@ const CONTENT: Record<Locale, { title: string; updated: string; intro: string; s
 
 export default function TermsPage() {
   const { locale } = useI18n()
-  const c = CONTENT[locale]
+  const c = CONTENT[locale === 'en' ? 'en' : 'es']
   return <LegalShell updated={c.updated} title={c.title} intro={c.intro} sections={c.sections} />
 }
 

@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/i18n/I18nProvider'
+import type { Locale } from '@/i18n/types'
 import { useUpdateApplication } from '@/hooks/useApplications'
 import { useProfileById } from '@/hooks/useProfile'
 import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
@@ -66,7 +67,7 @@ function barColor(score: number): string {
   return 'bg-muted-foreground/30'
 }
 
-function formatDate(value: string, locale: 'en' | 'es'): string {
+function formatDate(value: string, locale: Locale): string {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
   return d.toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', {
