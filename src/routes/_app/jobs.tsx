@@ -404,7 +404,7 @@ function JobsListView() {
             >
               <option value="">{t('jobs.filterAnySalary')}</option>
               {[5000000, 8000000, 12000000, 16000000, 20000000].map(v => (
-                <option key={v} value={v}>COP {v.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US')}+</option>
+                <option key={v} value={v}>COP {v.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US')}+</option>
               ))}
             </select>
             {activeFilterCount > 0 && (
