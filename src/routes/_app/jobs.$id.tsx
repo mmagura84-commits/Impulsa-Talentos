@@ -29,6 +29,7 @@ import {
   XCircle,
 } from 'lucide-react'
 import type { Job } from '@/types'
+import type { Locale } from '@/i18n/types'
 
 export const Route = createFileRoute('/_app/jobs/$id')({
   loader: async ({ params }) => {
@@ -72,10 +73,10 @@ function FadeIn({ children, className, delay = 0 }: { children: ReactNode; class
 }
 
 /* ── Helpers ───────────────────────────────────────────── */
-function formatSalary(job: Job, locale: 'en' | 'es'): string {
+function formatSalary(job: Job, locale: Locale): string {
   if (!job.salaryMin && !job.salaryMax) return '—'
-  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
-  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
   const ccy = job.currency || 'COP'
   return `${ccy} ${min} - ${max}`
 }

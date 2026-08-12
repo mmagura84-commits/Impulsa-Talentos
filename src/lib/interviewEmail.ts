@@ -4,8 +4,9 @@
  * `blink.notifications.email` from the scheduling flow.
  */
 import type { Job } from '@/types'
+import type { Locale } from '@/i18n/types'
 
-export type Locale = 'en' | 'es'
+export type { Locale }
 
 export interface InterviewEmailInput {
   locale: Locale
@@ -22,7 +23,7 @@ function formatDate(iso: string | undefined, locale: Locale): string | null {
   if (!iso) return null
   const d = new Date(iso)
   if (Number.isNaN(d.getTime())) return null
-  return d.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US', {
+  return d.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', {
     dateStyle: 'full',
     timeStyle: 'short',
   })

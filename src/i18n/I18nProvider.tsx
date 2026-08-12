@@ -24,13 +24,15 @@ function detectInitial(): Locale {
   if (typeof window === 'undefined') return defaultLocale
   try {
     const stored = window.localStorage.getItem(STORAGE_KEY) as Locale | null
-    if (stored === 'en' || stored === 'es') return stored
+    if (stored === 'en' || stored === 'es' || stored === 'pt') return stored
   } catch {
     // ignore
   }
   // Fall back to browser language
   const nav = typeof navigator !== 'undefined' ? navigator.language : ''
-  if (nav.toLowerCase().startsWith('es')) return 'es'
+  const lower = nav.toLowerCase()
+  if (lower.startsWith('pt')) return 'pt'
+  if (lower.startsWith('es')) return 'es'
   return defaultLocale
 }
 

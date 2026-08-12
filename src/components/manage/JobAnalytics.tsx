@@ -76,7 +76,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
       const d = new Date(now.getFullYear(), now.getMonth(), now.getDate() - i)
       out.push({
         iso: d.toISOString().slice(0, 10),
-        day: d.toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', {
+        day: d.toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', {
           month: 'short',
           day: 'numeric',
         }),

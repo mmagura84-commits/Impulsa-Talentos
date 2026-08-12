@@ -14,7 +14,7 @@ export const Route = createFileRoute('/privacy')({
   }),
 })
 
-const CONTENT: Record<Locale, { title: string; updated: string; intro: string; sections: { title: string; body: string }[] }> = {
+const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: string; sections: { title: string; body: string }[] }> = {
   en: {
     title: 'Privacy Policy',
     updated: 'Last updated: August 2026',
@@ -55,6 +55,6 @@ const CONTENT: Record<Locale, { title: string; updated: string; intro: string; s
 
 export default function PrivacyPage() {
   const { locale } = useI18n()
-  const c = CONTENT[locale]
+  const c = CONTENT[locale === 'en' ? 'en' : 'es']
   return <LegalShell title={c.title} updated={c.updated} intro={c.intro} sections={c.sections} />
 }

@@ -16,6 +16,7 @@ import {
 import type { Application, Job, Company } from '@/types'
 import { getRow, countRows, supabase } from '@/lib/supabase'
 import type { Locale } from '@/lib/emailTemplates'
+import type { Locale as I18nLocale } from '@/i18n/types'
 
 const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
@@ -26,7 +27,7 @@ export interface NotificationContext {
   app: Application
   job: Job
   candidateProfile: { fullName?: string; email?: string; notificationPrefs?: { applicationUpdates?: boolean } } | null
-  locale: Locale
+  locale: I18nLocale
   dashboardUrl: string
   jobsUrl: string
   resumeUrl: string | null
@@ -52,10 +53,12 @@ export async function sendApplicationNotifications(
     const candidateOptedOut = ctx.candidateProfile?.notificationPrefs?.applicationUpdates === false
     const resolvedResumeUrl = await resolveResumeUrl(ctx.resumeUrl)
 
+    // pt email copy is pending — fall back to Spanish (closest supported language)
+    const emailLocale: Locale = ctx.locale === 'en' ? 'en' : 'es'
     // 1. Candidate confirmation
     if (candidateEmail && !candidateOptedOut) {
       const input: CandidateEmailInput = {
-        locale: ctx.locale, app: ctx.app, job: ctx.job,
+        locale: emailLocale, app: ctx.app, job: ctx.job,
         companyName: await resolveCompanyName(ctx.job.companyId),
         candidateName, candidateEmail,
         resumeUrl: resolvedResumeUrl, coverNote: ctx.coverNote,
