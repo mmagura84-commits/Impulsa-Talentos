@@ -1,5 +1,7 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
+import { toast } from 'sonner'
 import { useI18n } from '@/i18n/I18nProvider'
+import { useUpdateApplication } from '@/hooks/useApplications'
 import { useProfileById } from '@/hooks/useProfile'
 import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { scoreMatch, type MatchScore } from '@/lib/matchScore'
@@ -286,44 +288,74 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
   )
 }
 
-/* ── Shortlist + notes (data layer pending) ──────────── */
-function ShortlistAndNotes() {
+/* ── Shortlist + notes (migration 023 wired) ──────────── */
+function ShortlistAndNotes({ app }: { app: Application }) {
   const { t } = useI18n()
+  const update = useUpdateApplication()
+  const [notes, setNotes] = useState(app.notes ?? '')
+  // Keep local notes in sync when the drawer opens for a different application.
+  useEffect(() => {
+    setNotes(app.notes ?? '')
+  }, [app.id, app.notes])
+  const toggleShortlist = () => {
+    update.mutate(
+      { id: app.id, data: { shortlisted: !(app.shortlisted ?? false) } },
+      {
+        onSuccess: () => toast.success(t('review.shortlistSaved')),
+        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+      },
+    )
+  }
+  const saveNotes = () => {
+    update.mutate(
+      { id: app.id, data: { notes } },
+      {
+        onSuccess: () => toast.success(t('review.notesSaved')),
+        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+      },
+    )
+  }
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2">
-        <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-muted-foreground">
-          <Lock className="size-3" />
-        </span>
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-medium text-foreground">{t('review.shortlist')}</p>
-            <Switch checked={false} disabled onCheckedChange={() => {}} aria-label={t('review.shortlist')} />
+            <Switch
+              checked={app.shortlisted ?? false}
+              disabled={update.isPending}
+              onCheckedChange={toggleShortlist}
+              aria-label={t('review.shortlist')}
+            />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{t('review.pendingCaption')}</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{t('review.shortlistHint')}</p>
         </div>
       </div>
       <div className="space-y-1.5">
-        <p className="text-xs font-medium text-foreground flex items-center gap-1.5">
-          <Lock className="size-3 text-muted-foreground" />
-          {t('review.notes')}
-        </p>
+        <p className="text-xs font-medium text-foreground">{t('review.notes')}</p>
         <Textarea
-          disabled
           rows={3}
+          value={notes}
+          onChange={(e) => setNotes(e.target.value)}
           placeholder={t('review.notesPlaceholder')}
           aria-label={t('review.notes')}
         />
-        <p className="text-[11px] text-muted-foreground flex items-center gap-1">
-          <Lock className="size-3 shrink-0" />
-          {t('review.pendingCaption')}
-        </p>
+        <div className="flex items-center justify-between gap-2">
+          <p className="text-[11px] text-muted-foreground">{t('review.notesHint')}</p>
+          <Button
+            type="button"
+            size="sm"
+            variant="outline"
+            onClick={saveNotes}
+            disabled={update.isPending || notes === (app.notes ?? '')}
+          >
+            {t('review.saveNotes')}
+          </Button>
+        </div>
       </div>
     </div>
   )
 }
-
-/* ── Panel ───────────────────────────────────────────── */
 export function CandidateReviewPanel({ app, job }: { app: Application; job: Job }) {
   const { t } = useI18n()
   const { data: profile, isLoading } = useProfileById(app.candidateId)
@@ -348,7 +380,7 @@ export function CandidateReviewPanel({ app, job }: { app: Application; job: Job 
         <MatchScoreSection profile={profile ?? null} job={job} />
       </div>
       <div className="rounded-lg border border-dashed border-border p-3">
-        <ShortlistAndNotes />
+        <ShortlistAndNotes app={app} />
       </div>
     </div>
   )
