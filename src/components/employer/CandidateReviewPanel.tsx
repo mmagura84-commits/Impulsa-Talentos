@@ -69,7 +69,7 @@ function barColor(score: number): string {
 function formatDate(value: string, locale: 'en' | 'es'): string {
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) return value
-  return d.toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', {
+  return d.toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', {
     year: 'numeric',
     month: 'short',
     day: 'numeric',

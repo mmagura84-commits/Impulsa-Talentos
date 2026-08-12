@@ -1,0 +1,140 @@
+/**
+ * Portuguese dictionary — Headquarters (admin) dashboard.
+ */
+import type { Dict } from '../types'
+
+const ptHq: Dict = {
+  // ── Page meta ──────────────────────────────────────────────────────
+  'hq.title': 'Sede central',
+  'hq.subtitle': 'Visibilidade total de cada sinal que move o negócio.',
+  'hq.lastUpdated': 'Última atualização {time}',
+  'hq.refresh': 'Atualizar',
+  'hq.noAccess.title': 'Área restrita',
+  'hq.noAccess.desc': 'O painel da Sede central está disponível apenas para administradores da plataforma.',
+  'hq.noAccess.cta': 'Voltar ao painel',
+
+  // ── KPIs ───────────────────────────────────────────────────────────
+  'hq.kpi.users': 'Usuários totais',
+  'hq.kpi.usersHint': 'Candidatos + empregadores',
+  'hq.kpi.companies': 'Empresas',
+  'hq.kpi.companiesHint': 'Empregadores registrados',
+  'hq.kpi.jobs': 'Vagas publicadas',
+  'hq.kpi.jobsHint': 'Abertas, fechadas e rascunho',
+  'hq.kpi.jobsOpen': 'das quais ativas',
+  'hq.kpi.applications': 'Candidaturas',
+  'hq.kpi.applicationsHint': 'Em todas as vagas',
+  'hq.kpi.hires': 'Contratações',
+  'hq.kpi.hiresHint': 'Fechamentos ganhos',
+  'hq.kpi.conversion': 'Candidatura → Contratação',
+  'hq.kpi.conversionHint': 'Funil completo',
+  'hq.kpi.timeToHire': 'Tempo médio de contratação',
+  'hq.kpi.timeToHireHint': 'Candidatura → contratado',
+  'hq.kpi.gmv': 'GMV (salários publicados)',
+  'hq.kpi.gmvHint': 'Soma das faixas salariais',
+
+  // ── Section headers ────────────────────────────────────────────────
+  'hq.sections.platformHealth': 'Saúde da plataforma',
+  'hq.sections.applications': 'Funil de candidaturas',
+  'hq.sections.users': 'Crescimento de usuários e empresas',
+  'hq.sections.jobs': 'Mercado de trabalho',
+  'hq.sections.recent': 'Atividade recente',
+  'hq.sections.directory': 'Diretório completo',
+
+  // ── Chart labels ───────────────────────────────────────────────────
+  'hq.chart.applicationsOverTime': 'Candidaturas — últimos 30 dias',
+  'hq.chart.usersOverTime': 'Registros — últimos 30 dias',
+  'hq.chart.applicationsByStatus': 'Candidaturas por status',
+  'hq.chart.jobsByStatus': 'Vagas por status',
+  'hq.chart.usersByRole': 'Usuários por função',
+  'hq.chart.jobsByLevel': 'Vagas por senioridade',
+  'hq.chart.jobsByLocationType': 'Vagas por modalidade',
+  'hq.chart.topLanguages': 'Idiomas mais requisitados',
+  'hq.chart.topSkills': 'Habilidades mais requisitadas',
+  'hq.chart.topCompaniesByApps': 'Top empresas por candidaturas',
+  'hq.chart.topCompaniesByJobs': 'Top empresas por vagas publicadas',
+
+  // ── Funnel ─────────────────────────────────────────────────────────
+  'hq.funnel.submitted': 'Enviadas',
+  'hq.funnel.reviewed': 'Em análise',
+  'hq.funnel.interview': 'Entrevista',
+  'hq.funnel.offered': 'Oferta',
+  'hq.funnel.hired': 'Contratado',
+  'hq.funnel.rejected': 'Rejeitado',
+  'hq.funnel.reviewRate': 'Taxa de análise',
+  'hq.funnel.interviewRate': 'Taxa de entrevista',
+  'hq.funnel.offerRate': 'Taxa de oferta',
+  'hq.funnel.hireRate': 'Taxa de contratação',
+
+  // ── Tabs ───────────────────────────────────────────────────────────
+  'hq.tab.overview': 'Resumo',
+  'hq.tab.applications': 'Candidaturas',
+  'hq.tab.jobs': 'Vagas',
+  'hq.tab.companies': 'Empresas',
+  'hq.tab.users': 'Usuários',
+
+  // ── Tables ─────────────────────────────────────────────────────────
+  'hq.table.searchPlaceholder': 'Buscar…',
+  'hq.table.empty': 'Ainda não há registros.',
+  'hq.table.col.name': 'Nome',
+  'hq.table.col.email': 'E-mail',
+  'hq.table.col.role': 'Função',
+  'hq.table.col.location': 'Localização',
+  'hq.table.col.created': 'Entrou em',
+  'hq.table.col.title': 'Título',
+  'hq.table.col.company': 'Empresa',
+  'hq.table.col.status': 'Status',
+  'hq.table.col.applications': 'Candidaturas',
+  'hq.table.col.industry': 'Setor',
+  'hq.table.col.size': 'Porte',
+  'hq.table.col.salary': 'Salário',
+  'hq.table.col.candidate': 'Candidato',
+  'hq.table.col.job': 'Vaga',
+  'hq.table.col.submitted': 'Enviada',
+  'hq.table.col.actions': 'Ações',
+  'hq.table.col.languages': 'Idiomas',
+  'hq.table.col.bio': 'Bio',
+  'hq.table.col.skills': 'Habilidades',
+
+  // ── Actions ────────────────────────────────────────────────────────
+  'hq.action.view': 'Abrir',
+  'hq.action.changeStatus': 'Alterar status',
+  'hq.action.closeJob': 'Fechar vaga',
+  'hq.action.reopenJob': 'Reabrir vaga',
+  'hq.action.delete': 'Excluir',
+  'hq.action.exportCsv': 'Exportar CSV',
+  'hq.action.copyId': 'Copiar ID',
+  'hq.action.copied': 'Copiado',
+
+  // ── Empty / error ──────────────────────────────────────────────────
+  'hq.loading': 'Carregando métricas da plataforma…',
+  'hq.error.title': 'Não foi possível carregar os dados da Sede central',
+  'hq.error.desc': 'Uma ou mais fontes de dados falharam. Atualize para tentar novamente.',
+  // ── Moderation tab ────────────────────────────────────────────────
+  'hq.tab.moderation': 'Em análise',
+  'hq.moderation.pendingTitle': 'Em análise',
+  'hq.moderation.pendingDesc': 'As vagas aguardando revisão do admin ficam ocultas das listas públicas.',
+  'hq.moderation.empty': 'Não há vagas em análise',
+  'hq.moderation.approve': 'Aprovar',
+  'hq.moderation.reject': 'Rejeitar',
+  'hq.moderation.reasonPlaceholder': 'Motivo da rejeição (opcional)',
+  'hq.moderation.confirmReject': 'Confirmar',
+  'hq.moderation.approved': 'Vaga aprovada e publicada',
+  'hq.moderation.rejected': 'Vaga rejeitada',
+  'hq.moderation.reportsTitle': 'Denúncias recentes',
+  'hq.moderation.reportsDesc': 'Marcadas pelos usuários. As vagas denunciadas ficam em espera até você decidir.',
+  'hq.moderation.noReports': 'Ainda não há denúncias',
+  'hq.moderation.reasonScam': 'Golpe ou fraude',
+  'hq.moderation.reasonInappropriate': 'Conteúdo impróprio',
+  'hq.moderation.reasonInaccurate': 'Dados inexatos',
+  'hq.moderation.reasonOther': 'Outro',
+  'hq.moderation.rejectedTitle': 'Vagas rejeitadas',
+  'hq.moderation.noRejected': 'Não há vagas rejeitadas',
+  'hq.moderation.restore': 'Restaurar',
+  'hq.moderation.restored': 'Vaga restaurada e publicada',
+  'hq.moderation.by': 'por',
+  'hq.moderation.posted': 'Publicada {date}',
+  'hq.moderation.reason': 'Motivo: {reason}',
+  'hq.moderation.reportedReason': 'Denunciada: {reason}',
+
+}
+export default ptHq

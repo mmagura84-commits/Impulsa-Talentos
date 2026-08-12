@@ -26,7 +26,7 @@ const REASON_LABELS: Record<string, string> = {
 function formatDate(iso: string, locale: string): string {
   try {
     return new Date(iso).toLocaleDateString(
-      locale === 'es' ? 'es-CO' : 'en-US',
+      locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US',
       { month: 'short', day: 'numeric', year: 'numeric' },
     )
   } catch {

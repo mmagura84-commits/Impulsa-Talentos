@@ -21,7 +21,7 @@ interface LanguageToggleProps {
   asList?: boolean
 }
 
-const LOCALES: Locale[] = ['en', 'es']
+const LOCALES: Locale[] = ['en', 'es', 'pt']
 
 export function LanguageToggle({ className, compact = false, asList = false }: LanguageToggleProps) {
   const { locale, setLocale, t } = useI18n()

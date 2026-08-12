@@ -354,7 +354,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             <p className="mt-1 text-xs text-muted-foreground">{app.nextAction}</p>
             {app.nextActionDue && (
               <p className="mt-1 text-[11px] text-amber-600">
-                {t('timeline.dueDate')}: {new Date(app.nextActionDue).toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
+                {t('timeline.dueDate')}: {new Date(app.nextActionDue).toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
               </p>
             )}
             <div className="mt-2">
@@ -375,7 +375,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             {app.interviewDate && (
               <p className="mt-1 text-muted-foreground">
                 {t('application.interview.date')}:{' '}
-                {new Date(app.interviewDate).toLocaleString(locale === 'es' ? 'es-CO' : 'en-US', {
+                {new Date(app.interviewDate).toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', {
                   dateStyle: 'full',
                   timeStyle: 'short',
                 })}
@@ -423,7 +423,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
                           <span className="font-medium text-foreground">{historyStatusLabel(entry.status)}</span>
                           {entry.note && <span className="text-muted-foreground"> — {entry.note}</span>}
                           <span className="block text-[10px] text-muted-foreground/70">
-                            {new Date(entry.createdAt).toLocaleDateString(locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
+                            {new Date(entry.createdAt).toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
                             {entry.changedBy && ` · ${entry.changedBy}`}
                           </span>
                         </div>

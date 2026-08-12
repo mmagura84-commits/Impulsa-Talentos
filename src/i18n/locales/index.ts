@@ -24,11 +24,11 @@ export const dictionaries: Record<'en', Dict> = {
 export async function loadLocaleDict(locale: Locale): Promise<Dict> {
   if (locale === 'en') return dictionaries.en
   const [base, jobs, employer, dashboard, hq] = await Promise.all([
-    import('./es'),
-    import('./es.jobs'),
-    import('./es.employer'),
-    import('./es.dashboard'),
-    import('./es.hq'),
+    import(locale === 'es' ? './es' : './pt'),
+    import(locale === 'es' ? './es.jobs' : './pt.jobs'),
+    import(locale === 'es' ? './es.employer' : './pt.employer'),
+    import(locale === 'es' ? './es.dashboard' : './pt.dashboard'),
+    import(locale === 'es' ? './es.hq' : './pt.hq'),
   ])
   return { ...base.default, ...jobs.default, ...employer.default, ...dashboard.default, ...hq.default }
 }

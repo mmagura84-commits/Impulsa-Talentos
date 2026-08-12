@@ -57,8 +57,8 @@ export function StatCard({ icon: Icon, label, value, trend, delay, accent }: {
 /* ── Shared formatters ─────────────────────────────────── */
 export function formatSalary(job: Job, locale: 'en' | 'es'): string {
   if (!job.salaryMin && !job.salaryMax) return '—'
-  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
-  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const min = job.salaryMin ? job.salaryMin.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
+  const max = job.salaryMax ? job.salaryMax.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US') : '?'
   const ccy = job.currency || 'COP'
   return `${ccy} ${min} - ${max}`
 }
