@@ -177,8 +177,8 @@ function ApplicationOfferRow({
         notes: String(fd.get('notes') || ''),
         status: 'pending',
       })
-      // Update application status to 'offered'
-      await updateStatus.mutateAsync({ id: application.id, status: 'offered' })
+      // Update application status to 'offer'
+      await updateStatus.mutateAsync({ id: application.id, status: 'offer' })
       toast.success(t('offers.created'))
       onCancelCreate()
     } catch (err) {

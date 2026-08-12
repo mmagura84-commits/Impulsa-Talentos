@@ -115,10 +115,12 @@ function MobileEditJob() {
     setSnapshot(JSON.stringify(next))
   }, [job])
 
-  const blocker = useBlocker(
-    { shouldBlockFn: () => true, enableBeforeUnload: true, withResolver: true },
-    dirty,
-  )
+  const blocker = useBlocker({
+    shouldBlockFn: () => true,
+    enableBeforeUnload: true,
+    withResolver: true,
+    disabled: !dirty,
+  })
 
   const update = (key: keyof JobForm, value: string) => setForm(prev => ({ ...prev, [key]: value }))
 
@@ -293,8 +295,8 @@ function MobileEditJob() {
           description={t('form.unsaved.desc')}
           confirmLabel={t('form.unsaved.leave')}
           cancelLabel={t('form.unsaved.stay')}
-          onConfirm={() => blocker.proceed()}
-          onCancel={() => blocker.reset()}
+          onConfirm={() => blocker.proceed?.()}
+          onCancel={() => blocker.reset?.()}
         />
       </div>
     </AuthGate>

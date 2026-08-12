@@ -20,6 +20,7 @@ import {
   useUpdateApplication,
 } from '@/hooks/useApplications'
 import { sendInterviewNotification } from '@/lib/notifyInterview'
+import { APPLICATION_STATUS_FLOW, STATUS_PILL_CLASSES } from '@/lib/applicationStatus'
 import { JobAnalytics } from '@/components/manage/JobAnalytics'
 import { PipelineKanban } from '@/components/employer/PipelineKanban'
 import { FeedbackPanel } from '@/components/employer/FeedbackPanel'
@@ -85,26 +86,7 @@ function extractCoverNote(coverLetter: string | null | undefined): string {
   return coverLetter.replace(/\[Resume\]\s+\S+/i, '').trim()
 }
 
-const STATUS_FLOW: Application['status'][] = [
-  'pending',
-  'reviewed',
-  'interview',
-  'offered',
-  'hired',
-  'rejected',
-]
-
-function statusColor(s: Application['status']): string {
-  const map: Record<Application['status'], string> = {
-    pending: 'border-muted-foreground/30 text-muted-foreground bg-muted/30',
-    reviewed: 'border-blue-500/30 text-blue-700 bg-blue-500/5',
-    interview: 'border-amber-500/30 text-amber-700 bg-amber-500/5',
-    offered: 'border-primary/30 text-primary bg-primary/5',
-    hired: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
-    rejected: 'border-destructive/30 text-destructive bg-destructive/5',
-  }
-  return map[s]
-}
+const STATUS_FLOW = APPLICATION_STATUS_FLOW
 
 /* ── Application row + drawer ──────────────────────────── */
 function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobId: string; companyId: string; job: Job }) {
@@ -152,7 +134,7 @@ function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobI
         </button>
         <div className="flex items-center gap-1.5 shrink-0">
           <span
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusColor(app.status)}`}
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
           >
             {t(`dashboard.status.${app.status}`)}
           </span>
@@ -204,7 +186,7 @@ function InterviewScheduler({ app, jobId }: { app: Application; jobId: string })
     setDate(current.interviewDate ?? '')
   }, [current.interviewLink, current.interviewDate])
 
-  if (current.status !== 'interview') return null
+  if (current.status !== 'interview_scheduled') return null
 
   const canSave = link.trim().length > 0 || date.length > 0
 
@@ -396,7 +378,7 @@ function ApplicationDrawer({
                   minute: '2-digit',
                 })}
                 <span
-                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${statusColor(app.status)}`}
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
                 >
                   {t(`dashboard.status.${app.status}`)}
                 </span>
@@ -438,7 +420,7 @@ function ApplicationDrawer({
                         disabled={updateStatus.isPending && pending === s}
                         className={`text-left rounded-lg border px-3 py-2 transition-all text-xs font-medium ${
                           active
-                            ? statusColor(s) + ' cursor-default'
+                            ? STATUS_PILL_CLASSES[s] + ' cursor-default'
                             : 'border-border bg-card hover:border-primary/40 hover:bg-accent/30 cursor-pointer disabled:opacity-50'
                         }`}
                       >
@@ -591,7 +573,7 @@ function ManageApplicationsPage() {
                 </p>
               </CardContent>
             </Card>
-            {(['pending', 'reviewed', 'interview'] as const).map(s => (
+            {(['applied', 'under_review', 'interview_scheduled'] as const).map(s => (
               <Card key={s}>
                 <CardContent className="pt-5">
                   <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">

@@ -27,6 +27,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { rankJobs, type MatchScore } from '@/lib/matchScore'
+import { ACTIVE_APPLICATION_STATUSES, STATUS_PILL_CLASSES } from '@/lib/applicationStatus'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Job, Application } from '@/types'
@@ -130,9 +131,7 @@ function CandidateHome() {
           <StatTile
             label={t('dashboard.stat.inProgress')}
             value={String(
-              (applications ?? []).filter(a =>
-                a.status === 'pending' || a.status === 'reviewed' || a.status === 'interview',
-              ).length,
+              (applications ?? []).filter(a => ACTIVE_APPLICATION_STATUSES.has(a.status)).length,
             )}
             icon={TrendingUp}
           />
@@ -394,14 +393,6 @@ function AppListItem({ app }: { app: Application }) {
   const { t } = useI18n()
   const { data: job } = useJobs()
   const jobRow = (job ?? []).find(j => j.id === app.jobId)
-  const statusColor: Record<Application['status'], string> = {
-    pending: 'border-muted-foreground/30 text-muted-foreground bg-muted/30',
-    reviewed: 'border-blue-500/30 text-blue-700 bg-blue-500/5',
-    interview: 'border-amber-500/30 text-amber-700 bg-amber-500/5',
-    offered: 'border-primary/30 text-primary bg-primary/5',
-    hired: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
-    rejected: 'border-destructive/30 text-destructive bg-destructive/5',
-  }
   return (
     <Link
       to="/m/jobs/$id"
@@ -419,7 +410,7 @@ function AppListItem({ app }: { app: Application }) {
       <span
         className={cn(
           'inline-flex shrink-0 items-center rounded-full border px-2 py-0.5 text-[10px] font-medium',
-          statusColor[app.status],
+          STATUS_PILL_CLASSES[app.status],
         )}
       >
         {t(`dashboard.status.${app.status}`)}
