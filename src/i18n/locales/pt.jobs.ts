@@ -388,6 +388,12 @@ const ptJobs: Dict = {
   'review.empPref.contract': 'Contrato',
   'review.empPref.freelance': 'Freelancer',
   'review.empPref.any': 'Flexível',
+  'review.shortlistHint': 'Marque este candidato para sua lista de destaques.',
+  'review.notesHint': 'Somente sua equipe pode ver estas notas.',
+  'review.saveNotes': 'Salvar notas',
+  'review.shortlistSaved': 'Lista de destaques atualizada',
+  'review.notesSaved': 'Notas salvas',
+  'review.saveError': 'Não foi possível salvar as alterações. Tente novamente.',
 
 }
 export default ptJobs
