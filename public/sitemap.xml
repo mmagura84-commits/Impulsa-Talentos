@@ -19,12 +19,6 @@
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/privacy</loc>
   </url>
   <url>
-    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/44872b97-60f0-459a-8578-2476edeb61ee</loc>
-  </url>
-  <url>
-    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/f2e1e061-7267-4ec9-837f-769e55474cc2</loc>
-  </url>
-  <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/0360caae-3dac-4565-bbfa-10e71efec6b5</loc>
   </url>
   <url>
@@ -94,6 +88,9 @@
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/de1feb69-8cdf-451d-9d85-72b52e14e17c</loc>
   </url>
   <url>
+    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/f2e1e061-7267-4ec9-837f-769e55474cc2</loc>
+  </url>
+  <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/de58de0c-3cba-4379-a3b1-296b7a799341</loc>
   </url>
   <url>
@@ -101,6 +98,9 @@
   </url>
   <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/fe05144b-c804-4656-9204-561b08a08cc5</loc>
+  </url>
+  <url>
+    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/jobs/44872b97-60f0-459a-8578-2476edeb61ee</loc>
   </url>
   <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/8b6fd61a-8098-43d9-9cca-35c7eeaf8bb1</loc>
@@ -113,9 +113,6 @@
   </url>
   <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/1f735302-bb80-4eca-9a1d-1552ee83be85</loc>
-  </url>
-  <url>
-    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/6659e5f6-5558-48b6-a5fc-fdbf7fab9a1e</loc>
   </url>
   <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/67efda32-f8bd-4833-ba78-e4df4b2431f8</loc>
@@ -143,5 +140,8 @@
   </url>
   <url>
     <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/d7e0e7f2-d9b3-44ad-9cdb-25ce5201d961</loc>
+  </url>
+  <url>
+    <loc>https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/companies/6659e5f6-5558-48b6-a5fc-fdbf7fab9a1e</loc>
   </url>
 </urlset>

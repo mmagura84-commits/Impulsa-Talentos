@@ -23,14 +23,18 @@ interface AuthGateProps {
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
-  const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
+  const { isAuthenticated, isLoading, signInWithPassword, signUpWithPassword, resendVerificationEmail } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
-  const [usePassword, setUsePassword] = useState(false)
+  // Password-only auth (owner decision 2026-08-11): magic-link/passwordless
+  // sign-in is out of scope and was REMOVED from the UI — the password form
+  // is THE form. No mode toggle, no second flow.
   const [email, setEmail] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const [password, setPassword] = useState('')
   const [sending, setSending] = useState(false)
+  // True after sign-up when no session was returned → email-CONFIRM
+  // interstitial (signup confirmation, NOT magic-link sign-in).
   const [sent, setSent] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
   const [errorKey, setErrorKey] = useState<string | null>(null)
@@ -43,22 +47,6 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
         <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary/30 border-t-primary" />
       </div>
     )
-  }
-
-  const handleMagicLink = async (e: FormEvent) => {
-    e.preventDefault()
-    if (!validEmail || sending) return
-    setSending(true)
-    setErrorMsg('')
-    try {
-      const returnPath = window.location.pathname + window.location.search
-      await sendMagicLink(email.trim(), window.location.origin + returnPath)
-      setSent(true)
-    } catch (err) {
-      setErrorKey(null); setErrorMsg(err instanceof Error ? err.message : t('auth.error.sendLink'))
-    } finally {
-      setSending(false)
-    }
   }
 
   const handlePassword = async (e: FormEvent) => {
@@ -102,6 +90,21 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     }
   }
 
+  const handleResendConfirmation = async () => {
+    if (!validEmail || sending) return
+    setSending(true)
+    clearError()
+    try {
+      const returnPath = window.location.pathname + window.location.search
+      const result = await resendVerificationEmail(email.trim(), window.location.origin + returnPath)
+      if (result.error) setErrorMsg(t('auth.signUpFailed'))
+    } catch {
+      setErrorMsg(t('auth.signUpFailed'))
+    } finally {
+      setSending(false)
+    }
+  }
+
   if (!isAuthenticated) {
     if (showReset) {
       return (
@@ -135,13 +138,13 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 </button>
               ))}
             </div>
-            {!usePassword && sent ? (
+            {sent && authMode === 'signUp' ? (
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
                   <CheckCircle2 className="size-8 text-emerald-600" />
                   <p className="text-sm font-medium text-foreground">{t('auth.checkEmail')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('auth.magicLinkSent', { email })}
+                    {t('auth.signUpConfirmationSent', { email })}
                   </p>
                 </div>
                 <Button
@@ -149,13 +152,13 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   size="sm"
                   className="gap-1.5"
                   disabled={sending}
-                  onClick={handleMagicLink}
+                  onClick={handleResendConfirmation}
                 >
                   {sending ? <Loader2 className="size-3.5 animate-spin" /> : <Mail className="size-3.5" />}
                   {t('auth.resendLink')}
                 </Button>
               </>
-            ) : usePassword ? (
+            ) : (
               <form onSubmit={handlePassword} className="space-y-3">
                 <div className="relative">
                   <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
@@ -190,37 +193,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                   {sending ? (authMode === 'signUp' ? t('auth.signingUp') : t('auth.signingIn')) : (authMode === 'signUp' ? t('auth.signUpCta') : t('auth.signInWithPassword'))}
                 </Button>
               </form>
-            ) : (
-              <form onSubmit={handleMagicLink} className="space-y-3">
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
-                  <Input
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); clearError() }}
-                    placeholder={t('auth.emailPlaceholder')}
-                    className="pl-9 text-center"
-                    required
-                    autoFocus
-                    autoComplete="email"
-                  />
-                </div>
-                {(errorMsg || errorKey) && (
-                  <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
-                )}
-                <Button type="submit" size="lg" disabled={sending || !validEmail} className="w-full gap-2 font-medium">
-                  {sending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LogIn className="h-4 w-4" />}
-                  {sending ? (authMode === 'signUp' ? t('auth.signingUpWithEmail') : t('auth.sending')) : (authMode === 'signUp' ? t('auth.signUpMagicLinkCta') : t('auth.signInCta'))}
-                </Button>
-              </form>
             )}
-            <button
-              type="button"
-              onClick={() => { setUsePassword(!usePassword); setSent(false); clearError() }}
-              className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-            >
-              {usePassword ? t('auth.sendMagicInstead') : t('auth.signInPasswordInstead')}
-            </button>
             <button
               type="button"
               onClick={() => setShowReset(true)}
