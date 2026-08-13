@@ -36,6 +36,7 @@ const ptDashboard: Dict = {
   'dashboard.matches.weakDesc': 'Seu perfil está vazio — mostrando vagas recentes.',
   'dashboard.exploreMore': 'Explorar mais',
   'dashboard.noApplications': 'Você ainda não se candidatou a nenhuma vaga.',
+  'dashboard.recentActivity': 'Atividade recente',
   'dashboard.viewJobs': 'Ver vagas',
   'dashboard.noJobs': 'Ainda não há vagas publicadas.',
   'dashboard.employerJobs.title': 'Suas Vagas',

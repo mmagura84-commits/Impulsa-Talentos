@@ -36,6 +36,7 @@ const esDashboard: Dict = {
   'dashboard.matches.weakDesc': 'Tu perfil esta vacio — mostrando vacantes recientes.',
   'dashboard.exploreMore': 'Explorar mas',
   'dashboard.noApplications': 'Aun no te has postulado a ninguna vacante.',
+  'dashboard.recentActivity': 'Actividad reciente',
   'dashboard.viewJobs': 'Ver vacantes',
   'dashboard.noJobs': 'Aun no hay vacantes publicadas.',
   'dashboard.employerJobs.title': 'Tus Vacantes',

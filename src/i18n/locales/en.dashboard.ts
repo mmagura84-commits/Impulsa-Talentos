@@ -36,6 +36,7 @@ const enDashboard: Dict = {
   'dashboard.matches.weakDesc': 'Profile is empty — falling back to recent jobs.',
   'dashboard.exploreMore': 'Explore more',
   'dashboard.noApplications': 'You haven\'t applied to any jobs yet.',
+  'dashboard.recentActivity': 'Recent activity',
   'dashboard.viewJobs': 'View jobs',
   'dashboard.noJobs': 'No jobs have been posted yet.',
   'dashboard.employerJobs.title': 'Your Jobs',
