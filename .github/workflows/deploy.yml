@@ -1,31 +1,40 @@
 name: Deploy to Hostinger
-
 on:
   push:
     branches: [main]
   workflow_dispatch:
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
       - uses: oven-sh/setup-bun@v1
         with:
           bun-version: latest
-      
       - name: Build
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ secrets.VITE_SUPABASE_ANON_KEY }}
-          VITE_RESEND_API_KEY: ${{ secrets.VITE_RESEND_API_KEY }}
+          # LIVE consolidated Supabase project values (2026-08-13).
+          # DO NOT replace with legacy (wpnkeryyhsdsislqaegb) or staging (gszjlvqmfwoedvxkvvaf) refs.
+          # The anon key is public by design (shipped in the client bundle); the legacy repo SECRETS
+          # point at the frozen legacy project and must NOT be used here.
+          VITE_SUPABASE_URL: https://cmdqlybsgkegolqydmbh.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHFseWJzZ2tlZ29scXlkbWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNDYxNzksImV4cCI6MjEwMTcyMjE3OX0.VTalByKsYkNvc7JX9OIkAk--7Ex7UeCZYSvlwDb9Lr4
           SITE_URL: https://impulsatalentos.expert
         run: |
           bun install
           bun run build
           cp .htaccess dist/.htaccess
-      
+      - name: Guard — bundle must target the LIVE Supabase project
+        run: |
+          if grep -rq --include='*.js' 'wpnkeryyhsdsislqaegb' dist/assets/; then
+            echo "::error::dist bundle references LEGACY Supabase project wpnkeryyhsdsislqaegb — refusing to deploy"
+            exit 1
+          fi
+          if ! grep -rq --include='*.js' 'cmdqlybsgkegolqydmbh' dist/assets/; then
+            echo "::error::dist bundle does not reference LIVE Supabase project cmdqlybsgkegolqydmbh — refusing to deploy"
+            exit 1
+          fi
+          echo "Bundle Supabase target OK: LIVE cmdqlybsgkegolqydmbh"
       - name: Deploy
         run: |
           mkdir -p ~/.ssh
