@@ -91,6 +91,8 @@ const REDIRECTS = `\
 /employer/*         /spa-fallback.html   200
 /md                 /spa-fallback.html   200
 /md/*               /spa-fallback.html   200
+/managingdirector   /spa-fallback.html   200
+/managingdirector/* /spa-fallback.html   200
 /hq                 /spa-fallback.html   200
 /hq/*               /spa-fallback.html   200
 
@@ -129,7 +131,7 @@ try {
 // whatever its auth state actually is. Remove their prerendered dirs so both
 // serve paths hit the shell for them.
 const SPA_ONLY_ROUTES = [
-  'employer', 'candidate', 'md', 'hq', 'profile', 'dashboard',
+  'employer', 'candidate', 'md', 'managingdirector', 'hq', 'profile', 'dashboard',
   'applications', 'apply', 'm', 'reset-password',
   'candidate-preview', 'md-preview',
 ]
