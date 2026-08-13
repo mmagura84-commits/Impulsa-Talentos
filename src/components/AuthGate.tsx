@@ -26,7 +26,10 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const { isAuthenticated, isLoading, sendMagicLink, signInWithPassword, signUpWithPassword } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
-  const [usePassword, setUsePassword] = useState(false)
+  // Owner decision 2026-08-11: password-only auth — the password form must be
+  // the first-visible login mode; magic-link stays available via the secondary
+  // toggle ("Send magic link instead") but is not the default.
+  const [usePassword, setUsePassword] = useState(true)
   const [email, setEmail] = useState('')
   const validEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const [password, setPassword] = useState('')
