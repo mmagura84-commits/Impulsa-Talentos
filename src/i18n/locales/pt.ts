@@ -18,6 +18,7 @@ const pt: Dict = {
   'common.save': 'Salvar',
   'common.continue': 'Continuar',
   'common.retry': 'Tentar novamente',
+  'common.skipToContent': 'Pular para o conteúdo',
   'dashboard.loadingTimeout': 'Não foi possível carregar seu espaço de trabalho. Tente novamente.',
   'common.back': 'Voltar',
   'common.loading': 'Carregando...',

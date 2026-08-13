@@ -77,7 +77,7 @@ export default function PricingPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <PublicHeader transparentOnTop={false} />
-      <main className="max-w-5xl mx-auto px-5 py-12">
+      <main id="main" className="max-w-5xl mx-auto px-5 py-12">
         <div className="text-center mb-10">
           <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('pricing.kicker')}</p>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold">{t('pricing.title')}</h1>

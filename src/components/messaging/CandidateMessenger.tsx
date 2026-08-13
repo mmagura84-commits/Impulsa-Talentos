@@ -42,7 +42,7 @@ function AntiScamBanner({ t }: { t: (key: string, vars?: Record<string, string |
         type="button"
         onClick={() => setDismissed(true)}
         className="shrink-0 text-amber-500 hover:text-amber-700 cursor-pointer"
-        aria-label="Dismiss"
+        aria-label={t('messenger.dismiss')}
       >
         <X className="size-3.5" />
       </button>

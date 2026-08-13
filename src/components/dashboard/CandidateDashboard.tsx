@@ -66,6 +66,7 @@ function MatchBadge({ score }: { score: number }) {
 
 /* ── AI Match badge ────────────────────────────────────── */
 function AiMatchBadge({ score }: { score: number }) {
+  const { t } = useI18n()
   const color =
     score >= 80
       ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5'
@@ -75,7 +76,7 @@ function AiMatchBadge({ score }: { score: number }) {
   return (
     <span
       className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${color}`}
-      title="AI-powered match score"
+      title={t('dashboard.matches.matchScore')}
     >
       <Brain className="size-3" />
       {score}%

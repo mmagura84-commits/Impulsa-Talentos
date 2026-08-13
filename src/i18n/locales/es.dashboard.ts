@@ -288,6 +288,7 @@ const esDashboard: Dict = {
   'messenger.recruiter': 'Reclutador',
   'messenger.antiScam': 'Impulsa Talentos nunca cobra tarifas de colocación a los candidatos. Solo comunícate a través de esta plataforma. Reporta mensajes sospechosos de inmediato.',
   'messenger.error': 'No se pudieron cargar los mensajes.',
+  'messenger.dismiss': 'Cerrar',
   'messenger.open': 'Mensajes',
   'messenger.close': 'Cerrar mensajería',
 }

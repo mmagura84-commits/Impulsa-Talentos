@@ -288,6 +288,7 @@ const ptDashboard: Dict = {
   'messenger.recruiter': 'Recrutador',
   'messenger.antiScam': 'O Impulsa Talentos nunca cobra taxas de colocação dos candidatos. Comunique-se apenas por esta plataforma. Denuncie mensagens suspeitas imediatamente.',
   'messenger.error': 'Não foi possível carregar as mensagens.',
+  'messenger.dismiss': 'Fechar',
   'messenger.open': 'Mensagens',
   'messenger.close': 'Fechar mensagens',
 }

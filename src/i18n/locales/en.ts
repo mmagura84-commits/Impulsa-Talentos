@@ -19,6 +19,7 @@ const en: Dict = {
   'common.save': 'Save',
   'common.continue': 'Continue',
   'common.retry': 'Retry',
+  'common.skipToContent': 'Skip to content',
   'dashboard.loadingTimeout': 'We could not load your workspace. Please try again.',
   'common.back': 'Back',
   'common.loading': 'Loading...',
