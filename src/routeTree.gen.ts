@@ -33,12 +33,14 @@ import { Route as MApplicationsRouteImport } from './routes/m/applications'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as AppMdRouteImport } from './routes/_app/md'
+import { Route as AppManagingdirectorRouteImport } from './routes/_app/managingdirector'
 import { Route as AppJobsRouteImport } from './routes/_app/jobs'
 import { Route as AppHqRouteImport } from './routes/_app/hq'
 import { Route as AppEmployerRouteImport } from './routes/_app/employer'
 import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
 import { Route as AppCandidateRouteImport } from './routes/_app/candidate'
 import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
+import { Route as AppManagingdirectorIndexRouteImport } from './routes/_app/managingdirector/index'
 import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
 import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
@@ -49,6 +51,12 @@ import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
 import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
 import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
+import { Route as AppManagingdirectorProfileRouteImport } from './routes/_app/managingdirector/profile'
+import { Route as AppManagingdirectorMessagesRouteImport } from './routes/_app/managingdirector/messages'
+import { Route as AppManagingdirectorMeetingsRouteImport } from './routes/_app/managingdirector/meetings'
+import { Route as AppManagingdirectorMarketingRouteImport } from './routes/_app/managingdirector/marketing'
+import { Route as AppManagingdirectorEmployersRouteImport } from './routes/_app/managingdirector/employers'
+import { Route as AppManagingdirectorBankingRouteImport } from './routes/_app/managingdirector/banking'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
 import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team'
@@ -185,6 +193,11 @@ const AppMdRoute = AppMdRouteImport.update({
   path: '/md',
   getParentRoute: () => AppRoute,
 } as any)
+const AppManagingdirectorRoute = AppManagingdirectorRouteImport.update({
+  id: '/managingdirector',
+  path: '/managingdirector',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppJobsRoute = AppJobsRouteImport.update({
   id: '/jobs',
   path: '/jobs',
@@ -215,6 +228,12 @@ const AppMdIndexRoute = AppMdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppMdRoute,
 } as any)
+const AppManagingdirectorIndexRoute =
+  AppManagingdirectorIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
 const AppEmployerIndexRoute = AppEmployerIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -265,6 +284,42 @@ const AppMdBankingRoute = AppMdBankingRouteImport.update({
   path: '/banking',
   getParentRoute: () => AppMdRoute,
 } as any)
+const AppManagingdirectorProfileRoute =
+  AppManagingdirectorProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMessagesRoute =
+  AppManagingdirectorMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMeetingsRoute =
+  AppManagingdirectorMeetingsRouteImport.update({
+    id: '/meetings',
+    path: '/meetings',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMarketingRoute =
+  AppManagingdirectorMarketingRouteImport.update({
+    id: '/marketing',
+    path: '/marketing',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorEmployersRoute =
+  AppManagingdirectorEmployersRouteImport.update({
+    id: '/employers',
+    path: '/employers',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorBankingRoute =
+  AppManagingdirectorBankingRouteImport.update({
+    id: '/banking',
+    path: '/banking',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
 const AppJobsIdRoute = AppJobsIdRouteImport.update({
   id: '/$id',
   path: '/$id',
@@ -364,6 +419,7 @@ export interface FileRoutesByFullPath {
   '/employer': typeof AppEmployerRouteWithChildren
   '/hq': typeof AppHqRouteWithChildren
   '/jobs': typeof AppJobsRouteWithChildren
+  '/managingdirector': typeof AppManagingdirectorRouteWithChildren
   '/md': typeof AppMdRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
@@ -389,6 +445,12 @@ export interface FileRoutesByFullPath {
   '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
+  '/managingdirector/banking': typeof AppManagingdirectorBankingRoute
+  '/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
+  '/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
+  '/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/managingdirector/profile': typeof AppManagingdirectorProfileRoute
   '/md/banking': typeof AppMdBankingRoute
   '/md/employers': typeof AppMdEmployersRoute
   '/md/marketing': typeof AppMdMarketingRoute
@@ -399,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate/': typeof AppCandidateIndexRoute
   '/employer/': typeof AppEmployerIndexRoute
+  '/managingdirector/': typeof AppManagingdirectorIndexRoute
   '/md/': typeof AppMdIndexRoute
   '/apply/$id/confirm': typeof AppApplyIdConfirmRoute
   '/employer/edit-job/$id': typeof AppEmployerEditJobIdRoute
@@ -442,6 +505,12 @@ export interface FileRoutesByTo {
   '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
+  '/managingdirector/banking': typeof AppManagingdirectorBankingRoute
+  '/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
+  '/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
+  '/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/managingdirector/profile': typeof AppManagingdirectorProfileRoute
   '/md/banking': typeof AppMdBankingRoute
   '/md/employers': typeof AppMdEmployersRoute
   '/md/marketing': typeof AppMdMarketingRoute
@@ -452,6 +521,7 @@ export interface FileRoutesByTo {
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate': typeof AppCandidateIndexRoute
   '/employer': typeof AppEmployerIndexRoute
+  '/managingdirector': typeof AppManagingdirectorIndexRoute
   '/md': typeof AppMdIndexRoute
   '/apply/$id/confirm': typeof AppApplyIdConfirmRoute
   '/employer/edit-job/$id': typeof AppEmployerEditJobIdRoute
@@ -476,6 +546,7 @@ export interface FileRoutesById {
   '/_app/employer': typeof AppEmployerRouteWithChildren
   '/_app/hq': typeof AppHqRouteWithChildren
   '/_app/jobs': typeof AppJobsRouteWithChildren
+  '/_app/managingdirector': typeof AppManagingdirectorRouteWithChildren
   '/_app/md': typeof AppMdRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
@@ -501,6 +572,12 @@ export interface FileRoutesById {
   '/_app/employer/team': typeof AppEmployerTeamRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
+  '/_app/managingdirector/banking': typeof AppManagingdirectorBankingRoute
+  '/_app/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/_app/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
+  '/_app/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
+  '/_app/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/_app/managingdirector/profile': typeof AppManagingdirectorProfileRoute
   '/_app/md/banking': typeof AppMdBankingRoute
   '/_app/md/employers': typeof AppMdEmployersRoute
   '/_app/md/marketing': typeof AppMdMarketingRoute
@@ -511,6 +588,7 @@ export interface FileRoutesById {
   '/m/jobs/$id': typeof MJobsIdRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
   '/_app/employer/': typeof AppEmployerIndexRoute
+  '/_app/managingdirector/': typeof AppManagingdirectorIndexRoute
   '/_app/md/': typeof AppMdIndexRoute
   '/_app/apply/$id/confirm': typeof AppApplyIdConfirmRoute
   '/_app/employer/edit-job/$id': typeof AppEmployerEditJobIdRoute
@@ -535,6 +613,7 @@ export interface FileRouteTypes {
     | '/employer'
     | '/hq'
     | '/jobs'
+    | '/managingdirector'
     | '/md'
     | '/profile'
     | '/companies/$id'
@@ -560,6 +639,12 @@ export interface FileRouteTypes {
     | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
+    | '/managingdirector/banking'
+    | '/managingdirector/employers'
+    | '/managingdirector/marketing'
+    | '/managingdirector/meetings'
+    | '/managingdirector/messages'
+    | '/managingdirector/profile'
     | '/md/banking'
     | '/md/employers'
     | '/md/marketing'
@@ -570,6 +655,7 @@ export interface FileRouteTypes {
     | '/m/jobs/$id'
     | '/candidate/'
     | '/employer/'
+    | '/managingdirector/'
     | '/md/'
     | '/apply/$id/confirm'
     | '/employer/edit-job/$id'
@@ -613,6 +699,12 @@ export interface FileRouteTypes {
     | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
+    | '/managingdirector/banking'
+    | '/managingdirector/employers'
+    | '/managingdirector/marketing'
+    | '/managingdirector/meetings'
+    | '/managingdirector/messages'
+    | '/managingdirector/profile'
     | '/md/banking'
     | '/md/employers'
     | '/md/marketing'
@@ -623,6 +715,7 @@ export interface FileRouteTypes {
     | '/m/jobs/$id'
     | '/candidate'
     | '/employer'
+    | '/managingdirector'
     | '/md'
     | '/apply/$id/confirm'
     | '/employer/edit-job/$id'
@@ -646,6 +739,7 @@ export interface FileRouteTypes {
     | '/_app/employer'
     | '/_app/hq'
     | '/_app/jobs'
+    | '/_app/managingdirector'
     | '/_app/md'
     | '/_app/profile'
     | '/companies/$id'
@@ -671,6 +765,12 @@ export interface FileRouteTypes {
     | '/_app/employer/team'
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
+    | '/_app/managingdirector/banking'
+    | '/_app/managingdirector/employers'
+    | '/_app/managingdirector/marketing'
+    | '/_app/managingdirector/meetings'
+    | '/_app/managingdirector/messages'
+    | '/_app/managingdirector/profile'
     | '/_app/md/banking'
     | '/_app/md/employers'
     | '/_app/md/marketing'
@@ -681,6 +781,7 @@ export interface FileRouteTypes {
     | '/m/jobs/$id'
     | '/_app/candidate/'
     | '/_app/employer/'
+    | '/_app/managingdirector/'
     | '/_app/md/'
     | '/_app/apply/$id/confirm'
     | '/_app/employer/edit-job/$id'
@@ -874,6 +975,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMdRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/managingdirector': {
+      id: '/_app/managingdirector'
+      path: '/managingdirector'
+      fullPath: '/managingdirector'
+      preLoaderRoute: typeof AppManagingdirectorRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/_app/jobs': {
       id: '/_app/jobs'
       path: '/jobs'
@@ -915,6 +1023,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/md/'
       preLoaderRoute: typeof AppMdIndexRouteImport
       parentRoute: typeof AppMdRoute
+    }
+    '/_app/managingdirector/': {
+      id: '/_app/managingdirector/'
+      path: '/'
+      fullPath: '/managingdirector/'
+      preLoaderRoute: typeof AppManagingdirectorIndexRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
     }
     '/_app/employer/': {
       id: '/_app/employer/'
@@ -985,6 +1100,48 @@ declare module '@tanstack/react-router' {
       fullPath: '/md/banking'
       preLoaderRoute: typeof AppMdBankingRouteImport
       parentRoute: typeof AppMdRoute
+    }
+    '/_app/managingdirector/profile': {
+      id: '/_app/managingdirector/profile'
+      path: '/profile'
+      fullPath: '/managingdirector/profile'
+      preLoaderRoute: typeof AppManagingdirectorProfileRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/messages': {
+      id: '/_app/managingdirector/messages'
+      path: '/messages'
+      fullPath: '/managingdirector/messages'
+      preLoaderRoute: typeof AppManagingdirectorMessagesRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/meetings': {
+      id: '/_app/managingdirector/meetings'
+      path: '/meetings'
+      fullPath: '/managingdirector/meetings'
+      preLoaderRoute: typeof AppManagingdirectorMeetingsRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/marketing': {
+      id: '/_app/managingdirector/marketing'
+      path: '/marketing'
+      fullPath: '/managingdirector/marketing'
+      preLoaderRoute: typeof AppManagingdirectorMarketingRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/employers': {
+      id: '/_app/managingdirector/employers'
+      path: '/employers'
+      fullPath: '/managingdirector/employers'
+      preLoaderRoute: typeof AppManagingdirectorEmployersRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/banking': {
+      id: '/_app/managingdirector/banking'
+      path: '/banking'
+      fullPath: '/managingdirector/banking'
+      preLoaderRoute: typeof AppManagingdirectorBankingRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
     }
     '/_app/jobs/$id': {
       id: '/_app/jobs/$id'
@@ -1170,6 +1327,29 @@ const AppJobsRouteChildren: AppJobsRouteChildren = {
 const AppJobsRouteWithChildren =
   AppJobsRoute._addFileChildren(AppJobsRouteChildren)
 
+interface AppManagingdirectorRouteChildren {
+  AppManagingdirectorBankingRoute: typeof AppManagingdirectorBankingRoute
+  AppManagingdirectorEmployersRoute: typeof AppManagingdirectorEmployersRoute
+  AppManagingdirectorMarketingRoute: typeof AppManagingdirectorMarketingRoute
+  AppManagingdirectorMeetingsRoute: typeof AppManagingdirectorMeetingsRoute
+  AppManagingdirectorMessagesRoute: typeof AppManagingdirectorMessagesRoute
+  AppManagingdirectorProfileRoute: typeof AppManagingdirectorProfileRoute
+  AppManagingdirectorIndexRoute: typeof AppManagingdirectorIndexRoute
+}
+
+const AppManagingdirectorRouteChildren: AppManagingdirectorRouteChildren = {
+  AppManagingdirectorBankingRoute: AppManagingdirectorBankingRoute,
+  AppManagingdirectorEmployersRoute: AppManagingdirectorEmployersRoute,
+  AppManagingdirectorMarketingRoute: AppManagingdirectorMarketingRoute,
+  AppManagingdirectorMeetingsRoute: AppManagingdirectorMeetingsRoute,
+  AppManagingdirectorMessagesRoute: AppManagingdirectorMessagesRoute,
+  AppManagingdirectorProfileRoute: AppManagingdirectorProfileRoute,
+  AppManagingdirectorIndexRoute: AppManagingdirectorIndexRoute,
+}
+
+const AppManagingdirectorRouteWithChildren =
+  AppManagingdirectorRoute._addFileChildren(AppManagingdirectorRouteChildren)
+
 interface AppMdRouteChildren {
   AppMdBankingRoute: typeof AppMdBankingRoute
   AppMdEmployersRoute: typeof AppMdEmployersRoute
@@ -1210,6 +1390,7 @@ interface AppRouteChildren {
   AppEmployerRoute: typeof AppEmployerRouteWithChildren
   AppHqRoute: typeof AppHqRouteWithChildren
   AppJobsRoute: typeof AppJobsRouteWithChildren
+  AppManagingdirectorRoute: typeof AppManagingdirectorRouteWithChildren
   AppMdRoute: typeof AppMdRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
   AppApplyIdRoute: typeof AppApplyIdRouteWithChildren
@@ -1221,6 +1402,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppEmployerRoute: AppEmployerRouteWithChildren,
   AppHqRoute: AppHqRouteWithChildren,
   AppJobsRoute: AppJobsRouteWithChildren,
+  AppManagingdirectorRoute: AppManagingdirectorRouteWithChildren,
   AppMdRoute: AppMdRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
   AppApplyIdRoute: AppApplyIdRouteWithChildren,
