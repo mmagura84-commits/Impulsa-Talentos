@@ -62,9 +62,11 @@ export function useAuth() {
      * True once the initial auth state has been resolved (restored
      * session, first SIGNED_IN, or the 3 s safety timeout). Unlike a
      * permanent latch it ONLY gates the safety timeout from clobbering a
-     * pending magic-link hash exchange — later SIGNED_IN events are
-     * ALWAYS honored (P0: password sign-in after the timeout resolved
-     * null used to be dropped, leaving the UI stuck on the login form).
+     * pending recovery/confirmation hash exchange (password-reset and
+     * email-confirm links also arrive as URL hash tokens) — later
+     * SIGNED_IN events are ALWAYS honored (P0: password sign-in after
+     * the timeout resolved null used to be dropped, leaving the UI stuck
+     * on the login form).
      */
     let loaded = false
     function setAuth(u: AppUser | null) {
@@ -73,10 +75,11 @@ export function useAuth() {
       setIsLoading(false)
     }
     /**
-     * getSession() may return null before the magic-link URL hash has been
-     * exchanged for a session. If the hash exchange hasn't completed yet we
-     * wait for onAuthStateChange to fire instead of flashing the sign-in
-     * form. A 3 s safety timeout prevents infinite loading.
+     * getSession() may return null before the recovery/confirmation URL
+     * hash has been exchanged for a session. If the hash exchange hasn't
+     * completed yet we wait for onAuthStateChange to fire instead of
+     * flashing the sign-in form. A 3 s safety timeout prevents infinite
+     * loading.
      */
     const safety = setTimeout(() => {
       if (!loaded) {
@@ -99,9 +102,9 @@ export function useAuth() {
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!active) return
       if (session) {
-        // ALWAYS honor a real session — including password/OAuth/magic
-        // link sign-in that happens AFTER the safety timeout resolved
-        // null. The previous permanent `resolved` latch dropped these.
+        // ALWAYS honor a real session — including password/OAuth sign-in
+        // that happens AFTER the safety timeout resolved null. The previous
+        // permanent `resolved` latch dropped these.
         loaded = true
         setAuth(toAppUser(session.user))
       } else if (loaded) {
@@ -109,7 +112,7 @@ export function useAuth() {
         setAuth(null)
       }
       // Else: no session AND hydration not done yet — likely a pending
-      // magic-link hash exchange; the safety timeout covers it.
+      // recovery/confirmation hash exchange; the safety timeout covers it.
     })
     return () => {
       active = false
@@ -122,15 +125,6 @@ export function useAuth() {
     user,
     isLoading,
     isAuthenticated: !!user,
-    /** Send a passwordless magic link to an email address. Optionally redirect back to a relative app path after sign-in. */
-    sendMagicLink: (email: string, redirectTo?: string) =>
-      supabase.auth.signInWithOtp({
-        email,
-        options: {
-          shouldCreateUser: true,
-          ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
-        },
-      }),
     /** Sign in with email + password. */
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
@@ -157,7 +151,7 @@ export function useAuth() {
     /**
      * Sign-in entry point for callers that don't collect an email inline
      * (hero CTAs, mobile menu). Navigates to the AuthGate-protected
-     * dashboard, which renders the magic-link form for guests.
+     * dashboard, which renders the password sign-in form for guests.
      */
     login: () => {
       if (typeof window !== 'undefined') window.location.href = '/dashboard'
