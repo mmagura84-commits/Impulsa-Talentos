@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows, snakeToCamel } from '@/lib/supabase'
 import type { Application, ApplicationStatusHistory, Job, Profile } from '@/types'
 import { sendEmail } from '@/lib/emailSender'
+import { storagePointer } from '@/hooks/useSignedStorageUrl'
 
 const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
@@ -111,7 +112,10 @@ export function useApply() {
       resumeFile,
       resumeUrl,
     }: ApplyInput) => {
-      // 1) Upload the resume file (if any) to get a public URL.
+      // 1) Upload the resume file (if any) to a durable private-bucket pointer.
+      //    The cvs bucket is PRIVATE — getPublicUrl would produce a 403 URL, so
+      //    store a storage:cvs: pointer that useSignedStorageUrl resolves via
+      //    createSignedUrl at render time.
       let finalResumeUrl: string | undefined = resumeUrl?.trim() || undefined
       if (!finalResumeUrl && resumeFile) {
         const ext = resumeFile.name.split('.').pop()?.toLowerCase() || 'pdf'
@@ -120,11 +124,10 @@ export function useApply() {
           .from('cvs')
           .upload(path, resumeFile, { upsert: true })
         if (error) throw error
-        const { data: pub } = supabase.storage.from('cvs').getPublicUrl(path)
-        finalResumeUrl = pub.publicUrl
+        finalResumeUrl = storagePointer(path)
       }
 
-      // 2) Persist the application. coverLetter carries the resume URL when
+      // 2) Persist the application. coverLetter carries the resume pointer when
       //    we have one so the employer always gets a link to the resume.
       const resumePointer = finalResumeUrl
         ? `\n\n[Resume] ${finalResumeUrl}`
