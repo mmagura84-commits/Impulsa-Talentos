@@ -11,6 +11,8 @@
     { "source": "/employer/:path*", "destination": "/spa-fallback.html" },
     { "source": "/md", "destination": "/spa-fallback.html" },
     { "source": "/md/:path*", "destination": "/spa-fallback.html" },
+    { "source": "/managingdirector", "destination": "/spa-fallback.html" },
+    { "source": "/managingdirector/:path*", "destination": "/spa-fallback.html" },
     { "source": "/hq", "destination": "/spa-fallback.html" },
     { "source": "/hq/:path*", "destination": "/spa-fallback.html" },
     { "source": "/profile", "destination": "/spa-fallback.html" },
