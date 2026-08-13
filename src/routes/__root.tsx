@@ -72,7 +72,7 @@ export const Route = createRootRoute({
       { rel: 'dns-prefetch', href: 'https://cdn.coverr.co' },
       {
         rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&family=Dancing+Script:wght@400;500;600;700&family=Caveat:wght@400;500;600;700&display=swap',
+        href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap',
         media: 'print',
         // Onload swap to `all` after the stylesheet is fetched so the
         // first paint never blocks on Google Fonts.

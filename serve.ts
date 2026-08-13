@@ -148,7 +148,19 @@ for (let attempt = 1; ; attempt++) {
             }
           }
         }
-        return new Response(file);
+        // Cache policy:
+        // - /assets/* filenames embed a content hash (index-<hash>.js, chunk-<hash>.js,
+        //   *.css) -> immutable, cache 1 year. A new publish produces new filenames,
+        //   so long caching can never serve stale code.
+        // - HTML (index.html, prerendered route pages, spa-fallback.html) changes on
+        //   every publish -> no-cache so clients always revalidate.
+        const headers = new Headers();
+        if (pathname.startsWith("/assets/")) {
+          headers.set("Cache-Control", "public, max-age=31536000, immutable");
+        } else {
+          headers.set("Cache-Control", "no-cache, must-revalidate");
+        }
+        return new Response(file, { headers });
       },
     });
     break;
