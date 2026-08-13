@@ -97,7 +97,7 @@ function CompanyProfilePage() {
 
   if (isLoading && !loaderData?.company) {
     return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div id="main" className="p-6 max-w-4xl mx-auto">
       <PublicHeader transparentOnTop={false} />
         <div className="animate-pulse space-y-4">
           <div className="h-6 w-24 rounded bg-muted" />
@@ -112,7 +112,7 @@ function CompanyProfilePage() {
 
   if ((isError && !loaderData?.company) || !company) {
     return (
-      <div className="p-6 max-w-3xl mx-auto text-center py-20">
+      <div id="main" className="p-6 max-w-3xl mx-auto text-center py-20">
         <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-destructive/10 mb-4">
           <Building2 className="size-7 text-destructive" />
         </div>
@@ -128,7 +128,7 @@ function CompanyProfilePage() {
   }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
+    <div id="main" className="p-6 max-w-4xl mx-auto">
       {/* Back link */}
       <FadeIn>
         <button

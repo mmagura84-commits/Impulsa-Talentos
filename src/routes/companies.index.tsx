@@ -107,7 +107,7 @@ function CompaniesIndexPage() {
   return (
     <div className="min-h-dvh bg-background">
       <PublicHeader transparentOnTop={false} />
-      <div className="mx-auto max-w-6xl px-5 py-10 sm:py-14">
+      <main id="main" className="mx-auto max-w-6xl px-5 py-10 sm:py-14">
         {/* Back link */}
         <FadeIn>
           <Link
@@ -163,7 +163,7 @@ function CompaniesIndexPage() {
           </div>
         )}
 
-      </div>
+      </main>
     </div>
   )
 }

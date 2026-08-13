@@ -15,6 +15,7 @@ import type { ReactNode } from 'react'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { useI18n } from '@/i18n/I18nProvider'
 
 interface ShellProps {
   /** Sidebar content — e.g. <AppSidebarShell /> or your own nav */
@@ -25,10 +26,12 @@ interface ShellProps {
 }
 
 export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
+  const { t } = useI18n()
   const [open, setOpen] = useState(false)
 
   return (
     <div className="flex min-h-dvh">
+      <a href="#main" className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-md focus:bg-card focus:px-3 focus:py-2 focus:text-sm">{t('common.skipToContent')}</a>
       {/* Desktop sidebar — hidden on mobile, always visible on md+.
           AppSidebarShell owns its own width and collapse animation. */}
       <aside className="hidden md:block shrink-0">{sidebar}</aside>
@@ -41,7 +44,7 @@ export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
       </Sheet>
 
       {/* Main content column */}
-      <main className="flex flex-1 min-w-0 flex-col">
+      <main id="main" className="flex flex-1 min-w-0 flex-col">
         {/* Mobile header — hamburger + app name, only shown below md. */}
         <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-background sticky top-0 z-30">
           <Button

@@ -18,6 +18,7 @@ const es: Dict = {
   'common.save': 'Guardar',
   'common.continue': 'Continuar',
   'common.retry': 'Reintentar',
+  'common.skipToContent': 'Saltar al contenido',
   'dashboard.loadingTimeout': 'No pudimos cargar tu espacio de trabajo. Inténtalo de nuevo.',
   'common.back': 'Volver',
   'common.loading': 'Cargando...',

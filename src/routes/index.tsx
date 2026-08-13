@@ -410,7 +410,7 @@ function LandingPage() {
   )
 
   return (
-    <div className="flex min-h-dvh flex-col bg-background">
+    <main id="main" className="flex min-h-dvh flex-col bg-background">
       <PublicHeader transparentOnTop />
 
       {/* Premium dark hero — full-width split rails with deliberate overlap */}
@@ -617,6 +617,6 @@ function LandingPage() {
         </div>
       </section>
 
-    </div>
+    </main>
   )
 }

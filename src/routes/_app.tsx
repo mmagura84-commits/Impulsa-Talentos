@@ -39,14 +39,14 @@ function AppLayout() {
     // Unauthenticated pages must never inherit a candidate workspace shell.
     // Child AuthGate components render the sign-in form for protected routes;
     // public routes render their own content without a sidebar.
-    return <><PublicHeader transparentOnTop={false} /><Outlet /></>
+    return <><PublicHeader transparentOnTop={false} /><main id="main" className="min-h-dvh"><Outlet /></main></>
   }
   if (isPublicRoute) {
     // Public job board renders directly (no ClientOnly boundary): the jobs
     // page and job detail page are SSR-safe (all browser APIs are guarded), so
     // crawlers and direct visits get the REAL server-rendered content instead
     // of a spinner fallback.
-    return <><PublicHeader transparentOnTop={false} /><Outlet /></>
+    return <><PublicHeader transparentOnTop={false} /><main id="main" className="min-h-dvh"><Outlet /></main></>
   }
 
   // BlinkClientBoundary is ALWAYS rendered so SSR produces a consistent
@@ -71,7 +71,7 @@ function AppLayout() {
           <div className="animate-spin rounded-full h-10 w-10 border-2 border-primary/30 border-t-primary" />
         </div>
       ) : !user ? (
-        <><PublicHeader transparentOnTop={false} /><Outlet /></>
+        <><PublicHeader transparentOnTop={false} /><main id="main" className="min-h-dvh"><Outlet /></main></>
       ) : (
         <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar}>
           <Outlet />

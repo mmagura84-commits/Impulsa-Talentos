@@ -289,6 +289,7 @@ const enDashboard: Dict = {
   'messenger.recruiter': 'Recruiter',
   'messenger.antiScam': 'Impulsa Talentos never charges candidates placement fees. Only communicate through this platform. Report suspicious messages immediately.',
   'messenger.error': 'Could not load messages.',
+  'messenger.dismiss': 'Dismiss',
   'messenger.open': 'Messages',
   'messenger.close': 'Close messenger',
 }

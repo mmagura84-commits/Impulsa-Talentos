@@ -73,7 +73,7 @@ export function LegalShell({ title, updated, intro, sections }: { title: string;
           </div>
         </div>
       </header>
-      <main className="max-w-3xl mx-auto px-5 py-10">
+      <main id="main" className="max-w-3xl mx-auto px-5 py-10">
         <h1 className="font-serif text-3xl font-bold mb-1">{title}</h1>
         <p className="text-xs text-muted-foreground mb-6">{updated}</p>
         <p className="text-sm text-muted-foreground mb-8 leading-relaxed">{intro}</p>
