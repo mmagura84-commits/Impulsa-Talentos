@@ -25,15 +25,27 @@ RewriteRule ^ /index.html [L]
   AddOutputFilterByType DEFLATE text/html text/css application/javascript application/json image/svg+xml
 </IfModule>
 
-# --- 4. Cache policy (recommended) --------------------------------
-# Prerendered HTML changes on every redeploy -> do not cache it.
-# Versioned /assets/* and /images/* are immutable -> cache long.
+# --- 4. Cache policy ------------------------------------------------
+# Prerendered HTML changes on every redeploy -> never cache it.
+# Versioned /assets/* (content-hashed filenames) are immutable -> cache 1 year.
 <IfModule mod_expires.c>
   ExpiresActive On
   ExpiresByType text/html "access plus 0 seconds"
   ExpiresByType image/webp "access plus 30 days"
   ExpiresByType image/jpeg "access plus 30 days"
   ExpiresByType image/svg+xml "access plus 30 days"
-  ExpiresByType text/css "access plus 7 days"
-  ExpiresByType application/javascript "access plus 7 days"
+  ExpiresByType text/css "access plus 1 year"
+  ExpiresByType application/javascript "access plus 1 year"
+</IfModule>
+<IfModule mod_headers.c>
+  # Explicit immutable Cache-Control for content-hashed assets under /assets/.
+  # (All JS/CSS in this build live under /assets/ and embed their content hash
+  # in the filename, so this can never serve stale code after a redeploy.)
+  <LocationMatch "^/assets/">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </LocationMatch>
+  # HTML: always revalidate so new publishes are picked up immediately.
+  <LocationMatch "\.html$">
+    Header set Cache-Control "no-cache, must-revalidate"
+  </LocationMatch>
 </IfModule>
