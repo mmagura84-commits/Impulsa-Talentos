@@ -384,10 +384,12 @@ function LandingPage() {
     trackEvent('page_view')
   }, [])
   useEffect(() => {
-    if (reduce) return
+    // Auto-advance runs in BOTH modes: under prefers-reduced-motion the swap is an
+    // instant plain <img> change (no crossfade/Ken Burns) so the carousel still
+    // rotates without any animation; normal mode keeps the animated path below.
     const id = window.setInterval(() => { if (!pausedRef.current) setSlide((s) => (s + 1) % HERO_SLIDES.length) }, SLIDE_MS)
     return () => window.clearInterval(id)
-  }, [reduce])
+  }, [])
   useEffect(() => {
     const onVis = () => { pausedRef.current = document.hidden }
     document.addEventListener('visibilitychange', onVis)
@@ -419,7 +421,7 @@ function LandingPage() {
           background + top gradient render behind it instead of main's white bg. */}
       <section className="relative isolate overflow-hidden -mt-[65px]">
         <div className="absolute inset-0 z-0" aria-hidden="true">
-          {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img src={INDUSTRY_HERO_PHOTOS.technology} alt={t(INDUSTRY_HERO_ALT_KEYS.technology)} className="absolute inset-0 size-full object-cover object-center" />}
+          {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-40 pt-20 sm:pb-44 sm:pt-24 lg:px-10 lg:pb-[22rem] lg:pt-28 xl:pb-[24rem] xl:pt-32">
@@ -428,11 +430,10 @@ function LandingPage() {
             <div className="relative flex w-full flex-col lg:-mb-20"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
           <div className="mt-10 border-t border-white/10 pt-6 lg:hidden"><p className="text-xs font-medium uppercase tracking-wider text-white/60">{t('landing.trustedBy', { n: companies.length })}</p><div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">{companies.map(c => <Link key={c.id} to="/companies/$id" params={{id:c.id}} className="text-sm font-semibold text-white/60">{c.name}</Link>)}</div></div>
-        </div>{!reduce && <>
-          <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
-          <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
-          <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
-        </>}
+        </div>
+        <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
+        <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
+        <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <StatsBar />
