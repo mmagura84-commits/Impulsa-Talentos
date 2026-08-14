@@ -2,10 +2,13 @@
 @import "tw-animate-css";
 
 /* Phone shell must never create sideways page scrolling; intentional horizontal
-   carousels opt in with their own overflow container. */
+   carousels opt in with their own overflow container.
+   overflow-x: clip (NOT hidden): hidden turns body into a scroll container and
+   silently breaks position:sticky on the public header (header scrolls away instead
+   of pinning). clip clips overflow without creating a scroll container. */
 html, body {
   max-width: 100%;
-  overflow-x: hidden;
+  overflow-x: clip;
 }
 @custom-variant dark (&:is(.dark *));
 
