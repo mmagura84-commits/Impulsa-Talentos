@@ -10,7 +10,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 export function PublicHeader({ transparentOnTop = true }: { transparentOnTop?: boolean }) {
   const { t } = useI18n(); const { user, isLoading } = useAuth(); const location = useLocation()
   const [scrolled, setScrolled] = useState(!transparentOnTop); const [open, setOpen] = useState(false)
-  useEffect(() => { if (!transparentOnTop) return; const fn=()=>setScrolled(window.scrollY>24); fn(); window.addEventListener('scroll',fn,{passive:true}); return ()=>window.removeEventListener('scroll',fn) }, [transparentOnTop])
+  useEffect(() => { if (!transparentOnTop) return; const fn=()=>setScrolled(window.scrollY>24); fn(); window.addEventListener('scroll',fn,{passive:true,capture:true}); return ()=>window.removeEventListener('scroll',fn) }, [transparentOnTop])
   useEffect(() => { setOpen(false) }, [location.pathname])
   useEffect(() => { const fn=(e:KeyboardEvent)=>e.key==='Escape'&&setOpen(false); window.addEventListener('keydown',fn); return ()=>window.removeEventListener('keydown',fn) }, [])
   const nav = [{to:'/jobs',label:t('nav.jobs'), match:location.pathname.startsWith('/jobs')},{to:'/companies',label:t('nav.companies'),match:location.pathname.startsWith('/companies')},{to:'/for-employers',label:t('nav.forEmployers'),match:location.pathname.startsWith('/for-employers')},{to:'/pricing',label:t('nav.pricing'),match:location.pathname.startsWith('/pricing')}]
