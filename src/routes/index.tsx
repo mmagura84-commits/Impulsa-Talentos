@@ -413,8 +413,11 @@ function LandingPage() {
     <main id="main" className="flex min-h-dvh flex-col bg-background">
       <PublicHeader transparentOnTop />
 
-      {/* Premium dark hero — full-width split rails with deliberate overlap */}
-      <section className="relative isolate overflow-hidden">
+      {/* Premium dark hero — full-width split rails with deliberate overlap.
+          -mt-[65px]: extend the dark hero up behind the transparent sticky header
+          (header box = h-16 64px + 1px border-b = 65px) so the hero's dark
+          background + top gradient render behind it instead of main's white bg. */}
+      <section className="relative isolate overflow-hidden -mt-[65px]">
         <div className="absolute inset-0 z-0" aria-hidden="true">
           {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img src={INDUSTRY_HERO_PHOTOS.technology} alt={t(INDUSTRY_HERO_ALT_KEYS.technology)} className="absolute inset-0 size-full object-cover object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
