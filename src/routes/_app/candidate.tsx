@@ -26,14 +26,21 @@ function CandidateLayout() {
   const [resending, setResending] = useState(false)
   const [resent, setResent] = useState(false)
   const [resendError, setResendError] = useState('')
+  // One-shot redirect latch: guards against an effect/re-render loop if the
+  // profile object identity (or the router navigate fn) ever churns per
+  // render. Depends on the PRIMITIVE role (dashboard parity), never the whole
+  // profile object — a new object identity every render + navigate() in the
+  // body is the exact render-loop pattern seen on SPA-shell boots (P0).
+  const [roleRedirected, setRoleRedirected] = useState(false)
 
   useLayoutEffect(() => {
     // Wait for both auth and profile to settle before deciding.
-    if (authLoading || profileLoading) return
+    if (authLoading || profileLoading || roleRedirected) return
     if (profile && profile.role !== 'candidate') {
+      setRoleRedirected(true)
       navigate({ to: '/dashboard', replace: true })
     }
-  }, [authLoading, profileLoading, profile, navigate])
+  }, [authLoading, profileLoading, profile?.role, navigate, roleRedirected])
 
   // ── Loading ──
   if (authLoading || profileLoading) {
