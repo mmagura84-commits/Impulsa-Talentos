@@ -91,36 +91,11 @@ export default defineConfig({
     outDir: '.vite-out',
     emptyOutDir: true,
     minify: true,
-    // Vite 8 ships Rolldown; `rollupOptions` is deprecated in favour of
-    // `rolldownOptions`. `output.codeSplitting.groups` is the current native API
-    // (manualChunks gets rebalanced by Rolldown and can hoist shared deps like
-    // react into unrelated vendor chunks — observed with a vendor-charts group,
-    // which dragged 210 KB of recharts onto the landing critical path).
-    rolldownOptions: {
-      output: {
-        codeSplitting: {
-          groups: [
-            // Stable vendor libraries → independently cacheable content-hashed
-            // chunks. (a) the app entry shrinks from ~966 KB to a few hundred
-            // bytes, (b) on a normal app-code deploy react/supabase/tanstack/
-            // motion/icons keep their hashes and are served from the immutable
-            // cache (max-age=31536000).
-            // NOTE: recharts/d3/victory-vendor deliberately have NO group here —
-            // they are only used by lazy manage/hq routes, so leaving them to the
-            // default splitter keeps them OFF the landing-page critical path.
-            { name: 'vendor-react', test: /node_modules[\\/](react|react-dom|scheduler|use-sync-external-store)[\\/]/ },
-            { name: 'vendor-supabase', test: /node_modules[\\/]@supabase[\\/]/ },
-            { name: 'vendor-tanstack', test: /node_modules[\\/]@tanstack[\\/]/ },
-            { name: 'vendor-motion', test: /node_modules[\\/](framer-motion|motion-dom|motion-utils)[\\/]/ },
-            { name: 'vendor-icons', test: /node_modules[\\/]lucide-react[\\/]/ },
-            { name: 'vendor-ui', test: /node_modules[\\/](@radix-ui|@dnd-kit|sonner)[\\/]/ },
-            { name: 'vendor-3d', test: /node_modules[\\/](three|@react-three)[\\/]/ },
-            // order matters: react-hook-form / react-hot-toast / react-responsive
-            // / @hookform must match before the broad `react` group above.
-            { name: 'vendor-forms-utils', test: /node_modules[\\/](react-hook-form|react-hot-toast|react-responsive|@hookform|zod|date-fns|clsx|tailwind-merge|class-variance-authority)[\\/]/ },
-          ],
-        },
-      },
-    },
+    // P0 2026-08-14: codeSplitting.groups removed — the vendor-split forced
+    // lazy route-chunk loading on SPA-shell boot (/dashboard, /employer, /md,
+    // /candidate, /hq) which hung silently (spinner forever, 0 console errors,
+    // 0 network failures; main thread locked on /employer). Pre-#135 single
+    // entry had all routes statically in the entry and worked. Perf can be
+    // re-attempted once route-chunk lazy loading is proven on SPA boots.
   },
 });
