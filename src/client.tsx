@@ -1,6 +1,19 @@
 import { StrictMode, startTransition } from 'react'
 import { createRoot, hydrateRoot } from 'react-dom/client'
 import { StartClient } from '@tanstack/react-start/client'
+/**
+ * P0 pages-hang guard (2026-08-14): react-dom 19.2.8 dispatches selectionchange/scroll
+ * against a HostRoot left isDehydrated=true by the SPA-shell deep-link boot and spins
+ * the main thread forever (gp->vp->jd loop; team report LOOP-ROUND3-INSTRUMENTED.md).
+ * These events are unused by the app — block them at document CAPTURE so they never
+ * reach React's root listener. Zero UX impact.
+ */
+if (typeof document !== 'undefined') {
+  for (const ev of ['selectionchange', 'scroll', 'scrollend'] as const) {
+    document.addEventListener(ev, (e) => e.stopPropagation(), true)
+  }
+}
+
 
 /**
  * Custom TanStack Start client entry (overrides the framework default via the

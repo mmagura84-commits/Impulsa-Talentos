@@ -81,7 +81,7 @@ function TopNav() {
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24)
     onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
   return (
