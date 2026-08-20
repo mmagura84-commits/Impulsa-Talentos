@@ -79,7 +79,10 @@ export function useSaveCaregiverProfile() {
       profile,
     }: {
       userId: string
-      profile: Omit<CaregiverProfile, 'id' | 'createdAt' | 'updatedAt' | 'verificationStatus'>
+      profile: Omit<
+        CaregiverProfile,
+        'id' | 'userId' | 'createdAt' | 'updatedAt' | 'verificationStatus'
+      >
     }) => {
       const { data: existing } = await supabase
         .from('caregiver_profiles')
@@ -145,6 +148,20 @@ export function useUploadCareDocument() {
 }
 
 /* ── Public directory (pre-screened only) ──────────────────── */
+/**
+ * Family-facing caregiver search. Per PTL feasibility (2026-08-20), the
+ * screening filter is NON-BYPASSABLE and lives at the DATA LAYER: the search
+ * calls the SECURITY DEFINER `search_vetted_caregivers` RPC (Phase 0), which
+ * returns ONLY caregivers whose verification_status is 'verified'. The client
+ * simply renders whatever the RPC returns — there is deliberately NO
+ * client-side "show only if screened" toggle.
+ *
+ * Until Phase 0 lands the RPC is absent, so this falls back to a direct
+ * `caregiver_profiles` SELECT that STILL filters `verification_status='verified'`
+ * server-side (and is gated off if the table itself is missing). Once the RPC
+ * exists the fallback is never used; the code is structured so PTL can trust
+ * the RPC path as the single source of family-visible caregivers.
+ */
 export function useCaregiversDirectory(filters?: {
   competency?: string
   barrio?: string
@@ -154,6 +171,28 @@ export function useCaregiversDirectory(filters?: {
   return useQuery({
     queryKey: ['care', 'directory', filters ?? {}],
     queryFn: async () => {
+      // Preferred path: SECURITY DEFINER RPC (Phase 0). Non-bypassable filter.
+      const { data: rpcRows, error: rpcError } = await supabase.rpc(
+        'search_vetted_caregivers',
+        {
+          p_competency: filters?.competency ?? null,
+          p_barrio: filters?.barrio ?? null,
+          p_live_in_live_out: filters?.liveInLiveOut ?? null,
+          p_certification: filters?.certifications ?? null,
+        },
+      )
+      if (!rpcError) {
+        return (rpcRows ?? []).map(r =>
+          snakeToCamel<CaregiverProfile>(r as Record<string, unknown>),
+        )
+      }
+      // Missing-relation fallback (table absent → graceful empty directory).
+      if (isMissingRelation(rpcError)) return [] as CaregiverProfile[]
+      // RPC exists but is not "function does not exist" → surface real errors.
+      if (!/does not exist|PGRST202|function/i.test(rpcError.message ?? '')) {
+        throwIfError(rpcError, 'search_vetted_caregivers')
+      }
+      // Fallback until Phase 0 RPC lands: server-side verified-only SELECT.
       let q = supabase
         .from('caregiver_profiles')
         .select('*')
@@ -166,8 +205,9 @@ export function useCaregiversDirectory(filters?: {
         throwIfError(error, 'caregiver_profiles')
       }
       let rows = (data ?? []).map(r => snakeToCamel<CaregiverProfile>(r as Record<string, unknown>))
-      // Filter arrays client-side (competency + certification) — the RPC/JSONB
-      // operator varies by Phase-0 DDL, so keep it portable at the edge.
+      // Array filters (competency + certification) — the RPC/JSONB operator
+      // varies by Phase-0 DDL, so keep it portable at the edge. The SCREENING
+      // filter is always server-side (never a client screening toggle).
       if (filters?.competency) {
         rows = rows.filter(p => (p.competencies ?? []).includes(filters.competency as string))
       }

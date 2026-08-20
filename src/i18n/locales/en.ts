@@ -574,7 +574,7 @@ const en: Dict = {
   'offers.status.revised': 'Revised',
   'offers.status.accepted': 'Accepted',
   'offers.status.declined': 'Declined',
-  'offers.status.withdrawn': 'Withdrawn'
+  'offers.status.withdrawn': 'Withdrawn',
 
   'nav.homeCare': 'Home & Care',
   'care.competency.nanny': 'Nanny',
