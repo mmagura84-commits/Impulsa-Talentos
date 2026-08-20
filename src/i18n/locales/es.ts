@@ -100,7 +100,7 @@ const es: Dict = {
   'landing.hero.verified': 'Plataforma verificada',
   'landing.hero.aiMatching': 'Matching inteligente',
 
-  'landing.stats.candidates': 'Profesionales bilingües',
+  'landing.stats.talentToHire': 'Talento bilingüe por contratar',
   'landing.stats.companies': 'Empresas asociadas',
   'landing.stats.placementRate': 'Tasa de colocacion',
   'landing.stats.sectors': 'Sectores especializados',
