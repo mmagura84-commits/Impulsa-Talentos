@@ -109,6 +109,7 @@ function ApplyButton({ jobId, candidateProfileId }: { jobId: string; candidatePr
       <Button
         size="lg"
         variant="secondary"
+        disabled
         onClick={() => {
           if (!lastApp) return
           navigate({
@@ -117,7 +118,7 @@ function ApplyButton({ jobId, candidateProfileId }: { jobId: string; candidatePr
             search: { appId: lastApp.id },
           })
         }}
-        className="gap-2 shrink-0"
+        className="gap-2 shrink-0 bg-emerald-600 text-white hover:bg-emerald-600 disabled:opacity-100!"
       >
         <CheckCircle2 className="size-4" />
         {t('jobDetail.applied')}

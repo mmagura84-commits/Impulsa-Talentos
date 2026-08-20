@@ -491,8 +491,23 @@ function ApplyPage() {
         search: { appId: created.id },
       })
     } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      // Friendly duplicate-application state: never surface a raw Supabase
+      // constraint error. Detect the unique (job_id, candidate_id) violation
+      // and route the candidate to their existing application instead.
+      if (/duplicate|unique|already exists|23505|job_candidate_uniq/i.test(msg)) {
+        toast.error(t('apply.next.alreadyApplied'), {
+          description: t('apply.next.alreadyAppliedDesc'),
+        })
+        navigate({
+          to: '/apply/$id/confirm',
+          params: { id: job.id },
+          search: { appId: myApps?.find(a => a.jobId === job.id)?.id },
+        })
+        return
+      }
       toast.error(t('apply.next.errorTitle'), {
-        description: err instanceof Error ? err.message : '',
+        description: msg,
       })
     }
   }
