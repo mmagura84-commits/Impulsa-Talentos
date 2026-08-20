@@ -36,6 +36,20 @@ import {
   Save,
   Sparkles,
 } from 'lucide-react'
+import {
+  CARE_COMPETENCIES,
+  CARE_SCHEDULES,
+  CARE_LIVE_MODES,
+  MEDELLIN_BARRIOS,
+  CARE_LANGUAGES,
+  CARE_AGE_BANDS,
+  CARE_COMPETENCY_KEYS,
+  CARE_SCHEDULE_KEYS,
+  CARE_LIVE_MODE_KEYS,
+  CARE_LANGUAGE_KEYS,
+  CARE_AGE_BAND_KEYS,
+} from '@/lib/care'
+import { CareSummaryDisclaimer } from '@/components/care/CareDisclaimer'
 
 export const Route = createFileRoute('/_app/employer/post-job')({
   component: PostJobPage,
@@ -70,6 +84,16 @@ const EMPTY_FORM = {
   skillsRequired: '',
   languagesRequired: 'English B2+',
 }
+const EMPTY_CARE = {
+  careCompetency: '',
+  schedule: 'full_time',
+  barrio: '',
+  liveInLiveOut: 'flexible',
+  careLanguages: ['es'] as string[],
+  careDetails: '',
+  nannyAgeBand: '',
+  nursingCertRequired: false,
+}
 
 const CURRENCY_OPTIONS = [
   { value: 'COP', label: 'COP — Colombian Peso' },
@@ -89,6 +113,7 @@ const EMPTY_COMPANY = {
   website: '',
   contactEmail: '',
   description: '',
+  entityType: 'company' as 'company' | 'household',
 }
 
 function PostJobPage() {
@@ -106,6 +131,8 @@ function PostJobPage() {
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [companyForm, setCompanyForm] = useState(EMPTY_COMPANY)
   const [form, setForm] = useState(EMPTY_FORM)
+  const [careForm, setCareForm] = useState(EMPTY_CARE)
+  const [postType, setPostType] = useState<'corporate' | 'care'>('corporate')
   const [dirty, setDirty] = useState(false)
   const [companyErrors, setCompanyErrors] = useState<{ name?: string; contactEmail?: string }>({})
   const [jobErrors, setJobErrors] = useState<{ title?: string; description?: string; salary?: string }>({})
@@ -122,6 +149,15 @@ function PostJobPage() {
     if (field === 'title') setJobErrors(prev => ({ ...prev, title: undefined }))
     if (field === 'description') setJobErrors(prev => ({ ...prev, description: undefined }))
     if (field === 'salaryMin' || field === 'salaryMax') setJobErrors(prev => ({ ...prev, salary: undefined }))
+  }
+  const updateCare = (field: string, value: unknown) => {
+    setDirty(true)
+    setCareForm(prev => ({ ...prev, [field]: value }))
+  }
+  const selectPostType = (next: 'corporate' | 'care') => {
+    setDirty(true)
+    setPostType(next)
+    setCompanyForm(prev => ({ ...prev, entityType: next === 'care' ? 'household' : 'company' }))
   }
 
   const blocker = useBlocker({
@@ -192,6 +228,20 @@ function PostJobPage() {
       first?.focus()
       return
     }
+    if (postType === 'care') {
+      if (!careForm.careCompetency) {
+        toast.error(t('care.post.errors.noCompetency'))
+        return
+      }
+      if (!careForm.barrio) {
+        toast.error(t('care.post.errors.noBarrio'))
+        return
+      }
+      if (careForm.careCompetency === 'nursing_assistant' && status === 'open') {
+        toast.error(t('care.post.errors.nursingCertRequired'))
+        return
+      }
+    }
     try {
       if (salaryMin > 0 && salaryMax > 0 && salaryMax < salaryMin) {
         toast.error(t('postJob.job.salaryRangeError'))
@@ -209,6 +259,21 @@ function PostJobPage() {
         skillsRequired: form.skillsRequired,
         languagesRequired: form.languagesRequired,
         status,
+        ...(postType === 'care'
+          ? {
+              entityType: 'household',
+              care: {
+                careCompetency: careForm.careCompetency,
+                schedule: careForm.schedule,
+                barrio: careForm.barrio,
+                liveInLiveOut: careForm.liveInLiveOut,
+                careLanguages: careForm.careLanguages,
+                careDetails: careForm.careDetails,
+                nannyAgeBand: careForm.nannyAgeBand || null,
+                nursingCertRequired: careForm.careCompetency === 'nursing_assistant',
+              },
+            }
+          : { entityType: 'company' }),
       })
       setDirty(false)
       // Consume one credit for every OPEN posting (drafts are free).
@@ -268,6 +333,43 @@ function PostJobPage() {
           </FadeIn>
 
           <FadeIn delay={0.05}>
+            <div className="mb-6 flex flex-col sm:flex-row gap-3">
+              <button
+                type="button"
+                aria-pressed={postType === 'corporate'}
+                onClick={() => selectPostType('corporate')}
+                className={`flex-1 rounded-xl border p-3 text-left text-sm font-medium transition-colors cursor-pointer ${
+                  postType === 'corporate'
+                    ? 'border-primary bg-primary/5 text-foreground'
+                    : 'border-border text-muted-foreground hover:bg-accent/40'
+                }`}
+              >
+                <span className="block font-semibold">{t('care.post.type.corporate')}</span>
+                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                  {t('care.post.type.corporateDesc')}
+                </span>
+              </button>
+              <button
+                type="button"
+                aria-pressed={postType === 'care'}
+                onClick={() => selectPostType('care')}
+                className={`flex-1 rounded-xl border p-3 text-left text-sm font-medium transition-colors cursor-pointer ${
+                  postType === 'care'
+                    ? 'border-emerald-600 bg-emerald-500/5 text-foreground'
+                    : 'border-border text-muted-foreground hover:bg-accent/40'
+                }`}
+              >
+                <span className="block font-semibold text-emerald-700">
+                  {t('care.post.type.care')}
+                </span>
+                <span className="mt-0.5 block text-xs font-normal text-muted-foreground">
+                  {t('care.post.type.careDesc')}
+                </span>
+              </button>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.1}>
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg">{t('postJob.company.dataCardTitle')}</CardTitle>
@@ -671,6 +773,132 @@ function PostJobPage() {
               </CardContent>
             </Card>
           </FadeIn>
+
+          {postType === 'care' && (
+            <FadeIn delay={0.08}>
+              <Card className="border-emerald-600/30">
+                <CardHeader>
+                  <CardTitle className="text-lg text-emerald-700">
+                    {t('care.post.form.title')}
+                  </CardTitle>
+                  <CardDescription>{t('care.post.form.desc')}</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="care-competency">{t('care.post.form.competency')}</Label>
+                      <select
+                        id="care-competency"
+                        value={careForm.careCompetency}
+                        onChange={e => updateCare('careCompetency', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                      >
+                        <option value="">{t('care.post.form.competencyPlaceholder')}</option>
+                        {CARE_COMPETENCIES.map(c => (
+                          <option key={c} value={c}>{t(CARE_COMPETENCY_KEYS[c])}</option>
+                        ))}
+                      </select>
+                      {careForm.careCompetency === 'nursing_assistant' && (
+                        <p className="text-xs text-amber-700">{t('care.post.form.nursingCertNote')}</p>
+                      )}
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="care-schedule">{t('care.post.form.schedule')}</Label>
+                      <select
+                        id="care-schedule"
+                        value={careForm.schedule}
+                        onChange={e => updateCare('schedule', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                      >
+                        {CARE_SCHEDULES.map(s => (
+                          <option key={s} value={s}>{t(CARE_SCHEDULE_KEYS[s])}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  <div className="grid gap-4 sm:grid-cols-2">
+                    <div className="space-y-2">
+                      <Label htmlFor="care-barrio">{t('care.post.form.barrio')}</Label>
+                      <select
+                        id="care-barrio"
+                        value={careForm.barrio}
+                        onChange={e => updateCare('barrio', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                      >
+                        <option value="">{t('care.post.form.barrioPlaceholder')}</option>
+                        {MEDELLIN_BARRIOS.map(b => (
+                          <option key={b.name} value={b.name}>{b.name} — {b.comuna}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="care-live">{t('care.post.form.live')}</Label>
+                      <select
+                        id="care-live"
+                        value={careForm.liveInLiveOut}
+                        onChange={e => updateCare('liveInLiveOut', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                      >
+                        {CARE_LIVE_MODES.map(m => (
+                          <option key={m} value={m}>{t(CARE_LIVE_MODE_KEYS[m])}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  {careForm.careCompetency === 'nanny' && (
+                    <div className="space-y-2">
+                      <Label htmlFor="care-ageband">{t('care.post.form.ageBand')}</Label>
+                      <select
+                        id="care-ageband"
+                        value={careForm.nannyAgeBand}
+                        onChange={e => updateCare('nannyAgeBand', e.target.value)}
+                        className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                      >
+                        <option value="">{t('care.post.form.ageBandPlaceholder')}</option>
+                        {CARE_AGE_BANDS.map(a => (
+                          <option key={a} value={a}>{t(CARE_AGE_BAND_KEYS[a])}</option>
+                        ))}
+                      </select>
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="care-langs">{t('care.post.form.languages')}</Label>
+                    <select
+                      id="care-langs"
+                      value={careForm.careLanguages}
+                      multiple
+                      onChange={e =>
+                        updateCare(
+                          'careLanguages',
+                          Array.from(e.target.selectedOptions).map(o => o.value),
+                        )
+                      }
+                      className="h-24 w-full rounded-md border border-input bg-background px-3 py-1 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+                    >
+                      {CARE_LANGUAGES.map(l => (
+                        <option key={l} value={l}>{t(CARE_LANGUAGE_KEYS[l])}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="care-details">{t('care.post.form.details')}</Label>
+                    <textarea
+                      id="care-details"
+                      value={careForm.careDetails}
+                      onChange={e => updateCare('careDetails', e.target.value)}
+                      rows={3}
+                      className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none resize-y"
+                      placeholder={t('care.post.form.detailsPlaceholder')}
+                    />
+                    <p className="text-xs text-muted-foreground">{t('care.post.form.detailsPrivate')}</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="mt-4">
+                <CareSummaryDisclaimer />
+              </div>
+            </FadeIn>
+          )}
 
           <FadeIn delay={0.1}>
             <div className="mt-6 flex flex-wrap items-center gap-3">
