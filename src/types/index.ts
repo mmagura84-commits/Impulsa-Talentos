@@ -1,5 +1,7 @@
 // ─── Impulsa Talentos — Shared Types ───
 
+import type { CareVacancyFields } from '@/lib/care'
+
 export interface Profile {
   id: string
   userId: string
@@ -87,6 +89,8 @@ export interface Company {
   website: string
   description: string
   logoUrl: string
+  /** Polymorphic employer discriminator (home & care vertical, Phase 0). */
+  entityType?: 'company' | 'household'
   /** Optional dedicated inbox that receives new-application notifications. */
   contactEmail?: string
   /** Job-posting credits remaining for this company (monetization). */
@@ -129,6 +133,10 @@ export interface Job {
   expiresAt?: string | null
   /** Assigned team member (team_members.id, migration 024). */
   assigneeId?: string | null
+  /** Polymorphic employer discriminator — 'household' for care vacancies. */
+  entityType?: string
+  /** Care-vacancy specific fields (home & care vertical, Phase 0). */
+  care?: CareVacancyFields
 }
 
 export type ApplicationStatus =
