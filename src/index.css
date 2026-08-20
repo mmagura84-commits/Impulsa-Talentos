@@ -234,3 +234,13 @@ html, body {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+
+/* ── Company scrolling ribbon (trusted-by marquee) ────────────
+   Seamless infinite loop: the track renders the company list twice and
+   translates -50% of its own width, so it snaps back invisibly. The -50% only
+   loops cleanly if both halves are byte-identical width — the renderer
+   duplicates the exact same item set in CompanyRibbon. */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
