@@ -175,7 +175,7 @@ $$;
 create or replace function public.admin_list_caregivers(
   p_admin_uid text,
   p_limit int default 100
-) returns table (like public.caregiver_profiles)
+) returns setof public.caregiver_profiles
 language sql
 security definer
 set search_path = public
