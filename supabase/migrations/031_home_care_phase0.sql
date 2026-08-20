@@ -82,7 +82,7 @@ create table if not exists public.caregiver_profiles (
   identity_pointer text,                             -- PRIVATE doc pointer (admin only)
   background_check_pointer text,                     -- PRIVATE
   certificate_pointer text,                          -- PRIVATE
-  references text,                                   -- PRIVATE screening detail (admin only)
+  "references" text,                            -- PRIVATE screening detail (admin only)
   verification_status text not null default 'unverified'
       check (verification_status in (
         'unverified','identity_pending','background_pending','references_pending','verified','rejected')),
