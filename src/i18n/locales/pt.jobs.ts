@@ -90,6 +90,8 @@ const ptJobs: Dict = {
   'apply.next.errorTitle': 'Não foi possível enviar sua candidatura',
   'apply.next.errorProfile': 'Complete seu perfil antes de se candidatar.',
   'apply.next.errorFile': 'Anexe um CV ou adicione um link.',
+  'apply.next.alreadyApplied': 'Você já se candidatou a esta vaga',
+  'apply.next.alreadyAppliedDesc': 'Você pode ver ou acompanhar sua candidatura no seu painel.',
   'apply.next.errorMessage': 'Sua nota de apresentação é muito longa (máx. 1000 caracteres).',
   'apply.success.title': 'Candidatura enviada!',
   'apply.success.thanksForApplying': 'Obrigado por se candidatar a {title}.',

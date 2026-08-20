@@ -90,6 +90,8 @@ const esJobs: Dict = {
   'apply.next.errorTitle': 'No se pudo enviar tu postulacion',
   'apply.next.errorProfile': 'Por favor completa tu perfil antes de postularte.',
   'apply.next.errorFile': 'Adjunta un CV o agrega un enlace.',
+  'apply.next.alreadyApplied': 'Ya te postulaste a esta vacante',
+  'apply.next.alreadyAppliedDesc': 'Puedes ver o seguir tu postulacion desde tu panel.',
   'apply.next.errorMessage': 'Tu nota de presentacion es demasiado larga (max 1000 caracteres).',
   'apply.success.title': '¡Postulacion enviada!',
   'apply.success.thanksForApplying': 'Gracias por postularte a {title}.',

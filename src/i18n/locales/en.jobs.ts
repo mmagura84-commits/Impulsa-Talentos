@@ -90,6 +90,8 @@ const enJobs: Dict = {
   'apply.next.errorTitle': 'Could not submit your application',
   'apply.next.errorProfile': 'Please complete your profile before applying.',
   'apply.next.errorFile': 'Please attach a resume or add a CV link.',
+  'apply.next.alreadyApplied': 'You have already applied for this position',
+  'apply.next.alreadyAppliedDesc': 'You can view or track your application from your dashboard.',
   'apply.next.errorMessage': 'Your cover note is too long (max 1000 characters).',
   'apply.success.title': 'Application submitted!',
   'apply.success.thanksForApplying': 'Thanks for applying to {title}.',

@@ -255,7 +255,7 @@ function MobileJobDetail() {
               size="lg"
               variant="secondary"
               disabled
-              className="flex-1 h-12 font-semibold gap-2"
+              className="flex-1 h-12 font-semibold gap-2 bg-emerald-600 text-white hover:bg-emerald-600 disabled:opacity-100!"
             >
               <CheckCircle2 className="size-4" />
               {t('jobDetail.applied')}
