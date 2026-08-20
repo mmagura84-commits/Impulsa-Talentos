@@ -18,6 +18,7 @@ import { Route as MdPreviewRouteImport } from './routes/md-preview'
 import { Route as MRouteImport } from './routes/m'
 import { Route as ForEmployersRouteImport } from './routes/for-employers'
 import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CaregiversRouteImport } from './routes/caregivers'
 import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
@@ -68,6 +69,7 @@ import { Route as AppEmployerJobsRouteImport } from './routes/_app/employer/jobs
 import { Route as AppEmployerApplicationsRouteImport } from './routes/_app/employer/applications'
 import { Route as AppEmployerAnalyticsRouteImport } from './routes/_app/employer/analytics'
 import { Route as AppCandidateSavedRouteImport } from './routes/_app/candidate/saved'
+import { Route as AppCandidateCareRouteImport } from './routes/_app/candidate/care'
 import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
 import { Route as AppEmployerManageIdRouteImport } from './routes/_app/employer/manage.$id'
@@ -117,6 +119,11 @@ const ForEmployersRoute = ForEmployersRouteImport.update({
 const ContactRoute = ContactRouteImport.update({
   id: '/contact',
   path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CaregiversRoute = CaregiversRouteImport.update({
+  id: '/caregivers',
+  path: '/caregivers',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplicationsRoute = ApplicationsRouteImport.update({
@@ -375,6 +382,11 @@ const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
   path: '/saved',
   getParentRoute: () => AppCandidateRoute,
 } as any)
+const AppCandidateCareRoute = AppCandidateCareRouteImport.update({
+  id: '/care',
+  path: '/care',
+  getParentRoute: () => AppCandidateRoute,
+} as any)
 const AppCandidateApplicationsRoute =
   AppCandidateApplicationsRouteImport.update({
     id: '/applications',
@@ -405,6 +417,7 @@ const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/caregivers': typeof CaregiversRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
@@ -434,6 +447,7 @@ export interface FileRoutesByFullPath {
   '/m/': typeof MIndexRoute
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
+  '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
   '/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/employer/applications': typeof AppEmployerApplicationsRoute
@@ -470,6 +484,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/applications': typeof ApplicationsRoute
+  '/caregivers': typeof CaregiversRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/md-preview': typeof MdPreviewRoute
@@ -494,6 +509,7 @@ export interface FileRoutesByTo {
   '/m': typeof MIndexRoute
   '/apply/$id': typeof AppApplyIdRouteWithChildren
   '/candidate/applications': typeof AppCandidateApplicationsRoute
+  '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
   '/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/employer/applications': typeof AppEmployerApplicationsRoute
@@ -532,6 +548,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/_app': typeof AppRouteWithChildren
   '/applications': typeof ApplicationsRoute
+  '/caregivers': typeof CaregiversRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
   '/m': typeof MRouteWithChildren
@@ -561,6 +578,7 @@ export interface FileRoutesById {
   '/m/': typeof MIndexRoute
   '/_app/apply/$id': typeof AppApplyIdRouteWithChildren
   '/_app/candidate/applications': typeof AppCandidateApplicationsRoute
+  '/_app/candidate/care': typeof AppCandidateCareRoute
   '/_app/candidate/saved': typeof AppCandidateSavedRoute
   '/_app/employer/analytics': typeof AppEmployerAnalyticsRoute
   '/_app/employer/applications': typeof AppEmployerApplicationsRoute
@@ -599,6 +617,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/applications'
+    | '/caregivers'
     | '/contact'
     | '/for-employers'
     | '/m'
@@ -628,6 +647,7 @@ export interface FileRouteTypes {
     | '/m/'
     | '/apply/$id'
     | '/candidate/applications'
+    | '/candidate/care'
     | '/candidate/saved'
     | '/employer/analytics'
     | '/employer/applications'
@@ -664,6 +684,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/applications'
+    | '/caregivers'
     | '/contact'
     | '/for-employers'
     | '/md-preview'
@@ -688,6 +709,7 @@ export interface FileRouteTypes {
     | '/m'
     | '/apply/$id'
     | '/candidate/applications'
+    | '/candidate/care'
     | '/candidate/saved'
     | '/employer/analytics'
     | '/employer/applications'
@@ -725,6 +747,7 @@ export interface FileRouteTypes {
     | '/'
     | '/_app'
     | '/applications'
+    | '/caregivers'
     | '/contact'
     | '/for-employers'
     | '/m'
@@ -754,6 +777,7 @@ export interface FileRouteTypes {
     | '/m/'
     | '/_app/apply/$id'
     | '/_app/candidate/applications'
+    | '/_app/candidate/care'
     | '/_app/candidate/saved'
     | '/_app/employer/analytics'
     | '/_app/employer/applications'
@@ -792,6 +816,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AppRoute: typeof AppRouteWithChildren
   ApplicationsRoute: typeof ApplicationsRoute
+  CaregiversRoute: typeof CaregiversRoute
   ContactRoute: typeof ContactRoute
   ForEmployersRoute: typeof ForEmployersRoute
   MRoute: typeof MRouteWithChildren
@@ -868,6 +893,13 @@ declare module '@tanstack/react-router' {
       path: '/contact'
       fullPath: '/contact'
       preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/caregivers': {
+      id: '/caregivers'
+      path: '/caregivers'
+      fullPath: '/caregivers'
+      preLoaderRoute: typeof CaregiversRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/applications': {
@@ -1220,6 +1252,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCandidateSavedRouteImport
       parentRoute: typeof AppCandidateRoute
     }
+    '/_app/candidate/care': {
+      id: '/_app/candidate/care'
+      path: '/care'
+      fullPath: '/candidate/care'
+      preLoaderRoute: typeof AppCandidateCareRouteImport
+      parentRoute: typeof AppCandidateRoute
+    }
     '/_app/candidate/applications': {
       id: '/_app/candidate/applications'
       path: '/applications'
@@ -1260,12 +1299,14 @@ declare module '@tanstack/react-router' {
 
 interface AppCandidateRouteChildren {
   AppCandidateApplicationsRoute: typeof AppCandidateApplicationsRoute
+  AppCandidateCareRoute: typeof AppCandidateCareRoute
   AppCandidateSavedRoute: typeof AppCandidateSavedRoute
   AppCandidateIndexRoute: typeof AppCandidateIndexRoute
 }
 
 const AppCandidateRouteChildren: AppCandidateRouteChildren = {
   AppCandidateApplicationsRoute: AppCandidateApplicationsRoute,
+  AppCandidateCareRoute: AppCandidateCareRoute,
   AppCandidateSavedRoute: AppCandidateSavedRoute,
   AppCandidateIndexRoute: AppCandidateIndexRoute,
 }
@@ -1450,6 +1491,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
   ApplicationsRoute: ApplicationsRoute,
+  CaregiversRoute: CaregiversRoute,
   ContactRoute: ContactRoute,
   ForEmployersRoute: ForEmployersRoute,
   MRoute: MRouteWithChildren,
