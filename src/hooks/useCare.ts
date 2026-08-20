@@ -9,6 +9,7 @@
  */
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, throwIfError } from '@/lib/supabase'
+import { useAuth } from '@/hooks/useAuth'
 import { storagePointer } from '@/hooks/useSignedStorageUrl'
 import type {
   CaregiverProfile,
@@ -24,15 +25,10 @@ function isMissingRelation(err: unknown): boolean {
   return /does not exist|PGRST205|relation/i.test(msg)
 }
 
-async function listCaregivers(verifiedOnly: boolean): Promise<CaregiverProfile[]> {
-  let q = supabase.from('caregiver_profiles').select('*')
-  if (verifiedOnly) q = q.eq('verification_status', 'verified')
-  const { data, error } = await q.order('created_at', { ascending: false })
-  if (error) {
-    if (isMissingRelation(error)) return []
-    throwIfError(error, 'caregiver_profiles')
-  }
-  return (data ?? []).map(r => snakeToCamel(r))
+/** True when the RPC does not exist yet (Phase 0 schema not applied). */
+function isMissingFunction(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err)
+  return /does not exist|PGRST202|function/i.test(msg)
 }
 
 function snakeToCamel<T>(row: Record<string, unknown>): T {
@@ -149,18 +145,18 @@ export function useUploadCareDocument() {
 
 /* ── Public directory (pre-screened only) ──────────────────── */
 /**
- * Family-facing caregiver search. Per PTL feasibility (2026-08-20), the
- * screening filter is NON-BYPASSABLE and lives at the DATA LAYER: the search
- * calls the SECURITY DEFINER `search_vetted_caregivers` RPC (Phase 0), which
- * returns ONLY caregivers whose verification_status is 'verified'. The client
- * simply renders whatever the RPC returns — there is deliberately NO
- * client-side "show only if screened" toggle.
+ * Family-facing caregiver search. Per PTL feasibility + Phase 0 contract
+ * (`home-care-vertical-phase0-signatures.md`), the screening filter is
+ * NON-BYPASSABLE and lives at the DATA LAYER: this hook ONLY calls the
+ * SECURITY DEFINER `search_vetted_caregivers` RPC, which returns ONLY rows
+ * whose `verification_status='verified'` and only SAFE public fields
+ * (no document pointers, references, or health/PII).
  *
- * Until Phase 0 lands the RPC is absent, so this falls back to a direct
- * `caregiver_profiles` SELECT that STILL filters `verification_status='verified'`
- * server-side (and is gated off if the table itself is missing). Once the RPC
- * exists the fallback is never used; the code is structured so PTL can trust
- * the RPC path as the single source of family-visible caregivers.
+ * There is deliberately NO direct `caregiver_profiles` SELECT here and no
+ * client-side screening toggle — the client simply renders whatever the RPC
+ * returns. If Phase 0 has not been applied yet the RPC is absent and we
+ * return an empty directory (graceful) rather than ever reading the table
+ * directly, so unscreened rows can never leak through a client filter.
  */
 export function useCaregiversDirectory(filters?: {
   competency?: string
@@ -171,7 +167,9 @@ export function useCaregiversDirectory(filters?: {
   return useQuery({
     queryKey: ['care', 'directory', filters ?? {}],
     queryFn: async () => {
-      // Preferred path: SECURITY DEFINER RPC (Phase 0). Non-bypassable filter.
+      // Sole source of family-visible caregivers: SD RPC (Phase 0).
+      // Non-bypassable — filtering + safe-field projection happen inside the
+      // SECURITY DEFINER function, not in the client.
       const { data: rpcRows, error: rpcError } = await supabase.rpc(
         'search_vetted_caregivers',
         {
@@ -186,37 +184,11 @@ export function useCaregiversDirectory(filters?: {
           snakeToCamel<CaregiverProfile>(r as Record<string, unknown>),
         )
       }
-      // Missing-relation fallback (table absent → graceful empty directory).
-      if (isMissingRelation(rpcError)) return [] as CaregiverProfile[]
-      // RPC exists but is not "function does not exist" → surface real errors.
-      if (!/does not exist|PGRST202|function/i.test(rpcError.message ?? '')) {
-        throwIfError(rpcError, 'search_vetted_caregivers')
-      }
-      // Fallback until Phase 0 RPC lands: server-side verified-only SELECT.
-      let q = supabase
-        .from('caregiver_profiles')
-        .select('*')
-        .eq('verification_status', 'verified')
-      if (filters?.barrio) q = q.eq('barrio', filters.barrio)
-      if (filters?.liveInLiveOut) q = q.eq('live_in_live_out', filters.liveInLiveOut)
-      const { data, error } = await q.order('created_at', { ascending: false })
-      if (error) {
-        if (isMissingRelation(error)) return [] as CaregiverProfile[]
-        throwIfError(error, 'caregiver_profiles')
-      }
-      let rows = (data ?? []).map(r => snakeToCamel<CaregiverProfile>(r as Record<string, unknown>))
-      // Array filters (competency + certification) — the RPC/JSONB operator
-      // varies by Phase-0 DDL, so keep it portable at the edge. The SCREENING
-      // filter is always server-side (never a client screening toggle).
-      if (filters?.competency) {
-        rows = rows.filter(p => (p.competencies ?? []).includes(filters.competency as string))
-      }
-      if (filters?.certifications) {
-        rows = rows.filter(p =>
-          (p.certifications ?? []).includes(filters.certifications as string),
-        )
-      }
-      return rows
+      // RPC absent (Phase 0 not yet applied) → empty directory, never a raw read.
+      if (isMissingFunction(rpcError)) return [] as CaregiverProfile[]
+      // Any other error is a real fault — surface it (do not silently hide).
+      throwIfError(rpcError, 'search_vetted_caregivers')
+      return [] as CaregiverProfile[]
     },
     retry: false,
     staleTime: 60_000,
@@ -224,11 +196,35 @@ export function useCaregiversDirectory(filters?: {
 }
 
 /* ── Admin screening (HQ) ──────────────────────────────────── */
-/** List ALL caregiver profiles (any verification status) — admin-only read. */
+/**
+ * List caregiver profiles for the HQ screening tab (any verification status,
+ * including document pointers so an admin can build signed URLs).
+ *
+ * Per the Phase 0 contract, this goes through the SECURITY DEFINER
+ * `admin_list_caregivers(p_admin_uid, p_limit)` RPC, which internally asserts
+ * the caller is an admin. Non-admins get 0 rows. It never reads the table via
+ * a broad authenticated SELECT.
+ */
 export function useAllCaregiverProfiles() {
+  const { user } = useAuth()
+  const adminUid = user?.id ?? undefined
   return useQuery({
     queryKey: ['care', 'all'],
-    queryFn: () => listCaregivers(false),
+    queryFn: async () => {
+      const { data, error } = await supabase.rpc('admin_list_caregivers', {
+        p_admin_uid: adminUid ?? '',
+        p_limit: 200,
+      })
+      if (!error) {
+        return (data ?? []).map(r =>
+          snakeToCamel<CaregiverProfile>(r as Record<string, unknown>),
+        )
+      }
+      if (isMissingFunction(error)) return [] as CaregiverProfile[]
+      throwIfError(error, 'admin_list_caregivers')
+      return [] as CaregiverProfile[]
+    },
+    enabled: !!adminUid,
     retry: false,
   })
 }
