@@ -101,7 +101,7 @@ const en: Dict = {
   'landing.hero.verified': 'Verified platform',
   'landing.hero.aiMatching': 'Smart matching',
 
-  'landing.stats.candidates': 'Bilingual professionals',
+  'landing.stats.talentToHire': 'Bilingual talent to hire',
   'landing.stats.companies': 'Partner companies',
   'landing.stats.placementRate': 'Placement rate',
   'landing.stats.sectors': 'Specialized sectors',

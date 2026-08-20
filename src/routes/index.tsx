@@ -207,7 +207,7 @@ function StatsBar() {
 
   const openJobs = (allJobs ?? []).filter(isOpen)
   const stats = [
-    { icon: Languages, label: t('landing.stats.candidates'), value: '500+' },
+    { icon: Languages, label: t('landing.stats.talentToHire'), value: '500+' },
     { icon: Building2, label: t('landing.stats.companies'), value: '200+' },
     { icon: Briefcase, label: t('landing.stats.placementRate'), value: '85%' },
     { icon: Briefcase, label: t('landing.stats.sectors'), value: '4' },
