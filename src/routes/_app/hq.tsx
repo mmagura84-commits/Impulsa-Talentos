@@ -19,6 +19,7 @@ import type { Profile } from '@/types'
 import { APPLICATION_STATUS_FLOW, STATUS_PILL_CLASSES } from '@/lib/applicationStatus'
 import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
 import { CareScreeningTab } from '@/components/hq/CareScreeningTab'
+import { CredentialApprovalsTab } from '@/components/hq/CredentialApprovalsTab'
 import {
   LayoutDashboard,
   Users,
@@ -1125,7 +1126,7 @@ function NoAccess() {
 }
 
 /* ── Main HQ Shell ───────────────────────────────────────── */
-type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'careScreening'
+type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'careScreening' | 'credentialApprovals'
 
 const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'overview', labelKey: 'hq.tab.overview', icon: BarChart3 },
@@ -1137,6 +1138,7 @@ const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'post', labelKey: 'postJob.step2.title', icon: PlusCircle },
   { id: 'mdApprovals', labelKey: 'hq.mdApprovals', icon: CheckCircle2 },
   { id: 'careScreening', labelKey: 'hq.careScreening', icon: HeartPulse },
+  { id: 'credentialApprovals', labelKey: 'hq.cred.title', icon: ShieldCheck },
 ]
 
 function HqShell() {
@@ -1225,6 +1227,7 @@ function HqShell() {
       {tab === 'post' && <PostJobTab companies={co} jobs={j} />}
       {tab === 'mdApprovals' && <MdApprovalsTab />}
       {tab === 'careScreening' && <CareScreeningTab />}
+      {tab === 'credentialApprovals' && <CredentialApprovalsTab />}
     </div>
   )
 }
