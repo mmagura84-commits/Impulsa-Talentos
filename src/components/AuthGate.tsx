@@ -20,9 +20,13 @@ interface AuthGateProps {
   /** Optional raw override (takes priority over the key). */
   fallbackMessage?: string
   fallbackDescription?: string
+  /** Show a sign-in-ONLY gate (no sign-up tab). Used for owner-provisioned
+   *  lanes like the Managing Director workspace, where accounts are assigned
+   *  by the owner rather than self-created. */
+  signUpDisabled?: boolean
 }
 
-function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, signUpDisabled }: AuthGateProps) {
   const { isAuthenticated, isLoading, signInWithPassword, signUpWithPassword, resendVerificationEmail } = useAuth()
   const { t } = useI18n()
   const [showReset, setShowReset] = useState(false)
@@ -40,6 +44,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const [errorKey, setErrorKey] = useState<string | null>(null)
   const clearError = () => { setErrorMsg(''); setErrorKey(null) }
   const [authMode, setAuthMode] = useState<'signIn' | 'signUp'>('signIn')
+  // When sign-up is disabled (owner-provisioned lanes) force sign-in mode.
+  const effectiveMode = signUpDisabled ? ('signIn' as const) : authMode
 
   if (isLoading) {
     return (
@@ -60,7 +66,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
     setSending(true)
     clearError()
     try {
-      if (authMode === 'signUp') {
+      if (effectiveMode === 'signUp') {
         // Preserve the lane where signup started (candidate, employer, etc.) so
         // email confirmation returns to the correct role-gated route.
         const returnPath = window.location.pathname + window.location.search
@@ -114,8 +120,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
       )
     }
 
-    const title = fallbackMessage ?? (fallbackKey ? t(fallbackKey) : t(authMode === 'signUp' ? 'auth.signUpTitle' : 'auth.signInTitle'))
-    const desc = fallbackDescription ?? (fallbackDescKey ? t(fallbackDescKey) : t(authMode === 'signUp' ? 'auth.signUpDescription' : 'auth.signInDescription'))
+    const title = fallbackMessage ?? (fallbackKey ? t(fallbackKey) : t(effectiveMode === 'signUp' ? 'auth.signUpTitle' : 'auth.signInTitle'))
+    const desc = fallbackDescription ?? (fallbackDescKey ? t(fallbackDescKey) : t(effectiveMode === 'signUp' ? 'auth.signUpDescription' : 'auth.signInDescription'))
     return (
       <div className="flex items-center justify-center min-h-[70vh] px-4 py-10 bg-gradient-to-br from-background via-muted/30 to-primary/5">
         <Card className="max-w-md w-full text-center border-border/70 shadow-2xl shadow-primary/10 rounded-2xl overflow-hidden">
@@ -129,15 +135,17 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
             <CardDescription>{desc}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
-            <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
-              {(['signIn', 'signUp'] as const).map(mode => (
-                <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
-                  onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
-                  className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
-                  {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
-                </button>
-              ))}
-            </div>
+            {!signUpDisabled && (
+              <div className="grid grid-cols-2 gap-1 rounded-lg bg-muted p-1" role="tablist" aria-label={t('auth.modeLabel')}>
+                {(['signIn', 'signUp'] as const).map(mode => (
+                  <button key={mode} type="button" role="tab" aria-selected={authMode === mode}
+                    onClick={() => { setAuthMode(mode); clearError(); setSent(false) }}
+                    className={`rounded-md px-3 py-2 text-sm font-medium ${authMode === mode ? 'bg-background text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'}`}>
+                    {t(mode === 'signUp' ? 'auth.signUpTab' : 'auth.signInTab')}
+                  </button>
+                ))}
+              </div>
+            )}
             {sent && authMode === 'signUp' ? (
               <>
                 <div className="flex flex-col items-center gap-2 py-2">
@@ -213,7 +221,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   return <>{children}</>
 }
 
-export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription }: AuthGateProps) {
+export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, signUpDisabled }: AuthGateProps) {
   return (
     <BlinkClientBoundary
       fallback={
@@ -227,6 +235,7 @@ export function AuthGate({ children, fallbackKey, fallbackDescKey, fallbackMessa
         fallbackDescKey={fallbackDescKey}
         fallbackMessage={fallbackMessage}
         fallbackDescription={fallbackDescription}
+        signUpDisabled={signUpDisabled}
       >
         {children}
       </AuthGateInner>
