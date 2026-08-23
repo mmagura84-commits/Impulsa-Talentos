@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
-import { CheckCircle2, Circle, Megaphone, Landmark, MessageSquare, ArrowRight, Lock } from 'lucide-react'
+import { CheckCircle2, Circle, Megaphone, Landmark, MessageSquare, ArrowRight, Lock, Rocket, CreditCard } from 'lucide-react'
 
 type Channel = { code: string; active: boolean }
 type Cred = { channel_code: string; locked: boolean }
@@ -92,7 +92,7 @@ export function MdTasksCard() {
             done.banking,
             <Landmark className="size-4 text-primary" />,
             t('md.tasks.banking'),
-            t('md.tasks.bankingHint'),
+            t('md.tasks.bankingWompiHint'),
             '/md/banking',
           )}
           {task(
@@ -101,6 +101,22 @@ export function MdTasksCard() {
             t('md.tasks.messages'),
             t('md.tasks.messagesInfo'),
             '/md/messages',
+            'md.tasks.informational',
+          )}
+          {task(
+            false,
+            <Rocket className="size-4 text-primary" />,
+            t('md.tasks.goLive'),
+            t('md.tasks.goLiveInfo'),
+            '/md',
+            'md.tasks.informational',
+          )}
+          {task(
+            false,
+            <CreditCard className="size-4 text-primary" />,
+            t('md.tasks.payments'),
+            t('md.tasks.paymentsInfo'),
+            '/md/banking',
             'md.tasks.informational',
           )}
         </ul>
