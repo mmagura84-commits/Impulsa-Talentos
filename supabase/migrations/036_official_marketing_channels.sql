@@ -1,6 +1,6 @@
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Impulsa Talentos — OFFICIAL marketing_channels catalog [PTL]
---   migration 035  (task 5a2e8ca4, owner-approved platform research)
+--   migration 036  (task 5a2e8ca4, owner-approved platform research)
 -- ═══════════════════════════════════════════════════════════════════════════
 -- Reference: /home/team/shared/marketing-platform-recommendation.md (QA-approved
 -- shortlist, 2026-08-23). Migration 032 (PR #150) seeded a broad "sensible default"
