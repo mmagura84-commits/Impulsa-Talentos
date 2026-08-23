@@ -20,6 +20,7 @@ import { APPLICATION_STATUS_FLOW, STATUS_PILL_CLASSES } from '@/lib/applicationS
 import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
 import { CareScreeningTab } from '@/components/hq/CareScreeningTab'
 import { CredentialApprovalsTab } from '@/components/hq/CredentialApprovalsTab'
+import { CampaignsTab } from '@/components/hq/CampaignsTab'
 import {
   LayoutDashboard,
   Users,
@@ -46,6 +47,7 @@ import {
   ChevronUp,
   PlusCircle,
   HeartPulse,
+  Megaphone,
 } from 'lucide-react'
 import type { Company, Job, Application } from '@/types'
 
@@ -1126,7 +1128,7 @@ function NoAccess() {
 }
 
 /* ── Main HQ Shell ───────────────────────────────────────── */
-type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'careScreening' | 'credentialApprovals'
+type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'careScreening' | 'credentialApprovals' | 'campaigns'
 
 const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'overview', labelKey: 'hq.tab.overview', icon: BarChart3 },
@@ -1139,6 +1141,7 @@ const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'mdApprovals', labelKey: 'hq.mdApprovals', icon: CheckCircle2 },
   { id: 'careScreening', labelKey: 'hq.careScreening', icon: HeartPulse },
   { id: 'credentialApprovals', labelKey: 'hq.cred.title', icon: ShieldCheck },
+  { id: 'campaigns', labelKey: 'hq.campaigns', icon: Megaphone },
 ]
 
 function HqShell() {
@@ -1228,6 +1231,7 @@ function HqShell() {
       {tab === 'mdApprovals' && <MdApprovalsTab />}
       {tab === 'careScreening' && <CareScreeningTab />}
       {tab === 'credentialApprovals' && <CredentialApprovalsTab />}
+      {tab === 'campaigns' && <CampaignsTab />}
     </div>
   )
 }
