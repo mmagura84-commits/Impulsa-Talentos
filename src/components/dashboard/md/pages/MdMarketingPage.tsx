@@ -263,7 +263,7 @@ export function Marketing() {
 
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard">
-      <main className="mx-auto max-w-5xl p-6">
+      <div className="mx-auto max-w-5xl p-6">
         <MdNav />
         <h1 className="text-3xl font-bold">{t('md.marketing.title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('md.marketing.description')}</p>
@@ -274,7 +274,7 @@ export function Marketing() {
           {group('md.marketing.candidateGroup', candidate)}
           {group('md.marketing.employerGroup', employer)}
         </div>
-      </main>
+      </div>
     </AuthGate>
   )
 }
