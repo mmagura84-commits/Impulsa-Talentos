@@ -165,7 +165,7 @@ export function Banking() {
 
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard">
-      <main className="mx-auto max-w-2xl p-6">
+      <div className="mx-auto max-w-2xl p-6">
         <MdNav />
         <h1 className="text-3xl font-bold">{t('md.banking.title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('md.banking.description')}</p>
@@ -270,7 +270,7 @@ export function Banking() {
             </CardContent>
           )}
         </Card>
-      </main>
+      </div>
     </AuthGate>
   )
 }

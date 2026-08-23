@@ -57,7 +57,7 @@ export function Messages() {
 
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard">
-      <main className="mx-auto max-w-3xl p-6">
+      <div className="mx-auto max-w-3xl p-6">
         <MdNav />
         <h1 className="text-3xl font-bold">{t('md.messages.title')}</h1>
         <div className="mt-6 flex gap-2">
@@ -97,7 +97,7 @@ export function Messages() {
             </CardContent>
           </Card>
         )}
-      </main>
+      </div>
     </AuthGate>
   )
 }
