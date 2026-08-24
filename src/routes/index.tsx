@@ -239,6 +239,53 @@ function StatsBar() {
   )
 }
 
+/* ── Company scrolling ribbon — trusted-by marquee below hero ── */
+/* Matches the ServiceSite Pro reference: solid brand-color band, edge-faded
+   with a mask, and a seamless CSS-keyframe loop (track = list twice, translate
+   -50%). Real company names from the live DB. Links render once (first half)
+   for a11y; the duplicate half is decorative, so there are no repeated tab stops. */
+function CompanyRibbon({ companies }: { companies: Company[] }) {
+  const { t } = useI18n()
+  const reduce = useReducedMotion()
+  if (companies.length === 0) return null
+  // renderSet(link, keyPrefix) — second copy is aria-hidden + non-link so we
+  // avoid duplicate announcements and duplicate keyboard tab stops.
+  const renderSet = (link: boolean, keyPrefix: string) =>
+    companies.map((c) => (
+      <span
+        key={keyPrefix + c.id}
+        aria-hidden={!link}
+        className="flex items-center gap-5 px-4 text-[13px] font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5"
+      >
+        {link ? (
+          <Link to="/companies/$id" params={{ id: c.id }} className="text-white/90 transition-colors hover:text-accent active:text-accent">
+            {c.name}
+          </Link>
+        ) : (
+          <span className="text-white/90">{c.name}</span>
+        )}
+        <span aria-hidden="true" className="text-accent/70">•</span>
+      </span>
+    ))
+  return (
+    <section
+      aria-label={t('landing.trustedBy', { n: companies.length })}
+      className="group relative z-10 overflow-hidden border-y border-primary/80 bg-primary py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+    >
+      {reduce ? (
+        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 px-5 sm:justify-start">
+          {renderSet(true, 'r')}
+        </div>
+      ) : (
+        <div className="flex w-max items-center whitespace-nowrap animate-[marquee_40s_linear_infinite] group-hover:[animation-play-state:paused]">
+          {renderSet(true, 'a')}
+          {renderSet(false, 'b')}
+        </div>
+      )}
+    </section>
+  )
+}
+
 /* ── Landing page ─────────────────────────────────────────── */
 /* ── Colombian city photography (Wikimedia Commons, free license) ── */
 const HERO_SLIDES = ['technology', 'finance', 'customer-hospitality', 'operations-logistics', 'healthcare', 'sales-marketing', 'education-training', 'engineering-construction', 'creative-media', 'legal-public-sector'] as const
@@ -400,6 +447,18 @@ function LandingPage() {
     const img = new Image(); img.src = next
   }, [slide])
 
+  const { data: allJobs } = useAllJobs()
+  const { data: allCompanies } = useAllCompanies()
+
+  const openJobs = (allJobs ?? []).filter(isOpen)
+  const companyOpenCounts = new Map<string, number>()
+  for (const job of openJobs) {
+    companyOpenCounts.set(job.companyId, (companyOpenCounts.get(job.companyId) ?? 0) + 1)
+  }
+  const companies = [...(allCompanies ?? [])].sort(
+    (a, b) => (companyOpenCounts.get(b.id) ?? 0) - (companyOpenCounts.get(a.id) ?? 0),
+  )
+
   return (
     <main id="main" className="flex min-h-dvh flex-col bg-background">
       <PublicHeader transparentOnTop />
@@ -424,6 +483,7 @@ function LandingPage() {
         <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
+      <CompanyRibbon companies={companies} />
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
