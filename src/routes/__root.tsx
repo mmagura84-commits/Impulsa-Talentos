@@ -3,6 +3,7 @@ import {
   HeadContent,
   Scripts,
   createRootRoute,
+  useRouterState,
 } from '@tanstack/react-router'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
@@ -102,6 +103,11 @@ export const Route = createRootRoute({
 })
 
 function RootDocument({ children }: { children: ReactNode }) {
+  const { location } = useRouterState()
+  // The mobile app shell (/m/*) is a viewport-locked app with its own bottom
+  // tab bar; the global legal footer would append ~125px after it and let the
+  // document scroll, lifting the fixed tab bar on overscroll. Skip it there.
+  const isMobileShell = location.pathname.startsWith('/m')
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -142,9 +148,10 @@ function RootDocument({ children }: { children: ReactNode }) {
               {children}
               {/*
                 Global legal footer strip — Terms / Privacy linked from every
-                route (landing, dashboard, legal pages, mobile).
+                route (landing, dashboard, legal pages, mobile). Hidden on the
+                /m app shell (viewport-locked; footer would add doc scroll).
               */}
-              <GlobalFooter />
+              {!isMobileShell && <GlobalFooter />}
             </TooltipProvider>
           </I18nProvider>
         </QueryClientProvider>

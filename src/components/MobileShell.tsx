@@ -73,7 +73,7 @@ export function MobileShell({ children, title }: MobileShellProps) {
 
   return (
     <div
-      className="min-h-dvh max-w-full overflow-x-hidden bg-background text-foreground flex flex-col"
+      className="h-dvh max-w-full overflow-hidden bg-background text-foreground flex flex-col"
       style={{ paddingTop: 'env(safe-area-inset-top)' }}
     >
       {/* ── Top bar ───────────────────────────────────────── */}
@@ -308,7 +308,7 @@ export function MobileShell({ children, title }: MobileShellProps) {
       {/* ── Main content (scrollable, padded for the tab bar) ── */}
       <main
         id="main"
-        className="flex-1"
+        className="flex-1 overflow-y-auto overscroll-contain"
         style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom))' }}
       >
         <a
