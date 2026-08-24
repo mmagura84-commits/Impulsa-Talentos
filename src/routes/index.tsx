@@ -471,10 +471,10 @@ function LandingPage() {
           background + top gradient render behind it instead of main's white bg. */}
       <section className="relative isolate overflow-hidden -mt-[65px]">
         <div className="absolute inset-0 z-0" aria-hidden="true">
-          {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
+          {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-contain object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-contain object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-40 pt-20 sm:pb-44 sm:pt-24 lg:px-10 lg:pb-[22rem] lg:pt-28 xl:pb-[24rem] xl:pt-32">
+        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-28 pt-14 sm:pb-32 sm:pt-16 lg:px-10 lg:pb-[15rem] lg:pt-20 xl:pb-[17rem] xl:pt-20">
           <div className="grid w-full items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
             <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-5 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[4.5rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-5 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-8"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div><div className="mt-10 hidden w-full border-t border-white/10 pt-6 lg:block"><p className="text-xs font-medium uppercase tracking-wider text-white/60">{t('landing.trustedBy', { n: companies.length })}</p><div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">{companies.map(c => <Link key={c.id} to="/companies/$id" params={{id:c.id}} className="text-sm font-semibold text-white/60 hover:text-white">{c.name}</Link>)}</div></div></div>
             <div className="relative flex w-full flex-col lg:-mb-20"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
@@ -520,65 +520,6 @@ function LandingPage() {
 
       <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-16 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{INDUSTRY_FAMILIES.map((family, i) => <SectionReveal key={family.slug} delay={(i%3)*.08}><FamilyCard family={family} /></SectionReveal>)}<SectionReveal delay={.16}><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></SectionReveal></div></div></section>
       <CityShowcase />
-{/* ── Top companies hiring — real data ─────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
-        <SectionReveal>
-          <div className="flex flex-wrap items-end justify-between gap-4">
-            <div className="max-w-2xl">
-              <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
-                {t('landing.companiesTitle')}
-              </h2>
-              <p className="mt-3 text-muted-foreground">{t('landing.companiesSub')}</p>
-            </div>
-            <Button asChild variant="outline" className="gap-2">
-              <Link to="/companies">
-                {t('landing.companiesViewAll')}
-                <ArrowRight className="size-4" />
-              </Link>
-            </Button>
-          </div>
-        </SectionReveal>
-
-        <div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {companies.map((company, i) => {
-            const openCount = companyOpenCounts.get(company.id) ?? 0
-            return (
-              <SectionReveal key={company.id} delay={(i % 4) * 0.08}>
-                <Link
-                  to="/companies/$id"
-                  params={{ id: company.id }}
-                  className="group flex h-full flex-col rounded-xl border border-border bg-card p-5 transition-all hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-md"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-sm font-bold text-primary">
-                      {company.logoUrl ? (
-                        <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full rounded-lg object-cover" />
-                      ) : (
-                        company.name.charAt(0).toUpperCase()
-                      )}
-                    </div>
-                    <div className="min-w-0">
-                      <h3 className="truncate font-semibold text-foreground group-hover:text-primary transition-colors">
-                        {company.name}
-                      </h3>
-                      <p className="truncate text-xs text-muted-foreground">{company.industry}</p>
-                    </div>
-                  </div>
-                  <div className="mt-4 flex items-center justify-between gap-2 border-t border-border pt-3 text-xs text-muted-foreground">
-                    <span className="inline-flex items-center gap-1 truncate">
-                      <MapPin className="size-3.5 shrink-0 text-primary" />
-                      <span className="truncate">{company.location}</span>
-                    </span>
-                    <span className="shrink-0 rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
-                      {t('landing.companiesOpen', { n: openCount })}
-                    </span>
-                  </div>
-                </Link>
-              </SectionReveal>
-            )
-          })}
-        </div>
-      </section>
 
       {/* ── Why bilingual talent ────────────────────────────── */}
       <section className="border-t border-border bg-muted/40">
