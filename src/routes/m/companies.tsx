@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, Outlet, useMatchRoute } from '@tanstack/react-router'
 import { Building2, MapPin, Briefcase } from 'lucide-react'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAllCompanies } from '@/hooks/useCompanies'
@@ -14,6 +14,22 @@ function isOpen(j: Job) {
 }
 
 function MobileCompanies() {
+  const matchRoute = useMatchRoute()
+  // When the child detail route (/m/companies/$id) is active, render only
+  // the detail component.
+  if (matchRoute({ to: '/m/companies/$id' })) {
+    return (
+      <div className="px-4 pt-4 pb-2">
+        <Outlet />
+      </div>
+    )
+  }
+  // List content lives in a separate component so ALL hooks are
+  // unconditional per component (React #310 rules-of-hooks).
+  return <MobileCompaniesList />
+}
+
+function MobileCompaniesList() {
   const { t } = useI18n()
   const { data: allCompanies } = useAllCompanies()
   const { data: allJobs } = useAllJobs()
