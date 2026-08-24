@@ -80,21 +80,42 @@ function MobileLanding() {
           <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1 text-[11px] font-semibold text-muted-foreground">
             <Sparkles className="size-3 text-accent" /> {t('landing.badge')}
           </span>
-          <h1 className="mt-4 font-serif text-[2.2rem] leading-[1.05] font-bold tracking-tight text-foreground">
-            {t('landing.heroTitle1')}
-            <span className="block text-accent">{t('landing.heroTitle2')}</span>
+          <h1 className="mt-4 font-serif text-[2rem] leading-[1.1] font-bold tracking-tight text-foreground">
+            {t('mobile.hero.lead')}
           </h1>
-          <p className="mt-3 max-w-xl text-base leading-relaxed text-muted-foreground">{t('landing.heroSub')}</p>
-          <div className="mt-5 flex flex-col gap-2.5">
-            <Button asChild size="lg" className="h-12 w-full text-base font-semibold">
-              <Link to="/m/jobs">{t('mobile.hero.cta')} <ArrowRight className="size-4" /></Link>
-            </Button>
-            {!isAuthenticated && (
-              <Button onClick={login} size="lg" variant="outline" className="h-12 w-full text-base font-semibold">
-                {t('mobile.authRequiredCta')}
-              </Button>
-            )}
+          <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">{t('mobile.hero.leadSub')}</p>
+
+          {/* Audience-split CTAs — clear value for each side, reachable in 1 tap */}
+          <div className="mt-6 grid grid-cols-1 gap-3">
+            {/* Candidates — primary, solid */}
+            <Link to="/m/jobs" className="group flex items-center gap-4 rounded-2xl bg-primary p-4 shadow-sm transition active:scale-[0.99]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white/15 text-white"><Briefcase className="size-5" /></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-white/70">{t('mobile.hero.candidateEyebrow')}</p>
+                <p className="text-base font-bold leading-tight text-white">{t('mobile.hero.candidateAction')}</p>
+                <p className="mt-0.5 text-xs text-white/80">{t('mobile.hero.candidateDesc')}</p>
+              </div>
+              <ArrowRight className="size-5 shrink-0 text-white/80 transition group-active:translate-x-0.5" />
+            </Link>
+            {/* Employers — distinct accent */}
+            <Link to="/m/post" className="group flex items-center gap-4 rounded-2xl border-2 border-accent bg-accent/10 p-4 transition active:scale-[0.99]">
+              <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-accent text-white"><Building2 className="size-5" /></div>
+              <div className="min-w-0 flex-1">
+                <p className="text-[11px] font-bold uppercase tracking-wider text-accent">{t('mobile.hero.employerEyebrow')}</p>
+                <p className="text-base font-bold leading-tight text-foreground">{t('mobile.hero.employerAction')}</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">{t('mobile.hero.employerDesc')}</p>
+              </div>
+              <ArrowRight className="size-5 shrink-0 text-accent transition group-active:translate-x-0.5" />
+            </Link>
           </div>
+
+          {!isAuthenticated && (
+            <div className="mt-4 text-center">
+              <button type="button" onClick={login} className="text-sm font-semibold text-primary underline underline-offset-4 active:opacity-70">
+                {t('mobile.authRequiredCta')}
+              </button>
+            </div>
+          )}
         </motion.div>
       </section>
 
