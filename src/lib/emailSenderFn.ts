@@ -1,15 +1,14 @@
 import { createServerFn } from '@tanstack/react-start'
-
 export interface EmailPayload {
   to: string
   subject: string
   html: string
   text?: string
 }
-
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM = 'Impulsa Talentos <partners@impulsatalentos.expert>'
-
+/** From-address. Overridable via SENDER_EMAIL (server env) — otherwise a
+ *  sensible default. Never a client (VITE_) var: server-only. */
+const FROM = process.env.SENDER_EMAIL ?? 'Impulsa Talentos <notifications@impulsatalentos.expert>'
 /** Sends email from the server so the Resend credential never enters client code. */
 export const sendEmailServer = createServerFn({ method: 'POST' })
   .inputValidator((d: EmailPayload) => d)
