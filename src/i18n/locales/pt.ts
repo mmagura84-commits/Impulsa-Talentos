@@ -56,6 +56,7 @@ const pt: Dict = {
   'nav.forEmployers': 'Para Empresas',
   'nav.companies': 'Empresas',
   'nav.jobs': 'Vagas',
+  'nav.applyForJobs': 'Candidatar-se a Vagas',
   'nav.savedJobs': 'Vagas salvas',
   'savedJobs.apply': 'Candidatar-me',
   'savedJobs.browse': 'Explore vagas para salvar',

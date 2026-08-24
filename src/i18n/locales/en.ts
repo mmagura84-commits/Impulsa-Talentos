@@ -57,6 +57,7 @@ const en: Dict = {
   'nav.forEmployers': 'For Employers',
   'nav.companies': 'Companies',
   'nav.jobs': 'Jobs',
+  'nav.applyForJobs': 'Apply for Jobs',
   'nav.savedJobs': 'Saved Jobs',
   'savedJobs.apply': 'Apply',
   'savedJobs.browse': 'Browse jobs to save',
