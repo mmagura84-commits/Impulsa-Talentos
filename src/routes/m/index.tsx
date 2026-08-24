@@ -19,9 +19,10 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAuth } from '@/hooks/useAuth'
 import { useAllJobs } from '@/hooks/useJobs'
+import { useAllCompanies } from '@/hooks/useCompanies'
 import { heroPhoto, cityscapePhoto } from '@/lib/media'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
-import type { Job } from '@/types'
+import type { Company, Job } from '@/types'
 export const Route = createFileRoute('/m/')({
   head: () => ({
     meta: [
@@ -49,7 +50,14 @@ function MobileLanding() {
   const { t } = useI18n()
   const { isAuthenticated, login } = useAuth()
   const { data: allJobs } = useAllJobs()
+  const { data: allCompanies } = useAllCompanies()
   const openJobs = (allJobs ?? []).filter(isOpen)
+  // Company marquee — same sort as desktop (by open-role count desc).
+  const companyOpenCounts = new Map<string, number>()
+  for (const job of openJobs) companyOpenCounts.set(job.companyId, (companyOpenCounts.get(job.companyId) ?? 0) + 1)
+  const companies = [...(allCompanies ?? [])].sort(
+    (a, b) => (companyOpenCounts.get(b.id) ?? 0) - (companyOpenCounts.get(a.id) ?? 0),
+  )
   // Per-industry counts for the industri es grid.
   const industryCounts = new Map<string, number>()
   for (const j of openJobs) if (j.industry) industryCounts.set(j.industry, (industryCounts.get(j.industry) ?? 0) + 1)
@@ -118,6 +126,29 @@ function MobileLanding() {
         <ValueRow icon={Building2} title={t('landing.employers.s3.title')} desc={t('landing.employers.s3.desc')} />
         <ValueRow icon={Globe} title={t('landing.hero.aiMatching')} desc={t('landing.hero.subtitle')} />
       </section>
+
+      {/* ── Company marquee (parity w/ desktop, no message) ── */}
+      {companies.length > 0 && (
+        <section
+          aria-label={t('landing.trustedBy', { n: companies.length })}
+          className="group relative z-10 overflow-hidden border-y border-primary/80 bg-primary py-3.5 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+        >
+          <div className="flex w-max items-center whitespace-nowrap animate-[marquee_40s_linear_infinite] group-hover:[animation-play-state:paused]">
+            {companies.map((c) => (
+              <span key={'a' + c.id} className="flex items-center gap-5 px-4 text-[13px] font-semibold uppercase tracking-[0.14em] text-white">
+                <Link to="/m/companies/$id" params={{ id: c.id }} className="text-white/90">{c.name}</Link>
+                <span aria-hidden="true" className="text-accent/70">•</span>
+              </span>
+            ))}
+            {companies.map((c) => (
+              <span key={'b' + c.id} aria-hidden className="flex items-center gap-5 px-4 text-[13px] font-semibold uppercase tracking-[0.14em] text-white">
+                <span className="text-white/90">{c.name}</span>
+                <span aria-hidden="true" className="text-accent/70">•</span>
+              </span>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* ── Stats bar (parity w/ desktop) ─────────────────── */}
       <section className="border-y border-border bg-muted/40">
