@@ -115,12 +115,14 @@ export const devicePrePaintScript = `
     var map = {
       '/': '/m',
       '/jobs': '/m/jobs',
+      '/companies': '/m/companies',
     };
     var target = null;
     for (var k in map) {
       if (path === k) { target = map[k]; break; }
     }
     if (path.indexOf('/jobs/') === 0) target = '/m/jobs' + path.slice('/jobs'.length);
+    if (path.indexOf('/companies/') === 0) target = '/m/companies' + path.slice('/companies'.length);
     if (path.indexOf('/apply/') === 0) target = '/m' + path;
     if (path.indexOf('/dashboard') === 0) target = '/m/home';
     if (path.indexOf('/profile') === 0) target = '/m/profile';
