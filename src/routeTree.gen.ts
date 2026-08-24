@@ -30,6 +30,7 @@ import { Route as MPostRouteImport } from './routes/m/post'
 import { Route as MJobsRouteImport } from './routes/m/jobs'
 import { Route as MHomeRouteImport } from './routes/m/home'
 import { Route as MCompanyRouteImport } from './routes/m/company'
+import { Route as MCompaniesRouteImport } from './routes/m/companies'
 import { Route as MApplicationsRouteImport } from './routes/m/applications'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
@@ -46,6 +47,7 @@ import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/ind
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
 import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
 import { Route as MEditJobIdRouteImport } from './routes/m/edit-job.$id'
+import { Route as MCompaniesIdRouteImport } from './routes/m/companies.$id'
 import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
 import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
 import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
@@ -180,6 +182,11 @@ const MCompanyRoute = MCompanyRouteImport.update({
   path: '/company',
   getParentRoute: () => MRoute,
 } as any)
+const MCompaniesRoute = MCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => MRoute,
+} as any)
 const MApplicationsRoute = MApplicationsRouteImport.update({
   id: '/applications',
   path: '/applications',
@@ -260,6 +267,11 @@ const MEditJobIdRoute = MEditJobIdRouteImport.update({
   id: '/edit-job/$id',
   path: '/edit-job/$id',
   getParentRoute: () => MRoute,
+} as any)
+const MCompaniesIdRoute = MCompaniesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MCompaniesRoute,
 } as any)
 const AppMdProfileRoute = AppMdProfileRouteImport.update({
   id: '/profile',
@@ -437,6 +449,7 @@ export interface FileRoutesByFullPath {
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/companies': typeof MCompaniesRouteWithChildren
   '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
@@ -471,6 +484,7 @@ export interface FileRoutesByFullPath {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
+  '/m/companies/$id': typeof MCompaniesIdRoute
   '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate/': typeof AppCandidateIndexRoute
@@ -499,6 +513,7 @@ export interface FileRoutesByTo {
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/companies': typeof MCompaniesRouteWithChildren
   '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
@@ -533,6 +548,7 @@ export interface FileRoutesByTo {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
+  '/m/companies/$id': typeof MCompaniesIdRoute
   '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate': typeof AppCandidateIndexRoute
@@ -568,6 +584,7 @@ export interface FileRoutesById {
   '/_app/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
   '/m/applications': typeof MApplicationsRoute
+  '/m/companies': typeof MCompaniesRouteWithChildren
   '/m/company': typeof MCompanyRoute
   '/m/home': typeof MHomeRoute
   '/m/jobs': typeof MJobsRouteWithChildren
@@ -602,6 +619,7 @@ export interface FileRoutesById {
   '/_app/md/meetings': typeof AppMdMeetingsRoute
   '/_app/md/messages': typeof AppMdMessagesRoute
   '/_app/md/profile': typeof AppMdProfileRoute
+  '/m/companies/$id': typeof MCompaniesIdRoute
   '/m/edit-job/$id': typeof MEditJobIdRoute
   '/m/jobs/$id': typeof MJobsIdRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
@@ -637,6 +655,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/companies'
     | '/m/company'
     | '/m/home'
     | '/m/jobs'
@@ -671,6 +690,7 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
+    | '/m/companies/$id'
     | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/candidate/'
@@ -699,6 +719,7 @@ export interface FileRouteTypes {
     | '/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/companies'
     | '/m/company'
     | '/m/home'
     | '/m/jobs'
@@ -733,6 +754,7 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
+    | '/m/companies/$id'
     | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/candidate'
@@ -767,6 +789,7 @@ export interface FileRouteTypes {
     | '/_app/profile'
     | '/companies/$id'
     | '/m/applications'
+    | '/m/companies'
     | '/m/company'
     | '/m/home'
     | '/m/jobs'
@@ -801,6 +824,7 @@ export interface FileRouteTypes {
     | '/_app/md/meetings'
     | '/_app/md/messages'
     | '/_app/md/profile'
+    | '/m/companies/$id'
     | '/m/edit-job/$id'
     | '/m/jobs/$id'
     | '/_app/candidate/'
@@ -979,6 +1003,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof MCompanyRouteImport
       parentRoute: typeof MRoute
     }
+    '/m/companies': {
+      id: '/m/companies'
+      path: '/companies'
+      fullPath: '/m/companies'
+      preLoaderRoute: typeof MCompaniesRouteImport
+      parentRoute: typeof MRoute
+    }
     '/m/applications': {
       id: '/m/applications'
       path: '/applications'
@@ -1090,6 +1121,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/m/edit-job/$id'
       preLoaderRoute: typeof MEditJobIdRouteImport
       parentRoute: typeof MRoute
+    }
+    '/m/companies/$id': {
+      id: '/m/companies/$id'
+      path: '/$id'
+      fullPath: '/m/companies/$id'
+      preLoaderRoute: typeof MCompaniesIdRouteImport
+      parentRoute: typeof MCompaniesRoute
     }
     '/_app/md/profile': {
       id: '/_app/md/profile'
@@ -1451,6 +1489,18 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
+interface MCompaniesRouteChildren {
+  MCompaniesIdRoute: typeof MCompaniesIdRoute
+}
+
+const MCompaniesRouteChildren: MCompaniesRouteChildren = {
+  MCompaniesIdRoute: MCompaniesIdRoute,
+}
+
+const MCompaniesRouteWithChildren = MCompaniesRoute._addFileChildren(
+  MCompaniesRouteChildren,
+)
+
 interface MJobsRouteChildren {
   MJobsIdRoute: typeof MJobsIdRoute
 }
@@ -1463,6 +1513,7 @@ const MJobsRouteWithChildren = MJobsRoute._addFileChildren(MJobsRouteChildren)
 
 interface MRouteChildren {
   MApplicationsRoute: typeof MApplicationsRoute
+  MCompaniesRoute: typeof MCompaniesRouteWithChildren
   MCompanyRoute: typeof MCompanyRoute
   MHomeRoute: typeof MHomeRoute
   MJobsRoute: typeof MJobsRouteWithChildren
@@ -1475,6 +1526,7 @@ interface MRouteChildren {
 
 const MRouteChildren: MRouteChildren = {
   MApplicationsRoute: MApplicationsRoute,
+  MCompaniesRoute: MCompaniesRouteWithChildren,
   MCompanyRoute: MCompanyRoute,
   MHomeRoute: MHomeRoute,
   MJobsRoute: MJobsRouteWithChildren,

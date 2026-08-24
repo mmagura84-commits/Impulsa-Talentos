@@ -29,6 +29,11 @@ import {
   Inbox,
   Building2,
   Check,
+  MoreHorizontal,
+  Building,
+  DollarSign,
+  HeartHandshake,
+  Mail,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -61,6 +66,7 @@ export function MobileShell({ children, title }: MobileShellProps) {
   const { data: profile } = useProfile(user?.id)
   const [langOpen, setLangOpen] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const [moreOpen, setMoreOpen] = useState(false)
 
   const isEmployer = profile?.role === 'employer' || profile?.role === 'admin'
   const greeting = profile?.fullName?.trim() || user?.email?.split('@')[0] || ''
@@ -258,6 +264,47 @@ export function MobileShell({ children, title }: MobileShellProps) {
         </div>
       )}
 
+      {/* ── More drawer ─────────────────────────────────────── */}
+      {moreOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center" role="dialog" aria-modal="true" aria-label={t('mobile.nav.more')}>
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm animate-fade-in" onClick={() => setMoreOpen(false)} />
+          <div className="relative w-full max-w-md bg-card border-t border-border rounded-t-3xl shadow-2xl animate-fade-in" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+            <div className="flex justify-center pt-2 pb-1">
+              <div className="h-1 w-10 rounded-full bg-border" />
+            </div>
+            <div className="px-2 pb-6 max-h-[70vh] overflow-y-auto">
+              <p className="px-3 pt-1 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {t('mobile.nav.explore')}
+              </p>
+              <MoreItem to="/m/jobs" icon={Briefcase} label={t('mobile.nav.jobs')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/m/saved" icon={Heart} label={t('mobile.nav.saved')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/companies" icon={Building} label={t('nav.companies')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/jobs" icon={Briefcase} label={t('nav.applyForJobs')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/for-employers" icon={Building2} label={t('nav.forEmployers')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/caregivers" icon={HeartHandshake} label={t('care.directory.title')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/pricing" icon={DollarSign} label={t('nav.pricing')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/contact" icon={Mail} label={t('contact.title')} onClick={() => setMoreOpen(false)} />
+              <p className="px-3 pt-4 pb-2 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+                {t('mobile.nav.you')}
+              </p>
+              {user && (
+                <>
+                  <MoreItem to="/m/applications" icon={Inbox} label={t('mobile.nav.applications')} onClick={() => setMoreOpen(false)} />
+                  {isEmployer && <MoreItem to="/m/company" icon={Building2} label={t('mobile.nav.company')} onClick={() => setMoreOpen(false)} />}
+                  {isEmployer && <MoreItem to="/m/post" icon={PlusCircle} label={t('mobile.nav.post')} onClick={() => setMoreOpen(false)} />}
+                </>
+              )}
+              <MoreItem to={user ? '/m/home' : '/m'} icon={Home} label={t('mobile.nav.dashboard')} onClick={() => setMoreOpen(false)} />
+              <MoreItem to="/m/profile" icon={User} label={t('mobile.nav.profile')} onClick={() => setMoreOpen(false)} />
+              <div className="mt-4 pt-4 border-t border-border">
+                <button type="button" onClick={() => { setOptOutOfMobile(true); setMoreOpen(false); if (typeof window !== 'undefined') window.location.href = '/' }} className="flex items-center gap-3 py-2.5 px-3 text-sm text-muted-foreground active:text-foreground w-full text-left">
+                  <Monitor className="size-4" /> {t('mobile.viewDesktop')}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
       {/* ── Main content (scrollable, padded for the tab bar) ── */}
       <main
         id="main"
@@ -291,7 +338,19 @@ export function MobileShell({ children, title }: MobileShellProps) {
             <TabItem to="/m/saved" icon={Heart} label={t('mobile.nav.saved')} />
           )}
           <TabItem to={user ? '/m/home' : '/m'} icon={Home} label={t('mobile.nav.dashboard')} />
-          <TabItem to="/m/profile" icon={User} label={t('mobile.nav.profile')} />
+          <li>
+            <button
+              type="button"
+              onClick={() => setMoreOpen(true)}
+              aria-label={t('mobile.nav.more')}
+              aria-haspopup="dialog"
+              aria-expanded={moreOpen}
+              className="flex flex-col items-center justify-center gap-0.5 h-full w-full text-[11px] font-medium transition-colors text-muted-foreground active:text-foreground active:bg-accent/30"
+            >
+              <MoreHorizontal className="size-5" strokeWidth={1.75} />
+              <span>{t('mobile.nav.more')}</span>
+            </button>
+          </li>
         </ul>
       </nav>
     </div>
@@ -327,5 +386,27 @@ function TabItem({
         <span>{label}</span>
       </Link>
     </li>
+  )
+}
+function MoreItem({
+  to,
+  icon: Icon,
+  label,
+  onClick,
+}: {
+  to: string
+  icon: React.ElementType
+  label: string
+  onClick: () => void
+}) {
+  return (
+    <Link
+      to={to}
+      onClick={onClick}
+      className="flex items-center gap-3 py-3 px-3 rounded-lg text-sm font-medium text-foreground active:bg-accent/50 border-b border-border/50"
+    >
+      <Icon className="size-4 text-primary shrink-0" />
+      <span>{label}</span>
+    </Link>
   )
 }
