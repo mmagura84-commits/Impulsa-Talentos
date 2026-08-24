@@ -19,10 +19,9 @@ import { Button } from '@/components/ui/button'
 import { useI18n } from '@/i18n/I18nProvider'
 import { useAuth } from '@/hooks/useAuth'
 import { useAllJobs } from '@/hooks/useJobs'
-import { useAllCompanies } from '@/hooks/useCompanies'
 import { heroPhoto, cityscapePhoto } from '@/lib/media'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
-import type { Company, Job } from '@/types'
+import type { Job } from '@/types'
 export const Route = createFileRoute('/m/')({
   head: () => ({
     meta: [
@@ -50,14 +49,7 @@ function MobileLanding() {
   const { t } = useI18n()
   const { isAuthenticated, login } = useAuth()
   const { data: allJobs } = useAllJobs()
-  const { data: allCompanies } = useAllCompanies()
   const openJobs = (allJobs ?? []).filter(isOpen)
-  // Company ribbon — same sort as desktop (by open-role count desc).
-  const companyOpenCounts = new Map<string, number>()
-  for (const job of openJobs) companyOpenCounts.set(job.companyId, (companyOpenCounts.get(job.companyId) ?? 0) + 1)
-  const companies = [...(allCompanies ?? [])].sort(
-    (a, b) => (companyOpenCounts.get(b.id) ?? 0) - (companyOpenCounts.get(a.id) ?? 0),
-  )
   // Per-industry counts for the industri es grid.
   const industryCounts = new Map<string, number>()
   for (const j of openJobs) if (j.industry) industryCounts.set(j.industry, (industryCounts.get(j.industry) ?? 0) + 1)
@@ -126,20 +118,6 @@ function MobileLanding() {
         <ValueRow icon={Building2} title={t('landing.employers.s3.title')} desc={t('landing.employers.s3.desc')} />
         <ValueRow icon={Globe} title={t('landing.hero.aiMatching')} desc={t('landing.hero.subtitle')} />
       </section>
-
-      {/* ── Company ribbon (parity w/ desktop, vertical static) ── */}
-      {companies.length > 0 && (
-        <section aria-label={t('landing.trustedBy', { n: companies.length })} className="bg-primary px-5 py-4">
-          <p className="text-center text-[10px] font-semibold uppercase tracking-wider text-white/70">{t('landing.trustedBy', { n: companies.length })}</p>
-          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-2">
-            {companies.slice(0, 8).map(c => (
-              <Link key={c.id} to="/m/companies/$id" params={{ id: c.id }} className="text-[13px] font-semibold text-white/90">
-                {c.name}
-              </Link>
-            ))}
-          </div>
-        </section>
-      )}
 
       {/* ── Stats bar (parity w/ desktop) ─────────────────── */}
       <section className="border-y border-border bg-muted/40">

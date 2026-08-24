@@ -239,56 +239,6 @@ function StatsBar() {
   )
 }
 
-/* ── Company scrolling ribbon — trusted-by marquee below hero ── */
-/* Matches the ServiceSite Pro reference: solid brand-color band, edge-faded
-   with a mask, and a seamless CSS-keyframe loop (track = list twice, translate
-   -50%). Real company names from the live DB (same source as the hero
-   "Trusted by" block). Links render once (first half) for a11y; the duplicate
-   half is decorative, so there are no repeated tab stops. */
-function CompanyRibbon({ companies }: { companies: Company[] }) {
-  const { t } = useI18n()
-  const reduce = useReducedMotion()
-  if (companies.length === 0) return null
-
-  // renderSet(link, keyPrefix) — second copy is aria-hidden + non-link so we
-  // avoid duplicate announcements and duplicate keyboard tab stops.
-  const renderSet = (link: boolean, keyPrefix: string) =>
-    companies.map((c) => (
-      <span
-        key={keyPrefix + c.id}
-        aria-hidden={!link}
-        className="flex items-center gap-5 px-4 text-[13px] font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5"
-      >
-        {link ? (
-          <Link to="/companies/$id" params={{ id: c.id }} className="text-white/90 transition-colors hover:text-accent active:text-accent">
-            {c.name}
-          </Link>
-        ) : (
-          <span className="text-white/90">{c.name}</span>
-        )}
-        <span aria-hidden="true" className="text-accent/70">•</span>
-      </span>
-    ))
-
-  return (
-    <section
-      aria-label={t('landing.trustedBy', { n: companies.length })}
-      className="group relative z-10 overflow-hidden border-y border-primary/80 bg-primary py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
-    >
-      {reduce ? (
-        <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 px-5 sm:justify-start">
-          {renderSet(true, 'r')}
-        </div>
-      ) : (
-        <div className="flex w-max items-center whitespace-nowrap animate-[marquee_40s_linear_infinite] group-hover:[animation-play-state:paused]">
-          {renderSet(true, 'a')}
-          {renderSet(false, 'b')}
-        </div>
-      )}
-    </section>
-  )
-}
-
 /* ── Landing page ─────────────────────────────────────────── */
 /* ── Colombian city photography (Wikimedia Commons, free license) ── */
 const HERO_SLIDES = ['technology', 'finance', 'customer-hospitality', 'operations-logistics', 'healthcare', 'sales-marketing', 'education-training', 'engineering-construction', 'creative-media', 'legal-public-sector'] as const
@@ -449,17 +399,6 @@ function LandingPage() {
     const next = INDUSTRY_HERO_PHOTOS[HERO_SLIDES[(slide + 1) % HERO_SLIDES.length]]
     const img = new Image(); img.src = next
   }, [slide])
-  const { data: allJobs } = useAllJobs()
-  const { data: allCompanies } = useAllCompanies()
-
-  const openJobs = (allJobs ?? []).filter(isOpen)
-  const companyOpenCounts = new Map<string, number>()
-  for (const job of openJobs) {
-    companyOpenCounts.set(job.companyId, (companyOpenCounts.get(job.companyId) ?? 0) + 1)
-  }
-  const companies = [...(allCompanies ?? [])].sort(
-    (a, b) => (companyOpenCounts.get(b.id) ?? 0) - (companyOpenCounts.get(a.id) ?? 0),
-  )
 
   return (
     <main id="main" className="flex min-h-dvh flex-col bg-background">
@@ -476,17 +415,15 @@ function LandingPage() {
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-16 pt-8 sm:pb-20 sm:pt-10 lg:px-10 lg:pb-28 lg:pt-14 xl:pb-32 xl:pt-14">
           <div className="grid w-full items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
-            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div><div className="mt-6 hidden w-full border-t border-white/10 pt-6 lg:block"><p className="text-xs font-medium uppercase tracking-wider text-white/60">{t('landing.trustedBy', { n: companies.length })}</p><div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">{companies.map(c => <Link key={c.id} to="/companies/$id" params={{id:c.id}} className="text-sm font-semibold text-white/60 hover:text-white">{c.name}</Link>)}</div></div></div>
+            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div></div>
             <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
-          <div className="mt-10 border-t border-white/10 pt-6 lg:hidden"><p className="text-xs font-medium uppercase tracking-wider text-white/60">{t('landing.trustedBy', { n: companies.length })}</p><div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">{companies.map(c => <Link key={c.id} to="/companies/$id" params={{id:c.id}} className="text-sm font-semibold text-white/60">{c.name}</Link>)}</div></div>
         </div>
         <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
         <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
         <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
-      <CompanyRibbon companies={companies} />
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
       <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
