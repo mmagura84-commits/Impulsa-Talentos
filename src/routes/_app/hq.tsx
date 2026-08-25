@@ -21,6 +21,7 @@ import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
 import { CareScreeningTab } from '@/components/hq/CareScreeningTab'
 import { CredentialApprovalsTab } from '@/components/hq/CredentialApprovalsTab'
 import { CampaignsTab } from '@/components/hq/CampaignsTab'
+import { MdActivityTab } from '@/components/hq/MdActivityTab'
 import {
   LayoutDashboard,
   Users,
@@ -48,6 +49,7 @@ import {
   PlusCircle,
   HeartPulse,
   Megaphone,
+  Activity,
 } from 'lucide-react'
 import type { Company, Job, Application } from '@/types'
 
@@ -1128,7 +1130,7 @@ function NoAccess() {
 }
 
 /* ── Main HQ Shell ───────────────────────────────────────── */
-type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'careScreening' | 'credentialApprovals' | 'campaigns'
+type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'mdActivity' | 'careScreening' | 'credentialApprovals' | 'campaigns'
 
 const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'overview', labelKey: 'hq.tab.overview', icon: BarChart3 },
@@ -1139,6 +1141,7 @@ const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'users', labelKey: 'hq.tab.users', icon: Users },
   { id: 'post', labelKey: 'postJob.step2.title', icon: PlusCircle },
   { id: 'mdApprovals', labelKey: 'hq.mdApprovals', icon: CheckCircle2 },
+  { id: 'mdActivity', labelKey: 'hq.mdActivity', icon: Activity },
   { id: 'careScreening', labelKey: 'hq.careScreening', icon: HeartPulse },
   { id: 'credentialApprovals', labelKey: 'hq.cred.title', icon: ShieldCheck },
   { id: 'campaigns', labelKey: 'hq.campaigns', icon: Megaphone },
@@ -1229,6 +1232,7 @@ function HqShell() {
       {tab === 'users' && <UsersTab profiles={p} />}
       {tab === 'post' && <PostJobTab companies={co} jobs={j} />}
       {tab === 'mdApprovals' && <MdApprovalsTab />}
+      {tab === 'mdActivity' && <MdActivityTab />}
       {tab === 'careScreening' && <CareScreeningTab />}
       {tab === 'credentialApprovals' && <CredentialApprovalsTab />}
       {tab === 'campaigns' && <CampaignsTab />}
