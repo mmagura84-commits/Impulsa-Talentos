@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { logMdAudit } from '@/lib/mdAudit'
 import { useI18n } from '@/i18n/I18nProvider'
 import { MdNav } from '@/components/MdNav'
 
@@ -121,6 +122,7 @@ export function Banking() {
       setError(t('md.banking.saveError') + ' ' + error.message)
     } else {
       setNotice(t('md.banking.saved'))
+      await logMdAudit('credential_submitted', 'banking', '', { bank_name: form.bankName })
       await reload()
     }
     setBusy(false)
@@ -154,6 +156,7 @@ export function Banking() {
       setError(t('md.request.error') + ' ' + error.message)
     } else {
       setNotice(t('md.request.submitted'))
+      await logMdAudit('credential_change_requested', 'banking', bankId, {})
       setCr({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', reason: '' })
       setCrOpen(false)
       await reload()

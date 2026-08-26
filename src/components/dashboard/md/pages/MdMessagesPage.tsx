@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { logMdAudit } from '@/lib/mdAudit'
 import { useI18n } from '@/i18n/I18nProvider'
 import { MdNav } from '@/components/MdNav'
 
@@ -50,6 +51,7 @@ export function Messages() {
     setBusy(false)
     if (error) { setErr(error.message); return }
     // New row queued (id = data). Outbox is append-only: queued, not "sent".
+    await logMdAudit('message_composed', 'message', data ?? '', { recipient: to.trim() })
     setTo(''); setSubject(''); setBody('')
     setTab('inbox')
     load()

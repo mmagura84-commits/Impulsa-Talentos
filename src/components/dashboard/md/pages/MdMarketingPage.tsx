@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
+import { logMdAudit } from '@/lib/mdAudit'
 import { useI18n } from '@/i18n/I18nProvider'
 import { MdNav } from '@/components/MdNav'
 
@@ -105,6 +106,7 @@ export function Marketing() {
       setError(t('md.marketing.saveError') + ' ' + error.message)
     } else {
       setNotice(t('md.marketing.saved'))
+      await logMdAudit('credential_submitted', 'marketing', code, {})
       setFields((x) => ({ ...x, [code]: { ...emptyField } }))
       await reload()
     }
@@ -152,6 +154,7 @@ export function Marketing() {
       setError(t('md.request.error') + ' ' + error.message)
     } else {
       setNotice(t('md.request.submitted'))
+      await logMdAudit('credential_change_requested', 'marketing', targetId, {})
       setCrForm((x) => ({ ...x, [code]: { ...emptyField, reason: '' } }))
       setCrOpen((x) => ({ ...x, [code]: false }))
       await reload()
