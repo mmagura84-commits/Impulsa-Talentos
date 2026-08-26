@@ -15,6 +15,7 @@ import {
   Megaphone,
   CheckCircle2,
   XCircle,
+  ListChecks,
   Loader2,
 } from 'lucide-react'
 import type { Profile } from '@/types'
@@ -27,18 +28,23 @@ import type { Profile } from '@/types'
  *
  * This tab is READ-ONLY (owner/admin) and surfaces every piece of MD activity
  * that is actually RECORDED in the database. It adds NO new write permissions
- * and NO new data model changes. Sources (all admin-readable via existing RLS):
+ * and NO new data model changes by itself (the md_audit_log lane from migration
+ * 037 is the one addition owned by this feature). Sources (all admin-readable
+ * via existing RLS + the audit SD RPC):
  *   - MD accounts: profiles where role='md' (status pending|active|rejected)
  *   - Messages outbox: md_list_messages() SD RPC — admin=all
  *   - Frozen-credential change requests: credential_change_requests ledger
+ *   - MD action audit log: md_list_audit() SD RPC — admin=all (migration 037)
  *   - Responsibility summary: marketing_channels active set + counts derived
  *     from the recorded ledgers above
  * The pending-MD-account approve/reject capability from MdApprovalsTab is
  * preserved here (the one existing admin write, unchanged permissions).
  *
- * Honest gap note (also in the PR): "plain browsing / viewing" by the MD is NOT
- * logged today, so true "full visibility" would additionally require a dedicated
- * MD audit-log table (migration). This tab shows everything that is recorded.
+ * Honest gap note (also in the PR): action-level MD dashboard activity is now
+ * logged (migration 037). Passive "page views / browsing" by the MD is still NOT
+ * logged today, so "full visibility" of raw browsing would require an additional
+ * client-side view-event capture layer. This tab shows everything that is
+ * recorded, including the new action audit log.
  */
 
 type MdMessage = {
@@ -71,6 +77,14 @@ type ActivityEvent = {
   statusTone: 'ok' | 'warn' | 'err' | 'muted'
 }
 
+type AuditRow = {
+  id: string
+  action: string
+  entity_type: string
+  entity_ref: string
+  metadata: Record<string, unknown> | null
+  created_at: string
+}
 const fmt = (s?: string) => (s ? new Date(s).toLocaleString() : '—')
 
 export function MdActivityTab() {
@@ -79,21 +93,24 @@ export function MdActivityTab() {
   const [messages, setMessages] = useState<MdMessage[]>([])
   const [ccrs, setCcrs] = useState<Ccr[]>([])
   const [channelsActive, setChannelsActive] = useState(0)
+  const [audit, setAudit] = useState<AuditRow[]>([])
   const [loading, setLoading] = useState(true)
 
   const load = async () => {
     setLoading(true)
     try {
-      const [profilesRes, msgRes, ccrRes, chRes] = await Promise.all([
+      const [profilesRes, msgRes, ccrRes, chRes, auditRes] = await Promise.all([
         listRows<Profile>('profiles', { where: { role: 'md' } }).catch(() => [] as Profile[]),
         supabase.rpc('md_list_messages').then(r => (r.error ? ([] as MdMessage[]) : ((r.data ?? []) as MdMessage[]))),
         supabase.from('credential_change_requests').select('*').then(r => (r.error ? ([] as Ccr[]) : ((r.data ?? []) as Ccr[]))),
         supabase.from('marketing_channels').select('code, active').then(r => (r.error ? 0 : (r.data ?? []).filter((c: { active: boolean }) => c.active).length)),
+        supabase.rpc('md_list_audit').then(r => (r.error ? ([] as AuditRow[]) : ((r.data ?? []) as AuditRow[]))),
       ])
       setProfiles(profilesRes)
       setMessages(msgRes)
       setCcrs(ccrs)
       setChannelsActive(chRes)
+      setAudit(auditRes)
     } finally {
       setLoading(false)
     }
@@ -244,6 +261,31 @@ export function MdActivityTab() {
         </CardContent>
       </Card>
 
+      {/* Audit log (action-level, migration 037) */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2"><ListChecks className="size-4 text-primary" />{t('hq.mdact.auditTitle')}</CardTitle>
+          <CardDescription>{t('hq.mdact.auditDesc')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          {audit.length === 0 ? (
+            <p className="text-sm text-muted-foreground py-4 text-center">{t('hq.mdact.noAudit')}</p>
+          ) : (
+            <div className="space-y-2">
+              {audit.slice(0, 50).map(a => (
+                <div key={a.id} className="flex items-start gap-3 rounded-lg border p-3">
+                  <div className="mt-0.5 shrink-0"><ListChecks className="size-4 text-primary" /></div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium leading-snug">{t(`hq.mdact.audit.${a.action}`)}</p>
+                    <p className="text-xs text-muted-foreground capitalize">{a.entity_type}{a.entity_ref ? ` · ${a.entity_ref}` : ''}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5">{fmt(a.created_at)}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
       {/* Honest gap note */}
       <Card className="border-dashed">
         <CardContent className="pt-4">
