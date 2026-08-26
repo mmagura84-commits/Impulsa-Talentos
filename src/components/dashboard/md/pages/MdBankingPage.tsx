@@ -23,6 +23,7 @@ type BankRow = {
   wompi_public_key: string
   wompi_private_key_last4: string
   wompi_webhook_last4: string
+  wompi_payment_link_url: string
   status: string
   locked: boolean
 }
@@ -40,12 +41,14 @@ type FieldState = {
   wompiPrivateKeyLast4: string
   wompiWebhook: string
   wompiWebhookLast4: string
+  wompiPaymentLinkUrl: string
 }
 
 const emptyField: FieldState = {
   bankName: '', accountType: '', accountNumber: '', accountNumberLast4: '',
   titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '',
   wompiPrivateKey: '', wompiPrivateKeyLast4: '', wompiWebhook: '', wompiWebhookLast4: '',
+  wompiPaymentLinkUrl: '',
 }
 
 export function Banking() {
@@ -61,7 +64,7 @@ export function Banking() {
   const [notice, setNotice] = useState('')
   // change request
   const [crOpen, setCrOpen] = useState(false)
-  const [cr, setCr] = useState({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', reason: '' })
+  const [cr, setCr] = useState({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', wompiPaymentLinkUrl: '', reason: '' })
 
   useEffect(() => {
     if (!ok) nav({ to: '/dashboard', replace: true })
@@ -84,6 +87,7 @@ export function Banking() {
         swiftCode: arr[0].swift_code, wompiPublicKey: arr[0].wompi_public_key,
         wompiPrivateKey: '', wompiPrivateKeyLast4: arr[0].wompi_private_key_last4,
         wompiWebhook: '', wompiWebhookLast4: arr[0].wompi_webhook_last4,
+        wompiPaymentLinkUrl: arr[0].wompi_payment_link_url,
       })
     }
     // fetch the single frozen banking id for change-request targeting (own row via RLS)
@@ -117,6 +121,7 @@ export function Banking() {
       p_wompi_private_key_last4: form.wompiPrivateKeyLast4,
       p_wompi_webhook_secret: form.wompiWebhook || null,
       p_wompi_webhook_last4: form.wompiWebhookLast4,
+      p_wompi_payment_link_url: form.wompiPaymentLinkUrl,
     })
     if (error) {
       setError(t('md.banking.saveError') + ' ' + error.message)
@@ -147,6 +152,7 @@ export function Banking() {
         bank_name: cr.bankName, account_type: cr.accountType,
         titular_name: cr.titularName, nit_rust: cr.nitRust,
         swift_code: cr.swiftCode, wompi_public_key: cr.wompiPublicKey,
+        wompi_payment_link_url: cr.wompiPaymentLinkUrl,
       },
       p_new_secret: cr.wompiPrivateKey || null,
       p_new_secret_last4: cr.wompiPrivateKeyLast4,
@@ -157,7 +163,7 @@ export function Banking() {
     } else {
       setNotice(t('md.request.submitted'))
       await logMdAudit('credential_change_requested', 'banking', bankId, {})
-      setCr({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', reason: '' })
+      setCr({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', wompiPaymentLinkUrl: '', reason: '' })
       setCrOpen(false)
       await reload()
     }
@@ -228,6 +234,10 @@ export function Banking() {
                     <Label htmlFor="wompiWebhook">{t('md.banking.wompiWebhook')}</Label>
                     <Input id="wompiWebhook" type="password" value={form.wompiWebhook} onChange={(e) => set('wompiWebhook', e.target.value)} />
                   </div>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="wompiPaymentLinkUrl">{t('md.banking.wompiPaymentLinkUrl')}</Label>
+                    <Input id="wompiPaymentLinkUrl" value={form.wompiPaymentLinkUrl} onChange={(e) => set('wompiPaymentLinkUrl', e.target.value)} placeholder="https://checkout.wompi.co/l/…" />
+                  </div>
                 </div>
               </div>
               <Button disabled={!ok || busy} onClick={save}>
@@ -243,6 +253,9 @@ export function Banking() {
               <p className="text-muted-foreground">{t('md.banking.nitRut')}: <span className="text-foreground">{bank?.nit_rust || '—'}</span></p>
               <p className="text-muted-foreground">{t('md.banking.swiftCode')}: <span className="text-foreground">{bank?.swift_code || '—'}</span></p>
               <p className="text-muted-foreground">{t('md.banking.wompiPublicKey')}: <span className="break-all text-foreground">{bank?.wompi_public_key || '—'}</span></p>
+              {bank?.wompi_payment_link_url && (
+                <p className="text-muted-foreground">{t('md.banking.wompiPaymentLinkUrl')}: <span className="break-all text-foreground">{t('md.marketing.maskedPrefix')}{bank.wompi_payment_link_url.slice(-8)}</span></p>
+              )}
               {bank?.wompi_private_key_last4 && (
                 <p className="text-muted-foreground">{t('md.banking.wompiPrivateKey')}: <span className="text-foreground">{t('md.marketing.maskedPrefix')}{bank.wompi_private_key_last4}</span></p>
               )}
@@ -261,6 +274,7 @@ export function Banking() {
                     <Input aria-label={t('md.banking.nitRut')} value={cr.nitRust} onChange={(e) => updateCr('nitRust', e.target.value)} placeholder={t('md.banking.nitRut')} />
                     <Input aria-label={t('md.banking.swiftCode')} value={cr.swiftCode} onChange={(e) => updateCr('swiftCode', e.target.value)} placeholder={t('md.banking.swiftCode')} />
                     <Input aria-label={t('md.banking.wompiPublicKey')} value={cr.wompiPublicKey} onChange={(e) => updateCr('wompiPublicKey', e.target.value)} placeholder={t('md.banking.wompiPublicKey')} />
+                    <Input aria-label={t('md.banking.wompiPaymentLinkUrl')} value={cr.wompiPaymentLinkUrl} onChange={(e) => updateCr('wompiPaymentLinkUrl', e.target.value)} placeholder={t('md.banking.wompiPaymentLinkUrl')} />
                     <Input aria-label={`${t('md.banking.wompiPrivateKey')} (${t('md.request.optional')})`} type="password" value={cr.wompiPrivateKey} onChange={(e) => updateCr('wompiPrivateKey', e.target.value)} placeholder={t('md.banking.wompiPrivateKey')} />
                     <Textarea aria-label={t('md.request.reason')} value={cr.reason} onChange={(e) => updateCr('reason', e.target.value)} placeholder={t('md.request.reason')} rows={2} />
                     <div className="flex gap-2">
