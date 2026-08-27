@@ -1,7 +1,10 @@
 name: Deploy to Hostinger
 on:
-  push:
-    branches: [main]
+  # Manual-only after the 2026-08-27 incident: a push trigger auto-cleared public_html and
+  # failed to upload index.html/spa-fallback.html, taking impulsatalentos.expert down (403/404).
+  # This workflow now runs ONLY on explicit "Run workflow" dispatch by an authorized maintainer,
+  # and only after the change is QA-certified. The canonical deploy path remains the LOCAL
+  # deploy.sh against the live project (cmdqlybsgkegolqydmbh).
   workflow_dispatch:
 jobs:
   deploy:
