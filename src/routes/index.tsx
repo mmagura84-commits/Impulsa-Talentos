@@ -281,7 +281,7 @@ const CITY_PHOTOS: Record<string, string> = {
   cartagena: '/images/professional-cartagena-v2.webp',
   cali: '/images/professional-cali-v2.webp',
   barranquilla: '/images/professional-barranquilla-v2.webp',
-  cucuta: '/images/hero-professional-coworking.webp',
+  cucuta: '/images/professional-cucuta-v2.webp',
 }
 // Verified downtown Medellín skyline for the hero only; city cards retain professional crops.
 const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
@@ -312,7 +312,7 @@ const CITY_IMAGE_POSITION: Record<string, string> = {
   cartagena: '68% 50%',
   cali: '68% 50%',
   barranquilla: '68% 50%',
-  cucuta: '50% 50%',
+  cucuta: '68% 50%',
 }
 const CITY_IMAGE_ALT_KEY: Record<string, string> = {
   medellin: 'landing.cityMedellinAlt',
