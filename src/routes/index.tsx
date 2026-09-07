@@ -202,19 +202,14 @@ function JobFeedPreview() {
 /* ── Stats bar — LIVE numbers from Supabase ────────────────── */
 function StatsBar() {
   const { t } = useI18n()
-  const { data: allJobs } = useAllJobs()
-  const { data: allCompanies } = useAllCompanies()
-
-  const openJobs = (allJobs ?? []).filter(isOpen)
-
 
   return (
-      return (
     <section className="border-y border-border bg-muted/40">
       <div className="mx-auto max-w-6xl px-5 py-8 text-center">
         <p className="text-lg font-semibold text-foreground">{t('landing.trustedByLine')}</p>
       </div>
-    </section>  )
+    </section>
+  )
 }
 
 /* ── Company scrolling ribbon — trusted-by marquee below hero ── */
@@ -286,6 +281,7 @@ const CITY_PHOTOS: Record<string, string> = {
   cartagena: '/images/professional-cartagena-v2.webp',
   cali: '/images/professional-cali-v2.webp',
   barranquilla: '/images/professional-barranquilla-v2.webp',
+  cucuta: '/images/hero-professional-coworking.webp',
 }
 // Verified downtown Medellín skyline for the hero only; city cards retain professional crops.
 const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
@@ -316,6 +312,7 @@ const CITY_IMAGE_POSITION: Record<string, string> = {
   cartagena: '68% 50%',
   cali: '68% 50%',
   barranquilla: '68% 50%',
+  cucuta: '50% 50%',
 }
 const CITY_IMAGE_ALT_KEY: Record<string, string> = {
   medellin: 'landing.cityMedellinAlt',
@@ -323,6 +320,7 @@ const CITY_IMAGE_ALT_KEY: Record<string, string> = {
   cartagena: 'landing.cityCartagenaAlt',
   cali: 'landing.cityCaliAlt',
   barranquilla: 'landing.cityBarranquillaAlt',
+  cucuta: 'landing.cityCucutaAlt',
 }
 const PHOTO_CREDITS = [
   ['I.D. R.J.', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Medell%C3%ADn_skyline02.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
@@ -338,6 +336,7 @@ const CITIES: { key: string; re: RegExp }[] = [
   { key: 'cartagena', re: /cartagena/i },
   { key: 'cali', re: /\bcali\b/i },
   { key: 'barranquilla', re: /barranquilla/i },
+  { key: 'cucuta', re: /c[uú]cuta/i },
 ]
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)

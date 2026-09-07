@@ -44,6 +44,7 @@ const CITY_META: { key: string; nameKey: string; tagKey: string; photo: string }
   { key: 'cartagena', nameKey: 'landing.cityCartagena', tagKey: 'landing.cityCartagenaTag', photo: '/images/professional-cartagena-v2.webp' },
   { key: 'cali', nameKey: 'landing.cityCali', tagKey: 'landing.cityCaliTag', photo: '/images/professional-cali-v2.webp' },
   { key: 'barranquilla', nameKey: 'landing.cityBarranquilla', tagKey: 'landing.cityBarranquillaTag', photo: '/images/professional-barranquilla-v2.webp' },
+  { key: 'cucuta', nameKey: 'landing.cityCucuta', tagKey: 'landing.cityCucutaTag', photo: '/images/hero-professional-coworking.webp' },
 ]
 
 function MobileLanding() {
@@ -65,7 +66,7 @@ function MobileLanding() {
   const cityCounts = new Map<string, number>()
   for (const city of CITY_META) {
     const re =
-      city.key === 'medellin' ? /medell/i : city.key === 'bogota' ? /bogot/i : city.key === 'cartagena' ? /cartagena/i : city.key === 'cali' ? /\bcali\b/i : /barranquilla/i
+      city.key === 'medellin' ? /medell/i : city.key === 'bogota' ? /bogot/i : city.key === 'cartagena' ? /cartagena/i : city.key === 'cali' ? /\bcali\b/i : city.key === 'barranquilla' ? /barranquilla/i : /c[uú]cuta/i
     cityCounts.set(city.key, openJobs.filter(j => re.test(j.locationType || '')).length)
   }
   return (
