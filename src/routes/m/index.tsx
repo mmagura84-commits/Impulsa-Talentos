@@ -44,7 +44,7 @@ const CITY_META: { key: string; nameKey: string; tagKey: string; photo: string }
   { key: 'cartagena', nameKey: 'landing.cityCartagena', tagKey: 'landing.cityCartagenaTag', photo: '/images/professional-cartagena-v2.webp' },
   { key: 'cali', nameKey: 'landing.cityCali', tagKey: 'landing.cityCaliTag', photo: '/images/professional-cali-v2.webp' },
   { key: 'barranquilla', nameKey: 'landing.cityBarranquilla', tagKey: 'landing.cityBarranquillaTag', photo: '/images/professional-barranquilla-v2.webp' },
-  { key: 'cucuta', nameKey: 'landing.cityCucuta', tagKey: 'landing.cityCucutaTag', photo: '/images/hero-professional-coworking.webp' },
+  { key: 'cucuta', nameKey: 'landing.cityCucuta', tagKey: 'landing.cityCucutaTag', photo: '/images/professional-cucuta-v2.webp' },
 ]
 
 function MobileLanding() {
