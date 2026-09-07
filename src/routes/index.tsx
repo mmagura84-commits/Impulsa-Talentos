@@ -206,37 +206,15 @@ function StatsBar() {
   const { data: allCompanies } = useAllCompanies()
 
   const openJobs = (allJobs ?? []).filter(isOpen)
-  const stats = [
-    { icon: Languages, label: t('landing.stats.talentToHire'), value: '500+' },
-    { icon: Building2, label: t('landing.stats.companies'), value: '200+' },
-    { icon: Briefcase, label: t('landing.stats.placementRate'), value: '85%' },
-    { icon: Briefcase, label: t('landing.stats.sectors'), value: '4' },
-  ]
+
 
   return (
+      return (
     <section className="border-y border-border bg-muted/40">
-      <div className="mx-auto grid max-w-6xl grid-cols-2 gap-4 px-5 py-8 sm:grid-cols-4">
-        {stats.map((stat, i) => (
-          <motion.div
-            key={stat.label}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.5, delay: i * 0.1, ease: [0.25, 0.1, 0.25, 1] }}
-            className="flex items-center gap-4 rounded-xl border border-border bg-card px-5 py-4"
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <stat.icon className="size-5" />
-            </div>
-            <div className="min-w-0">
-              <p className="text-2xl font-bold text-foreground leading-none">{stat.value}</p>
-              <p className="mt-1 truncate text-sm text-muted-foreground">{stat.label}</p>
-            </div>
-          </motion.div>
-        ))}
+      <div className="mx-auto max-w-6xl px-5 py-8 text-center">
+        <p className="text-lg font-semibold text-foreground">{t('landing.trustedByLine')}</p>
       </div>
-    </section>
-  )
+    </section>  )
 }
 
 /* ── Company scrolling ribbon — trusted-by marquee below hero ── */

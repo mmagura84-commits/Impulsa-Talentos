@@ -122,10 +122,6 @@ const es: Dict = {
   'landing.hero.verified': 'Plataforma verificada',
   'landing.hero.aiMatching': 'Matching inteligente',
 
-  'landing.stats.talentToHire': 'Talento bilingüe por contratar',
-  'landing.stats.companies': 'Empresas asociadas',
-  'landing.stats.placementRate': 'Tasa de colocacion',
-  'landing.stats.sectors': 'Sectores especializados',
 
   'landing.candidates.title': 'Para Candidatos',
   'landing.candidates.subtitle': 'Encuentra el trabajo bilingüe que mereces en cuatro pasos.',
@@ -458,6 +454,7 @@ const es: Dict = {
   'landing.ctaSearch': 'Buscar empleos',
   'landing.ctaHire': 'Contratar talento',
   'landing.trustedBy': 'Confían en nosotros {n} empresas contratando talento bilingüe',
+  'landing.trustedByLine': 'Más de 1000 empresas líderes, locales, regionales e internacionales confían en nosotros.',
   'landing.ctaCreate': 'Crea tu cuenta gratis',
   'landing.ctaGoDashboard': 'Ir al panel',
   'landing.statOpen': 'Empleos abiertos',

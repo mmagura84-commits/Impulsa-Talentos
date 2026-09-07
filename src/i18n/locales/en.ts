@@ -123,10 +123,6 @@ const en: Dict = {
   'landing.hero.verified': 'Verified platform',
   'landing.hero.aiMatching': 'Smart matching',
 
-  'landing.stats.talentToHire': 'Bilingual talent to hire',
-  'landing.stats.companies': 'Partner companies',
-  'landing.stats.placementRate': 'Placement rate',
-  'landing.stats.sectors': 'Specialized sectors',
 
   'landing.candidates.title': 'For Candidates',
   'landing.candidates.subtitle': 'Find the bilingual job you deserve in four steps.',
@@ -459,6 +455,7 @@ const en: Dict = {
   'landing.ctaSearch': 'Search Jobs',
   'landing.ctaHire': 'Hire Talent',
   'landing.trustedBy': 'Trusted by {n} companies hiring bilingual talent',
+  'landing.trustedByLine': 'Trusted by 1000+ Premier Companies, Local, regional and International.',
   'landing.ctaCreate': 'Create Free Account',
   'landing.ctaGoDashboard': 'Go to Dashboard',
   'landing.statOpen': 'Open jobs',

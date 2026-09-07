@@ -150,13 +150,10 @@ function MobileLanding() {
         </section>
       )}
 
-      {/* ── Stats bar (parity w/ desktop) ─────────────────── */}
+      {/* ── Trusted-by line (parity w/ desktop) ──────────────── */}
       <section className="border-y border-border bg-muted/40">
-        <div className="grid grid-cols-2 gap-3 px-5 py-6">
-          <StatCard icon={Languages} value="500+" label={t('landing.stats.talentToHire')} />
-          <StatCard icon={Building2} value="200+" label={t('landing.stats.companies')} />
-          <StatCard icon={Briefcase} value="85%" label={t('landing.stats.placementRate')} />
-          <StatCard icon={Briefcase} value="4" label={t('landing.stats.sectors')} />
+        <div className="px-5 py-6 text-center">
+          <p className="text-base font-semibold text-foreground">{t('landing.trustedByLine')}</p>
         </div>
       </section>
 
