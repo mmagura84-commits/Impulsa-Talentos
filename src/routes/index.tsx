@@ -472,9 +472,9 @@ function LandingPage() {
         </SectionReveal>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           {[
-            { step: '01', img: '/images/business-medellin.webp', pos: '65% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
-            { step: '02', img: '/images/business-cali.webp', pos: '65% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
-            { step: '03', img: '/images/business-bogota.webp', pos: '65% 45%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
+            { step: '01', img: '/images/industry-technology.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '02', img: '/images/employer/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
+            { step: '03', img: '/images/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
               <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
