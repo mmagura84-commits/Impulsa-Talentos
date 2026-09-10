@@ -163,9 +163,9 @@ function MobileLanding() {
         <h2 className="text-2xl font-bold tracking-tight text-foreground">{t('landing.howTitle')}</h2>
         <p className="mt-1.5 text-sm text-muted-foreground">{t('landing.howSub')}</p>
         <div className="mt-5 space-y-3">
-          <StepCard step="1" title={t('landing.how1Title')} desc={t('landing.how1Desc')} />
-          <StepCard step="2" title={t('landing.how2Title')} desc={t('landing.how2Desc')} />
-          <StepCard step="3" title={t('landing.how3Title')} desc={t('landing.how3Desc')} />
+          <StepCard step="1" title={t('landing.how1Title')} desc={t('landing.how1Desc')} img="/images/business-medellin.webp" imgAlt={t('landing.how1ImgAlt')} pos="65% 50%" />
+          <StepCard step="2" title={t('landing.how2Title')} desc={t('landing.how2Desc')} img="/images/business-cali.webp" imgAlt={t('landing.how2ImgAlt')} pos="65% 50%" />
+          <StepCard step="3" title={t('landing.how3Title')} desc={t('landing.how3Desc')} img="/images/business-bogota.webp" imgAlt={t('landing.how3ImgAlt')} pos="65% 45%" />
         </div>
       </section>
 
@@ -227,13 +227,16 @@ function MobileLanding() {
   )
 }
 
-function StepCard({ step, title, desc }: { step: string; title: string; desc: string }) {
+function StepCard({ step, title, desc, img, imgAlt, pos }: { step: string; title: string; desc: string; img: string; imgAlt: string; pos: string }) {
   return (
-    <div className="relative overflow-hidden rounded-xl border border-border bg-card p-4">
-      <span className="absolute -top-1 right-3 text-5xl font-bold text-primary/10">{step}</span>
-      <p className="text-xs font-bold uppercase tracking-widest text-primary">0{step}</p>
-      <h3 className="mt-1 font-semibold">{title}</h3>
-      <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+    <div className="relative overflow-hidden rounded-xl border border-border bg-card">
+      <img src={img} alt={imgAlt} loading="lazy" decoding="async" style={{ objectPosition: pos }} className="h-24 w-full object-cover" />
+      <div className="relative p-4">
+        <span className="absolute right-3 top-3 text-4xl font-bold text-primary/10">{step}</span>
+        <p className="text-xs font-bold uppercase tracking-widest text-primary">0{step}</p>
+        <h3 className="mt-1 font-semibold">{title}</h3>
+        <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{desc}</p>
+      </div>
     </div>
   )
 }
