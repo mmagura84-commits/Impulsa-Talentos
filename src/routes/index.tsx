@@ -4,11 +4,9 @@ import {
   ArrowRight,
   Briefcase,
   Building2,
-  CalendarCheck,
   Clock,
   Code2,
   DollarSign,
-  FileText,
   Globe,
   Headphones,
   HeartPulse,
@@ -474,18 +472,18 @@ function LandingPage() {
         </SectionReveal>
         <div className="mt-10 grid gap-5 sm:grid-cols-3">
           {[
-            { step: '01', icon: FileText, title: t('landing.how1Title'), desc: t('landing.how1Desc') },
-            { step: '02', icon: Sparkles, title: t('landing.how2Title'), desc: t('landing.how2Desc') },
-            { step: '03', icon: CalendarCheck, title: t('landing.how3Title'), desc: t('landing.how3Desc') },
+            { step: '01', img: '/images/business-medellin.webp', pos: '65% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '02', img: '/images/business-cali.webp', pos: '65% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
+            { step: '03', img: '/images/business-bogota.webp', pos: '65% 45%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
-              <div className="relative h-full rounded-xl border border-border bg-card p-6 transition-shadow hover:shadow-md">
-                <span className="absolute top-5 right-5 text-3xl font-bold text-primary/20">{s.step}</span>
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                  <s.icon className="size-5" />
+              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
+                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="h-32 w-full object-cover" />
+                <div className="relative flex-1 p-6">
+                  <span className="absolute top-5 right-5 text-3xl font-bold text-primary/20">{s.step}</span>
+                  <h3 className="font-semibold text-foreground">{s.title}</h3>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                 </div>
-                <h3 className="mt-4 font-semibold text-foreground">{s.title}</h3>
-                <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
               </div>
             </SectionReveal>
           ))}
