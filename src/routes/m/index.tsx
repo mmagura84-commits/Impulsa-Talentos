@@ -163,9 +163,9 @@ function MobileLanding() {
         <h2 className="text-2xl font-bold tracking-tight text-foreground">{t('landing.howTitle')}</h2>
         <p className="mt-1.5 text-sm text-muted-foreground">{t('landing.howSub')}</p>
         <div className="mt-5 space-y-3">
-          <StepCard step="1" title={t('landing.how1Title')} desc={t('landing.how1Desc')} img="/images/business-medellin.webp" imgAlt={t('landing.how1ImgAlt')} pos="65% 50%" />
-          <StepCard step="2" title={t('landing.how2Title')} desc={t('landing.how2Desc')} img="/images/business-cali.webp" imgAlt={t('landing.how2ImgAlt')} pos="65% 50%" />
-          <StepCard step="3" title={t('landing.how3Title')} desc={t('landing.how3Desc')} img="/images/business-bogota.webp" imgAlt={t('landing.how3ImgAlt')} pos="65% 45%" />
+          <StepCard step="1" title={t('landing.how1Title')} desc={t('landing.how1Desc')} img="/images/industry-technology.webp" imgAlt={t('landing.how1ImgAlt')} pos="50% 50%" />
+          <StepCard step="2" title={t('landing.how2Title')} desc={t('landing.how2Desc')} img="/images/employer/employer-hero-office.webp" imgAlt={t('landing.how2ImgAlt')} pos="50% 50%" />
+          <StepCard step="3" title={t('landing.how3Title')} desc={t('landing.how3Desc')} img="/images/hero-professional-coworking.webp" imgAlt={t('landing.how3ImgAlt')} pos="50% 50%" />
         </div>
       </section>
 
