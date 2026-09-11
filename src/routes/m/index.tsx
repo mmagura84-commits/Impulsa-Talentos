@@ -39,12 +39,12 @@ function isOpen(j: Job) {
 }
 
 const CITY_META: { key: string; nameKey: string; tagKey: string; photo: string }[] = [
-  { key: 'medellin', nameKey: 'landing.cityMedellin', tagKey: 'landing.cityMedellinTag', photo: '/images/professional-medellin-v2.webp' },
-  { key: 'bogota', nameKey: 'landing.cityBogota', tagKey: 'landing.cityBogotaTag', photo: '/images/professional-bogota-v2.webp' },
-  { key: 'cartagena', nameKey: 'landing.cityCartagena', tagKey: 'landing.cityCartagenaTag', photo: '/images/professional-cartagena-v2.webp' },
-  { key: 'cali', nameKey: 'landing.cityCali', tagKey: 'landing.cityCaliTag', photo: '/images/professional-cali-v2.webp' },
-  { key: 'barranquilla', nameKey: 'landing.cityBarranquilla', tagKey: 'landing.cityBarranquillaTag', photo: '/images/professional-barranquilla-v2.webp' },
-  { key: 'cucuta', nameKey: 'landing.cityCucuta', tagKey: 'landing.cityCucutaTag', photo: '/images/hero-professional-coworking.webp' },
+  { key: 'medellin', nameKey: 'landing.cityMedellin', tagKey: 'landing.cityMedellinTag', photo: '/images/industry-technology.webp' },
+  { key: 'bogota', nameKey: 'landing.cityBogota', tagKey: 'landing.cityBogotaTag', photo: '/images/industry-finance.webp' },
+  { key: 'cartagena', nameKey: 'landing.cityCartagena', tagKey: 'landing.cityCartagenaTag', photo: '/images/industry-customer-hospitality.webp' },
+  { key: 'cali', nameKey: 'landing.cityCali', tagKey: 'landing.cityCaliTag', photo: '/images/industry-sales-marketing.webp' },
+  { key: 'barranquilla', nameKey: 'landing.cityBarranquilla', tagKey: 'landing.cityBarranquillaTag', photo: '/images/industry-operations-logistics.webp' },
+  { key: 'cucuta', nameKey: 'landing.cityCucuta', tagKey: 'landing.cityCucutaTag', photo: '/images/industry-education-training.webp' },
 ]
 
 function MobileLanding() {
