@@ -274,12 +274,12 @@ const CTA_BAND_PHOTO =
 // Professional team image: Unsplash License, stable asset URL (Annie Spratt).
 const TALENT_WORK_PHOTO = candidatesPhoto.src
 const CITY_PHOTOS: Record<string, string> = {
-  medellin: '/images/professional-medellin-v2.webp',
-  bogota: '/images/professional-bogota-v2.webp',
-  cartagena: '/images/professional-cartagena-v2.webp',
-  cali: '/images/professional-cali-v2.webp',
-  barranquilla: '/images/professional-barranquilla-v2.webp',
-  cucuta: '/images/hero-professional-coworking.webp',
+  medellin: '/images/industry-technology.webp',
+  bogota: '/images/industry-finance.webp',
+  cartagena: '/images/industry-customer-hospitality.webp',
+  cali: '/images/industry-sales-marketing.webp',
+  barranquilla: '/images/industry-operations-logistics.webp',
+  cucuta: '/images/industry-education-training.webp',
 }
 // Verified downtown Medellín skyline for the hero only; city cards retain professional crops.
 const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
@@ -305,11 +305,11 @@ const REFERENCE_PHOTOS = {
 } as const
 // Focal points preserve the office mass and contextual greenery in the wide 3:2 source crops.
 const CITY_IMAGE_POSITION: Record<string, string> = {
-  medellin: '68% 52%',
-  bogota: '68% 45%',
-  cartagena: '68% 50%',
-  cali: '68% 50%',
-  barranquilla: '68% 50%',
+  medellin: '50% 50%',
+  bogota: '50% 50%',
+  cartagena: '50% 50%',
+  cali: '50% 50%',
+  barranquilla: '50% 50%',
   cucuta: '50% 50%',
 }
 const CITY_IMAGE_ALT_KEY: Record<string, string> = {
