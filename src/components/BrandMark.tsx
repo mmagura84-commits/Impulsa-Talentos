@@ -1,5 +1,5 @@
 /**
- * Impulsa Talentos — Brand mark + wordmark.
+ * HemisVia — Brand mark + wordmark.
  * Renders as inline SVG so it inherits `currentColor` and works at any size.
  * Typography matches the hero h1 (Lora, 700) so the wordmark reads as a
  * peer of the headline, not body copy.
@@ -45,8 +45,8 @@ export function BrandMark({ className, withWordmark = false, title }: BrandMarkP
         </svg>
         {title ? <span className="sr-only">{title}</span> : null}
         <span className="font-serif font-bold text-2xl tracking-tight text-foreground whitespace-nowrap">
-          <span>Impulsa</span>
-          <span className="text-primary"> Talentos</span>
+          <span>Hemis</span>
+          <span className="text-primary">Via</span>
         </span>
       </span>
     )

@@ -68,7 +68,7 @@ type EmployerEmailCopy = {
 
 const candidateCopy: Record<Locale, CandidateEmailCopy> = {
   en: {
-    subject: 'We received your application — Impulsa Talentos',
+    subject: 'We received your application — HemisVia',
     preview: 'Your application is now in the employer\'s queue.',
     heading: 'Application received!',
     thanks: (title) => `Thanks for applying to ${title}.`,
@@ -88,11 +88,11 @@ const candidateCopy: Record<Locale, CandidateEmailCopy> = {
     next2: 'If there\'s a fit, they\'ll reach out via email to schedule an interview.',
     ctaDashboard: 'View my applications',
     ctaBrowse: 'Browse more jobs',
-    signature: 'The Impulsa Talentos team',
+    signature: 'The HemisVia team',
     tagline: 'Connecting bilingual talent with the world.',
   },
   es: {
-    subject: 'Recibimos tu postulación — Impulsa Talentos',
+    subject: 'Recibimos tu postulación — HemisVia',
     preview: 'Tu postulación ya está en la cola del empleador.',
     heading: '¡Postulación recibida!',
     thanks: (title) => `Gracias por postularte a ${title}.`,
@@ -112,7 +112,7 @@ const candidateCopy: Record<Locale, CandidateEmailCopy> = {
     next2: 'Si hay match, te contactarán por correo para agendar una entrevista.',
     ctaDashboard: 'Ver mis postulaciones',
     ctaBrowse: 'Ver más vacantes',
-    signature: 'El equipo de Impulsa Talentos',
+    signature: 'El equipo de HemisVia',
     tagline: 'Conectando talento bilingüe con el mundo.',
   },
 }
@@ -140,7 +140,7 @@ const employerCopy: Record<Locale, EmployerEmailCopy> = {
     languages_: 'Required languages',
     applied: 'Applied',
     ctaReview: (title) => `Review applications for ${title}`,
-    signature: 'The Impulsa Talentos team',
+    signature: 'The HemisVia team',
     tagline: 'Bilingual recruitment powered by our proprietary technology.',
   },
   es: {
@@ -165,7 +165,7 @@ const employerCopy: Record<Locale, EmployerEmailCopy> = {
     languages_: 'Idiomas requeridos',
     applied: 'Postulado',
     ctaReview: (title) => `Revisar postulaciones de ${title}`,
-    signature: 'El equipo de Impulsa Talentos',
+    signature: 'El equipo de HemisVia',
     tagline: 'Reclutamiento bilingüe con nuestra tecnología propietaria.',
   },
 }
@@ -210,7 +210,7 @@ function shell(preview: string, content: string, copy: { signature: string; tagl
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Impulsa Talentos</title>
+<title>HemisVia</title>
 </head>
 <body style="margin:0;padding:0;background:#f5f6f8;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#0f172a;">
 <span style="display:none!important;opacity:0;color:transparent;height:0;width:0;overflow:hidden;">${escapeHtml(preview)}</span>
@@ -221,7 +221,7 @@ function shell(preview: string, content: string, copy: { signature: string; tagl
         <tr>
           <td style="background:linear-gradient(135deg,#1f3a8a 0%,#3b82f6 100%);padding:24px 28px;">
             <span style="display:inline-block;font-family:'Lora',Georgia,serif;font-weight:700;font-size:22px;color:#ffffff;letter-spacing:-0.2px;">
-              Impulsa <span style="color:#facc15;">Talentos</span>
+              Hemis<span style="color:#facc15;">Via</span>
             </span>
           </td>
         </tr>

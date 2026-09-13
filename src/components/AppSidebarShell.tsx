@@ -1,5 +1,5 @@
 /**
- * Impulsa Talentos — Collapsible SaaS sidebar.
+ * HemisVia — Collapsible SaaS sidebar.
  * Expands to 15rem, collapses to 3rem (icon-only). State persisted to localStorage.
  * Integrates with Blink auth for user display and sign-out.
  */

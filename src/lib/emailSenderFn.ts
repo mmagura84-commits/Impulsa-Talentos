@@ -8,7 +8,7 @@ export interface EmailPayload {
 }
 
 const RESEND_API = 'https://api.resend.com/emails'
-const FROM = 'Impulsa Talentos <partners@impulsatalentos.expert>'
+const FROM = 'HemisVia <partners@hemisvia.com>'
 
 /** Sends email from the server so the Resend credential never enters client code. */
 export const sendEmailServer = createServerFn({ method: 'POST' })

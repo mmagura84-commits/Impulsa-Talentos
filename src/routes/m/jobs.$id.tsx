@@ -17,7 +17,7 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/m/jobs/$id')({
-  head: () => ({ meta: [{ title: 'Job — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Job — HemisVia (mobile)' }] }),
   component: MobileJobDetail,
 })
 

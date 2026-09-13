@@ -23,7 +23,7 @@ export const Route = createFileRoute('/caregivers')({
   component: CaregiversDirectoryPage,
   head: () => ({
     meta: [
-      { title: 'Home & Care — Pre-screened Caregivers | Impulsa Talentos' },
+      { title: 'Home & Care — Pre-screened Caregivers | HemisVia' },
       { name: 'description', content: 'Browse pre-screened nannies, housekeepers and nursing assistants in Medellín. Every caregiver is document-verified by our team before being listed.' },
     ],
   }),

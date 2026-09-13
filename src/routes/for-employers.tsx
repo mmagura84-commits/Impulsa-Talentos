@@ -10,7 +10,7 @@ import { setOnboardingIntent } from '@/lib/intent'
 
 export const Route = createFileRoute('/for-employers')({
   component: ForEmployersPage,
-  head: () => ({ meta: [{ title: 'For Employers — Hire Bilingual Talent | Impulsa Talentos' }, { name: 'description', content: "Find Colombia's best bilingual talent. Post jobs, review candidates, and hire globally." }] }),
+  head: () => ({ meta: [{ title: 'For Employers — Hire Bilingual Talent | HemisVia' }, { name: 'description', content: "Find Colombia's best bilingual talent. Post jobs, review candidates, and hire globally." }] }),
 })
 
 const open = (j: { status: string; moderationStatus?: string }) => j.status === 'open' && j.moderationStatus !== 'pending'

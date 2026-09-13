@@ -7,7 +7,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/emailSender'
 
-const NOTIFY_EMAIL = 'partners@impulsatalentos.expert'
+const NOTIFY_EMAIL = 'partners@hemisvia.com'
 
 function buildLeadEmail(form: { email: string; phone: string; name: string; company: string }) {
   const name = form.name || '(not provided)'
@@ -23,7 +23,7 @@ function buildLeadEmail(form: { email: string; phone: string; name: string; comp
       `Company: ${company}`,
       `Phone:   ${phone}`,
       ``,
-      `View all leads: https://impulsatalentos.expert/hq/leads`,
+      `View all leads: https://hemisvia.com/hq/leads`,
     ].join('\n'),
     html: [
       `<h2>New employer lead</h2>`,
@@ -33,7 +33,7 @@ function buildLeadEmail(form: { email: string; phone: string; name: string; comp
       `<tr><td><strong>Company:</strong></td><td>${escapeHtml(company)}</td></tr>`,
       `<tr><td><strong>Phone:</strong></td><td>${escapeHtml(phone)}</td></tr>`,
       `</table>`,
-      `<br><p><a href="https://impulsatalentos.expert/hq/leads">View all leads →</a></p>`,
+      `<br><p><a href="https://hemisvia.com/hq/leads">View all leads →</a></p>`,
     ].join('\n'),
   }
 }

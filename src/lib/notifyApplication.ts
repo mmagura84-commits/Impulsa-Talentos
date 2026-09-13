@@ -3,7 +3,7 @@
  * and a lightweight heads-up to jobs@ after a successful apply.
  *
  * Employers are NEVER emailed directly. They review applications
- * exclusively through their Impulsa Talentos dashboard.
+ * exclusively through their HemisVia dashboard.
  *
  * Designed to be fire-and-forget — a failed notification never blocks
  * the candidate's confirmation flow.
@@ -18,7 +18,7 @@ import { getRow, countRows, supabase } from '@/lib/supabase'
 import type { Locale } from '@/lib/emailTemplates'
 import type { Locale as I18nLocale } from '@/i18n/types'
 
-const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
+const JOBS_EMAIL = 'jobs@hemisvia.com'
 
 // Re-export for callers
 export type { Locale }

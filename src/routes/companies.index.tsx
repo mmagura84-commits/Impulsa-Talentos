@@ -20,7 +20,7 @@ export const Route = createFileRoute('/companies/')({
   },
   head: () => ({
     meta: [
-      { title: 'Companies Hiring — Impulsa Talentos' },
+      { title: 'Companies Hiring — HemisVia' },
       { name: 'description', content: 'Browse companies hiring bilingual talent in Colombia — tech, CX, healthcare, finance, and marketing teams looking for English + Spanish professionals.' },
     ],
   }),

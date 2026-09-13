@@ -12,7 +12,7 @@ import { sendEmail } from '@/lib/emailSender'
 
 export const Route = createFileRoute('/contact')({
   component: ContactPage,
-  head: () => ({ meta: [{ title: 'Contact — Impulsa Talentos' }, { name: 'description', content: 'Get in touch with the Impulsa Talentos team.' }] }),
+  head: () => ({ meta: [{ title: 'Contact — HemisVia' }, { name: 'description', content: 'Get in touch with the HemisVia team.' }] }),
 })
 
 export default function ContactPage() {
@@ -31,7 +31,7 @@ export default function ContactPage() {
     if (!name || !email || !subject || !message) { setSending(false); setError(true); return }
     try {
       await sendEmail({
-        to: 'info@impulsatalentos.expert',
+        to: 'info@hemisvia.com',
         subject: `[Website contact] ${subject}`,
         text: `Name: ${name}\nEmail: ${email}\n\n${message}`,
         html: `<h2>Website contact</h2><p><strong>Name:</strong> ${escapeHtml(name)}</p><p><strong>Email:</strong> ${escapeHtml(email)}</p><p>${escapeHtml(message).replace(/\n/g, '<br>')}</p>`,

@@ -35,7 +35,7 @@ import { useBlocker } from '@tanstack/react-router'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/m/post')({
-  head: () => ({ meta: [{ title: 'Post a job — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Post a job — HemisVia (mobile)' }] }),
   component: MobilePost,
 })
 

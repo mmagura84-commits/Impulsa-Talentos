@@ -27,14 +27,14 @@
     font-size="24"
     fill="#0f172a"
     letter-spacing="-0.4"
-  >Impulsa</text>
+  >Hemis</text>
   <text
-    x="135"
+    x="116"
     y="32"
     font-family="'Lora', ui-serif, Georgia, serif"
     font-weight="700"
     font-size="24"
     fill="#3b82f6"
     letter-spacing="-0.4"
-  >Talentos</text>
+  >Via</text>
 </svg>

@@ -8,8 +8,8 @@ export const Route = createFileRoute('/privacy')({
   component: PrivacyPage,
   head: () => ({
     meta: [
-      { title: 'Privacy Policy — Impulsa Talentos' },
-      { name: 'description', content: 'Privacy Policy for Impulsa Talentos: how we collect, use, and protect personal data under Colombian law (Ley 1581 de 2012).' },
+      { title: 'Privacy Policy — HemisVia' },
+      { name: 'description', content: 'Privacy Policy for HemisVia: how we collect, use, and protect personal data under Colombian law (Ley 1581 de 2012).' },
     ],
   }),
 })
@@ -22,7 +22,7 @@ const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: stri
     sections: [
       { title: '1. Data Controller', body: 'The data controller is Impulsa Talentos S.A.S., with registered office in Medellín, Antioquia, Colombia. Contact: privacy@impulsatalentos.co.' },
       { title: '2. Data We Collect', body: 'We collect: (a) account data (name, email, phone); (b) profile data (location, languages, bio, CV, salary expectations); (c) company and job data provided by employers; and (d) usage data (pages visited, applications submitted, saved jobs).' },
-      { title: '3. Purpose of Processing', body: 'We process personal data to operate the marketplace: matching candidates with jobs, employers reviewing applications exclusively through their Impulsa Talentos dashboard, improving our matching technology, and complying with legal obligations.' },
+      { title: '3. Purpose of Processing', body: 'We process personal data to operate the marketplace: matching candidates with jobs, employers reviewing applications exclusively through their HemisVia dashboard, improving our matching technology, and complying with legal obligations.' },
       { title: '4. Legal Basis', body: 'Processing is based on your express and prior authorization, which you grant by creating an account and accepting this policy, and on the performance of the service you request.' },
       { title: '5. Sharing of Data', body: 'When you apply to a job, your profile and application are shared with the employer. Employer contact data (application inbox) is used exclusively to deliver candidate notifications. We do not sell personal data to third parties.' },
       { title: '6. Data Retention', body: 'We retain personal data for as long as your account is active and for the periods required by Colombian law, after which it is securely deleted or anonymized.' },

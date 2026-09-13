@@ -73,7 +73,7 @@ function AppLayout() {
       ) : !user ? (
         <><PublicHeader transparentOnTop={false} /><main id="main" className="min-h-dvh"><Outlet /></main></>
       ) : (
-        <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar}>
+        <SharedAppLayout appName="HemisVia" sidebar={sidebar}>
           <Outlet />
         </SharedAppLayout>
       )}

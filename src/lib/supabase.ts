@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
 
 /**
- * Impulsa Talentos — Supabase client (replaces the Blink SDK).
+ * HemisVia — Supabase client (replaces the Blink SDK).
  *
  * Credentials must be supplied as build-time environment variables.
  * Never fall back to a production project: a missing value is a

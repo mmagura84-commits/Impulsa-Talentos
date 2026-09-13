@@ -26,7 +26,7 @@ import type { Company, Job } from '@/types'
 export const Route = createFileRoute('/m/')({
   head: () => ({
     meta: [
-      { title: 'Impulsa Talentos — Mobile' },
+      { title: 'HemisVia — Mobile' },
       { name: 'description', content: 'Bilingual jobs in your pocket.' },
       { name: 'theme-color', content: '#1f3a8a' },
     ],
@@ -84,6 +84,7 @@ function MobileLanding() {
           <h1 className="mt-4 font-serif text-[2rem] leading-[1.1] font-bold tracking-tight text-foreground">
             {t('mobile.hero.lead')}
           </h1>
+          <p className="mt-2 font-serif text-base italic text-primary">{t('brand.tagline')}</p>
           <p className="mt-3 max-w-xl text-[15px] leading-relaxed text-muted-foreground">{t('mobile.hero.leadSub')}</p>
 
           {/* Audience-split CTAs — clear value for each side, reachable in 1 tap */}

@@ -52,8 +52,8 @@ export function buildInterviewEmail(
     ? 'You can track your application status any time from your dashboard.'
     : 'Puedes seguir el estado de tu postulacion en cualquier momento desde tu panel.'
   const signature = en
-    ? 'Good luck! — The Impulsa Talentos team'
-    : 'Mucha suerte! — El equipo de Impulsa Talentos'
+    ? 'Good luck! — The HemisVia team'
+    : 'Mucha suerte! — El equipo de HemisVia'
 
   const linkBlock = input.interviewLink
     ? `<p style="margin:0 0 16px"><a href="${input.interviewLink}" style="background:#1d4ed8;color:#ffffff;padding:10px 18px;border-radius:8px;text-decoration:none;display:inline-block">${joinLabel}</a></p>`

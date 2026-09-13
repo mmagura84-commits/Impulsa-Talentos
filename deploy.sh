@@ -12,7 +12,7 @@ REMOTE_PATH="/home/u774117868/websites/0D7T1hSPl/public_html"
 
 SSH_CMD="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $REMOTE_PORT -i $SSH_KEY"
 
-echo "═══ Impulsa Talentos Deploy ═══"
+echo "═══ HemisVia Deploy ═══"
 echo ""
 
 # 1. Build
@@ -26,7 +26,7 @@ find . -mindepth 1 -maxdepth 1 ! -name node_modules ! -name dist ! -name .run \
 cd "$BUILD_DIR"
 BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache bun install --silent
 rm -rf dist
-SITE_URL="https://impulsatalentos.expert" bun run build
+SITE_URL="https://hemisvia.com" bun run build
 
 # Copy htaccess
 HTACCESS_SRC="/home/team/shared/hostinger-deploy/.htaccess"
@@ -69,4 +69,4 @@ rm -rf "$BUILD_DIR"
 
 echo ""
 echo "✅ Deploy complete!"
-echo "   https://impulsatalentos.expert"
+echo "   https://hemisvia.com"

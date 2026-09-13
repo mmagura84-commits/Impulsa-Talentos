@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils'
 import type { Job } from '@/types'
 
 export const Route = createFileRoute('/m/jobs')({
-  head: () => ({ meta: [{ title: 'Jobs — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Jobs — HemisVia (mobile)' }] }),
   component: MobileJobs,
 })
 

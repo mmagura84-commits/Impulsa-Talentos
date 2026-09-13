@@ -22,7 +22,7 @@ jobs:
           # point at the frozen legacy project and must NOT be used here.
           VITE_SUPABASE_URL: https://cmdqlybsgkegolqydmbh.supabase.co
           VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHFseWJzZ2tlZ29scXlkbWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNDYxNzksImV4cCI6MjEwMTcyMjE3OX0.VTalByKsYkNvc7JX9OIkAk--7Ex7UeCZYSvlwDb9Lr4
-          SITE_URL: https://impulsatalentos.expert
+          SITE_URL: https://hemisvia.com
         run: |
           bun install
           bun run build

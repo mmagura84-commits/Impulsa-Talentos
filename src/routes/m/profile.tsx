@@ -30,7 +30,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
 
 export const Route = createFileRoute('/m/profile')({
-  head: () => ({ meta: [{ title: 'Profile — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Profile — HemisVia (mobile)' }] }),
   component: MobileProfile,
   validateSearch: (s: Record<string, unknown>) => ({
     apply: typeof s.apply === 'string' ? s.apply : undefined,

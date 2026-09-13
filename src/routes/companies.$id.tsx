@@ -49,14 +49,14 @@ export const Route = createFileRoute('/companies/$id')({
       meta: [
         {
           title: company
-            ? `${company.name} — Careers | Impulsa Talentos`
-            : 'Company — Impulsa Talentos',
+            ? `${company.name} — Careers | HemisVia`
+            : 'Company — HemisVia',
         },
         {
           name: 'description',
           content: company?.description
             ? company.description.slice(0, 160)
-            : 'Company profile on Impulsa Talentos — bilingual talent recruitment platform.',
+            : 'Company profile on HemisVia — bilingual talent recruitment platform.',
         },
       ],
     }

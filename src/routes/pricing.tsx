@@ -26,7 +26,7 @@ export const Route = createFileRoute('/pricing')({
   component: PricingPage,
   head: () => ({
     meta: [
-      { title: 'Pricing — Hire Bilingual Talent on Impulsa Talentos' },
+      { title: 'Pricing — Hire Bilingual Talent on HemisVia' },
       { name: 'description', content: 'Pro Plan $97/mo, Premium Plan $297/mo, Talent Hunt done-for-you recruiting. Post jobs, reach pre-verified talent, hire faster.' },
     ],
   }),
