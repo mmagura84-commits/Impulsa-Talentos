@@ -1,4 +1,4 @@
-// ─── Impulsa Talentos — Shared Types ───
+// ─── HemisVia — Shared Types ───
 
 import type { CareVacancyFields } from '@/lib/care'
 
@@ -37,7 +37,7 @@ export interface Profile {
   meetingProvider?: string
   /** Employer default meeting room URL. */
   meetingLink?: string
-  /** How the user heard about Impulsa Talentos. */
+  /** How the user heard about HemisVia. */
   source?: string
   /** User consented to marketing emails at sign-up. */
   emailConsent?: boolean

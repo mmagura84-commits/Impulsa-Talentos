@@ -472,7 +472,7 @@ function ProfilePage() {
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
         if (saveRole === 'md') {
-          sendEmail({ to: 'info@impulsatalentos.expert', subject: 'New MD signup requires approval', html: `<p>${form.fullName} (${form.email}) signed up as Managing Director and needs approval.</p><p><a href="${window.location.origin}/hq">Review in HQ</a></p>` }).catch(() => {})
+          sendEmail({ to: 'info@hemisvia.com', subject: 'New MD signup requires approval', html: `<p>${form.fullName} (${form.email}) signed up as Managing Director and needs approval.</p><p><a href="${window.location.origin}/hq">Review in HQ</a></p>` }).catch(() => {})
         }
       }
       setSavedFlag(true)

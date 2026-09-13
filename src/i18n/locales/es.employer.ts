@@ -138,7 +138,7 @@ const esEmployer: Dict = {
   'profile.saved': 'Perfil Guardado',
   'profile.savedToast': 'Cambios guardados exitosamente.',
   'profile.createSuccess': 'Perfil creado',
-  'profile.createSuccessDesc': 'Bienvenido a Impulsa Talentos.',
+  'profile.createSuccessDesc': 'Bienvenido a HemisVia.',
   'profile.createError': 'No se pudo guardar el perfil',
   'profile.nameRequired': 'El nombre completo es obligatorio',
   'profile.notInDb': 'Tu perfil aun no existe en la base de datos.',
@@ -159,7 +159,7 @@ const esEmployer: Dict = {
   'profile.admin.section.contactDesc': 'Tus datos personales — visibles para el equipo de la plataforma.',
   // ── Preferencias de notificacion ────────────────────────────────────
   'profile.notif.title': 'Preferencias de Notificacion',
-  'profile.notif.desc': 'Elige que correos recibes de Impulsa Talentos. Los cambios se aplican de inmediato.',
+  'profile.notif.desc': 'Elige que correos recibes de HemisVia. Los cambios se aplican de inmediato.',
   'profile.notif.applicationUpdates': 'Actualizaciones de postulaciones',
   'profile.notif.applicationUpdatesDesc': 'Cambios de estado e invitaciones a entrevistas de los empleos a los que te postulaste.',
   'profile.notif.newJobs': 'Alertas de nuevos empleos',

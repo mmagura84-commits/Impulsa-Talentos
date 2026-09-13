@@ -50,17 +50,17 @@ export const Route = createRootRoute({
   meta: [
     { charSet: 'utf-8' },
     { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
-    { title: 'Impulsa Talentos — Connecting Bilingual Talent with the World' },
+    { title: 'HemisVia — Connecting Bilingual Talent with the World' },
     { name: 'description', content: 'Recruitment platform powered by our proprietary technology, connecting bilingual professionals in Colombia with top local and international employers. Tech, CX, healthcare, and finance roles.' },
     { name: 'apple-mobile-web-app-capable', content: 'yes' },
     { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' },
-    { name: 'apple-mobile-web-app-title', content: 'Impulsa' },
+    { name: 'apple-mobile-web-app-title', content: 'HemisVia' },
     { name: 'mobile-web-app-capable', content: 'yes' },
     { name: 'theme-color', content: '#1f3a8a' },
     { property: 'og:type', content: 'website' },
-    { property: 'og:title', content: 'Impulsa Talentos — Connecting Bilingual Talent' },
+    { property: 'og:title', content: 'HemisVia — Connecting Bilingual Talent' },
     { property: 'og:description', content: 'Recruitment platform powered by our proprietary technology, connecting bilingual professionals in Colombia with top local and international employers.' },
-    { property: 'og:site_name', content: 'Impulsa Talentos' },
+    { property: 'og:site_name', content: 'HemisVia' },
     { property: 'og:locale', content: 'en_US' },
     { property: 'og:locale:alternate', content: 'es_CO' },
     { name: 'twitter:card', content: 'summary_large_image' },
@@ -127,8 +127,8 @@ function RootDocument({ children }: { children: ReactNode }) {
             __html: JSON.stringify({
               '@context': 'https://schema.org',
               '@graph': [
-                { '@type': 'WebSite', name: 'Impulsa Talentos', url: '/' },
-                { '@type': 'Organization', name: 'Impulsa Talentos', url: '/', sameAs: [] },
+                { '@type': 'WebSite', name: 'HemisVia', url: '/' },
+                { '@type': 'Organization', name: 'HemisVia', url: '/', sameAs: [] },
               ],
             }),
           }}
@@ -167,7 +167,7 @@ function GlobalFooter() {
   return (
     <footer className="border-t border-border/60 py-4 px-5 text-center">
       <nav aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'} className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
-        <span>© {new Date().getFullYear()} Impulsa Talentos</span>
+        <span>© {new Date().getFullYear()} HemisVia</span>
         <a href="/jobs" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.jobs')}</a>
         <a href="/companies" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.companies')}</a>
         <a href="/dashboard" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.forEmployers')}</a>

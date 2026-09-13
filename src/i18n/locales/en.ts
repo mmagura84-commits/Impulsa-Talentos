@@ -6,8 +6,8 @@ import type { Dict } from '../types'
 
 const en: Dict = {
   // Brand
-  'brand.name': 'Impulsa Talentos',
-  'brand.tagline': 'Bilingual talent platform powered by our proprietary technology',
+  'brand.name': 'HemisVia',
+  'brand.tagline': 'The route to exceptional talent across the Americas.',
 
   // Common
   'common.signIn': 'Sign in',
@@ -276,7 +276,7 @@ const en: Dict = {
   'apply.accessDeniedDesc': 'Employer and administrator accounts cannot submit job applications. Switch to a candidate account to apply.',
 
   // Mobile app (phone-first)
-  'mobile.appName': 'Impulsa',
+  'mobile.appName': 'HemisVia',
   'mobile.tagline': 'Bilingual jobs on the go',
   'mobile.nav.jobs': 'Jobs',
   'mobile.nav.saved': 'Saved',
@@ -293,7 +293,7 @@ const en: Dict = {
   'mobile.hero.subtitle': 'Browse curated openings, save what you like, and apply in one tap.',
   'mobile.hero.cta': 'Browse Jobs',
   'mobile.hero.lead': 'Hire bilingual talent, or find your next role.',
-  'mobile.hero.leadSub': 'Impulsa Talentos connects pre-vetted Colombian bilingual professionals with employers worldwide — all in one tap.',
+  'mobile.hero.leadSub': 'HemisVia connects pre-vetted Colombian bilingual professionals with employers worldwide — all in one tap.',
   'mobile.hero.candidateEyebrow': 'For Candidates',
   'mobile.hero.candidateAction': 'Apply for jobs',
   'mobile.hero.candidateDesc': 'Explore openings & apply free in one tap.',
@@ -320,7 +320,7 @@ const en: Dict = {
   'onboarding.dismiss': 'Dismiss',
   'onboarding.go': 'Start',
   'onboarding.done': 'Done',
-  'onboarding.chooser.title': 'Welcome to Impulsa Talentos',
+  'onboarding.chooser.title': 'Welcome to HemisVia',
   'onboarding.chooser.subtitle': 'Tell us what brings you here so we can set up your workspace.',
   'onboarding.chooser.candidate': "I'm looking for a job",
   'onboarding.chooser.candidateDesc': 'Browse bilingual openings, save jobs, and apply to roles that match your skills.',
@@ -533,7 +533,7 @@ const en: Dict = {
   'landing.photoCredit': 'City photography via Wikimedia Commons contributors',
   'companies.back': 'Back',
   'companies.title': 'Companies hiring bilingual talent',
-  'companies.subtitle': 'Browse every company hiring on Impulsa Talentos — from fast-growing startups to established global teams.',
+  'companies.subtitle': 'Browse every company hiring on HemisVia — from fast-growing startups to established global teams.',
   'companies.count': '{n} companies',
   'companies.openRoles': '{n} open roles',
   'companies.about': 'About {name}',
@@ -636,7 +636,7 @@ const en: Dict = {
   'employers.step1Title': 'Create your company profile', 'employers.step1Desc': 'Set up your employer profile in about two minutes and tell candidates what makes your team special.',
   'employers.step2Title': 'Post a bilingual job listing', 'employers.step2Desc': 'Describe the role with language levels, location, salary, and the details qualified candidates need.',
   'employers.step3Title': 'Review matches and hire', 'employers.step3Desc': 'Review applications and connect with bilingual professionals who fit your needs.',
-  'employers.whyTitle': 'Why employers choose Impulsa Talentos',
+  'employers.whyTitle': 'Why employers choose HemisVia',
   'employers.why1': 'A focused pool of Colombian bilingual talent ready for global work', 'employers.why2': 'Structured listings with language levels, location, and salary', 'employers.why3': 'A bilingual platform that keeps every step clear in English and Spanish', 'employers.why4': 'Free to start with 2 job credits included',
   'employers.pricingTitle': 'Free to start', 'employers.pricingDesc': 'Get 2 job credits included. Pro Plan from $97/mo for 3 posts.', 'employers.pricingCta': 'See pricing',
   'employers.footerTitle': 'Ready to find your next hire?',
@@ -720,7 +720,7 @@ const en: Dict = {
   'care.badge.preScreened': 'Pre-screened',
   'care.disclaimer.title': 'Our screening & privacy commitment',
   'care.disclaimer.vetting': 'Caregivers are verified by our team through documented review. Screening does not guarantee in-person vetting.',
-  'care.disclaimer.notEmployer': 'Impulsa Talentos is a matchmaking and screening service. We are not the employer of any caregiver and do not manage payroll.',
+  'care.disclaimer.notEmployer': 'HemisVia is a matchmaking and screening service. We are not the employer of any caregiver and do not manage payroll.',
   'care.disclaimer.privacy': 'Family addresses and care/health details are private and never public (Colombia Law 1581).',
   'care.form.title': 'Caregiver profile',
   'care.form.desc': 'Tell us how you care and upload your documents. Our team reviews them.',

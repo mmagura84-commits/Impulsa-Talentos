@@ -4,7 +4,7 @@ import type { Application, ApplicationStatusHistory, Job, Profile } from '@/type
 import { sendEmail } from '@/lib/emailSender'
 import { storagePointer } from '@/hooks/useSignedStorageUrl'
 
-const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
+const JOBS_EMAIL = 'jobs@hemisvia.com'
 
 
 // ─── Query key factories ───

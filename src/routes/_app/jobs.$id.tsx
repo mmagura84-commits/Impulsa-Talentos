@@ -47,8 +47,8 @@ export const Route = createFileRoute('/_app/jobs/$id')({
     const company = ctx.loaderData?.company
     return {
       meta: [
-        { title: job ? `${job.title} — ${company?.name ?? 'Impulsa Talentos'} | Impulsa Talentos` : 'Job — Impulsa Talentos' },
-        { name: 'description', content: job?.description ? job.description.slice(0, 150) : 'Job listing on Impulsa Talentos — bilingual jobs in Colombia.' },
+        { title: job ? `${job.title} — ${company?.name ?? 'HemisVia'} | HemisVia` : 'Job — HemisVia' },
+        { name: 'description', content: job?.description ? job.description.slice(0, 150) : 'Job listing on HemisVia — bilingual jobs in Colombia.' },
       ],
     }
   },

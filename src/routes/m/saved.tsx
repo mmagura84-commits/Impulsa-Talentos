@@ -13,7 +13,7 @@ import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import type { Job } from '@/types'
 
 export const Route = createFileRoute('/m/saved')({
-  head: () => ({ meta: [{ title: 'Saved — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Saved — HemisVia (mobile)' }] }),
   component: MobileSaved,
 })
 

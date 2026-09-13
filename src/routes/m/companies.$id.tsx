@@ -5,7 +5,7 @@ import { useAllCompanies } from '@/hooks/useCompanies'
 import { useAllJobs } from '@/hooks/useJobs'
 import type { Company, Job } from '@/types'
 export const Route = createFileRoute('/m/companies/$id')({
-  head: () => ({ meta: [{ title: 'Company — Impulsa Talentos' }, { name: 'theme-color', content: '#1f3a8a' }] }),
+  head: () => ({ meta: [{ title: 'Company — HemisVia' }, { name: 'theme-color', content: '#1f3a8a' }] }),
   component: MobileCompanyDetail,
 })
 

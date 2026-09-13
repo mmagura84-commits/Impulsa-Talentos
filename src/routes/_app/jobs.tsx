@@ -47,7 +47,7 @@ export const Route = createFileRoute('/_app/jobs')({
   },
   head: () => ({
     meta: [
-      { title: 'Bilingual Jobs in Colombia — Impulsa Talentos' },
+      { title: 'Bilingual Jobs in Colombia — HemisVia' },
       { name: 'description', content: 'Browse open bilingual jobs in Colombia with global employers. Find English and Spanish roles in tech, customer experience, healthcare, finance, and more.' },
     ],
   }),

@@ -34,7 +34,7 @@ import type { Job, Application } from '@/types'
 import type { Locale } from '@/i18n/types'
 
 export const Route = createFileRoute('/m/home')({
-  head: () => ({ meta: [{ title: 'Home — Impulsa (mobile)' }] }),
+  head: () => ({ meta: [{ title: 'Home — HemisVia (mobile)' }] }),
   component: MobileHome,
 })
 

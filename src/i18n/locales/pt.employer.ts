@@ -138,7 +138,7 @@ const ptEmployer: Dict = {
   'profile.saved': 'Perfil Salvo',
   'profile.savedToast': 'Alterações salvas com sucesso.',
   'profile.createSuccess': 'Perfil criado',
-  'profile.createSuccessDesc': 'Bem-vindo ao Impulsa Talentos.',
+  'profile.createSuccessDesc': 'Bem-vindo ao HemisVia.',
   'profile.createError': 'Não foi possível salvar o perfil',
   'profile.nameRequired': 'O nome completo é obrigatório',
   'profile.notInDb': 'Seu perfil ainda não existe no banco de dados.',
@@ -159,7 +159,7 @@ const ptEmployer: Dict = {
   'profile.admin.section.contactDesc': 'Seus dados pessoais — visíveis para a equipe da plataforma.',
   // ── Notification preferences ──────────────────────────────────────
   'profile.notif.title': 'Preferências de Notificação',
-  'profile.notif.desc': 'Escolha quais e-mails você recebe do Impulsa Talentos. As alterações são aplicadas imediatamente.',
+  'profile.notif.desc': 'Escolha quais e-mails você recebe do HemisVia. As alterações são aplicadas imediatamente.',
   'profile.notif.applicationUpdates': 'Atualizações de candidaturas',
   'profile.notif.applicationUpdatesDesc': 'Mudanças de status e convites para entrevistas das vagas às quais você se candidatou.',
   'profile.notif.newJobs': 'Alertas de novas vagas',

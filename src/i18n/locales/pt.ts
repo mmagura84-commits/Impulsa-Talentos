@@ -5,8 +5,8 @@ import type { Dict } from '../types'
 
 const pt: Dict = {
   // Brand
-  'brand.name': 'Impulsa Talentos',
-  'brand.tagline': 'Plataforma de talento bilíngue com nossa tecnologia proprietária',
+  'brand.name': 'HemisVia',
+  'brand.tagline': 'A rota para o talento excepcional nas Américas.',
 
   // Common
   'common.signIn': 'Entrar',
@@ -275,7 +275,7 @@ const pt: Dict = {
   'apply.accessDeniedDesc': 'Contas de empregador e administrador não podem se candidatar. Troque para uma conta de candidato para se candidatar.',
 
   // Mobile app (phone-first)
-  'mobile.appName': 'Impulsa',
+  'mobile.appName': 'HemisVia',
   'mobile.tagline': 'Vagas bilíngues no seu celular',
   'mobile.nav.jobs': 'Vagas',
   'mobile.nav.saved': 'Salvas',
@@ -292,7 +292,7 @@ const pt: Dict = {
   'mobile.hero.subtitle': 'Explore vagas, salve as que gostar e candidate-se com um toque.',
   'mobile.hero.cta': 'Ver Vagas',
   'mobile.hero.lead': 'Contrate talento bilíngue ou encontre seu próximo papel.',
-  'mobile.hero.leadSub': 'Impulsa Talentos conecta profissionais bilíngues colombianos pré-verificados com empregadores do mundo — tudo em um toque.',
+  'mobile.hero.leadSub': 'HemisVia conecta profissionais bilíngues colombianos pré-verificados com empregadores do mundo — tudo em um toque.',
   'mobile.hero.candidateEyebrow': 'Para Candidatos',
   'mobile.hero.candidateAction': 'Candidate-se a vagas',
   'mobile.hero.candidateDesc': 'Explore vagas e candidate-se grátis em um toque.',
@@ -319,7 +319,7 @@ const pt: Dict = {
   'onboarding.dismiss': 'Dispensar',
   'onboarding.go': 'Começar',
   'onboarding.done': 'Concluído',
-  'onboarding.chooser.title': 'Bem-vindo ao Impulsa Talentos',
+  'onboarding.chooser.title': 'Bem-vindo ao HemisVia',
   'onboarding.chooser.subtitle': 'Conte-nos o que o trouxe aqui para configurar seu espaço de trabalho.',
   'onboarding.chooser.candidate': 'Estou procurando trabalho',
   'onboarding.chooser.candidateDesc': 'Explore vagas bilíngues, salve ofertas e candidate-se a cargos que combinem com suas habilidades.',
@@ -532,7 +532,7 @@ const pt: Dict = {
   'landing.photoCredit': 'Fotografia urbana: colaboradores do Wikimedia Commons',
   'companies.back': 'Voltar',
   'companies.title': 'Empresas contratando talento bilíngue',
-  'companies.subtitle': 'Explore todas as empresas que contratam no Impulsa Talentos — de startups em crescimento a equipes globais estabelecidas.',
+  'companies.subtitle': 'Explore todas as empresas que contratam no HemisVia — de startups em crescimento a equipes globais estabelecidas.',
   'companies.count': '{n} empresas',
   'companies.openRoles': '{n} vagas abertas',
   'companies.about': 'Sobre {name}',
@@ -635,7 +635,7 @@ const pt: Dict = {
   'employers.step1Title': 'Crie o perfil da sua empresa', 'employers.step1Desc': 'Configure seu perfil de empregador em cerca de dois minutos e conte o que torna sua equipe especial.',
   'employers.step2Title': 'Publique uma vaga bilíngue', 'employers.step2Desc': 'Descreva idioma, localização, salário e os detalhes que os candidatos qualificados precisam.',
   'employers.step3Title': 'Analise combinações e contrate', 'employers.step3Desc': 'Analise candidaturas e conecte-se com profissionais bilíngues que atendam às suas necessidades.',
-  'employers.whyTitle': 'Por que os empregadores escolhem o Impulsa Talentos',
+  'employers.whyTitle': 'Por que os empregadores escolhem o HemisVia',
   'employers.why1': 'Uma comunidade focada em talento bilíngue colombiano pronto para trabalhar globalmente', 'employers.why2': 'Vagas estruturadas com níveis de idioma, localização e salário', 'employers.why3': 'Uma plataforma bilíngue clara em inglês e espanhol', 'employers.why4': 'Comece grátis com 2 créditos de vaga incluídos',
   'employers.pricingTitle': 'Comece grátis', 'employers.pricingDesc': 'Ganhe 2 créditos incluídos. Plano Pro a partir de $97/mês por 3 vagas.', 'employers.pricingCta': 'Ver preços',
   'employers.footerTitle': 'Pronto para encontrar seu próximo talento?',
@@ -719,7 +719,7 @@ const pt: Dict = {
   'care.badge.preScreened': 'Pré-verificado',
   'care.disclaimer.title': 'Nosso compromisso de verificação e privacidade',
   'care.disclaimer.vetting': 'Cuidadores são verificados por nossa equipe por revisão documental. A verificação não garante avaliação presencial.',
-  'care.disclaimer.notEmployer': 'Impulsa Talentos é um serviço de correspondência e verificação. Não somos o empregador de nenhum cuidador nem gerenciamos folhas de pagamento.',
+  'care.disclaimer.notEmployer': 'HemisVia é um serviço de correspondência e verificação. Não somos o empregador de nenhum cuidador nem gerenciamos folhas de pagamento.',
   'care.disclaimer.privacy': 'Endereços das famílias e detalhes de saúde/cuidado são privados e nunca exibidos publicamente (Lei 1581 da Colômbia).',
   'care.form.title': 'Perfil de cuidador',
   'care.form.desc': 'Conte como você cuida e envie seus documentos. Nossa equipe os revisa.',

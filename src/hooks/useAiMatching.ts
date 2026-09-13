@@ -30,7 +30,7 @@ export interface AiMatchResult {
 }
 
 function buildMatchPrompt(profile: Profile, job: Job): string {
-  return `You are an expert bilingual recruitment analyst for Impulsa Talentos, a platform connecting Colombian bilingual professionals with top employers.
+  return `You are an expert bilingual recruitment analyst for HemisVia, a platform connecting Colombian bilingual professionals with top employers.
 
 Analyze how well this CANDIDATE fits this JOB posting. Score each dimension (0-100), provide reasoning, a summary, strengths, and gaps.
 

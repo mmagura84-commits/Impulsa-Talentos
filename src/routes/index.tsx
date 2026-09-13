@@ -44,7 +44,7 @@ import { setOnboardingIntent } from '@/lib/intent'
 export const Route = createFileRoute('/')({
   head: () => ({
     meta: [
-      { title: 'Impulsa Talentos — Bilingual Jobs in Colombia' },
+      { title: 'HemisVia — Bilingual Jobs in Colombia' },
       { name: 'description', content: 'Bilingual careers for Colombia\'s top talent. English + Spanish jobs with global employers — tech, CX, healthcare, and finance.' },
     ],
   }),
@@ -88,7 +88,7 @@ function TopNav() {
         <Link to="/" className="flex items-center gap-2 min-w-0">
           <BrandMark className="size-8 rounded-lg" title={t('brand.name')} />
           <span className={`hidden sm:block text-lg font-bold truncate ${scrolled ? 'text-foreground' : 'text-white'}`}>
-            Impulsa Talentos
+            {t('brand.name')}
           </span>
         </Link>
         <nav className="hidden items-center gap-4 text-sm font-medium md:flex" aria-label={t('nav.main')}>
@@ -189,7 +189,7 @@ function JobFeedPreview() {
         : t('jobs.salaryTBD')
     return <Link to="/jobs/$id" params={{ id: job.id }} className="group flex items-start gap-3 p-4 transition-colors hover:bg-white/5">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-sm font-bold text-accent">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full rounded-lg object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
-      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p><p className="truncate text-xs text-white/60">{company?.name ?? 'Impulsa Talentos partner'}</p><div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/60"><span className="inline-flex items-center gap-1"><MapPin className="size-3" />{formatLocationType(job.locationType, t)}</span><span className="font-medium text-white/80">{salary}</span><span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></div></div><ArrowRight className="size-4 shrink-0 self-center text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p><p className="truncate text-xs text-white/60">{company?.name ?? 'HemisVia partner'}</p><div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/60"><span className="inline-flex items-center gap-1"><MapPin className="size-3" />{formatLocationType(job.locationType, t)}</span><span className="font-medium text-white/80">{salary}</span><span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></div></div><ArrowRight className="size-4 shrink-0 self-center text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
     </Link>
   }
   return <div data-testid="hero-live-feed" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} className="w-full overflow-hidden rounded-2xl border border-white/15 bg-black/35 shadow-2xl backdrop-blur-md" aria-label={t('landing.feedTitle')}>
@@ -449,14 +449,14 @@ function LandingPage() {
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-28 pt-12 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
           <div className="grid w-full items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
-            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div></div>
+            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-2 font-serif text-lg italic text-accent sm:text-xl">{t('brand.tagline')}</p><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div></div>
             <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
         <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
         <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
         <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
-        <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for Impulsa Talentos</p>
+        <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for HemisVia</p>
       </section>
       <CompanyRibbon companies={companies} />
       <StatsBar />
