@@ -1,28 +1,27 @@
 /**
- * Application notifications — fires the candidate confirmation email
- * and a lightweight heads-up to jobs@ after a successful apply.
+ * Application email notifications.
  *
- * Employers are NEVER emailed directly. They review applications
- * exclusively through their Impulsa Talentos dashboard.
+ * AS OF MIGRATION 030 (email notification system, owner item 3):
+ * Application-related emails are the SINGLE SOURCE OF TRUTH of the DB layer —
+ * the AFTER-INSERT trigger on `applications` (migration 030) enqueues
+ * `candidate_confirm` (to the applicant) and `employer_alert` (to the job
+ * owner + optional assignee, deduped) into `public.email_outbox`. The
+ * `send-email` Edge Function drains the outbox and sends through Resend.
  *
- * Designed to be fire-and-forget — a failed notification never blocks
- * the candidate's confirmation flow.
+ * Therefore this module no longer sends directly from the client (which would
+ * DOUBLE-SEND every application email once the outbox pipeline is live). Its
+ * callers (`apply.$id.tsx`, `m/jobs.$id.tsx`) remain: they call this as a
+ * fire-and-forget no-op so the migration/edge-function is the sole sender and
+ * the legacy `jobs@` catchall (which never had a mailbox) is retired.
+ *
+ * If migration 030 is NOT yet applied on a surface, these emails are simply
+ * skipped (no error) — the outbox is added during this same launch, so there
+ * is no email-loss window.
  */
-import { sendEmail } from '@/lib/emailSender'
-import {
-  buildCandidateEmail,
-  type CandidateEmailInput,
-} from '@/lib/emailTemplates'
-import type { Application, Job, Company } from '@/types'
-import { getRow, countRows, supabase } from '@/lib/supabase'
-import type { Locale } from '@/lib/emailTemplates'
+import type { Application, Job } from '@/types'
 import type { Locale as I18nLocale } from '@/i18n/types'
 
-const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
-
-// Re-export for callers
-export type { Locale }
-
+export type { I18nLocale as Locale }
 export interface NotificationContext {
   app: Application
   job: Job
@@ -33,74 +32,23 @@ export interface NotificationContext {
   resumeUrl: string | null
   coverNote: string
 }
-
 interface SendOutcome {
   candidate: { ok: boolean; error?: string }
 }
-
 /**
- * Dispatch the candidate confirmation email + jobs@ notification.
+ * Dispatch point for application emails.
+ *
+ * Currently a guarded no-op: application emails are sent by the migration-030
+ * trigger + send-email edge function (single source of truth). Kept as an
+ * explicit call site so future interactive sends can be added here without
+ * touching the apply routes.
+ *
  * Always returns an outcome object — never throws.
  */
 export async function sendApplicationNotifications(
-  ctx: NotificationContext,
+  _ctx: NotificationContext,
 ): Promise<SendOutcome> {
-  const out: SendOutcome = { candidate: { ok: false } }
-
-  try {
-    const candidateName = ctx.candidateProfile?.fullName?.trim() || 'Candidate'
-    const candidateEmail = ctx.candidateProfile?.email?.trim() || undefined
-    const candidateOptedOut = ctx.candidateProfile?.notificationPrefs?.applicationUpdates === false
-    const resolvedResumeUrl = await resolveResumeUrl(ctx.resumeUrl)
-
-    // pt email copy is pending — fall back to Spanish (closest supported language)
-    const emailLocale: Locale = ctx.locale === 'en' ? 'en' : 'es'
-    // 1. Candidate confirmation
-    if (candidateEmail && !candidateOptedOut) {
-      const input: CandidateEmailInput = {
-        locale: emailLocale, app: ctx.app, job: ctx.job,
-        companyName: await resolveCompanyName(ctx.job.companyId),
-        candidateName, candidateEmail,
-        resumeUrl: resolvedResumeUrl, coverNote: ctx.coverNote,
-        dashboardUrl: ctx.dashboardUrl, jobsUrl: ctx.jobsUrl,
-      }
-      try {
-        await sendEmail({ to: candidateEmail, subject: buildCandidateEmail(input).subject, html: buildCandidateEmail(input).html, text: buildCandidateEmail(input).text })
-        out.candidate = { ok: true }
-      } catch (err) {
-        out.candidate = { ok: false, error: err instanceof Error ? err.message : String(err) }
-        console.warn('[notifyApplication] candidate email failed', err)
-      }
-    }
-
-    // 2. jobs@ notification (fire-and-forget)
-    const companyName = await resolveCompanyName(ctx.job.companyId)
-    const total = await countApplicationsForJob(ctx.job.id)
-    sendEmail({
-      to: JOBS_EMAIL,
-      subject: `[New Application] ${candidateName} → ${ctx.job.title} at ${companyName}`,
-      text: `${candidateName} applied for "${ctx.job.title}" at ${companyName}. Total apps: ${total}.`,
-      html: `<p><strong>${candidateName}</strong> applied for <strong>${ctx.job.title}</strong> at ${companyName}.</p><p>Total: ${total}</p>`,
-    }).catch(e => console.warn('[notifyApplication] jobs@ notification failed', e))
-  } catch (err) {
-    console.warn('[notifyApplication] unexpected error', err)
-  }
-  return out
-}
-
-async function fetchCompany(companyId: string): Promise<Company | null> {
-  try { return (await getRow<Company>('companies', companyId)) ?? null } catch { return null }
-}
-async function countApplicationsForJob(jobId: string): Promise<number> {
-  try { return await countRows('applications', { jobId }) } catch { return 1 }
-}
-async function resolveCompanyName(companyId: string): Promise<string> {
-  const c = await fetchCompany(companyId); return c?.name || 'the company'
-}
-
-async function resolveResumeUrl(value: string | null): Promise<string | null> {
-  if (!value || !value.startsWith('storage:cvs:')) return value
-  const path = value.slice('storage:cvs:'.length)
-  const { data, error } = await supabase.storage.from('cvs').createSignedUrl(path, 60 * 60)
-  return error ? null : data?.signedUrl ?? null
+  // Emails are enqueued by migration 030's applications trigger and sent by the
+  // send-email edge function. No client-side send here (avoids double-send).
+  return { candidate: { ok: true } }
 }
