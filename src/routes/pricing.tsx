@@ -266,7 +266,7 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
   )
 }
 
-export default function PricingPage() {
+function PricingPage() {
   const { t } = useI18n(); const { user } = useAuth(); const [unlocked, setUnlocked] = useState(false)
   const [selected, setSelected] = useState<JobPostingPackage | null>(null)
   const [billing, setBilling] = useState<Billing>('monthly')

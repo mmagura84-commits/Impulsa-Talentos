@@ -37,7 +37,17 @@ function detectInitial(): Locale {
 }
 
 export function I18nProvider({ children }: { children: ReactNode }) {
-  const [locale, setLocaleState] = useState<Locale>(detectInitial)
+  // Start on the default locale on BOTH server and client so the first client
+  // render matches the prerendered HTML (reading localStorage here caused a
+  // hydration mismatch, e.g. "EN" vs "ES" in the language toggle). The saved /
+  // browser locale is applied right after hydration.
+  const [locale, setLocaleState] = useState<Locale>(defaultLocale)
+  const [detected, setDetected] = useState(false)
+  useEffect(() => {
+    const initial = detectInitial()
+    if (initial !== defaultLocale) setLocaleState(initial)
+    setDetected(true)
+  }, [])
   // Non-default dictionaries are async chunks; load on demand (index chunk reduction).
   const [lazyDicts, setLazyDicts] = useState<Partial<Record<Locale, Dict>>>({})
   useEffect(() => {
@@ -57,6 +67,8 @@ export function I18nProvider({ children }: { children: ReactNode }) {
 
   // Persist + sync <html lang>
   useEffect(() => {
+    // Don't persist the pre-detection default over the user's saved choice.
+    if (!detected) return
     try {
       window.localStorage.setItem(STORAGE_KEY, locale)
     } catch {
@@ -65,7 +77,7 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     if (typeof document !== 'undefined') {
       document.documentElement.lang = locale
     }
-  }, [locale])
+  }, [locale, detected])
 
   const value = useMemo<Ctx>(() => {
     const dict: Dict = locale === 'en' ? dictionaries.en : (lazyDicts[locale] ?? dictionaries.en)

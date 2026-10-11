@@ -44,7 +44,11 @@ if (typeof document !== 'undefined') {
  *   `createRoot(document.body)` — no hydration at all, so no mismatch is
  *   possible on SPA routes.
  */
-const hasSsrContent = () => !!document.querySelector('div.min-h-dvh')
+// Match the root container by id OR class, not tag: it was changed from
+// <div class="min-h-dvh"> to <main id="main" class="... min-h-dvh">, and a
+// tag-bound selector silently sent every prerendered page down the
+// createRoot(document.body) path (nested <html> inside <body>, SSR discarded).
+const hasSsrContent = () => !!document.querySelector('#main, .min-h-dvh')
 
 startTransition(() => {
   if (hasSsrContent()) {

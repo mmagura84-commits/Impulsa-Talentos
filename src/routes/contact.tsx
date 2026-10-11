@@ -15,7 +15,7 @@ export const Route = createFileRoute('/contact')({
   head: () => ({ meta: [{ title: 'Contact — Impulsa Talentos' }, { name: 'description', content: 'Get in touch with the Impulsa Talentos team.' }] }),
 })
 
-export default function ContactPage() {
+function ContactPage() {
   const { t } = useI18n()
   const [sending, setSending] = useState(false)
   const [sent, setSent] = useState(false)
