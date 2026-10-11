@@ -360,6 +360,10 @@ select t.expect_ok('employer submits payment (claims $1 for 999 credits)',
 select t.expect_error('employer cannot approve own payment', $$select public.grant_company_credits((select id from public.manual_payments limit 1))$$);
 select t.expect_error('unknown package refused', $$select public.submit_manual_payment('20000000-0000-0000-0000-0000000000e1', 'free-money', 0, 1000, 'TRX-1', '')$$);
 select t.reset();
+select t.check('HQ notified of the payment', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000a1' and type = 'hq_payment_submitted'));
+select t.check('HQ notified of new leads', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000a1' and type = 'hq_new_lead'));
+select t.check('HQ notified of verification request', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000a1' and type = 'hq_verification_requested'));
+select t.check('HQ notified of job report', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000a1' and type = 'hq_job_reported'));
 select t.check('amount and credits come from the catalog', (select amount_usd = 97 and requested_credits = 3 from public.manual_payments limit 1));
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_rows('HQ sees the payment queue', $$select * from public.admin_list_payments()$$, 1);

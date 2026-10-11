@@ -1127,6 +1127,67 @@ create trigger trg_notify_payment_decided
   after update of status on public.manual_payments
   for each row execute function public.notify_on_company_or_payment();
 
+-- HQ is told about everything waiting on it.
+create or replace function public.notify_hq()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare v_uid text; v_title text; v_body text; v_type text; v_data jsonb;
+begin
+  if tg_table_name = 'manual_payments' and tg_op = 'INSERT' then
+    v_type := 'hq_payment_submitted';
+    v_title := 'Payment to verify: ' || coalesce((select name from public.companies where id = new.company_id), '');
+    v_body := new.package_id || ' · $' || new.amount_usd || ' · ref ' || new.transaction_reference;
+    v_data := jsonb_build_object('payment_id', new.id);
+  elsif tg_table_name = 'leads' and tg_op = 'INSERT' then
+    v_type := 'hq_new_lead';
+    v_title := 'New lead: ' || coalesce(nullif(new.company, ''), nullif(new.name, ''), new.email, '');
+    v_body := coalesce(new.email, '') || ' · ' || coalesce(new.source, '');
+    v_data := jsonb_build_object('lead_id', new.id);
+  elsif tg_table_name = 'companies' then
+    if tg_op <> 'UPDATE' then return null; end if;
+    if not (new.verification_requested and not coalesce(old.verification_requested, false) and not new.verified) then
+      return null;
+    end if;
+    v_type := 'hq_verification_requested';
+    v_title := 'Verify company: ' || new.name;
+    v_body := 'The employer asked to be verified so they can publish';
+    v_data := jsonb_build_object('company_id', new.id);
+  elsif tg_table_name = 'reports' and tg_op = 'INSERT' then
+    v_type := 'hq_job_reported';
+    v_title := 'Job reported: ' || coalesce((select title from public.jobs where id = new.job_id), '');
+    v_body := coalesce(new.reason, '');
+    v_data := jsonb_build_object('report_id', new.id, 'job_id', new.job_id);
+  else
+    return null;
+  end if;
+  for v_uid in select user_id from public.profiles where role = 'admin' and profile_status = 'active' loop
+    perform public.push_notification(v_uid, v_type, v_title, v_body, v_data);
+  end loop;
+  return null;
+end $$;
+drop trigger if exists trg_notify_hq_payment on public.manual_payments;
+create trigger trg_notify_hq_payment after insert on public.manual_payments
+  for each row execute function public.notify_hq();
+drop trigger if exists trg_notify_hq_lead on public.leads;
+create trigger trg_notify_hq_lead after insert on public.leads
+  for each row execute function public.notify_hq();
+drop trigger if exists trg_notify_hq_verification on public.companies;
+create trigger trg_notify_hq_verification after update of verification_requested on public.companies
+  for each row execute function public.notify_hq();
+drop trigger if exists trg_notify_hq_report on public.reports;
+create trigger trg_notify_hq_report after insert on public.reports
+  for each row execute function public.notify_hq();
+
+-- The card payment link the MD submitted is public by nature (it is a hosted
+-- checkout page), so employers can see it at checkout. Nothing else from the
+-- banking record is exposed.
+create or replace function public.public_payment_link()
+returns text language sql stable security definer set search_path = public as $$
+  select nullif(wompi_payment_link_url, '') from public.business_banking
+   order by updated_at desc nulls last limit 1
+$$;
+revoke all on function public.public_payment_link() from public, anon;
+grant execute on function public.public_payment_link() to authenticated;
+
 -- ═════════════════════════════════════════════════════════════════════════════
 -- 18. Team invites that actually grant access
 -- ═════════════════════════════════════════════════════════════════════════════
