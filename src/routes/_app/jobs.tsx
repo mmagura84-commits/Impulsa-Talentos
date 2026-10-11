@@ -23,6 +23,7 @@ import {
 } from 'lucide-react'
 import type { Job, Company } from '@/types'
 import type { Locale } from '@/i18n/types'
+import { ClientTimeText } from '@/components/ClientTimeText'
 
 export const Route = createFileRoute('/_app/jobs')({
   loader: async () => {
@@ -170,7 +171,7 @@ function JobListItem({
                 </span>
               )}
               <span className="flex items-center gap-1">
-                <Clock className="size-3" /> {formatPosted(job.createdAt, t)}
+                <Clock className="size-3" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
               </span>
             </div>
             <p className="text-sm font-semibold text-accent">{formatSalary(job, locale)}</p>
@@ -191,7 +192,7 @@ function JobListItem({
                 variant="compact"
                 title={`${job.title} — ${companyName}`}
                 description={job.description.split('\n')[0]?.slice(0, 160) || undefined}
-                url={`${typeof window !== 'undefined' ? window.location.origin : ''}/jobs/${job.id}`}
+                url={`/jobs/${job.id}`}
               />
             </div>
           </CardContent>

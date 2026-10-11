@@ -28,6 +28,7 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 import type { Company, Job, CompanyReview } from '@/types'
+import { ClientTimeText } from '@/components/ClientTimeText'
 
 export const Route = createFileRoute('/companies/$id')({
   // Server-side loader: fetches the company during SSR/prerender so crawlers
@@ -465,7 +466,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground truncate">{review.title}</p>
-                    <p className="text-[11px] text-muted-foreground">{timeAgo(review.createdAt)}</p>
+                    <p className="text-[11px] text-muted-foreground"><ClientTimeText compute={() => timeAgo(review.createdAt)} /></p>
                   </div>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
@@ -505,7 +506,7 @@ function JobRow({ job, companyName }: { job: Job; companyName: string }) {
             <span>·</span>
             <span>{formatSalary(job)}</span>
             <span>·</span>
-            <span>{timeAgo(job.createdAt)}</span>
+            <ClientTimeText compute={() => timeAgo(job.createdAt)} />
           </p>
         </div>
         <TrendingUp className="size-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-1" />

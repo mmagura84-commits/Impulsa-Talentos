@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import type { Job } from '@/types'
 import type { Locale } from '@/i18n/types'
+import { ClientTimeText } from '@/components/ClientTimeText'
 
 export const Route = createFileRoute('/_app/jobs/$id')({
   loader: async ({ params }) => {
@@ -268,7 +269,7 @@ function JobDetailPage() {
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <Clock className="size-4 text-accent" /> {formatPosted(job.createdAt, t)}
+                <Clock className="size-4 text-accent" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
               </span>
             </div>
 
