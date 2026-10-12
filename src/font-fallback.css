@@ -1,0 +1,79 @@
+/* Size-matched stand-ins for DM Sans while it loads, so nothing moves when it
+   arrives. One face per weight band: bold text is proportioned differently,
+   and a single size made the home headline wrap onto an extra line. Sizes are
+   DM Sans's measured text width divided by the stand-in's at that weight
+   (scratch measurement in Chromium, 2026-10-12); ascent/descent are DM Sans's
+   (992/310 per 1000) divided by the same factor. Arial first (Windows, Mac,
+   iOS; Liberation Sans on Linux), then Roboto (Android). */
+@font-face {
+  font-family: 'DM Sans Fallback Arial';
+  font-weight: 100 449;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+  size-adjust: 103.54%;
+  ascent-override: 95.81%;
+  descent-override: 29.94%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Arial';
+  font-weight: 450 549;
+  src: local('Arial'), local('ArialMT'), local('Liberation Sans');
+  size-adjust: 105.48%;
+  ascent-override: 94.05%;
+  descent-override: 29.39%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Arial';
+  font-weight: 550 649;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold');
+  size-adjust: 100.12%;
+  ascent-override: 99.08%;
+  descent-override: 30.96%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Arial';
+  font-weight: 650 1000;
+  src: local('Arial Bold'), local('Arial-BoldMT'), local('Liberation Sans Bold');
+  size-adjust: 101.81%;
+  ascent-override: 97.44%;
+  descent-override: 30.45%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Roboto';
+  font-weight: 100 449;
+  src: local('Roboto'), local('Roboto-Regular'), local('Roboto Regular');
+  size-adjust: 104.51%;
+  ascent-override: 94.92%;
+  descent-override: 29.66%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Roboto';
+  font-weight: 450 549;
+  src: local('Roboto Medium'), local('Roboto-Medium');
+  size-adjust: 105.27%;
+  ascent-override: 94.23%;
+  descent-override: 29.45%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Roboto';
+  font-weight: 550 649;
+  src: local('Roboto Bold'), local('Roboto-Bold');
+  size-adjust: 106.75%;
+  ascent-override: 92.93%;
+  descent-override: 29.04%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'DM Sans Fallback Roboto';
+  font-weight: 650 1000;
+  src: local('Roboto Bold'), local('Roboto-Bold');
+  size-adjust: 108.56%;
+  ascent-override: 91.38%;
+  descent-override: 28.56%;
+  line-gap-override: 0%;
+}

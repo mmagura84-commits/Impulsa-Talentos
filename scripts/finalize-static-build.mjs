@@ -249,6 +249,17 @@ writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + 
 //  - same when a script/style of an old build is gone (404 after cleanup).
 const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker,R;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){if(R)return R;try{R=S?S.register("/sw.js?v="+B):Promise.reject()}catch(e){R=Promise.reject(e)}if(R.catch)R.catch(function(){});return R}if(document.readyState==="complete")reg();else addEventListener("load",function(){setTimeout(reg,0)});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(S&&S.controller){location.reload();return}hard(nb)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
 
+// Taps before the app's scripts have run (they load after the first paint):
+// the phone menu opens/closes at once, a language pick is saved (the app
+// applies it as it starts), and employer sign-up links remember the intent.
+// Once React is running it sets window.__itHydrated and handles taps itself.
+const EARLY_TAPS = `<script>(function(){document.addEventListener("click",function(e){if(window.__itHydrated)return;var t=e.target;if(!t||!t.closest)return;var m=t.closest("[data-early-menu]");if(m){var p=document.getElementById(m.getAttribute("aria-controls"));if(p){var o=p.hidden;p.hidden=!o;m.setAttribute("aria-expanded",o?"true":"false")}return}var l=t.closest("[data-early-locale]");if(l){try{localStorage.setItem("it_locale",l.getAttribute("data-early-locale"))}catch(x){}l.setAttribute("aria-busy","true");return}var i=t.closest("[data-early-intent]");if(i){try{sessionStorage.setItem("impulsa_onboarding_intent",i.getAttribute("data-early-intent"))}catch(x){}}},true)})()</script>`
+
+// Size-matched stand-in fonts (src/font-fallback.css), inlined in every page:
+// the critical-CSS step drops @font-face rules, and they must be there for the
+// first paint, before the full stylesheet and DM Sans arrive.
+const FONT_FALLBACK = `<style data-font-fallback>${readFileSync('src/font-fallback.css', 'utf8').replace(/\/\*[\s\S]*?\*\//g, '').replace(/\s+/g, ' ').trim()}</style>`
+
 // Loading order: the HTML, stylesheet and hero photo get the connection to
 // themselves until the page is on screen. The app's JavaScript (the entry and
 // the chunks it needs, which Vite lists as modulepreload links) is requested
@@ -278,7 +289,7 @@ for (const f of htmlFiles) {
   // otherwise right after <head>.
   const cs = html.slice(head, head + 400).match(/<meta charset="[^"]*"\s*\/?>/i)
   const at = cs ? head + cs.index + cs[0].length : head + 6
-  writeFileSync(f, lowPriorityScripts(html.slice(0, at) + FRESH_SCRIPT + html.slice(at)))
+  writeFileSync(f, lowPriorityScripts(html.slice(0, at) + FRESH_SCRIPT + EARLY_TAPS + FONT_FALLBACK + html.slice(at)))
   injected++
 }
 console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)

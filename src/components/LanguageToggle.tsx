@@ -76,7 +76,8 @@ export function LanguageToggle({ className, compact = false, asList = false }: L
             variant="ghost"
             size="sm"
             onClick={() => setLocale(other)}
-            className={cn('h-8 px-2.5 gap-1.5 text-muted-foreground hover:text-foreground', className)}
+            data-early-locale={other}
+            className={cn('h-8 px-2.5 gap-1.5 text-muted-foreground hover:text-foreground aria-busy:opacity-50', className)}
             aria-label={t('common.language')}
           >
             <Languages className="size-4" />

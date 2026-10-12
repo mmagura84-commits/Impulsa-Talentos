@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, supabase } from '@/lib/supabase'
+import { listRows, getRow, createRow, updateRow, loadSupabase } from '@/lib/db'
 import type { Company } from '@/types'
 
 /** Columns anonymous visitors may read (migration 041 column grant). */
@@ -10,6 +10,7 @@ export const PUBLIC_COMPANY_COLUMNS =
  *  prerender build) get the public column set. */
 async function companyColumns(): Promise<string> {
   if (typeof window === 'undefined') return PUBLIC_COMPANY_COLUMNS
+  const { supabase } = await loadSupabase()
   const { data } = await supabase.auth.getSession()
   return data.session ? '*' : PUBLIC_COMPANY_COLUMNS
 }
@@ -37,6 +38,7 @@ async function fetchCompanyByEmployer(
   if (results[0]) return results[0]
   // Invited team members (owner/admin/member seats) work for a company they
   // do not own: resolve it through their active membership.
+  const { supabase } = await loadSupabase()
   const { data: seat } = await supabase
     .from('team_members')
     .select('company_id')

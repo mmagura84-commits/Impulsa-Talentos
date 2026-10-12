@@ -9,8 +9,11 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider, useI18n } from '@/i18n/I18nProvider'
-import { useEffect, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, type ReactNode } from 'react'
+
+const useLayoutEffectSafe = typeof window === 'undefined' ? useEffect : useLayoutEffect
 import { captureUTMParams } from '@/lib/marketing'
+import { startWebVitals } from '@/lib/webVitals'
 import indexCss from '../index.css?url'
 
 /**
@@ -74,8 +77,6 @@ export const Route = createRootRoute({
     { name: 'twitter:card', content: 'summary_large_image' },
   ],
     links: [
-      { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
-      { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       { rel: 'dns-prefetch', href: 'https://images.unsplash.com' },
       { rel: 'stylesheet', href: indexCss },
       // ?v= : Hostinger caches every file for a year, so a new icon needs a new URL.
@@ -89,24 +90,25 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
-// Brand fonts (Google Fonts) load once the app is running, i.e. after the page
-// is already on screen, so they never hold up the first paint; text shows in
-// the system font until then (font-display: swap).
-const FONTS_CSS = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap'
+// Brand fonts (self-hosted, @fontsource) load once the app is running, i.e.
+// after the page is already on screen, so they never hold up the first paint.
+// Only the subsets a page actually uses are downloaded (unicode-range).
 function useBrandFonts() {
   useEffect(() => {
-    if (document.querySelector('link[data-brand-fonts]')) return
-    const link = document.createElement('link')
-    link.rel = 'stylesheet'
-    link.href = FONTS_CSS
-    link.dataset.brandFonts = ''
-    document.head.appendChild(link)
+    void import('@fontsource-variable/dm-sans/wght.css')
+    void import('@fontsource-variable/lora/wght.css')
+    void import('@fontsource/ibm-plex-mono/400.css')
+    void import('@fontsource/ibm-plex-mono/500.css')
   }, [])
 }
 
 function RootDocument({ children }: { children: ReactNode }) {
   const { location } = useRouterState()
   useBrandFonts()
+  // React now handles taps; the pre-hydration tap script stands down.
+  useLayoutEffectSafe(() => { (window as { __itHydrated?: boolean }).__itHydrated = true }, [])
+  // Real-visitor load times (anonymous; see lib/webVitals and migration 051).
+  useEffect(() => { startWebVitals() }, [])
   return (
     // translate="no" (+ the `google: notranslate` meta): the site ships its own
     // EN/ES/PT switcher. Browser auto-translate rewrites React-owned text nodes

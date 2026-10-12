@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow } from '@/lib/supabase'
+import { listRows, getRow, createRow, updateRow, deleteRow } from '@/lib/db'
 import type { Job } from '@/types'
 
 

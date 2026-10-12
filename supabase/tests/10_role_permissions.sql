@@ -677,3 +677,20 @@ select t.reset();
 select t.act_as('00000000-0000-0000-0000-0000000000a5');
 select t.expect_error('a candidate cannot either', $$select public.hq_save_social_account('facebook', '', '', '', '', null)$$);
 select t.reset();
+
+-- ── Real-visitor load times (051) ──
+select t.act_as_anon();
+select t.expect_ok('a visitor reports load times', $$select public.record_web_vitals('/', 'mobile', '4g', 'abc123', 'navigate', 1400, 900, 120, 80, 0.02)$$);
+select t.expect_ok('impossible values are dropped, not failed', $$select public.record_web_vitals('/jobs/', 'tablet', null, null, null, -5, 999999, null, null, 50)$$);
+select t.expect_error('a visitor cannot read the table', $$select * from public.web_vitals$$);
+select t.expect_error('a visitor cannot read the summary', $$select * from public.hq_web_vitals_summary(7)$$);
+select t.reset();
+select t.check('values were stored with bad ones nulled and the device normalized',
+  (select count(*) = 1 from public.web_vitals where page = '/jobs/' and device = 'mobile' and lcp_ms is null and fcp_ms is null and cls is null));
+select t.act_as('00000000-0000-0000-0000-0000000000a5');
+select t.expect_error('a candidate cannot read the summary', $$select * from public.hq_web_vitals_summary(7)$$);
+select t.expect_error('nor the table', $$select * from public.web_vitals$$);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_rows('HQ gets an all-pages row and one row per page', $$select * from public.hq_web_vitals_summary(7) where device = 'mobile'$$, 3);
+select t.reset();

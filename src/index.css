@@ -1,5 +1,8 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+/* Size-matched stand-ins for DM Sans: src/font-fallback.css (also inlined in
+   every page's <head> by scripts/finalize-static-build.mjs). */
+@import './font-fallback.css';
 
 /* Phone shell must never create sideways page scrolling; intentional horizontal
    carousels opt in with their own overflow container.
@@ -56,8 +59,12 @@ html, body {
   --sidebar-ring: oklch(0.28 0.08 255);
 
   --radius: 0.625rem;
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Lora', ui-serif, Georgia, serif;
+  /* Brand fonts are self-hosted and load after the first paint (see
+     useBrandFonts in __root.tsx). Until then text uses a system font resized
+     to DM Sans's measurements ("DM Sans Fallback ..." below), so nothing moves
+     when DM Sans arrives. */
+  --font-sans: 'DM Sans Variable', 'DM Sans Fallback Arial', 'DM Sans Fallback Roboto', ui-sans-serif, system-ui, sans-serif;
+  --font-serif: 'Lora Variable', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --font-script: 'Dancing Script', 'Brush Script MT', 'Snell Roundhand', 'Apple Chancery', cursive;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
@@ -321,3 +328,19 @@ html, body {
     --color-muted-foreground: oklch(0.42 0.025 260);
   }
 }
+
+/* Home hero: slow zoom on each photo, and a crossfade when the next photo
+   arrives (CSS, so it runs before and without the app's scripts). */
+@keyframes hero-kb-even { from { transform: scale(1) translateX(0); } to { transform: scale(1.07) translateX(-1.5%); } }
+@keyframes hero-kb-odd { from { transform: scale(1.06) translateX(0); } to { transform: scale(1) translateX(1.5%); } }
+@keyframes hero-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes feed-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+.hero-kb-even { animation: hero-kb-even 6.4s ease-out both; }
+.hero-kb-odd { animation: hero-kb-odd 6.4s ease-out both; }
+.hero-kb-even.hero-fade-in { animation: hero-kb-even 6.4s ease-out both, hero-fade-in 0.9s ease-out both; }
+.hero-kb-odd.hero-fade-in { animation: hero-kb-odd 6.4s ease-out both, hero-fade-in 0.9s ease-out both; }
+.feed-in { animation: feed-in 0.35s ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  .hero-kb-even, .hero-kb-odd, .hero-fade-in, .feed-in { animation: none !important; }
+}
+

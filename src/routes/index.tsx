@@ -1,5 +1,4 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import {
   ArrowRight,
   Briefcase,
@@ -10,11 +9,12 @@ import {
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
+import { usePrefersReducedMotion } from '@/hooks/usePrefersReducedMotion'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
-import { useAllJobs, fetchAllJobs } from '@/hooks/useJobs'
-import { useAllCompanies, fetchAllCompanies } from '@/hooks/useCompanies'
+import { useQuery } from '@tanstack/react-query'
+import { publicSelect } from '@/lib/publicRest'
 import { PublicHeader } from '@/components/PublicHeader'
 import type { Job, Company } from '@/types'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
@@ -23,29 +23,29 @@ import { useRef, type ReactNode } from 'react'
 import { captureUTMParams, trackEvent } from '@/lib/marketing'
 import { setOnboardingIntent } from '@/lib/intent'
 
-/* Prerender the open jobs and company names the home page shows (live feed,
-   company ribbon, industry and city counts), so they are in the HTML instead of
-   appearing seconds later. Only the fields the page uses, to keep it small;
-   the browser refetches the full lists after load. Client-side navigation skips
-   this (the lists are usually cached by then). */
-type HomeJob = Pick<Job, 'id' | 'title' | 'companyId' | 'status' | 'moderationStatus' | 'locationType' | 'salaryMin' | 'salaryMax' | 'currency' | 'languagesRequired' | 'industry'>
+/* The open jobs and company names the home page shows (live feed, company
+   ribbon, industry and city counts). Read over the public REST API (see
+   lib/publicRest) so supabase-js isn't loaded at start-up; prerendered into the
+   HTML by the loader, then refreshed in the browser. Only the columns used. */
+const HOME_JOB_COLUMNS = 'id,title,company_id,status,moderation_status,location_type,salary_min,salary_max,currency,languages_required,industry'
+const fetchHomeJobs = () => publicSelect<Job>('jobs', `select=${HOME_JOB_COLUMNS}&status=eq.open&order=created_at.desc&limit=60`).then((rows) => rows.filter(isOpen))
+const fetchHomeCompanies = () => publicSelect<Company>('companies', 'select=id,name,logo_url&order=created_at.desc')
 async function loadHomeData(): Promise<{ jobs?: Job[]; companies?: Company[] }> {
+  // In-app navigation back to "/" uses whatever the browser already has.
   if (typeof window !== 'undefined') return {}
   try {
-    const [jobs, companies] = await Promise.all([fetchAllJobs(), fetchAllCompanies()])
-    const open: HomeJob[] = jobs.filter(isOpen).slice(0, 60).map((j) => ({
-      id: j.id, title: j.title, companyId: j.companyId, status: j.status, moderationStatus: j.moderationStatus,
-      locationType: j.locationType, salaryMin: j.salaryMin, salaryMax: j.salaryMax, currency: j.currency,
-      languagesRequired: j.languagesRequired, industry: j.industry,
-    }))
-    return {
-      jobs: open as Job[],
-      companies: companies.map((c) => ({ id: c.id, name: c.name, logoUrl: c.logoUrl }) as Company),
-    }
+    const [jobs, companies] = await Promise.all([fetchHomeJobs(), fetchHomeCompanies()])
+    return { jobs, companies }
   } catch (err) {
     console.error('[home loader]', err)
     return {}
   }
+}
+function useHomeJobs(initial?: Job[]) {
+  return useQuery({ queryKey: ['home', 'jobs'], queryFn: fetchHomeJobs, initialData: initial, initialDataUpdatedAt: initial ? 0 : undefined })
+}
+function useHomeCompanies(initial?: Company[]) {
+  return useQuery({ queryKey: ['home', 'companies'], queryFn: fetchHomeCompanies, initialData: initial, initialDataUpdatedAt: initial ? 0 : undefined })
 }
 
 export const Route = createFileRoute('/')({
@@ -124,8 +124,10 @@ function LandingCTAs() {
           <ArrowRight className="hidden size-4 sm:block" />
         </Link>
       </Button>
-      <Button variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-4 text-[15px] font-semibold text-white sm:px-7 sm:text-base hover:bg-white/10 hover:text-white" onClick={goEmployer}>
-        <Building2 className="size-4" />{t('landing.ctaHire')}
+      <Button asChild variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-4 text-[15px] font-semibold text-white sm:px-7 sm:text-base hover:bg-white/10 hover:text-white">
+        <a href="/employer?signup=1" data-early-intent="employer" onClick={(e) => { e.preventDefault(); goEmployer() }}>
+          <Building2 className="size-4" />{t('landing.ctaHire')}
+        </a>
       </Button>
     </div>
   )
@@ -136,16 +138,17 @@ const compactMoney = (v: number, locale: string) =>
   new Intl.NumberFormat(locale === 'es' ? 'es-CO' : locale === 'pt' ? 'pt-BR' : 'en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(v).replace(/\s/g, '')
 function JobFeedPreview() {
   const { t, locale } = useI18n()
-  const { data: jobs } = useAllJobs()
-  const { data: companies } = useAllCompanies()
-  const reduce = useReducedMotion()
+  const { data: jobs } = useHomeJobs()
+  const { data: companies } = useHomeCompanies()
+  const reduce = usePrefersReducedMotion()
   const [index, setIndex] = useState(0)
+  const [rotated, setRotated] = useState(false)
   const [paused, setPaused] = useState(false)
   const companyMap = new Map((companies ?? []).map((c: Company) => [c.id, c]))
   const featured = (jobs ?? []).filter(isOpen)
   useEffect(() => {
     if (reduce || paused || featured.length < 2) return
-    const id = window.setInterval(() => setIndex((i) => (i + 1) % featured.length), 3000)
+    const id = window.setInterval(() => { setRotated(true); setIndex((i) => (i + 1) % featured.length) }, 3000)
     return () => window.clearInterval(id)
   }, [reduce, paused, featured.length])
   const card = (job: Job) => {
@@ -169,7 +172,7 @@ function JobFeedPreview() {
   }
   return <div data-testid="hero-live-feed" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} className="w-full overflow-hidden rounded-2xl border border-white/15 bg-black/35 shadow-2xl backdrop-blur-md" aria-label={t('landing.feedTitle')}>
     <div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><div className="flex items-center gap-2 text-sm font-semibold text-white"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>{t('landing.feedLiveLabel')}</div><Link to="/jobs" className="inline-flex items-center text-xs font-medium text-accent hover:underline">{t('landing.feedViewAll')} →</Link></div>
-    {featured.length === 0 ? <div className="p-4"><div className="h-20 rounded-lg bg-white/10 animate-pulse" /></div> : reduce ? <div className="divide-y divide-white/10">{featured.slice(0, 3).map(card)}</div> : <div className="relative"><div aria-hidden="true" className="invisible">{card(featured[0])}</div><AnimatePresence initial={false}><motion.div key={featured[index]?.id} className="absolute inset-0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}>{card(featured[index])}</motion.div></AnimatePresence></div>}
+    {featured.length === 0 ? <div className="p-4"><div className="h-20 rounded-lg bg-white/10 animate-pulse" /></div> : reduce ? <div className="divide-y divide-white/10">{featured.slice(0, 3).map(card)}</div> : <div key={featured[index % featured.length]?.id} className={rotated ? 'feed-in' : undefined}>{card(featured[index % featured.length])}</div>}
   </div>
 }
 /* ── Stats bar — LIVE numbers from Supabase ────────────────── */
@@ -192,7 +195,7 @@ function StatsBar() {
    for a11y; the duplicate half is decorative, so there are no repeated tab stops. */
 function CompanyRibbon({ companies }: { companies: Company[] }) {
   const { t } = useI18n()
-  const reduce = useReducedMotion()
+  const reduce = usePrefersReducedMotion()
   if (companies.length === 0) return null
   // renderSet(link, keyPrefix) — second copy is aria-hidden + non-link so we
   // avoid duplicate announcements and duplicate keyboard tab stops.
@@ -239,9 +242,6 @@ const HERO_SLIDES = ['technology', 'finance', 'customer-hospitality', 'operation
 const INITIAL_HERO_SLIDE = HERO_SLIDES.indexOf('technology')
 const SLIDE_MS = 5500
 const CROSSFADE_S = 0.9
-const KB: Record<string, { from: number; to: number; xFrom: string; xTo: string; yFrom: string; yTo: string }> = Object.fromEntries(
-  HERO_SLIDES.map((key, i) => [key, { from: i % 2 ? 1.06 : 1, to: i % 2 ? 1 : 1.07, xFrom: '0%', xTo: i % 2 ? '1.5%' : '-1.5%', yFrom: '0%', yTo: '0%' }]),
-)
 // Background of the last section, under an 85% wash: a 500 px (phones) or
 // 960 px thumbnail is plenty.
 const CTA_BAND_AT = (w: number) =>
@@ -319,7 +319,7 @@ function capitalize(s: string) {
    and reports the slide in view. One light timer instead of scroll events,
    which proved unreliable on some engines once snapping kicks in. */
 function usePhoneSlideshow(count: number, intervalMs: number) {
-  const reduce = useReducedMotion()
+  const reduce = usePrefersReducedMotion()
   const ref = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(0)
   const pausedUntil = useRef(0)
@@ -357,7 +357,7 @@ function usePhoneSlideshow(count: number, intervalMs: number) {
 /* ── City showcase — Colombia's talent markets with live counts ── */
 function CityShowcase() {
   const { t } = useI18n()
-  const { data: allJobs } = useAllJobs()
+  const { data: allJobs } = useHomeJobs()
   const openJobs = (allJobs ?? []).filter(isOpen)
 
   // Phones: a one-city-at-a-time slideshow (swipe or tap a dot; advances by
@@ -459,7 +459,7 @@ const FAMILY_PHOTOS: Record<string, string> = {
   'healthcare-public': '/images/industry-healthcare.webp',
 }
 function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
-  const { t } = useI18n(); const { data: jobs } = useAllJobs(); const counts = new Map<string, number>();
+  const { t } = useI18n(); const { data: jobs } = useHomeJobs(); const counts = new Map<string, number>();
   for (const j of (jobs ?? []).filter(j => isOpen(j) && j.industry)) counts.set(j.industry!, (counts.get(j.industry!) ?? 0) + 1);
   const total = family.members.reduce((n, m) => n + (counts.get(m) ?? 0), 0)
   return <div className="card-lift flex h-full flex-col overflow-hidden rounded-2xl border">
@@ -475,8 +475,19 @@ function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
 
 function LandingPage() {
   const { t } = useI18n()
-  const reduce = useReducedMotion()
   const [slide, setSlide] = useState(INITIAL_HERO_SLIDE)
+  const slideRef = useRef(INITIAL_HERO_SLIDE)
+  const fadeTimer = useRef(0)
+  // The previous photo stays underneath until the new one has faded in.
+  const showSlide = (next: number) => {
+    if (next === slideRef.current) return
+    setPrevSlide(slideRef.current)
+    slideRef.current = next
+    setSlide(next)
+    window.clearTimeout(fadeTimer.current)
+    fadeTimer.current = window.setTimeout(() => setPrevSlide(null), CROSSFADE_S * 1000 + 100)
+  }
+  const [prevSlide, setPrevSlide] = useState<number | null>(null)
   const pausedRef = useRef(false)
   useEffect(() => {
     captureUTMParams()
@@ -486,8 +497,8 @@ function LandingPage() {
     // Auto-advance runs in BOTH modes: under prefers-reduced-motion the swap is an
     // instant plain <img> change (no crossfade/Ken Burns) so the carousel still
     // rotates without any animation; normal mode keeps the animated path below.
-    const id = window.setInterval(() => { if (!pausedRef.current) setSlide((s) => (s + 1) % HERO_SLIDES.length) }, SLIDE_MS)
-    return () => window.clearInterval(id)
+    const id = window.setInterval(() => { if (!pausedRef.current) showSlide((slideRef.current + 1) % HERO_SLIDES.length) }, SLIDE_MS)
+    return () => { window.clearInterval(id); window.clearTimeout(fadeTimer.current) }
   }, [])
   useEffect(() => {
     const onVis = () => { pausedRef.current = document.hidden }
@@ -500,8 +511,8 @@ function LandingPage() {
   }, [slide])
 
   const home = Route.useLoaderData()
-  const { data: allJobs } = useAllJobs(home.jobs)
-  const { data: allCompanies } = useAllCompanies(home.companies)
+  const { data: allJobs } = useHomeJobs(home.jobs)
+  const { data: allCompanies } = useHomeCompanies(home.companies)
 
   const openJobs = (allJobs ?? []).filter(isOpen)
   const companyOpenCounts = new Map<string, number>()
@@ -522,7 +533,7 @@ function LandingPage() {
           background + top gradient render behind it instead of main's white bg. */}
       <section className="relative isolate overflow-hidden -mt-[65px]">
         <div className="absolute inset-0 z-0" aria-hidden="true">
-          {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
+          {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => <img key={i} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className={`absolute inset-0 size-full object-cover object-center ${i % 2 ? 'hero-kb-odd' : 'hero-kb-even'} ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`} />)}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 pb-14 pt-[6.5rem] sm:px-6 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
@@ -531,7 +542,7 @@ function LandingPage() {
             <div className="relative hidden w-full flex-col sm:flex"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="lazy" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
-        <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
+        <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-xs sm:text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <CompanyRibbon companies={companies} />
@@ -630,7 +641,7 @@ function LandingPage() {
       <section className="bg-gradient-to-br from-[#1f3a8a] to-[#16306e] text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
           <div><p className="text-sm font-semibold uppercase tracking-wider text-accent">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-white/85">{t('landing.employerCtaDesc')}</p></div>
-          <Button size="lg" className="w-full shrink-0 bg-accent font-semibold text-[#0f1f4d] hover:bg-accent/90 sm:w-auto" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer?signup=1' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
+          <Button asChild size="lg" className="w-full shrink-0 bg-accent font-semibold text-[#0f1f4d] hover:bg-accent/90 sm:w-auto"><a href="/employer?signup=1" data-early-intent="employer" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start') }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></a></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}

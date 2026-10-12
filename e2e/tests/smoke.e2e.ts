@@ -103,3 +103,53 @@ test('favicons are real brand images, not HTML', async ({ page, request }) => {
   expect(svg).toContain('#1f3a8a')   // brand blue (header)
   expect(svg).toContain('#f2b705')   // brand gold (spark)
 })
+
+test('before the app scripts run, the phone menu opens and a language tap is kept', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'the menu button is phone-only')
+  // Hold the app's scripts back so the page is in its pre-hydration state.
+  await page.route(/\/assets\/.*\.js$/, (route) => route.abort())
+  await page.goto('/')
+  const menu = page.locator('[data-early-menu]')
+  await expect(page.locator('#mobile-nav-panel')).toBeHidden()
+  await menu.click()
+  await expect(page.locator('#mobile-nav-panel')).toBeVisible()
+  await expect(menu).toHaveAttribute('aria-expanded', 'true')
+  await menu.click()
+  await expect(page.locator('#mobile-nav-panel')).toBeHidden()
+  await page.locator('[data-early-locale]').first().click()
+  expect(await page.evaluate(() => localStorage.getItem('it_locale'))).toBe('es')
+})
+
+test('once the app runs, the menu is handled by the app (opens and closes once per tap)', async ({ page, isMobile }) => {
+  test.skip(!isMobile, 'the menu button is phone-only')
+  await page.goto('/')
+  await expect.poll(() => page.evaluate(() => (window as { __itHydrated?: boolean }).__itHydrated === true).catch(() => false), { timeout: 20_000 }).toBe(true)
+  await page.locator('[data-early-menu]').click()
+  await expect(page.locator('#mobile-nav-panel')).toBeVisible()
+  await page.locator('[data-early-menu]').click()
+  await expect(page.locator('#mobile-nav-panel')).toBeHidden()
+})
+
+test('the home page starts without supabase-js or the animation library', async ({ page }) => {
+  const scripts: string[] = []
+  page.on('request', (r) => { if (r.resourceType() === 'script') scripts.push(r.url()) })
+  await page.goto('/')
+  await expect.poll(() => page.evaluate(() => (window as { __itHydrated?: boolean }).__itHydrated === true).catch(() => false), { timeout: 20_000 }).toBe(true)
+  await page.waitForTimeout(1500)
+  expect(scripts.filter((u) => /\/assets\/(supabase|proxy)-/.test(u))).toEqual([])
+})
+
+test('real-visitor load times are reported (anonymously)', async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem('it_vitals_debug', '1'))
+  let body: Record<string, unknown> | null = null
+  // Captured here and answered locally: test visits are not stored.
+  await page.route('**/rest/v1/rpc/record_web_vitals', async (route) => { body = route.request().postDataJSON(); await route.fulfill({ status: 204, body: '' }) })
+  await page.goto('/')
+  await expect.poll(() => page.evaluate(() => (window as { __itHydrated?: boolean }).__itHydrated === true).catch(() => false), { timeout: 20_000 }).toBe(true)
+  await page.waitForTimeout(1500)
+  await page.evaluate(() => window.dispatchEvent(new Event('pagehide')))
+  await expect.poll(() => body, { timeout: 10_000 }).not.toBeNull()
+  expect(body!.p_page).toBe('/')
+  expect(typeof body!.p_fcp_ms).toBe('number')
+  expect(Object.keys(body!).sort()).toEqual(['p_build', 'p_cls', 'p_connection', 'p_device', 'p_fcp_ms', 'p_inp_ms', 'p_lcp_ms', 'p_nav_type', 'p_page', 'p_ttfb_ms'])
+})

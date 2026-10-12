@@ -10,6 +10,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { Megaphone, CheckCircle2, Rocket, Loader2 } from 'lucide-react'
 import { CandidateFunnelCard } from '@/components/hq/CandidateFunnelCard'
 import { SocialAccountsCard } from '@/components/hq/SocialAccountsCard'
+import { SiteSpeedCard } from '@/components/hq/SiteSpeedCard'
 
 type Channel = {
   code: string
@@ -110,6 +111,7 @@ export function CampaignsTab() {
     <div className="space-y-6">
       <FadeIn><CandidateFunnelCard /></FadeIn>
       <FadeIn><SocialAccountsCard /></FadeIn>
+      <FadeIn><SiteSpeedCard /></FadeIn>
       <FadeIn>
         <Card>
           <CardHeader>
