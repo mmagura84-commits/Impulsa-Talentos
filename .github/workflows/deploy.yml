@@ -58,7 +58,8 @@ jobs:
           # (run #199). The runner is throwaway; the deploy key is the guard.
           SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -p $PORT"
           COUNT=$(find dist -type f | wc -l | tr -d ' ')
-          $SSH "$USER_@$HOST" "rm -rf '$LIVE.incoming' && mkdir -p '$LIVE.incoming'"
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$LIVE.incoming/"
-          $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$LIVE.incoming" "$LIVE.prev" "$COUNT" < scripts/remote-swap.sh
+          INCOMING="$LIVE/.deploy/incoming"; PREV="$LIVE/.deploy/prev"
+          $SSH "$USER_@$HOST" "rm -rf '$INCOMING' && mkdir -p '$INCOMING'"
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$INCOMING/"
+          $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$INCOMING" "$PREV" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"

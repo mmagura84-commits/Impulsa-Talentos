@@ -5,6 +5,9 @@
 Options -Indexes
 RewriteEngine On
 
+# Deploy staging/backup folder (scripts/remote-swap.sh) is never public.
+RewriteRule ^\.deploy(/|$) - [F,L]
+
 # --- 1. API endpoints are served only by the Node/Bun backend
 #      (serve.ts). On static hosting they do not exist — return a real
 #      404 instead of silently rewriting to the SPA shell.

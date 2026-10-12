@@ -7,11 +7,11 @@
 # upload left the site at 403/404, see the 2026-08-27 incident):
 #   1. build into a temp workspace and check the bundle targets the LIVE
 #      Supabase project and contains index.html + .htaccess
-#   2. upload everything to public_html.incoming (live site untouched)
-#   3. on the server: verify the upload, back up public_html to
-#      public_html.prev, copy the new files over the live ones, then remove
-#      files that are no longer part of the build
-#   Roll back: ssh in and `rm -rf public_html && cp -a public_html.prev public_html`
+#   2. upload everything to public_html/.deploy/incoming (live site untouched)
+#   3. on the server: verify the upload, back up the site to
+#      public_html/.deploy/prev, copy the new files over the live ones, then
+#      remove files that are no longer part of the build
+#   Roll back: ssh in and `cp -a public_html/.deploy/prev/. public_html/`
 #
 # Override any setting with env vars.
 set -euo pipefail
@@ -29,8 +29,8 @@ LEGACY_REF="wpnkeryyhsdsislqaegb"
 # strict pinning breaks every other connection; the deploy key is the guard.
 SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=20 -i "$SSH_KEY")
 REMOTE="$REMOTE_USER@$REMOTE_HOST"
-INCOMING="${REMOTE_PATH%/}.incoming"
-PREV="${REMOTE_PATH%/}.prev"
+INCOMING="${REMOTE_PATH%/}/.deploy/incoming"   # inside public_html: the account can't
+PREV="${REMOTE_PATH%/}/.deploy/prev"           # write next to it; .htaccess blocks /.deploy
 
 echo "═══ Impulsa Talentos Deploy ═══"
 [ -f "$SSH_KEY" ] || { echo "SSH key not found: $SSH_KEY (set DEPLOY_SSH_KEY)"; exit 1; }
