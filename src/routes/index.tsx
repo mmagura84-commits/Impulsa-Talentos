@@ -9,7 +9,6 @@ import {
   Search,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -58,9 +57,10 @@ function SectionReveal({ children, delay = 0, className }: { children: ReactNode
 /* ── Hero CTAs — candidate-only (per product direction) ────── */
 function LandingCTAs() {
   const { t } = useI18n()
-  const { user, isLoading } = useAuth()
+  const { user } = useAuth()
   const navigate = useNavigate()
-  if (isLoading) return null
+  // Signed-out buttons render in the prerendered HTML (and while the session is
+  // being restored), so the hero is complete before any JavaScript runs.
   if (user) {
     return (
       <Button asChild size="lg" className="h-12 w-full gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90 sm:w-auto">
@@ -477,8 +477,8 @@ function LandingPage() {
         </div>
         <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 pb-14 pt-[6.5rem] sm:px-6 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
           <div className="grid w-full items-center gap-9 sm:gap-12 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
-            <div className="flex flex-col items-start text-left"><span className="hidden items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs sm:inline-flex font-semibold text-white/90 backdrop-blur-sm sm:px-3.5 sm:py-1.5 sm:text-sm"><Sparkles className="size-3.5 text-accent sm:size-4" />{t('landing.badge')}</span><h1 className="text-[2.15rem] font-bold tracking-tight leading-[1.08] text-white sm:mt-3 sm:text-5xl sm:leading-[1.04] lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/85 sm:mt-3 sm:text-lg sm:text-white/85 xl:text-xl">{t('landing.heroSub')}</p><div className="mt-8 w-full sm:mt-5 sm:w-auto"><BlinkClientBoundary fallback={<div className="h-12 w-full rounded-lg bg-white/20 animate-pulse sm:w-44" />}><LandingCTAs /></BlinkClientBoundary></div></div>
-            <div className="relative hidden w-full flex-col sm:flex"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
+            <div className="flex flex-col items-start text-left"><span className="hidden items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs sm:inline-flex font-semibold text-white/90 backdrop-blur-sm sm:px-3.5 sm:py-1.5 sm:text-sm"><Sparkles className="size-3.5 text-accent sm:size-4" />{t('landing.badge')}</span><h1 className="text-[2.15rem] font-bold tracking-tight leading-[1.08] text-white sm:mt-3 sm:text-5xl sm:leading-[1.04] lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/85 sm:mt-3 sm:text-lg sm:text-white/85 xl:text-xl">{t('landing.heroSub')}</p><div className="mt-8 w-full sm:mt-5 sm:w-auto"><LandingCTAs /></div></div>
+            <div className="relative hidden w-full flex-col sm:flex"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="lazy" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>

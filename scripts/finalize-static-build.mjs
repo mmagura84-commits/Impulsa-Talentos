@@ -209,7 +209,33 @@ const idHash = createHash('sha1').update(assetNames.join('\n'))
 for (const f of htmlFiles) idHash.update(f).update(readFileSync(f))
 const BUILD_ID = idHash.digest('hex').slice(0, 12)
 writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + '\n')
-const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){try{return S?S.register("/sw.js?v="+B):Promise.reject()}catch(e){return Promise.reject(e)}}var R=reg();if(R.catch)R.catch(function(){});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(!S){hard(nb);return}if(S.controller){location.reload();return}var fin=0;function end(){if(fin)return;fin=1;S.controller?location.reload():hard(nb)}R.then(function(){return S.ready}).then(function(){return new Promise(function(r){if(S.controller)return r();S.addEventListener("controllerchange",r)})}).then(end,end);setTimeout(end,4000)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
+// Self-update script, first thing in every page's <head>:
+//  - strips the ?_b= cache-buster from the address bar;
+//  - registers the service worker AFTER the page has loaded, so installing it
+//    never competes with the first paint;
+//  - asks /version.json which build is live; if this page is older (a CDN copy),
+//    it switches at once: through the worker when one controls the page,
+//    otherwise straight to /path?_b=<build> (a URL no cache has) — no waiting
+//    for the worker to install first, which used to double the first visit;
+//  - same when a script/style of an old build is gone (404 after cleanup).
+const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker,R;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){if(R)return R;try{R=S?S.register("/sw.js?v="+B):Promise.reject()}catch(e){R=Promise.reject(e)}if(R.catch)R.catch(function(){});return R}if(document.readyState==="complete")reg();else addEventListener("load",function(){setTimeout(reg,0)});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(S&&S.controller){location.reload();return}hard(nb)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
+
+// Loading order: the HTML, stylesheet and hero photo get the connection to
+// themselves until the page is on screen. The app's JavaScript (the entry and
+// the chunks it needs, which Vite lists as modulepreload links) is requested
+// once the browser reports the first paint and the high-priority (hero) photo
+// has loaded — capped at 1.5 s, and at most 3 s in all (e.g. a background tab,
+// where nothing paints). Pages are prerendered, so everything is readable
+// before the scripts arrive; they then hydrate the page as before.
+const START_AFTER_PAINT = (src, preloads) => `<script>(function(){var d=0;function go(){if(d)return;d=1;${JSON.stringify(preloads)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.appendChild(l)});var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(src)};document.body.appendChild(s)}function once(f){var c=0;return function(){if(!c){c=1;f()}}}function painted(f){f=once(f);try{new PerformanceObserver(function(l,o){o.disconnect();f()}).observe({type:"paint",buffered:true})}catch(e){requestAnimationFrame(function(){setTimeout(f,0)})}setTimeout(f,1500)}function hero(f){f=once(f);var w=[].filter.call(document.querySelectorAll('img[fetchpriority="high"]'),function(i){return!i.complete}),n=w.length;if(!n)return f();w.forEach(function(i){i.addEventListener("load",function(){--n||f()});i.addEventListener("error",function(){--n||f()})});setTimeout(f,1500)}function start(){hero(function(){painted(function(){setTimeout(go,0)})})}setTimeout(go,3000);document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start):start()})()</script>`
+const ENTRY = /<script type="module"[^>]*\ssrc="(\/assets\/[^"]+\.js)"[^>]*><\/script>/
+const PRELOAD = /<link rel="modulepreload"[^>]*\shref="(\/assets\/[^"]+\.js)"[^>]*\/?>/g
+const lowPriorityScripts = (html) => {
+  const entry = html.match(ENTRY)
+  if (!entry) return html
+  const preloads = [...html.matchAll(PRELOAD)].map((m) => m[1]).filter((h) => h !== entry[1])
+  return html.replace(PRELOAD, '').replace(ENTRY, START_AFTER_PAINT(entry[1], preloads))
+}
 
 
 let injected = 0
@@ -218,7 +244,7 @@ for (const f of htmlFiles) {
   if (html.includes('data-build=')) continue
   const at = html.indexOf('<head>')
   if (at === -1) continue
-  writeFileSync(f, html.slice(0, at + 6) + FRESH_SCRIPT + html.slice(at + 6))
+  writeFileSync(f, lowPriorityScripts(html.slice(0, at + 6) + FRESH_SCRIPT + html.slice(at + 6)))
   injected++
 }
 console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)
