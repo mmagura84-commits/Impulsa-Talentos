@@ -65,8 +65,11 @@ test('pages are the current build and carry the self-update script', async ({ pa
 
 test('service worker takes over page loads (keeps pages fresh despite the host caching them)', async ({ page }) => {
   await page.goto('/privacy/')
-  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true))
+  // An old copy may reload itself once; evaluate calls retry across that navigation.
+  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.ready.then(() => true)).catch(() => false), { timeout: 20_000 }).toBe(true)
   await page.reload()
-  expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller).catch(() => false), { timeout: 20_000 }).toBe(true)
+  const script = await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL ?? '')
+  expect(script).toMatch(/\/sw\.js\?v=[0-9a-f]{12}$/)
   await expect(page.locator('h1').first()).toBeVisible()
 })
