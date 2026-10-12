@@ -75,7 +75,10 @@ test('service worker takes over page loads (keeps pages fresh despite the host c
 })
 
 test('favicons are real brand images, not HTML', async ({ page, request }) => {
+  const { build } = await (await request.get(`/version.json?b=${Date.now()}`)).json() as { build: string }
   await page.goto('/')
+  // Wait out a possible one-time self-refresh of an old CDN copy before reading the head.
+  await expect.poll(async () => page.locator('script[data-build]').first().getAttribute('data-build').catch(() => ''), { timeout: 15_000 }).toBe(build)
   const hrefs = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll(ls => ls.map(l => l.getAttribute('href')!))
   expect(hrefs).toEqual(expect.arrayContaining(['/favicon.ico?v=2', '/favicon.svg?v=2']))
   for (const href of [...hrefs, '/favicon.ico']) {
