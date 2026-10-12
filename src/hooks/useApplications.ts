@@ -1,10 +1,8 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { supabase, listRows, getRow, createRow, updateRow, deleteRow, countRows, snakeToCamel } from '@/lib/supabase'
-import type { Application, ApplicationStatusHistory, Job, Profile } from '@/types'
-import { sendEmail } from '@/lib/emailSender'
+import { supabase, listRows, getRow, createRow, updateRow, snakeToCamel } from '@/lib/supabase'
+import type { Application, ApplicationStatusHistory } from '@/types'
 import { storagePointer } from '@/hooks/useSignedStorageUrl'
 
-const JOBS_EMAIL = 'jobs@impulsatalentos.expert'
 
 
 // ─── Query key factories ───

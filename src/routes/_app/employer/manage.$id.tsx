@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile, useProfileById } from '@/hooks/useProfile'
@@ -30,12 +30,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import {
   ArrowLeft,
   Users,
-  Mail,
-  Phone,
-  MapPin,
-  Globe,
   FileText,
-  Eye,
   X,
   Briefcase,
   CalendarClock,
@@ -44,7 +39,6 @@ import {
   AlertCircle,
   Building2,
   ChevronDown,
-  ExternalLink,
 } from 'lucide-react'
 import type { Application, Job } from '@/types'
 import { friendlyDbError } from '@/lib/dbErrors'
@@ -71,10 +65,6 @@ function FadeIn({ children, className, delay = 0 }: { children: ReactNode; class
 }
 
 /* ── Helpers ───────────────────────────────────────────── */
-function splitList(s: string | null | undefined): string[] {
-  if (!s) return []
-  return s.split(/[,;|]/).map(x => x.trim()).filter(Boolean)
-}
 
 function extractResumeUrl(coverLetter: string | null | undefined): string | null {
   if (!coverLetter) return null
@@ -286,8 +276,6 @@ function ApplicationDrawer({
   const updateStatus = useUpdateApplicationStatus()
   const [pending, setPending] = useState<Application['status'] | null>(null)
 
-  const resumePointer = extractResumeUrl(app.coverLetter)
-  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
   // Show who applied (the cover note is a message, not a name).
   const { data: candidate } = useProfileById(app.candidateId)
@@ -460,7 +448,6 @@ function ApplicationDrawer({
 function ManageApplicationsPage() {
   const { id } = useParams({ from: '/_app/employer/manage/$id' })
   const { user } = useAuth()
-  const { data: profile } = useProfile(user?.id)
   const { data: company } = useCompany(user?.id)
   const { data: job, isLoading: jobLoading, isError, error } = useJob(id)
   const { data: applications, isLoading: appsLoading } = useApplications(id)

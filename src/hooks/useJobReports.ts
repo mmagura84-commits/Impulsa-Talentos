@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, createRow } from '@/lib/supabase'
 import type { JobReport } from '@/types'
 
 

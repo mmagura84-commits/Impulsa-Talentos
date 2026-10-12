@@ -10,7 +10,7 @@ import { useApplicationsByCompany, useUpdateApplicationStatus } from '@/hooks/us
 import { useOffersByApplication, useCreateOffer, useUpdateOffer } from '@/hooks/useOffers'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatSalaryValue } from '@/lib/formatSalary'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -62,7 +62,7 @@ function EmployerOffersPage() {
   const { data: jobs } = useCompanyJobs(company?.id)
   const jobIds = jobs?.map(j => j.id) ?? []
   const { data: applications, isLoading: appsLoading } = useApplicationsByCompany(jobIds.length > 0 ? jobIds : undefined)
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const [creatingFor, setCreatingFor] = useState<string | null>(null) // application id
   const [editingOffer, setEditingOffer] = useState<Offer | null>(null)
 
@@ -152,7 +152,6 @@ function ApplicationOfferRow({
   const { locale } = useI18n()
   const { data: candidate } = useProfileById(application.candidateId as string)
   const { data: offers } = useOffersByApplication(application.id)
-  const { data: profile } = useProfile(useAuth().user?.id)
   const createOffer = useCreateOffer()
   const updateOffer = useUpdateOffer()
   const updateStatus = useUpdateApplicationStatus()

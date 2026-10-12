@@ -16,11 +16,9 @@ import { ActionCenter } from './ActionCenter'
 import { useUpcomingInterviews } from '@/hooks/useInterviews'
 import {
   Briefcase,
-  FileText,
   CheckCircle2,
   Plus,
   ArrowUpRight,
-  AlertCircle,
   Pencil,
   Trash2,
   X,

@@ -365,7 +365,7 @@ function ApplyPage() {
         })
       }
     }
-  }, [alreadyApplied, myApps, id, navigate])
+  }, [alreadyApplied, myApps, id, navigate, profile?.id])
 
   /* ── Loading skeleton ───────────────────────────────── */
   if (isLoading || myAppsLoading) {

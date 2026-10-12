@@ -7,7 +7,7 @@
  */
 import { useMemo } from 'react'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, createRow, deleteRow } from '@/lib/supabase'
 import type { SavedJob, Job } from '@/types'
 
 
@@ -128,7 +128,7 @@ export function useUnsaveJob() {
       jobId: string
     }) => {
       const rows = await listRows<SavedJob>('saved_jobs', {
-        where: { candidateId, jobId } as any,
+        where: { candidateId, jobId },
         limit: 1,
       })
       const row = rows[0]

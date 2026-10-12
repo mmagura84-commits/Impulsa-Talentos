@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { FormEvent, useState } from 'react'
 import { CheckCircle2, Send } from 'lucide-react'
 import { toast } from 'sonner'

@@ -8,7 +8,6 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
-import { useProfile } from '@/hooks/useProfile'
 import { useCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useJob, useUpdateJob } from '@/hooks/useJobs'
 import { JobManagementPanel } from '@/components/employer/JobManagementPanel'
@@ -17,10 +16,6 @@ import { RichTextEditor } from '@/components/RichTextEditor'
 import {
   LOCATION_TYPES,
   LOCATION_TYPE_KEYS,
-  LANGUAGE_LEVELS,
-  LANGUAGE_LEVEL_KEYS,
-  normalizeLanguageToken,
-  parseLocationType,
   buildLocationType,
   type LocationType,
 } from '@/lib/jobEnums'
@@ -81,7 +76,6 @@ const CURRENCY_OPTIONS = [
 function EditJobPage() {
   const { id } = useParams({ from: '/_app/employer/edit-job/$id' })
   const { user } = useAuth()
-  const { data: profile } = useProfile(user?.id)
   const { data: company } = useCompany(user?.id)
   const requestVerification = useUpdateCompany()
   const { data: job, isLoading, isError, error, refetch } = useJob(id)

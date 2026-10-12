@@ -374,6 +374,14 @@ export interface Lead {
   updatedAt: string
 }
 
+/** A meeting row logged by a market director (meetings table). */
+export interface MeetingRow {
+  id: string
+  employerName: string
+  meetingDate: string
+  notes?: string | null
+}
+
 /** Visibility of structured feedback: internal-only or visible to the candidate. */
 export type FeedbackVisibility = 'internal' | 'candidate_visible'
 

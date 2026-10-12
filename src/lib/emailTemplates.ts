@@ -278,7 +278,7 @@ function ctaButton(href: string, label: string, locale: Locale): string {
 
 /* ── Candidate email ──────────────────────────────────── */
 export function buildCandidateEmail(input: CandidateEmailInput): { subject: string; html: string; text: string } {
-  const { locale, app, job, companyName, candidateName, candidateEmail, resumeUrl, coverNote, dashboardUrl, jobsUrl } = input
+  const { locale, app, job, companyName, candidateName, resumeUrl, coverNote, dashboardUrl, jobsUrl } = input
   const c = candidateCopy[locale]
   const submittedOn = formatDate(app.createdAt, locale)
 

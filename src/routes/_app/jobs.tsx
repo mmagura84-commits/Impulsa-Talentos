@@ -1,7 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate } from '@tanstack/react-router'
 import { useRef, useState, useMemo, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
-import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -244,7 +243,7 @@ function JobsListView() {
   // `fetchJobsPage` provides the complete public set with each page, so the
   // client already has every card needed to render filters and totals. Avoid
   // a misleading Load more affordance for a dataset that is already loaded.
-  const allJobs = data?.pages[0]?.allJobs ?? loaderData?.jobs ?? []
+  const allJobs = useMemo(() => data?.pages[0]?.allJobs ?? loaderData?.jobs ?? [], [data, loaderData])
   const loadedJobs = allJobs
 
   // Company lookup resolved by the route loader — lets SSR/prerender HTML show
@@ -291,7 +290,7 @@ function JobsListView() {
   const locations = useMemo(() => {
     if (!loadedJobs) return []
     return [...new Set(loadedJobs.map(j => formatLocationType(j.locationType, t)).filter(Boolean))]
-  }, [loadedJobs])
+  }, [loadedJobs, t])
 
   const languages = useMemo(() => {
     if (!loadedJobs) return []
@@ -300,7 +299,7 @@ function JobsListView() {
       formatLanguageList(j.languagesRequired, t).split(/[,;|]/).map(s => s.trim()).filter(Boolean).forEach(l => all.add(l))
     })
     return [...all].sort()
-  }, [loadedJobs])
+  }, [loadedJobs, t])
 
   const filteredTotal = useMemo(() => {
     let result = allJobs
@@ -317,7 +316,7 @@ function JobsListView() {
       if (!isNaN(min)) result = result.filter(j => (j.salaryMax || 0) >= min)
     }
     return result.length
-  }, [allJobs, search, locationFilter, languageFilter, salaryFilter, industryFilter])
+  }, [allJobs, search, locationFilter, languageFilter, salaryFilter, industryFilter, t])
   const activeFilterCount = [levelFilter, locationFilter, languageFilter, salaryFilter, industryFilter, search.trim()].filter(Boolean).length
   // `allJobs` is the complete server-visible set, so pagination is only
   // available while the rendered set is smaller than its authoritative total.

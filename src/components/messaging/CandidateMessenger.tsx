@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -122,7 +121,7 @@ export function CandidateMessenger({
       toast.error(friendlyDbError(err, t) || 'Failed to send message')
       setBody(trimmed) // restore on failure
     }
-  }, [body, applicationId, candidateId, sendMessage])
+  }, [body, applicationId, candidateId, sendMessage, t])
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {

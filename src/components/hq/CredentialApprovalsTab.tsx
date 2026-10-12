@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
 

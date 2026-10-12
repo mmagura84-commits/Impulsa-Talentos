@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AuthGate } from '@/components/AuthGate'
 import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { useAuth, useIsAdmin } from '@/hooks/useAuth'
-import { useAllProfiles, useUpdateProfile } from '@/hooks/useProfile'
+import { useAllProfiles } from '@/hooks/useProfile'
 import { PaymentsTab } from '@/components/hq/PaymentsTab'
 import { LeadsTab } from '@/components/hq/LeadsTab'
 import { AuditLogTab } from '@/components/hq/AuditLogTab'
@@ -20,7 +20,6 @@ import { useAllJobs, useUpdateJob, useCreateJob } from '@/hooks/useJobs'
 import { useAllApplications, useUpdateApplicationStatus } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
 import { ModerationTab } from '@/components/hq/ModerationTab'
-import { listRows, updateRow } from '@/lib/supabase'
 import type { Profile } from '@/types'
 import { APPLICATION_STATUS_FLOW, STATUS_PILL_CLASSES } from '@/lib/applicationStatus'
 import { MdApprovalsTab } from '@/components/hq/MdApprovalsTab'
@@ -29,7 +28,6 @@ import { CredentialApprovalsTab } from '@/components/hq/CredentialApprovalsTab'
 import { CampaignsTab } from '@/components/hq/CampaignsTab'
 import { MdActivityTab } from '@/components/hq/MdActivityTab'
 import {
-  LayoutDashboard,
   Users,
   Building2,
   Briefcase,
@@ -38,13 +36,9 @@ import {
   Clock,
   Star,
   Search,
-  ArrowUpRight,
-  AlertCircle,
   CheckCircle2,
-  XCircle,
   Download,
   Copy,
-  Shield,
   ShieldOff,
   ShieldCheck,
   RefreshCw,
@@ -159,7 +153,7 @@ function KpiCard({ icon: Icon, label, value, hint, delay }: {
 }
 
 /* ── Mini bar chart (CSS, no library dep) ──────────────── */
-function MiniBar({ data, totalLabel }: { data: { label: string; value: number; color: string }[]; totalLabel?: string }) {
+function MiniBar({ data }: { data: { label: string; value: number; color: string }[]; totalLabel?: string }) {
   const max = Math.max(...data.map(d => d.value), 1)
   return (
     <div className="space-y-2">
@@ -190,7 +184,6 @@ function OverviewTab({
 }) {
   const { t } = useI18n()
 
-  const openJobs = jobs.filter(j => j.status === 'open').length
   const hired = applications.filter(a => a.status === 'hired').length
   const conversion = applications.length > 0 ? ((hired / applications.length) * 100).toFixed(0) : '0'
 
@@ -728,7 +721,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
         onExport={() => exportCsv(companies.map(c => ({
           id: c.id, name: c.name, industry: c.industry, size: c.size,
           location: c.location, website: c.website, jobs: jobs.filter(j => j.companyId === c.id).length,
-          contactEmail: (c as any).contactEmail ?? '',
+          contactEmail: c.contactEmail ?? '',
         })), 'companies')}
         renderRow={(c) => {
           const jobCount = jobs.filter(j => j.companyId === c.id).length
@@ -736,7 +729,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
             <tr key={c.id} className="border-b border-border/60 hover:bg-muted/30 transition-colors">
               <td className="py-2.5 px-2">
                 <span className="font-medium text-xs text-foreground">{c.name}</span>
-                {(c as any).verificationRequested && !c.verified && (
+                {c.verificationRequested && !c.verified && (
                   <span className="ml-1.5 inline-flex rounded-full border border-amber-500/30 bg-amber-500/5 px-1.5 py-px text-xs sm:text-[9px] font-medium text-amber-600">
                     {t('verification.requested')}
                   </span>
@@ -746,7 +739,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
               <td className="py-2.5 px-2 text-xs text-muted-foreground">{c.size ?? '—'}</td>
               <td className="py-2.5 px-2 text-xs text-muted-foreground">{c.location ?? '—'}</td>
               <td className="py-2.5 px-2 text-xs text-muted-foreground">
-                {(c as any).contactEmail ? (
+                {c.contactEmail ? (
                   <span className="text-emerald-600">✓ Configured</span>
                 ) : (
                   <span className="text-amber-600">Not set</span>
@@ -1215,7 +1208,6 @@ function HqShell() {
   const { data: jobs, isLoading: jLoading, isError: jErr } = useAllJobs()
   const { data: applications, isLoading: aLoading, isError: aErr } = useAllApplications()
 
-  const allLoaded = !pLoading && !cLoading && !jLoading && !aLoading
   const anyError = pErr || cErr || jErr || aErr
 
   if (pLoading || cLoading || jLoading || aLoading) {

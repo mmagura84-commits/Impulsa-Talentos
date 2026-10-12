@@ -1,31 +1,23 @@
-import { useState, useMemo, useCallback, type ReactNode } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { useProfileById } from '@/hooks/useProfile'
 import { useUpdateApplicationStatus } from '@/hooks/useApplications'
-import { createRow } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
-  Users,
   Search,
   X,
-  Filter,
   CheckSquare,
   Square,
   ChevronDown,
   ArrowUpDown,
-  GripVertical,
-  MessageSquare,
   RotateCcw,
   CheckCheck,
-  Table,
-  Columns2,
 } from 'lucide-react'
-import type { Application, ApplicationStatusHistory } from '@/types'
+import type { Application } from '@/types'
 import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Kanban column definitions ─────────────────────────────── */
@@ -79,7 +71,7 @@ function ApplicantCard({
   onStatusChange: (id: string, status: Application['status']) => void
   onOpen: (app: Application) => void
 }) {
-  const { t, locale } = useI18n()
+  const { t } = useI18n()
   const { data: candidate } = useProfileById(app.candidateId)
   const [statusOpen, setStatusOpen] = useState(false)
   const candidateName = candidate?.fullName || t('manage.candidate')

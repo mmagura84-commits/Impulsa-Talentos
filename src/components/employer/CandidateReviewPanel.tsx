@@ -17,7 +17,6 @@ import {
   MapPin,
   Clock,
   Briefcase,
-  Lock,
   Sparkles,
   Languages,
   GraduationCap,

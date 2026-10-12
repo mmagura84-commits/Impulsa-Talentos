@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows, supabase } from '@/lib/supabase'
+import { listRows, getRow, createRow, updateRow, supabase } from '@/lib/supabase'
 import type { Company } from '@/types'
 
 /** Columns anonymous visitors may read (migration 041 column grant). */

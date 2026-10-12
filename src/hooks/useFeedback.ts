@@ -90,7 +90,7 @@ export function useDeleteFeedback() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, applicationId }: { id: string; applicationId: string }) =>
+    mutationFn: ({ id }: { id: string; applicationId: string }) =>
       deleteRow('application_feedback', id),
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({

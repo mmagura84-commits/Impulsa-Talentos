@@ -23,7 +23,7 @@ import { ShieldAlert } from 'lucide-react'
  */
 export function MdLayout() {
   const { user, isLoading: authLoading } = useAuth()
-  const { data: profile, isLoading: profileLoading } = useProfile(user?.id)
+  const { isLoading: profileLoading } = useProfile(user?.id)
   const isMd = useIsMd()
   const { t } = useI18n()
 

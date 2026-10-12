@@ -41,6 +41,21 @@
     "selector-not-notation": null,
     "no-duplicate-selectors": null,
     "declaration-empty-line-before": null,
-    "comment-empty-line-before": null
+    "comment-empty-line-before": null,
+    "at-rule-prelude-no-invalid": [
+      true,
+      {
+        "ignoreAtRules": [
+          "apply",
+          "theme",
+          "custom-variant",
+          "utility",
+          "variant",
+          "plugin",
+          "source",
+          "reference"
+        ]
+      }
+    ]
   }
 }

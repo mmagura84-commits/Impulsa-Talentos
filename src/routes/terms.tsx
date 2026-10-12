@@ -1,7 +1,6 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useI18n } from '@/i18n/I18nProvider'
 import { LegalShell, type LegalSection } from '@/components/LegalShell'
-import type { Locale } from '@/i18n/types'
 
 export const Route = createFileRoute('/terms')({
   component: TermsPage,

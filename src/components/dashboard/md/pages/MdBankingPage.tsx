@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -55,7 +54,6 @@ export function Banking() {
   const { t } = useI18n()
   const { user } = useAuth()
   const ok = useIsMd()
-  const nav = useNavigate()
   const [bank, setBank] = useState<BankRow | null>(null)
   const [bankId, setBankId] = useState('')
   const [form, setForm] = useState<FieldState>({ ...emptyField })

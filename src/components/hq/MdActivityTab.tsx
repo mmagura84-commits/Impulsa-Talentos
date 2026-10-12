@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -96,7 +96,7 @@ export function MdActivityTab() {
   const [audit, setAudit] = useState<AuditRow[]>([])
   const [loading, setLoading] = useState(true)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
     try {
       const [profilesRes, msgRes, ccrRes, chRes, auditRes] = await Promise.all([
@@ -108,14 +108,14 @@ export function MdActivityTab() {
       ])
       setProfiles(profilesRes)
       setMessages(msgRes)
-      setCcrs(ccrs)
+      setCcrs(ccrRes)
       setChannelsActive(chRes)
       setAudit(auditRes)
     } finally {
       setLoading(false)
     }
-  }
-  useEffect(() => { load() }, [])
+  }, [])
+  useEffect(() => { load() }, [load])
 
   const events = useMemo<ActivityEvent[]>(() => {
     const ev: ActivityEvent[] = []
@@ -160,7 +160,6 @@ export function MdActivityTab() {
 
   const sentCount = messages.filter(m => m.direction === 'outbound').length
   const pendingCreds = ccrs.filter(c => c.status === 'pending').length
-  const approvedCreds = ccrs.filter(c => c.status === 'approved').length
 
   return (
     <div className="space-y-4">

@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute } from '@tanstack/react-router'
 import { useState, useRef, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { useAuth } from '@/hooks/useAuth'
@@ -8,7 +8,7 @@ import { useCompanyJobs } from '@/hooks/useJobs'
 import { useApplicationsByCompany } from '@/hooks/useApplications'
 import { useMessagesByApplication, useSendMessage } from '@/hooks/useMessages'
 import { useI18n } from '@/i18n/I18nProvider'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { AuthGate } from '@/components/AuthGate'
@@ -231,7 +231,7 @@ function MessageThread({
   )
 }
 
-function MessageBubble({ message, isOwn, t }: { message: Message; isOwn: boolean; t: (k: string, p?: Record<string, unknown>) => string }) {
+function MessageBubble({ message, isOwn }: { message: Message; isOwn: boolean; t: (k: string, p?: Record<string, unknown>) => string }) {
   return (
     <div className={`flex ${isOwn ? 'justify-end' : 'justify-start'}`}>
       <div

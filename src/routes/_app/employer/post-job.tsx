@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useBlocker, useNavigate } from '@tanstack/react-router'
+import { createFileRoute, Link, useBlocker } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'

@@ -3,7 +3,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { toast } from 'sonner'
 import { Flag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
-import { useAuth } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
 import { friendlyDbError } from '@/lib/dbErrors'
@@ -29,7 +28,6 @@ export function ReportJobButton({
   className?: string
 }) {
   const { t } = useI18n()
-  const { user } = useAuth()
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState<string>('scam')
   const [note, setNote] = useState('')

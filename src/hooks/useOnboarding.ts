@@ -79,8 +79,7 @@ export function useOnboarding(opts: {
 
   const steps = useMemo<OnboardingStep[]>(() => {
     if (opts.role === 'candidate') {
-      const profile = opts.profile
-      const field = (key: string) => completion.fields.find((f) => f.key === key)?.filled ?? false
+          const field = (key: string) => completion.fields.find((f) => f.key === key)?.filled ?? false
       return [
         {
           id: 'candidate-profile',

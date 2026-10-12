@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, createRow } from '@/lib/supabase'
 import type { CompanyReview } from '@/types'
 
 
@@ -10,7 +10,7 @@ export const reviewKeys = {
 
 async function fetchReviewsByCompany(companyId: string): Promise<CompanyReview[]> {
   return listRows<CompanyReview>('company_reviews', {
-    where: { companyId } as any,
+    where: { companyId },
     orderBy: { createdAt: 'desc' },
   })
 }

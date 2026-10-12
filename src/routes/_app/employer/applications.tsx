@@ -1,3 +1,4 @@
+import type { Application } from '@/types'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { AuthGate } from '@/components/AuthGate'
 import { Card, CardContent } from '@/components/ui/card'
@@ -13,7 +14,7 @@ import { statusLabel, formatPosted } from '@/components/dashboard/shared'
 
 export const Route = createFileRoute('/_app/employer/applications')({ component: EmployerApplications })
 
-function ApplicationRow({ application, jobTitle }: { application: any; jobTitle: string }) {
+function ApplicationRow({ application, jobTitle }: { application: Application; jobTitle: string }) {
   const { data: candidate } = useProfileById(application.candidateId)
   const { t } = useI18n()
   return <Link to="/employer/manage/$id" params={{ id: application.jobId }} className="block rounded-lg border p-4 hover:bg-accent/40 transition-colors">

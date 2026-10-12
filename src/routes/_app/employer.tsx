@@ -7,8 +7,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BrandMark } from '@/components/BrandMark'
-import { Mail, CheckCircle2, AlertTriangle, ShieldX, Loader2, ArrowRight, BadgeCheck, Clock } from 'lucide-react'
-import type { Company } from '@/types'
+import { Mail, CheckCircle2, AlertTriangle, ShieldX, Loader2, BadgeCheck, Clock } from 'lucide-react'
 import { friendlyDbError } from '@/lib/dbErrors'
 
 /**

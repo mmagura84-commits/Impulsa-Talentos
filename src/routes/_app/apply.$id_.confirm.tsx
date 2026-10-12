@@ -12,7 +12,7 @@ import { useJob, useJobs } from '@/hooks/useJobs'
 import { useCompanyById } from '@/hooks/useCompanies'
 import { useApplicationById } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
-import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
+import { formatLocationType } from '@/lib/jobEnums'
 import { SocialShare } from '@/components/SocialShare'
 import {
   CheckCircle2,

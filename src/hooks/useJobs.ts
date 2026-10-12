@@ -1,5 +1,5 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, getRow, createRow, updateRow, deleteRow } from '@/lib/supabase'
 import type { Job } from '@/types'
 
 
@@ -261,7 +261,7 @@ export function useCompanyJobs(companyId: string | undefined) {
     queryKey: ['jobs', 'company', companyId ?? ''] as const,
     queryFn: () =>
       listRows<Job>('jobs', {
-        where: { companyId: companyId! } as any,
+        where: { companyId: companyId! },
         orderBy: { createdAt: 'desc' },
       }),
     enabled: !!companyId,

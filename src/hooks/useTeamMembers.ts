@@ -1,5 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
 import type { TeamMember, TeamMemberRole, TeamMemberStatus } from '@/types'
 
 // ─── Query key factories ───
@@ -24,10 +24,6 @@ async function fetchTeamByUser(userId: string): Promise<TeamMember[]> {
   return listRows<TeamMember>('team_members', {
     where: { userId },
   })
-}
-
-async function fetchTeamMemberById(id: string): Promise<TeamMember | null> {
-  return getRow<TeamMember>('team_members', id)
 }
 
 // ─── Hooks ───
@@ -116,7 +112,7 @@ export function useRemoveTeamMember() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, companyId }: { id: string; companyId: string }) =>
+    mutationFn: ({ id }: { id: string; companyId: string }) =>
       deleteRow('team_members', id),
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: teamMemberKeys.byCompany(variables.companyId) })

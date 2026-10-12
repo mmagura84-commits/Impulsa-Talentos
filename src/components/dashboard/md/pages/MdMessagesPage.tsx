@@ -1,4 +1,3 @@
-import { useNavigate } from '@tanstack/react-router'
 import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
@@ -24,7 +23,6 @@ export function Messages() {
   const { t } = useI18n()
   const { user } = useAuth()
   const ok = useIsMd()
-  const nav = useNavigate()
   const [tab, setTab] = useState<'inbox' | 'compose'>('inbox')
   const [rows, setRows] = useState<MdMessage[]>([])
   const [to, setTo] = useState('')

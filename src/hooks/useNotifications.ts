@@ -57,7 +57,7 @@ export function useMarkNotificationRead() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
+    mutationFn: ({ id }: { id: string; userId: string }) =>
       updateRow('notifications', id, { readAt: new Date().toISOString() }),
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.byUser(variables.userId) })
@@ -93,7 +93,7 @@ export function useDeleteNotification() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, userId }: { id: string; userId: string }) =>
+    mutationFn: ({ id }: { id: string; userId: string }) =>
       deleteRow('notifications', id),
     onSuccess: (_result, variables) => {
       queryClient.invalidateQueries({ queryKey: notificationKeys.byUser(variables.userId) })

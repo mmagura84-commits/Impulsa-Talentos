@@ -6,16 +6,15 @@ import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { useAllCompanies, useCompanyById, fetchCompanyById } from '@/hooks/useCompanies'
+import { useCompanyById, fetchCompanyById } from '@/hooks/useCompanies'
 import { useAllJobs } from '@/hooks/useJobs'
 import { useCompanyReviews, useCreateReview } from '@/hooks/useCompanyReviews'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n } from '@/i18n/I18nProvider'
-import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
+import { formatLocationType } from '@/lib/jobEnums'
 import {
   Building2,
   MapPin,
-  Globe,
   Users,
   Briefcase,
   ArrowLeft,
@@ -27,7 +26,7 @@ import {
   Send,
   BadgeCheck,
 } from 'lucide-react'
-import type { Company, Job, CompanyReview } from '@/types'
+import type { Job, CompanyReview } from '@/types'
 import { ClientTimeText } from '@/components/ClientTimeText'
 import { friendlyDbError } from '@/lib/dbErrors'
 
@@ -287,9 +286,9 @@ function StatPill({ value, label, color }: { value: number; label: string; color
     emerald: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
   }
   return (
-    <Card>
+    <Card className={colorMap[color]}>
       <CardContent className="pt-5 pb-4">
-        <p className="text-2xl font-bold text-foreground font-serif">{value}</p>
+        <p className="text-2xl font-bold font-serif">{value}</p>
         <p className="text-xs sm:text-[11px] text-muted-foreground mt-0.5">{label}</p>
       </CardContent>
     </Card>
@@ -485,7 +484,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
   )
 }
 
-function JobRow({ job, companyName }: { job: Job; companyName: string }) {
+function JobRow({ job }: { job: Job; companyName: string }) {
   const { t } = useI18n()
   const skills = job.skillsRequired
     ? job.skillsRequired.split(',').map(s => s.trim()).filter(Boolean)

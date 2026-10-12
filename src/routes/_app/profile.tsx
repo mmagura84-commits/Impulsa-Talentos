@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useRef, useState, useEffect, type ReactNode } from 'react'
-import { captureUTMParams, getUTMParams, trackEvent } from '@/lib/marketing'
+import { captureUTMParams, trackEvent } from '@/lib/marketing'
 import { motion, useInView } from 'framer-motion'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
@@ -18,7 +18,6 @@ import type { NotificationPrefs, Profile } from '@/types'
 import { DEFAULT_NOTIFICATION_PREFS } from '@/types'
 import { supabase } from '@/lib/supabase'
 import { storagePointer, useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
-import { sendEmail } from '@/lib/emailSender'
 import type { AppUser } from '@/hooks/useAuth'
 import {
   User,
@@ -305,7 +304,6 @@ function ProfilePage() {
   const [source, setSource] = useState('')
   const [consent, setConsent] = useState(false) // optional marketing emails
   const [dataConsent, setDataConsent] = useState(false) // Ley 1581 authorization (required)
-  const utm = getUTMParams()
   useEffect(() => { captureUTMParams(); trackEvent('profile_complete', { profileId: profile?.id ?? null }) }, [profile?.id])
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
   const cvInputRef = useRef<HTMLInputElement | null>(null)

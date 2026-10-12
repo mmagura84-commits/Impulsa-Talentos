@@ -13,14 +13,10 @@ import {
   Landmark,
   Languages,
   MapPin,
-  Megaphone,
-  Menu,
-  X,
   Sparkles,
   Search,
   Truck,
   Users,
-  type LucideIcon,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
@@ -30,8 +26,6 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useAllJobs } from '@/hooks/useJobs'
 import { useAllCompanies } from '@/hooks/useCompanies'
-import { BrandMark } from '@/components/BrandMark'
-import { LanguageToggle } from '@/components/LanguageToggle'
 import { PublicHeader } from '@/components/PublicHeader'
 import type { Job, Company } from '@/types'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
@@ -70,61 +64,6 @@ function SectionReveal({ children, delay = 0, className }: { children: ReactNode
 }
 
 /* ── Top nav — LinkedIn-style slim header ─────────────────── */
-function TopNav() {
-  const { t } = useI18n()
-  const { user, isLoading } = useAuth()
-  const [scrolled, setScrolled] = useState(false)
-  const [menuOpen, setMenuOpen] = useState(false)
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24)
-    onScroll()
-    window.addEventListener('scroll', onScroll, { passive: true, capture: true })
-    return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-  return (
-    <header className={`sticky top-0 z-30 border-b transition-colors ${scrolled ? 'border-border bg-background/90 backdrop-blur-md' : 'border-transparent bg-transparent'}`}>
-      <div className="mx-auto flex h-16 w-full max-w-[88rem] items-center justify-between gap-3 px-5 lg:px-10">
-        <Link to="/" className="flex items-center min-w-0">
-          <BrandMark withWordmark className={`h-8 sm:h-10 ${scrolled ? 'text-[#14296b] dark:text-white' : 'text-white'}`} title={t('brand.name')} />
-        </Link>
-        <nav className="hidden items-center gap-4 text-sm font-medium md:flex" aria-label={t('nav.main')}>
-          <Link to="/jobs" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('nav.jobs')}</Link>
-          <Link to="/companies" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('landing.companiesTitle')}</Link>
-          <Link to="/dashboard" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('nav.forEmployers')}</Link>
-          <Link to="/pricing" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('pricing.title')}</Link>
-        </nav>
-        <div className="flex items-center gap-2">
-          <LanguageToggle compact className={scrolled ? undefined : 'text-white hover:text-white'} />
-          <button type="button" aria-label={menuOpen ? t('nav.closeMenu') : t('nav.openMenu')} aria-expanded={menuOpen} onClick={() => setMenuOpen(v => !v)} className={`inline-flex size-9 items-center justify-center rounded-md md:hidden ${scrolled ? 'text-foreground' : 'text-white'}`}>
-            {menuOpen ? <X className="size-5" /> : <Menu className="size-5" />}
-          </button>
-          {isLoading ? (
-            <div className="h-9 w-24 rounded-md bg-muted animate-pulse" />
-          ) : user ? (
-            <Button asChild variant="ghost" size="sm" className={`gap-1.5 ${scrolled ? '' : 'text-white hover:bg-white/10 hover:text-white'}`}>
-              <Link to="/dashboard">
-                <Briefcase className="size-4" />
-                {t('landing.dashboard')}
-              </Link>
-            </Button>
-          ) : (
-            <Button asChild variant="outline" size="sm" className={scrolled ? '' : 'border-white/40 bg-transparent text-white hover:bg-white/10 hover:text-white'}>
-              <Link to="/dashboard">{t('landing.signIn')}</Link>
-            </Button>
-          )}
-        </div>
-      </div>
-      {menuOpen && <div className={`border-t px-5 py-4 md:hidden ${scrolled ? 'border-border bg-background' : 'border-white/15 bg-slate-950/95 backdrop-blur-md'}`}>
-        <nav className="flex flex-col gap-3 text-sm font-semibold" aria-label={t('nav.mobile')}>
-          <Link to="/jobs" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('nav.jobs')}</Link>
-          <Link to="/companies" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('landing.companiesTitle')}</Link>
-          <Link to="/dashboard" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('nav.forEmployers')}</Link>
-          <Link to="/pricing" onClick={() => setMenuOpen(false)} className={scrolled ? 'text-foreground' : 'text-white'}>{t('pricing.title')}</Link>
-        </nav>
-      </div>}
-    </header>
-  )
-}
 
 /* ── Hero CTAs — candidate-only (per product direction) ────── */
 function LandingCTAs() {
@@ -268,8 +207,6 @@ const HERO_SLIDES = ['technology', 'finance', 'customer-hospitality', 'operation
 const INITIAL_HERO_SLIDE = HERO_SLIDES.indexOf('technology')
 const SLIDE_MS = 5500
 const CROSSFADE_S = 0.9
-const KEN_BURNS_S = 5
-const HERO_EASE = [0.25, 0.1, 0.25, 1] as const
 const KB: Record<string, { from: number; to: number; xFrom: string; xTo: string; yFrom: string; yTo: string }> = Object.fromEntries(
   HERO_SLIDES.map((key, i) => [key, { from: i % 2 ? 1.06 : 1, to: i % 2 ? 1 : 1.07, xFrom: '0%', xTo: i % 2 ? '1.5%' : '-1.5%', yFrom: '0%', yTo: '0%' }]),
 )

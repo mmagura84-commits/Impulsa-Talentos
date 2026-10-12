@@ -22,7 +22,6 @@ import {
   FileText,
   Star,
   Clock,
-  ArrowUpRight,
   Heart,
   Building2,
   Sparkles,
@@ -33,10 +32,6 @@ import {
   ChevronUp,
   Trash2,
   X,
-  Brain,
-  CheckCircle2,
-  AlertCircle,
-  Search,
   CalendarClock,
   ExternalLink,
   UserCheck,
@@ -69,25 +64,6 @@ function MatchBadge({ score }: { score: number }) {
 }
 
 /* ── AI Match badge ────────────────────────────────────── */
-function AiMatchBadge({ score }: { score: number }) {
-  const { t } = useI18n()
-  const color =
-    score >= 80
-      ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5'
-      : score >= 55
-        ? 'border-primary/30 text-primary bg-primary/5'
-        : 'border-muted-foreground/30 text-muted-foreground bg-muted/30'
-  return (
-    <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${color}`}
-      title={t('dashboard.matches.matchScore')}
-    >
-      <Brain className="size-3" />
-      {score}%
-    </span>
-  )
-}
-
 /* ── Job card (used in match / explore rows) ──────────── */
 function JobCard({ job, score }: { job: Job; score?: MatchScore }) {
   const { locale, t } = useI18n()
@@ -114,112 +90,6 @@ function JobCard({ job, score }: { job: Job; score?: MatchScore }) {
 }
 
 /* ── AI match detail card (expandable rationale) ────────── */
-function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typeof useAiTopMatches>['data']>[number]; job: Job }) {
-  const [expanded, setExpanded] = useState(false)
-  const { locale } = useI18n()
-  const d = result.detail
-
-  return (
-    <div className="rounded-lg border border-border bg-card overflow-hidden">
-      {/* Header row */}
-      <div className="flex items-center gap-3 p-4 cursor-pointer" onClick={() => setExpanded(!expanded)}>
-        <div className={`flex items-center justify-center h-9 w-9 shrink-0 rounded-lg ${
-          result.score >= 80 ? 'bg-emerald-500/10 text-emerald-600'
-          : result.score >= 55 ? 'bg-primary/10 text-primary'
-          : 'bg-muted text-muted-foreground'
-        }`}>
-          <Brain className="size-4" />
-        </div>
-        <div className="min-w-0 flex-1">
-          <h4 className="font-medium text-sm text-foreground truncate">{job.title}</h4>
-          <p className="text-xs text-muted-foreground">{formatSalary(job, locale)}</p>
-        </div>
-        <AiMatchBadge score={result.score} />
-      </div>
-
-      {/* Expandable detail */}
-      <AnimatePresence>
-        {expanded && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: 'auto', opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
-            className="overflow-hidden"
-          >
-            <div className="px-4 pb-4 pt-0 border-t border-border">
-              <p className="text-xs text-muted-foreground leading-relaxed mt-3">{d.summary}</p>
-
-              {/* Dimension bars */}
-              <div className="mt-3 space-y-1.5">
-                {[
-                  { label: 'Skills', ...d.skillsFit },
-                  { label: 'Language', ...d.languageFit },
-                  { label: 'Experience', ...d.experienceFit },
-                  { label: 'Location', ...d.locationFit },
-                  { label: 'Culture', ...d.cultureFit },
-                ].map(dim => (
-                  <div key={dim.label} className="flex items-center gap-2">
-                    <span className="text-xs sm:text-[10px] text-muted-foreground w-16 shrink-0">{dim.label}</span>
-                    <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          dim.score >= 80 ? 'bg-emerald-500' : dim.score >= 55 ? 'bg-primary' : 'bg-muted-foreground/30'
-                        }`}
-                        style={{ width: `${dim.score}%` }}
-                      />
-                    </div>
-                    <span className="text-xs sm:text-[10px] font-medium text-foreground w-7 text-right">{dim.score}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Strengths + Gaps */}
-              <div className="mt-3 grid sm:grid-cols-2 gap-3">
-                {d.strengths.length > 0 && (
-                  <div>
-                    <p className="text-xs sm:text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                      <CheckCircle2 className="size-3" /> Strengths
-                    </p>
-                    <ul className="space-y-0.5">
-                      {d.strengths.map((s, i) => (
-                        <li key={i} className="text-xs sm:text-[11px] text-muted-foreground flex items-start gap-1">
-                          <span className="mt-1 h-1 w-1 rounded-full bg-emerald-500 shrink-0" />{s}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-                {d.gaps.length > 0 && (
-                  <div>
-                    <p className="text-xs sm:text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1 flex items-center gap-1">
-                      <AlertCircle className="size-3" /> Gaps
-                    </p>
-                    <ul className="space-y-0.5">
-                      {d.gaps.map((g, i) => (
-                        <li key={i} className="text-xs sm:text-[11px] text-muted-foreground flex items-start gap-1">
-                          <span className="mt-1 h-1 w-1 rounded-full bg-amber-500 shrink-0" />{g}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
-
-              <div className="mt-3 flex justify-end">
-                <Button variant="outline" size="sm" asChild className="gap-1 text-xs">
-                  <Link to="/jobs/$id" params={{ id: job.id }}>
-                    View job <ChevronRight className="size-3" />
-                  </Link>
-                </Button>
-              </div>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </div>
-  )
-}
 
 /* ── Application timeline item ─────────────────────────── */
 const TIMELINE_STATUSES: Record<string, { step: number; color: string }> = {
@@ -558,7 +428,6 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   const completion = useProfileCompletion(profile ?? null)
   const hasProfileSignal = !!(profile?.bio?.trim() || profile?.languages?.trim() || profile?.location?.trim())
   const ranked = useMemo(() => hasProfileSignal ? rankJobs(profile ?? null, jobs ?? []) : [], [hasProfileSignal, profile, jobs])
-  const fallbackJobs = (jobs ?? []).filter(j => j.status === 'open').slice(0, 5)
   const { data: aiMatches, isLoading: aiLoading } = useAiTopMatches(profile ?? null, jobs ?? [], 3)
   const recentApps = (applications ?? []).slice(0, 5)
   const recentSaved = (savedJobs ?? []).slice(0, 3)
@@ -583,41 +452,5 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
       <FadeIn delay={0.12}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4 text-primary"/>{t('timeline.title')}</CardTitle><CardDescription>{t('dashboard.myApplications.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></CardHeader><CardContent>{appsLoading ? <div className="space-y-3">{[1,2,3].map(i=><div key={i} className="h-12 rounded bg-muted animate-pulse"/>)}</div> : !recentApps.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('timeline.empty')}<br/><Button size="sm" className="mt-3" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></div> : <>{recentApps.map((app,i)=><ApplicationTimelineItem key={app.id} app={app} isLast={i===recentApps.length-1} onWithdraw={handleWithdraw}/>)}{(applications?.length ?? 0)>5 && <Link className="block pt-2 text-center text-xs text-primary hover:underline" to="/candidate/applications">{t('timeline.viewAll')} ({applications?.length})</Link>}</>}</CardContent></Card></FadeIn>
       <FadeIn delay={0.16}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Heart className="size-4 text-pink-600 fill-current"/>{t('savedJobs.title')}</CardTitle><CardDescription>{t('savedJobs.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></CardHeader><CardContent className="space-y-2">{savedLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentSaved.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('savedJobs.empty')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></div> : recentSaved.map(job=><SavedJobRow key={job.id} job={job} candidateId={candidateProfileId}/>)}</CardContent></Card></FadeIn>
     </div>
-  )
-}
-function CompanyMatchRow({ job, score }: { job: Job; score: number }) {
-  const { data: company } = useCompanyById(job.companyId)
-  const { t } = useI18n()
-  if (!company) return null
-
-  const matchColor = score >= 80 ? 'from-emerald-500/10 to-transparent border-emerald-500/20'
-    : score >= 55 ? 'from-primary/5 to-transparent border-primary/20'
-    : 'from-muted/30 to-transparent border-border'
-
-  return (
-    <Link
-      to="/companies/$id"
-      params={{ id: company.id }}
-      className={`block rounded-lg border bg-gradient-to-r ${matchColor} p-4 hover:shadow-md hover:-translate-y-0.5 transition-all duration-200`}
-    >
-      <div className="flex items-center gap-3">
-        <div className="flex items-center justify-center h-10 w-10 shrink-0 rounded-lg bg-primary/10 text-primary font-bold text-sm">
-          {company.name.charAt(0).toUpperCase()}
-        </div>
-        <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-foreground">{company.name}</p>
-          <p className="text-xs text-muted-foreground">
-            {[company.industry, company.location].filter(Boolean).join(' · ')}
-          </p>
-          <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-border px-1.5 py-0.5 text-xs sm:text-[10px] font-medium">
-              <Sparkles className="size-2.5" /> {score}% match
-            </span>
-            {' '}via {job.title}
-          </p>
-        </div>
-        <ArrowUpRight className="size-4 text-muted-foreground shrink-0" />
-      </div>
-    </Link>
   )
 }

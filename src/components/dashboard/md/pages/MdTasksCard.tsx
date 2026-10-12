@@ -65,7 +65,7 @@ export function MdTasksCard() {
         <Badge variant={doneFlag ? 'default' : 'secondary'}>
           {statusKey ? t(statusKey) : doneFlag ? t('md.tasks.done') : t('md.tasks.pending')}
         </Badge>
-        <Link to={href as any} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+        <Link to={href} className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
           {t('md.tasks.open')} <ArrowRight className="size-3.5" />
         </Link>
       </div>

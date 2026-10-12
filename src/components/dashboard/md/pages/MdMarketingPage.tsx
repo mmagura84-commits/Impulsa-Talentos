@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from '@tanstack/react-router'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
@@ -43,7 +42,6 @@ export function Marketing() {
   const { t, locale } = useI18n()
   const { user } = useAuth()
   const ok = useIsMd()
-  const nav = useNavigate()
   const [catalog, setCatalog] = useState<Catalog[]>([])
   const [creds, setCreds] = useState<Record<string, Cred>>({})
   const [credId, setCredId] = useState<Record<string, string>>({})

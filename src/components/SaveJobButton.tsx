@@ -5,7 +5,7 @@
  * not authenticated.
  */
 import { useState, type ReactNode } from 'react'
-import { Heart, Bookmark } from 'lucide-react'
+import { Heart } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import {

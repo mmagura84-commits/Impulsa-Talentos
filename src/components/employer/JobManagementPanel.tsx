@@ -14,7 +14,6 @@ import {
   Archive,
   CalendarClock,
   UserCircle2,
-  Lock,
   Loader2,
 } from 'lucide-react'
 import type { Job } from '@/types'

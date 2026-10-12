@@ -143,7 +143,7 @@ export function useCancelInterview() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, companyId }: { id: string; companyId: string }) =>
+    mutationFn: ({ id }: { id: string; companyId: string }) =>
       updateRow('interviews', id, {
         status: 'cancelled' as InterviewStatus,
         updatedAt: new Date().toISOString(),
