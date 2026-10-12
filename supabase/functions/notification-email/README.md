@@ -24,8 +24,8 @@ hand-off; this function turns each one into an email.
 3. **Webhook**: Dashboard → Integrations → Database Webhooks → *Create*:
    - Table `public.notifications`, event **Insert**
    - Type *Supabase Edge Functions* → `notification-email`, method POST
-   - Click **Add auth header with service key**. The function compares that
-     bearer with the project's own service/secret keys and refuses anything
+   - Header menu → **Add secret key** (adds `apikey: sb_secret_…`). The function
+     compares that key with the project's own service/secret keys and refuses anything
      else, so browsers can never trigger an email.
 
    Alternative: set a `WEBHOOK_SECRET` secret and send it as the

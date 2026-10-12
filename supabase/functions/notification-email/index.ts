@@ -64,8 +64,8 @@ function safeEqual(a: string, b: string): boolean {
 /**
  * Who may call this: the Database Webhook. Accepted proofs:
  *  - `x-webhook-secret` equal to WEBHOOK_SECRET (when that secret is set), or
- *  - an Authorization bearer equal to this project's service-role / secret
- *    key — what the dashboard's "Add auth header with service key" inserts.
+ *  - this project's service-role / secret key, as `apikey` (what the
+ *    dashboard's "Add secret key" inserts) or as an Authorization bearer.
  * Compared server-side against the project's own keys (constant time), so it
  * works with legacy JWT keys and the newer sb_secret_ keys alike, and the
  * function can run without gateway JWT verification.
@@ -81,9 +81,14 @@ function projectSecretKeys(): string[] {
 
 function isAuthorized(req: Request): boolean {
   if (WEBHOOK_SECRET && safeEqual(req.headers.get('x-webhook-secret') ?? '', WEBHOOK_SECRET)) return true
-  const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
-  if (!token) return false
-  return projectSecretKeys().some(k => safeEqual(token, k))
+  // The dashboard's "Add secret key" sends it as `apikey`; older webhooks send
+  // `Authorization: Bearer <service_role>`. Accept either, never the anon key.
+  const candidates = [
+    (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, ''),
+    req.headers.get('apikey') ?? '',
+  ].filter(Boolean)
+  const keys = projectSecretKeys()
+  return candidates.some(c => keys.some(k => safeEqual(c, k)))
 }
 
 Deno.serve(async (req: Request) => {
