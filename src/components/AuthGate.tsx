@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Mail, CheckCircle2, Loader2, LogIn, Lock } from 'lucide-react'
+import { passwordProblem } from '@/lib/passwordPolicy'
 import { useI18n } from '@/i18n/I18nProvider'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { BrandMark } from '@/components/BrandMark'
@@ -58,8 +59,10 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
   const handlePassword = async (e: FormEvent) => {
     e.preventDefault()
     if (!validEmail || !password || sending) return
-    if (password.length < 8) {
-      setErrorKey('auth.passwordTooShort')
+    // New passwords must meet the policy; existing ones are never re-checked.
+    const problem = effectiveMode === 'signUp' ? passwordProblem(password) : null
+    if (problem) {
+      setErrorKey(problem)
       setErrorMsg('')
       return
     }
@@ -190,9 +193,12 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                     placeholder={t('auth.passwordPlaceholder')}
                     className="pl-9 text-center"
                     required
-                    autoComplete="current-password"
+                    autoComplete={effectiveMode === 'signUp' ? 'new-password' : 'current-password'}
                   />
                 </div>
+                {effectiveMode === 'signUp' && !(errorMsg || errorKey) && (
+                  <p className="text-xs text-muted-foreground">{t('auth.passwordRule')}</p>
+                )}
                 {(errorMsg || errorKey) && (
                   <p className="text-xs text-destructive">{errorKey ? t(errorKey) : errorMsg}</p>
                 )}

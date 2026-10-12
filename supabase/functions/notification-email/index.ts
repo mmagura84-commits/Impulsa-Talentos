@@ -13,12 +13,13 @@
 // the service role) — callers cannot choose a recipient.
 //
 // ── Setup (see README.md next to this file) ────────────────────────────
-//   supabase functions deploy notification-email --no-verify-jwt --project-ref <ref>
-//   supabase secrets set RESEND_API_KEY=... WEBHOOK_SECRET=... --project-ref <ref>
+//   supabase functions deploy notification-email --project-ref <ref>   (JWT verification ON)
+//   supabase secrets set RESEND_API_KEY=... --project-ref <ref>
 //   optional: SITE_URL (default https://impulsatalentos.expert)
 //             EMAIL_FROM (default "Impulsa Talentos <partners@impulsatalentos.expert>")
 //   Dashboard → Database → Webhooks → public.notifications INSERT →
-//     this function, header  x-webhook-secret: <WEBHOOK_SECRET>
+//     this function, "Add auth header with service key"
+//   (optional alternative: set WEBHOOK_SECRET and send it as x-webhook-secret)
 //
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided automatically.
 
@@ -60,11 +61,30 @@ function safeEqual(a: string, b: string): boolean {
   return diff === 0
 }
 
+/**
+ * Who may call this: the Database Webhook. Two accepted proofs:
+ *  - `x-webhook-secret` equal to WEBHOOK_SECRET (when that secret is set), or
+ *  - the service-role bearer the dashboard webhook adds ("Add auth header with
+ *    service key"). The function is deployed WITH JWT verification, so the
+ *    gateway has already checked the signature; here we only require the
+ *    service_role claim, which no browser ever holds.
+ */
+function isAuthorized(req: Request): boolean {
+  if (WEBHOOK_SECRET) return safeEqual(req.headers.get('x-webhook-secret') ?? '', WEBHOOK_SECRET)
+  const token = (req.headers.get('authorization') ?? '').replace(/^Bearer\s+/i, '')
+  const part = token.split('.')[1]
+  if (!part) return false
+  try {
+    const claims = JSON.parse(atob(part.replace(/-/g, '+').replace(/_/g, '/')))
+    return claims?.role === 'service_role'
+  } catch {
+    return false
+  }
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method !== 'POST') return json({ error: 'method not allowed' }, 405)
-  if (!WEBHOOK_SECRET || !safeEqual(req.headers.get('x-webhook-secret') ?? '', WEBHOOK_SECRET)) {
-    return json({ error: 'unauthorized' }, 401)
-  }
+  if (!isAuthorized(req)) return json({ error: 'unauthorized' }, 401)
   if (!RESEND_API_KEY || !SUPABASE_URL || !SERVICE_KEY) {
     return json({ error: 'function is not configured (RESEND_API_KEY / service role)' }, 500)
   }

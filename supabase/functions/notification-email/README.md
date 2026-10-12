@@ -14,23 +14,21 @@ hand-off; this function turns each one into an email.
 
 1. **Resend**: verify the domain `impulsatalentos.expert` (SPF + DKIM records)
    and create an API key with "sending access".
-2. **Deploy** (Supabase CLI, project `cmdqlybsgkegolqydmbh`):
+2. **Deploy** with JWT verification ON (dashboard editor, or the CLI):
 
    ```bash
-   supabase functions deploy notification-email --no-verify-jwt --project-ref cmdqlybsgkegolqydmbh
-   supabase secrets set --project-ref cmdqlybsgkegolqydmbh \
-     RESEND_API_KEY=re_xxx \
-     WEBHOOK_SECRET="$(openssl rand -hex 32)"
-   # optional: SITE_URL=https://impulsatalentos.expert
-   #           EMAIL_FROM="Impulsa Talentos <partners@impulsatalentos.expert>"
+   supabase functions deploy notification-email --project-ref cmdqlybsgkegolqydmbh
+   supabase secrets set --project-ref cmdqlybsgkegolqydmbh RESEND_API_KEY=re_xxx
+   # optional: SITE_URL, EMAIL_FROM
    ```
-
-   `--no-verify-jwt` is intentional: the webhook authenticates with the
-   `x-webhook-secret` header instead, and the function refuses anything else.
-3. **Webhook**: Dashboard → Database → Webhooks → *Create*:
+3. **Webhook**: Dashboard → Integrations → Database Webhooks → *Create*:
    - Table `public.notifications`, event **Insert**
    - Type *Supabase Edge Functions* → `notification-email`, method POST
-   - HTTP header `x-webhook-secret` = the WEBHOOK_SECRET from step 2
+   - Click **Add auth header with service key** (the function only accepts
+     callers holding the service role; browsers never have it)
+
+   Alternative: set a `WEBHOOK_SECRET` secret and send it as the
+   `x-webhook-secret` header instead.
 
 ## Check it works
 
@@ -43,7 +41,7 @@ Dashboard → Edge Functions → notification-email → Logs. Responses:
 | `{"sent":true}` | email accepted by Resend |
 | `{"skipped":"opted out of application updates"}` | profile switched them off |
 | `{"skipped":"no email on profile"}` | profile has no email (or was anonymized) |
-| 401 | header missing or wrong secret |
+| 401 | no service-role auth header (or wrong `x-webhook-secret`) |
 | 502 `email provider refused` | check the Resend key / domain verification |
 
 Retries are safe: each email uses `Idempotency-Key: notification-<id>`.
