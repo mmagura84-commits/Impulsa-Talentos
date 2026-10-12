@@ -177,6 +177,7 @@ const pt: Dict = {
   'auth.passwordTooShort': 'A senha deve ter pelo menos 12 caracteres.',
   'auth.passwordNeedsMix': 'Use letras e números na sua senha.',
   'auth.passwordRule': 'Pelo menos 12 caracteres, com letras e números. Uma frase curta é fácil de lembrar.',
+  'jobDetail.summarySalary': 'Salário',
   'jobEnums.level.junior': 'Júnior',
   'jobEnums.level.juniorMid': 'Júnior–Pleno',
   'jobEnums.level.mid': 'Pleno',

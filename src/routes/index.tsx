@@ -348,13 +348,13 @@ function CityShowcase() {
           <p className="mt-3 text-muted-foreground">{t('landing.citiesSub')}</p>
         </div>
       </SectionReveal>
-      <SectionReveal><div className="mt-8 sm:mt-10 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">
+      <SectionReveal><div className="mt-8 sm:mt-10 sm:gap-4 sm:grid-cols-3 lg:grid-cols-6 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">
         {CITIES.map((city) => {
           const count = openJobs.filter((j) => city.re.test(j.locationType)).length
           const name = t(`landing.city${capitalize(city.key)}`)
           return (
             <div key={city.key} className="w-[78%] shrink-0 snap-start sm:w-auto">
-              <div className="group relative h-48 overflow-hidden rounded-2xl sm:h-64 border border-border shadow-lg shadow-primary/5">
+              <div className="group relative h-48 overflow-hidden rounded-2xl sm:h-52 lg:h-56 border border-border shadow-lg shadow-primary/5">
                 <img
                   src={CITY_PHOTOS[city.key]}
                   alt={t(CITY_IMAGE_ALT_KEY[city.key])}
@@ -364,14 +364,14 @@ function CityShowcase() {
                   className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2 lg:flex-col lg:items-start lg:gap-1.5">
                     <h3 className="text-lg font-bold text-white drop-shadow-sm">{name}</h3>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm ${count > 0 ? 'bg-white/15 text-white' : 'bg-black/35 text-white/85'}`}>
                       {count > 0 ? t('landing.cityOpen', { n: count }) : t('landing.cityComingSoon')}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm leading-snug text-white/85 drop-shadow-sm">
+                  <p className="mt-1 text-sm leading-snug text-white/85 drop-shadow-sm lg:hidden">
                     {t(`landing.city${capitalize(city.key)}Tag`)}
                   </p>
                 </div>
@@ -447,8 +447,6 @@ function LandingPage() {
             <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
-        <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 hidden sm:inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
-        <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 hidden sm:inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
         <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>

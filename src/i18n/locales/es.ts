@@ -177,6 +177,7 @@ const es: Dict = {
   'auth.passwordTooShort': 'La contraseña debe tener al menos 12 caracteres.',
   'auth.passwordNeedsMix': 'Usa letras y números en tu contraseña.',
   'auth.passwordRule': 'Mínimo 12 caracteres, con letras y números. Una frase corta es fácil de recordar.',
+  'jobDetail.summarySalary': 'Salario',
   'jobEnums.level.junior': 'Junior',
   'jobEnums.level.juniorMid': 'Junior–Semi senior',
   'jobEnums.level.mid': 'Semi senior',

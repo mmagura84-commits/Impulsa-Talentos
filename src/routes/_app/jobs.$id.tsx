@@ -221,7 +221,7 @@ function JobDetailPage() {
   const candidateProfileId = profile?.id ?? null
 
   return (
-      <div className="p-6 max-w-4xl mx-auto">
+      <div className="p-6 max-w-4xl mx-auto lg:max-w-6xl">
         {/* Back link */}
         <FadeIn>
           <Link
@@ -233,6 +233,10 @@ function JobDetailPage() {
           </Link>
         </FadeIn>
 
+        {/* Desktop: content on the left, a summary card with Save + Apply that
+            stays in view on the right. Narrower screens keep one column. */}
+        <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_20rem] lg:items-start lg:gap-8">
+        <div className="min-w-0">
         {/* Header */}
         <FadeIn delay={0.05}>
           <div className="mb-8">
@@ -252,9 +256,9 @@ function JobDetailPage() {
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <span className="hidden sm:inline-flex"><SaveJobButton jobId={job.id} variant="chip" /></span>
+                <span className="hidden sm:inline-flex lg:hidden"><SaveJobButton jobId={job.id} variant="chip" /></span>
                 <ReportJobButton jobId={job.id} />
-                <span className="hidden sm:inline-flex"><ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} /></span>
+                <span className="hidden sm:inline-flex lg:hidden"><ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} /></span>
               </div>
             </div>
 
@@ -370,7 +374,7 @@ function JobDetailPage() {
 
         {/* Bottom CTA */}
         <FadeIn delay={0.25}>
-          <div className="hidden sm:flex flex-col sm:flex-row items-center gap-4 p-6 rounded-xl border border-border bg-card">
+          <div className="hidden sm:flex lg:hidden flex-col sm:flex-row items-center gap-4 p-6 rounded-xl border border-border bg-card">
             <div className="flex-1">
               <p className="font-semibold text-foreground">{t('jobDetail.bottomTitle')}</p>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -393,6 +397,35 @@ function JobDetailPage() {
             />
           </div>
         </FadeIn>
+        </div>
+
+        {/* Desktop summary card — stays in view while reading */}
+        <aside className="hidden lg:block lg:sticky lg:top-24">
+          <Card>
+            <CardContent className="space-y-4 pt-6">
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{t('jobDetail.summarySalary')}</p>
+                <p className="mt-1 text-lg font-semibold text-foreground">{formatSalary(job, locale)}</p>
+              </div>
+              <ul className="space-y-2 text-sm text-muted-foreground">
+                <li className="flex items-center gap-2"><MapPin className="size-4 shrink-0 text-accent" />{formatLocationType(job.locationType, t)}</li>
+                {job.level && <li className="flex items-center gap-2"><Briefcase className="size-4 shrink-0 text-accent" />{formatJobLevel(job.level, t)}</li>}
+                {job.languagesRequired && <li className="flex items-center gap-2"><Globe className="size-4 shrink-0 text-accent" />{formatLanguageList(job.languagesRequired, t)}</li>}
+                <li className="flex items-center gap-2"><Building2 className="size-4 shrink-0 text-accent" />{companyName}</li>
+              </ul>
+              {job.status === 'open' ? (
+                <div className="grid gap-2 [&_button]:w-full">
+                  <ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} />
+                  <SaveJobButton jobId={job.id} variant="chip" />
+                </div>
+              ) : (
+                <p className="text-sm text-destructive">{t('jobDetail.closedBanner')}</p>
+              )}
+              {!user && <p className="text-xs text-muted-foreground">{t('jobDetail.bottomAuth')}</p>}
+            </CardContent>
+          </Card>
+        </aside>
+        </div>
 
         {/* Phones: Apply and Save stay in reach while reading (above the tab
             bar when signed in — see .apply-bar in index.css). */}

@@ -11,7 +11,6 @@ import { INDUSTRIES } from '@/lib/industries'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList, formatJobLevel } from '@/lib/jobEnums'
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
-import { SocialShare } from '@/components/SocialShare'
 import { SaveJobButton } from '@/components/SaveJobButton'
 import {
   Search,
@@ -137,8 +136,8 @@ function JobListItem({
         aria-label={job.title}
         className="block group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <Card className="h-full gap-3 py-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border sm:gap-6 sm:py-6">
-          <CardHeader className="px-4 pb-0 sm:px-6 sm:pb-3">
+        <Card className="h-full gap-3 py-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border sm:py-5">
+          <CardHeader className="px-4 pb-0 sm:px-5">
             <div className="flex items-start gap-2">
               <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors line-clamp-2 flex-1">
                 <Link to="/jobs/$id" params={{ id: job.id }} onClick={stop} className="relative z-10 after:absolute after:inset-0 focus-visible:outline-none focus-visible:underline">
@@ -163,7 +162,7 @@ function JobListItem({
               )}
             </p>
           </CardHeader>
-          <CardContent className="space-y-2.5 px-4 sm:space-y-3 sm:px-6">
+          <CardContent className="space-y-2.5 px-4 sm:px-5">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <MapPin className="size-3" /> {formatLocationType(job.locationType, t)}
@@ -190,14 +189,6 @@ function JobListItem({
                 ))}
               </div>
             )}
-            <div className="hidden pt-2 border-t border-border/60 sm:block" onClick={stop}>
-              <SocialShare
-                variant="compact"
-                title={`${job.title} — ${companyName}`}
-                description={job.description.split('\n')[0]?.slice(0, 160) || undefined}
-                url={`/jobs/${job.id}`}
-              />
-            </div>
           </CardContent>
         </Card>
         </div>
@@ -214,11 +205,8 @@ function JobsPage() {
   // The <Outlet /> is required because the route tree generator makes
   // jobs.$id a child of jobs (file: jobs.$id.tsx → parent: jobs).
   if (matchRoute({ to: '/jobs/$id' })) {
-    return (
-      <div className="p-6 max-w-4xl mx-auto">
-        <Outlet />
-      </div>
-    )
+    // The detail page sets its own width and padding.
+    return <Outlet />
   }
   // List content lives in a separate component so ALL hooks (useState,
   // useEffect, useInfiniteJobs, useLoaderData, useMemo) are unconditional
