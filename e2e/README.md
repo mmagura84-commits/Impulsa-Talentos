@@ -28,3 +28,17 @@ payment → HQ approves (Pro: +3 credits, 45 days, 100 applicants) → second jo
 withdraw with confirmation → report → HQ removes job → team invite accepted on
 sign-up → lead from pricing → data export, deletion request, HQ erase (login
 blocked) → notification bells on desktop and phone.
+
+## Playwright tests
+
+`@playwright/test` is a dev dependency; tests live in `e2e/tests/*.e2e.ts` and
+run on a desktop and a phone (Pixel 7) viewport.
+
+```bash
+bun run test:e2e                                              # local stack on :3100
+E2E_BASE_URL=https://impulsatalentos.expert bun run test:e2e  # live site, read-only checks
+npx playwright install chromium                               # first run on a new machine
+```
+
+`smoke.e2e.ts` is read-only (no sign-ups, no form submits), so it is safe to run
+against production.

@@ -11,3 +11,7 @@ dist/
 .env.*.local
 .vercel/
 e2e/.env.e2e
+
+# Playwright
+/test-results/
+/playwright-report/
