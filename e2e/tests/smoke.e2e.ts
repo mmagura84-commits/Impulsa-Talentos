@@ -73,3 +73,17 @@ test('service worker takes over page loads (keeps pages fresh despite the host c
   expect(script).toMatch(/\/sw\.js\?v=[0-9a-f]{12}$/)
   await expect(page.locator('h1').first()).toBeVisible()
 })
+
+test('favicons are real brand images, not HTML', async ({ page, request }) => {
+  await page.goto('/')
+  const hrefs = await page.locator('link[rel="icon"], link[rel="apple-touch-icon"]').evaluateAll(ls => ls.map(l => l.getAttribute('href')!))
+  expect(hrefs).toEqual(expect.arrayContaining(['/favicon.ico?v=2', '/favicon.svg?v=2']))
+  for (const href of [...hrefs, '/favicon.ico']) {
+    const res = await request.get(href)
+    expect(res.status(), href).toBe(200)
+    expect(res.headers()['content-type'] ?? '', href).toMatch(/^image\//)
+  }
+  const svg = await (await request.get('/favicon.svg?v=2')).text()
+  expect(svg).toContain('#1f3a8a')   // brand blue (header)
+  expect(svg).toContain('#f2b705')   // brand gold (spark)
+})

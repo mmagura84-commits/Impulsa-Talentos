@@ -87,10 +87,12 @@ export const Route = createRootRoute({
         // first paint never blocks on Google Fonts.
       },
       { rel: 'stylesheet', href: indexCss },
-      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
-      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png' },
+      // ?v= : Hostinger caches every file for a year, so a new icon needs a new URL.
+      { rel: 'icon', href: '/favicon.ico?v=2', sizes: '48x48' },
+      { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg?v=2' },
+      { rel: 'icon', type: 'image/png', sizes: '32x32', href: '/favicon-32.png?v=2' },
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
-      { rel: 'manifest', href: '/manifest.json' },
+      { rel: 'manifest', href: '/manifest.json?v=2' },
     ],
     scripts: [
       {
