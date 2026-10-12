@@ -146,7 +146,7 @@ function MobileProfile() {
         toast.success(t('profile.avatar.ready'), { duration: 1800 })
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('profile.avatar.uploadError'))
+      toast.error(friendlyDbError(err, t) || t('profile.avatar.uploadError'))
     } finally {
       setUploading(false)
     }

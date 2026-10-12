@@ -58,6 +58,7 @@ import {
   Activity,
 } from 'lucide-react'
 import type { Company, Job, Application } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/hq')({
   component: HqPage,
@@ -532,7 +533,7 @@ function ApplicationsTab({ applications, jobs, profiles }: {
       await updateStatus.mutateAsync({ id, status: newStatus })
       toast.success(t('manage.statusUpdated'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('manage.statusError'))
+      toast.error(friendlyDbError(err, t) || t('manage.statusError'))
     }
   }
 
@@ -617,7 +618,7 @@ function JobsTab({ jobs, companies, applications }: {
       await updateJob.mutateAsync({ id: job.id, data: { status: next as 'open' | 'closed' } })
       toast.success(next === 'open' ? t('hq.action.reopenJob') : t('hq.action.closeJob'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
 
@@ -712,7 +713,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
       toast.success('Company updated')
       setEditing(null)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
 
@@ -759,7 +760,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
                       try {
                         await verifyCompany(c.id, false)
                         toast.success(t('verification.unverifySuccess'))
-                      } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) }
+                      } catch (err) { toast.error(friendlyDbError(err, t)) }
                     }}>
                     {t('verification.unverify')}
                   </Button>
@@ -769,7 +770,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
                       try {
                         await verifyCompany(c.id, true)
                         toast.success(t('verification.verifySuccess'))
-                      } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) }
+                      } catch (err) { toast.error(friendlyDbError(err, t)) }
                     }}>
                     {t('verification.verify')}
                   </Button>
@@ -884,7 +885,7 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
         setSalaryMin(''); setSalaryMax(''); setSkills(''); setLanguages('')
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     } finally {
       setSubmitting(false)
     }
@@ -895,7 +896,7 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
       await updateJob.mutateAsync({ id: jobId, data: { status: 'open' } })
       toast.success('Draft published')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
 
@@ -1062,7 +1063,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
       ? await supabase.rpc('admin_set_user_role', { p_profile_id: confirm.profile.id, p_role: confirm.role, p_status: confirm.status })
       : await supabase.rpc('admin_anonymize_profile', { p_profile_id: confirm.profile.id })
     setBusy(false)
-    if (error) { toast.error(error.message); return }
+    if (error) { toast.error(friendlyDbError(new Error(error.message), t)); setConfirm(null); return }
     toast.success(confirm.kind === 'role' ? t('hq.users.roleSaved') : t('hq.users.erased'))
     setConfirm(null)
     await queryClient.invalidateQueries({ queryKey: ['profiles'] })

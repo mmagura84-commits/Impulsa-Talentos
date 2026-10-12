@@ -29,6 +29,7 @@ import {
   CircleAlert,
 } from 'lucide-react'
 import type { Application, Job, Profile } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Helpers ─────────────────────────────────────────── */
 function splitList(s: string | null | undefined): string[] {
@@ -307,7 +308,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
       { applicationId: app.id, shortlisted: !shortlisted },
       {
         onSuccess: () => toast.success(t('review.shortlistSaved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('review.saveError')),
       },
     )
   }
@@ -316,7 +317,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
       { applicationId: app.id, notes },
       {
         onSuccess: () => toast.success(t('review.notesSaved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('review.saveError')),
       },
     )
   }

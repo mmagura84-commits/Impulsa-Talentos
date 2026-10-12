@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
 import { useCompany } from '@/hooks/useCompanies'
+import { useProfile } from '@/hooks/useProfile'
+import { friendlyDbError } from '@/lib/dbErrors'
 import { useI18n } from '@/i18n/I18nProvider'
 import {
   useTeamMembers,
@@ -20,6 +22,19 @@ import {
 import { useState } from 'react'
 
 export const Route = createFileRoute('/_app/employer/team')({ component: EmployerTeam })
+
+/** Name + email for an active seat (invites show the invited email). */
+function MemberIdentity({ userId, inviteEmail }: { userId: string; inviteEmail?: string | null }) {
+  const { data: profile } = useProfile(inviteEmail ? undefined : userId)
+  if (inviteEmail) return <>{inviteEmail}</>
+  if (!profile) return <span className="text-muted-foreground">…</span>
+  return (
+    <span className="flex flex-col">
+      <span>{profile.fullName || profile.email}</span>
+      {profile.fullName && profile.email && <span className="text-[10px] font-normal text-muted-foreground">{profile.email}</span>}
+    </span>
+  )
+}
 
 const STATUS_ICONS: Record<string, React.ReactNode> = {
   active:  <CheckCircle2 className="size-3.5 text-emerald-500" />,
@@ -102,7 +117,6 @@ function EmployerTeam() {
                       onChange={(e) => setInviteRole(e.target.value as TeamMemberRole)}
                       className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm h-10"
                     >
-                      <option value="owner">{t('team.role.owner')}</option>
                       <option value="admin">{t('team.role.admin')}</option>
                       <option value="member">{t('team.role.member')}</option>
                     </select>
@@ -118,7 +132,7 @@ function EmployerTeam() {
                 </form>
                 {inviteMutation.isError && (
                   <p className="text-xs text-destructive mt-2">
-                    {(inviteMutation.error as Error)?.message || t('team.inviteFailed')}
+                    {friendlyDbError(inviteMutation.error, t) || t('team.inviteFailed')}
                   </p>
                 )}
               </CardContent>
@@ -157,7 +171,7 @@ function EmployerTeam() {
                         {members.map((m) => (
                           <tr key={m.id} className="border-b border-border/60 hover:bg-muted/30 text-xs">
                             <td className="py-2.5 px-2 font-medium">
-                              {m.inviteEmail || m.userId}
+                              <MemberIdentity userId={m.userId} inviteEmail={m.status === 'pending' ? m.inviteEmail : null} />
                               {m.status === 'pending' && (
                                 <span className="text-[10px] text-amber-500 ml-1.5">
                                   ({t('team.pendingLabel')})
@@ -165,6 +179,11 @@ function EmployerTeam() {
                               )}
                             </td>
                             <td className="py-2.5 px-2">
+                              {m.role === 'owner' || m.role === 'md' ? (
+                                <span title={m.role === 'md' ? t('team.role.mdDesc') : undefined}>
+                                  {t(`team.role.${m.role}`)}
+                                </span>
+                              ) : (
                               <select
                                 value={m.role}
                                 onChange={(e) => {
@@ -173,13 +192,13 @@ function EmployerTeam() {
                                     data: { role: e.target.value as TeamMemberRole },
                                   })
                                 }}
-                                disabled={m.role === 'owner' || updateMutation.isPending}
+                                disabled={updateMutation.isPending}
                                 className="rounded border border-border bg-background px-1.5 py-0.5 text-xs disabled:opacity-50"
                               >
-                                <option value="owner">{t('team.role.owner')}</option>
                                 <option value="admin">{t('team.role.admin')}</option>
                                 <option value="member">{t('team.role.member')}</option>
                               </select>
+                              )}
                             </td>
                             <td className="py-2.5 px-2">
                               <span className="inline-flex items-center gap-1">
@@ -190,7 +209,7 @@ function EmployerTeam() {
                               </span>
                             </td>
                             <td className="py-2.5 px-2">
-                              {m.role !== 'owner' && (
+                              {m.role !== 'owner' && m.role !== 'md' && (
                                 <Button
                                   variant="ghost"
                                   size="sm"

@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/i18n/I18nProvider'
 import { supabase } from '@/lib/supabase'
 import { sendEmail } from '@/lib/emailSender'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 const NOTIFY_EMAIL = 'partners@impulsatalentos.expert'
 
@@ -73,7 +74,7 @@ export function LeadCaptureForm({ onSuccess }: { onSuccess: () => void }) {
       sessionStorage.setItem('impulsa_pricing_lead', '1')
       onSuccess()
     } catch (err) {
-      setError(err instanceof Error ? err.message : t('pricing.leadError'))
+      setError(friendlyDbError(err, t) || t('pricing.leadError'))
     } finally {
       setBusy(false)
     }

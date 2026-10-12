@@ -36,6 +36,7 @@ import type {
   InterviewStatus,
   ScorecardRecommendation,
 } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 const INTERVIEW_TYPES: InterviewType[] = [
   'phone',
@@ -137,7 +138,7 @@ function ScorecardSection({ interview }: { interview: Interview }) {
       })
       reset()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('interviews.scorecard.error'))
+      toast.error(friendlyDbError(err, t) || t('interviews.scorecard.error'))
     }
   }
 
@@ -303,7 +304,7 @@ function InterviewCard({
       await cancelInterview.mutateAsync({ id: interview.id, companyId })
       toast.success(t('interviews.cancelled'), { description: t('interviews.cancelledDesc') })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('interviews.error'))
+      toast.error(friendlyDbError(err, t) || t('interviews.error'))
     } finally {
       setPending(false)
     }
@@ -315,7 +316,7 @@ function InterviewCard({
       await updateInterview.mutateAsync({ id: interview.id, data: { status: 'completed' } })
       toast.success(t('interviews.completed'), { description: t('interviews.completedDesc') })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('interviews.error'))
+      toast.error(friendlyDbError(err, t) || t('interviews.error'))
     } finally {
       setPending(false)
     }
@@ -330,7 +331,7 @@ function InterviewCard({
       toast.success(t('interviews.rescheduled'), { description: t('interviews.rescheduledDesc') })
       setRescheduling(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('interviews.error'))
+      toast.error(friendlyDbError(err, t) || t('interviews.error'))
     } finally {
       setPending(false)
     }
@@ -472,7 +473,7 @@ export function InterviewsPanel({ jobId, companyId, applications }: InterviewsPa
       toast.success(t('interviews.scheduled'), { description: t('interviews.scheduledDesc') })
       resetCreate()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('interviews.error'))
+      toast.error(friendlyDbError(err, t) || t('interviews.error'))
     }
   }
 

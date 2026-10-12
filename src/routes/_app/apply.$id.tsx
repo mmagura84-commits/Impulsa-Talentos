@@ -389,7 +389,7 @@ function ApplyPage() {
           </div>
           <h2 className="font-serif text-2xl font-bold text-foreground">{t('jobDetail.errorTitle')}</h2>
           <p className="mt-2 text-muted-foreground">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button variant="outline" className="mt-6" onClick={() => refetch()}>
             {t('common.retry')}
@@ -665,10 +665,10 @@ function ApplyPage() {
                         <button
                           key={tpl.k}
                           type="button"
-                          onClick={() => setMessage(t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName }))}
+                          onClick={() => setMessage(t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName.replace(/\.+$/, "") }))}
                           className="text-left text-xs text-muted-foreground rounded-lg border border-border bg-card hover:bg-accent/30 hover:border-accent/50 transition-colors px-3 py-2 cursor-pointer"
                         >
-                          {t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName })}
+                          {t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName.replace(/\.+$/, "") })}
                         </button>
                       ))}
                     </div>

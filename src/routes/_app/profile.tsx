@@ -386,7 +386,7 @@ function ProfilePage() {
         toast.success(t('profile.avatar.ready'), { duration: 1800 })
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('profile.avatar.uploadError'))
+      toast.error(friendlyDbError(err, t) || t('profile.avatar.uploadError'))
     } finally { setUploadingAvatar(false) }
   }
 
@@ -396,7 +396,7 @@ function ProfilePage() {
       await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: '' } })
       update('avatarUrl', '')
       toast.success(t('profile.avatar.removed'), { duration: 1800 })
-    } catch (err) { toast.error(err instanceof Error ? err.message : t('common.retry')) }
+    } catch (err) { toast.error(friendlyDbError(err, t) || t('common.retry')) }
   }
 
   const handleCvFile = async (file: File) => {
@@ -414,7 +414,7 @@ function ProfilePage() {
       update('cvUrl', publicUrl)
       toast.success('CV uploaded successfully')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Upload failed')
+      toast.error(friendlyDbError(err, t) || 'Upload failed')
     } finally { setUploadingCv(false) }
   }
 

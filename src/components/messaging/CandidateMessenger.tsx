@@ -13,6 +13,7 @@ import {
   X,
   Loader2,
 } from 'lucide-react'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Time-ago formatter (lightweight, no locale switching needed) ─── */
 function timeAgo(iso: string): string {
@@ -118,7 +119,7 @@ export function CandidateMessenger({
         body: trimmed,
       })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Failed to send message')
+      toast.error(friendlyDbError(err, t) || 'Failed to send message')
       setBody(trimmed) // restore on failure
     }
   }, [body, applicationId, candidateId, sendMessage])

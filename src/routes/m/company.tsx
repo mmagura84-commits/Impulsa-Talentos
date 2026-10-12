@@ -12,6 +12,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useI18n } from '@/i18n/I18nProvider'
 import { CANONICAL_INDUSTRIES, industryLabelKey, matchIndustry } from '@/lib/industries'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/company')({ component: MobileCompany })
 
@@ -79,7 +80,7 @@ function MobileCompany() {
       })
       toast.success(t('mobile.companyUpdated'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('mobile.errorTitle'))
+      toast.error(friendlyDbError(err, t) || t('mobile.errorTitle'))
     }
   }
 
@@ -90,7 +91,7 @@ function MobileCompany() {
       await updateCompany.mutateAsync({ id: company.id, data: { verificationRequested: true } })
       toast.success(t('verification.requestSuccess'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     } finally {
       setRequesting(false)
     }

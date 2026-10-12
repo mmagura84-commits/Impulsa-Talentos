@@ -10,3 +10,4 @@ dist/
 .env.local
 .env.*.local
 .vercel/
+e2e/.env.e2e

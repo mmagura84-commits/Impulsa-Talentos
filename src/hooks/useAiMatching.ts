@@ -61,7 +61,12 @@ Important context:
 /** Ask the AI service for a match score. Returns null when the service is not
  *  available (signed out, not configured, static hosting) — callers then fall
  *  back to the on-device heuristic instead of showing an invented score. */
+// Remembered per page load: once /api/ai-match is missing (static hosting has
+// no API), stop asking — every dashboard visit used to log a 404 per job.
+let aiServiceMissing = false
+
 async function scoreSingleMatch(profile: Profile, job: Job): Promise<AiMatchResult | null> {
+  if (aiServiceMissing) return null
   try {
     const { data: sess } = await supabase.auth.getSession()
     const token = sess.session?.access_token
@@ -71,6 +76,7 @@ async function scoreSingleMatch(profile: Profile, job: Job): Promise<AiMatchResu
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ prompt: buildMatchPrompt(profile, job) }),
     })
+    if (res.status === 404 || res.status === 405) { aiServiceMissing = true; return null }
     if (!res.ok) return null
     const data = await res.json()
     const object = data?.object as AiMatchDetail | undefined

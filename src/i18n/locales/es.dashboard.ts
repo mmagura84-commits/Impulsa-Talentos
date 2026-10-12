@@ -217,6 +217,8 @@ const esDashboard: Dict = {
   'timeline.empty': 'Aún no tienes postulaciones. Empieza a postularte para seguir tu progreso.',
   'timeline.viewAll': 'Ver todas las postulaciones',
   'timeline.statusFilter': 'Filtrar por estado',
+  'timeline.viewJob': 'Ver vacante',
+  'timeline.withdrawYes': 'Sí, retirar',
   'timeline.withdraw': 'Retirar',
   'timeline.withdrawConfirm': '¿Retirar esta postulación?',
   'timeline.withdrawConfirmDesc': 'Tu postulación será retirada y el empleador será notificado.',

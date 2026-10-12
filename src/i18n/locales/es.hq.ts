@@ -121,7 +121,7 @@ const esHq: Dict = {
   'hq.moderation.approved': 'Empleo aprobado y publicado',
   'hq.moderation.rejected': 'Empleo rechazado',
   'hq.moderation.reportsTitle': 'Reportes recientes',
-  'hq.moderation.reportsDesc': 'Marcados por los usuarios. Los empleos reportados quedan en espera hasta que decidas.',
+  'hq.moderation.reportsDesc': 'Reportadas por usuarios. La vacante sigue publicada hasta que decidas mantenerla o retirarla.',
   'hq.moderation.noReports': 'Aun no hay reportes',
   'hq.moderation.reasonScam': 'Estafa o fraude',
   'hq.moderation.reasonInappropriate': 'Contenido inapropiado',

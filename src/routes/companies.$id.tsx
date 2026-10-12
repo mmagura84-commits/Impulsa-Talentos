@@ -29,6 +29,7 @@ import {
 } from 'lucide-react'
 import type { Company, Job, CompanyReview } from '@/types'
 import { ClientTimeText } from '@/components/ClientTimeText'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/companies/$id')({
   // Server-side loader: fetches the company during SSR/prerender so crawlers
@@ -316,7 +317,7 @@ function timeAgo(iso: string): string {
 /* ── Reviews section ──────────────────────────────────── */
 function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; reviews: CompanyReview[]; isLoading: boolean }) {
   const { t } = useI18n()
-  const { user, isAuthenticated } = useAuth()
+  const { user, isAuthenticated, login } = useAuth()
   const createReview = useCreateReview()
   const [showForm, setShowForm] = useState(false)
   const [rating, setRating] = useState(5)
@@ -343,7 +344,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
       setBody('')
       setRating(5)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('reviews.error'))
+      toast.error(friendlyDbError(err, t) || t('reviews.error'))
     }
   }
 
@@ -383,7 +384,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
             </Button>
           )
         ) : (
-          <Button variant="outline" size="sm" onClick={() => useAuth().login()} className="gap-1.5">
+          <Button variant="outline" size="sm" onClick={() => login()} className="gap-1.5">
             {t('reviews.signIn')}
           </Button>
         )}

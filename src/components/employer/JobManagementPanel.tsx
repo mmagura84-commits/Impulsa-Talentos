@@ -92,7 +92,7 @@ export function JobManagementPanel({ job }: { job: Job }) {
       { id: job.id, data },
       {
         onSuccess: () => toast.success(t('jobMgmt.saved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('jobMgmt.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('jobMgmt.saveError')),
         onSettled: () => setSaving(false),
       },
     )

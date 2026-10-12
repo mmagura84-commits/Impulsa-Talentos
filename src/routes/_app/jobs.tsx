@@ -24,6 +24,7 @@ import {
 import type { Job, Company } from '@/types'
 import type { Locale } from '@/i18n/types'
 import { ClientTimeText } from '@/components/ClientTimeText'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/jobs')({
   loader: async () => {
@@ -443,7 +444,7 @@ function JobsListView() {
           </div>
           <p className="text-foreground font-medium">{t('jobs.errorTitle')}</p>
           <p className="text-sm text-muted-foreground mt-1">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button variant="outline" className="mt-4" onClick={() => refetch()}>
             {t('common.retry')}

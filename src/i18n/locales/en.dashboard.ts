@@ -218,6 +218,8 @@ const enDashboard: Dict = {
   'timeline.empty': 'No applications yet. Start applying to track your progress.',
   'timeline.viewAll': 'View all applications',
   'timeline.statusFilter': 'Filter by status',
+  'timeline.viewJob': 'View job',
+  'timeline.withdrawYes': 'Yes, withdraw',
   'timeline.withdraw': 'Withdraw',
   'timeline.withdrawConfirm': 'Withdraw this application?',
   'timeline.withdrawConfirmDesc': 'Your application will be withdrawn and the employer will be notified.',

@@ -26,6 +26,7 @@ import {
   Columns2,
 } from 'lucide-react'
 import type { Application, ApplicationStatusHistory } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Kanban column definitions ─────────────────────────────── */
 interface KanbanColumn {
@@ -373,7 +374,7 @@ export function PipelineKanban({
       await updateStatus.mutateAsync({ id, status })
       toast.success(t('kanban.stageChanged'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }, [updateStatus, t])
 
@@ -385,7 +386,7 @@ export function PipelineKanban({
       toast.success(t('kanban.bulkMoved', { count: selectedIds.size }))
       setSelectedIds(new Set())
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }, [selectedIds, updateStatus, t])
 

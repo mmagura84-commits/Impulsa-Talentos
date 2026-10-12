@@ -17,6 +17,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import type { Company, Job, JobReport } from '@/types'
 import { useQueryClient } from '@tanstack/react-query'
 import { updateRow } from '@/lib/supabase'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 const REASON_LABELS: Record<string, string> = {
   scam: 'hq.moderation.reasonScam',
@@ -59,7 +60,7 @@ function ModerationJobRow({
       })
       toast.success(t('hq.moderation.approved'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     } finally {
       setBusy(false)
     }
@@ -79,7 +80,7 @@ function ModerationJobRow({
       setRejecting(false)
       setReason('')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     } finally {
       setBusy(false)
     }
@@ -190,7 +191,7 @@ function ReportRow({
       await closeReport('dismissed')
       toast.success(t('hq.moderation.reportDismissed'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
   const reject = async () => {
@@ -207,7 +208,7 @@ function ReportRow({
       await closeReport('actioned')
       toast.success(t('hq.moderation.rejected'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
   return (
@@ -388,7 +389,7 @@ function RejectUndoButton({ jobId }: { jobId: string }) {
       })
       toast.success(t('hq.moderation.restored'))
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
+      toast.error(friendlyDbError(err, t))
     }
   }
   return (

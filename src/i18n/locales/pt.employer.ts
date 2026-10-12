@@ -178,6 +178,8 @@ const ptEmployer: Dict = {
   'team.roleLabel': 'Função',
   'team.role.owner': 'Proprietário',
   'team.role.admin': 'Administrador',
+  'team.role.md': 'Diretor(a) Executivo(a) (HQ)',
+  'team.role.mdDesc': 'Atribuído pelo HQ · somente leitura',
   'team.role.member': 'Membro',
   'team.sendInvite': 'Enviar Convite',
   'team.inviteFailed': 'Falha no convite',

@@ -253,7 +253,8 @@ export interface JobReport {
 }
 
 /** Team member on an employer company. */
-export type TeamMemberRole = 'owner' | 'admin' | 'member'
+/** 'md' = read-only seat HQ gives the company's Managing Director (migration 041). */
+export type TeamMemberRole = 'owner' | 'admin' | 'member' | 'md'
 export type TeamMemberStatus = 'active' | 'pending' | 'declined'
 
 export interface TeamMember {

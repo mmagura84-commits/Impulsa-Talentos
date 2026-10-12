@@ -47,6 +47,7 @@ import {
   ExternalLink,
 } from 'lucide-react'
 import type { Application, Job } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/employer/manage/$id')({
   component: ManageApplicationsPage,
@@ -96,7 +97,10 @@ function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobI
   const resumeUrl = useSignedStorageUrl(resumePointer)
 
   const coverNote = extractCoverNote(app.coverLetter)
-  const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
+  // Show who applied (the cover note is a message, not a name).
+  const { data: candidate } = useProfileById(app.candidateId)
+  const displayName = candidate?.fullName?.trim() || t('manage.candidate')
+  const initial = displayName.charAt(0).toUpperCase()
 
   return (
     <>
@@ -112,9 +116,8 @@ function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobI
             </AvatarFallback>
           </Avatar>
           <div className="min-w-0 flex-1">
-            <p className="text-sm font-medium text-foreground truncate">
-              {coverNote || t('manage.candidate')}
-            </p>
+            <p className="text-sm font-medium text-foreground truncate">{displayName}</p>
+            {coverNote && <p className="text-xs text-muted-foreground truncate">{coverNote}</p>}
             <p className="text-xs text-muted-foreground flex items-center gap-1">
               <CalendarClock className="size-3" />
               {new Date(app.createdAt).toLocaleDateString(undefined, {
@@ -221,7 +224,7 @@ function InterviewScheduler({ app, jobId }: { app: Application; jobId: string })
         duration: 3500,
       })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     } finally {
       setSaving(false)
     }
@@ -286,7 +289,10 @@ function ApplicationDrawer({
   const resumePointer = extractResumeUrl(app.coverLetter)
   const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app.coverLetter)
-  const initial = coverNote ? coverNote.charAt(0).toUpperCase() : 'C'
+  // Show who applied (the cover note is a message, not a name).
+  const { data: candidate } = useProfileById(app.candidateId)
+  const displayName = candidate?.fullName?.trim() || t('manage.candidate')
+  const initial = displayName.charAt(0).toUpperCase()
 
   // Escape closes the drawer (a11y follow-up).
   useEffect(() => {
@@ -307,7 +313,7 @@ function ApplicationDrawer({
       })
     } catch (err) {
       toast.error(
-        err instanceof Error ? err.message : t('manage.statusError'),
+        friendlyDbError(err, t) || t('manage.statusError'),
       )
     } finally {
       setPending(null)
@@ -359,7 +365,7 @@ function ApplicationDrawer({
                 </Avatar>
                 <div className="min-w-0 flex-1">
                   <p className="font-medium text-foreground truncate">
-                    {coverNote ? coverNote.split('\n')[0].slice(0, 60) : t('manage.candidate')}
+                    {displayName}
                   </p>
                   <p className="text-xs text-muted-foreground font-mono truncate">
                     {t('apply.success.confirmationId')}: {app.id}
@@ -497,7 +503,7 @@ function ManageApplicationsPage() {
             {t('editJob.notFound')}
           </h2>
           <p className="mt-2 text-muted-foreground">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button variant="outline" className="mt-6" asChild>
             <Link to="/dashboard">{t('editJob.backToDashboard')}</Link>

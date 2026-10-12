@@ -62,7 +62,14 @@ startTransition(() => {
     for (const script of Array.from(document.body.querySelectorAll('script'))) {
       script.remove()
     }
-    createRoot(document.body).render(
+    // Render into the DOCUMENT, not document.body. The route tree renders
+    // <html>/<head>/<body>, which React 19 maps onto the real singletons; with
+    // document.body as the container, the <body> singleton IS the container,
+    // and React's event dispatcher walks body → HostSingleton → HostRoot →
+    // body forever (main thread frozen; reproduced after an invited teammate
+    // signs up and opens a job pipeline). This is also the root cause of the
+    // 2026-08-14 "pages hang" that the capture-phase listeners above papered over.
+    createRoot(document).render(
       <StrictMode>
         <StartClient />
       </StrictMode>,

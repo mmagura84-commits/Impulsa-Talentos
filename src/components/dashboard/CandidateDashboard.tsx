@@ -246,6 +246,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
   const { data: statusHistory } = useApplicationStatusHistory(app.id)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [messengerOpen, setMessengerOpen] = useState(false)
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false)
   const ts = TIMELINE_STATUSES[app.status] ?? { step: 0, color: 'border-muted-foreground text-muted-foreground' }
   const stepLabels: Record<string, string> = {
     draft: t('timeline.step.draft'),
@@ -309,7 +310,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             params={{ id: app.jobId }}
             className="text-[11px] font-medium text-primary hover:underline"
           >
-            View job <ChevronRight className="size-2.5 inline ml-0.5" />
+            {t('timeline.viewJob')} <ChevronRight className="size-2.5 inline ml-0.5" />
           </Link>
           <button
             type="button"
@@ -319,14 +320,33 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             <MessageSquare className="size-3" />
             {messengerOpen ? t('messenger.close') : t('messenger.open')}
           </button>
-          {isMutable && onWithdraw && (
+          {isMutable && onWithdraw && !confirmWithdraw && (
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); onWithdraw(app.id) }}
+              onClick={(e) => { e.preventDefault(); setConfirmWithdraw(true) }}
               className="text-[11px] text-muted-foreground hover:text-destructive underline underline-offset-2 cursor-pointer"
             >
               {t('timeline.withdraw')}
             </button>
+          )}
+          {isMutable && onWithdraw && confirmWithdraw && (
+            <span className="flex items-center gap-2 text-[11px]">
+              <span className="text-muted-foreground">{t('timeline.withdrawConfirm')}</span>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setConfirmWithdraw(false); onWithdraw(app.id) }}
+                className="font-medium text-destructive underline underline-offset-2 cursor-pointer"
+              >
+                {t('timeline.withdrawYes')}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setConfirmWithdraw(false) }}
+                className="text-muted-foreground underline underline-offset-2 cursor-pointer"
+              >
+                {t('common.cancel')}
+              </button>
+            </span>
           )}
         </div>
 
@@ -459,7 +479,7 @@ export function SavedJobRow({ job, candidateId }: { job: Job; candidateId: strin
       toast.success(t('savedJobs.remove'), { duration: 1500 })
       setConfirming(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }
 

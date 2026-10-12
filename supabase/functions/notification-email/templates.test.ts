@@ -28,6 +28,6 @@ describe('notification-email templates', () => {
     expect(pickLang(null)).toBe('es')
   })
   test('unknown hq type uses the HQ subject', () => {
-    expect(buildEmail({ ...base, type: 'hq_job_reported', title: 'Job reported: X' }, 'en', 'admin', 'https://x.test').subject).toBe('[HQ] Job reported: X')
+    expect(buildEmail({ ...base, type: 'hq_job_reported', title: 'X' }, 'en', 'admin', 'https://x.test').subject).toBe('[HQ] Job reported: X')
   })
 })

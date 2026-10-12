@@ -143,8 +143,8 @@ select t.expect_error('new user cannot sign up as admin',
   $$insert into public.profiles (user_id, role, full_name) values ('00000000-0000-0000-0000-0000000000f1', 'admin', 'x')$$);
 select t.expect_error('new user cannot sign up as md',
   $$insert into public.profiles (user_id, role, full_name) values ('00000000-0000-0000-0000-0000000000f1', 'md', 'x')$$);
-select t.expect_ok('new user can sign up as employer',
-  $$insert into public.profiles (user_id, role, full_name, profile_status) values ('00000000-0000-0000-0000-0000000000f1', 'employer', 'New', 'rejected')$$);
+select t.expect_ok('new user can sign up as employer (insert … returning, like the app)',
+  $$insert into public.profiles (user_id, role, full_name, profile_status) values ('00000000-0000-0000-0000-0000000000f1', 'employer', 'New', 'rejected') returning *$$);
 select t.reset();
 select t.check('signup status forced to active', (select profile_status = 'active' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f1'));
 
@@ -238,8 +238,8 @@ select t.reset();
 
 \echo '── Applications'
 select t.act_as('00000000-0000-0000-0000-0000000000c2');
-select t.expect_ok('candidate applies to an open job (tries status hired)',
-  $$insert into public.applications (id, job_id, candidate_id, status) values ('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-0000000000c2', 'hired')$$);
+select t.expect_ok('candidate applies to an open job (tries status hired; insert … returning)',
+  $$insert into public.applications (id, job_id, candidate_id, status) values ('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-0000000000c2', 'hired') returning *$$);
 select t.expect_error('candidate cannot apply to a draft job',
   $$insert into public.applications (job_id, candidate_id) values ((select id from public.jobs where title = 'Free draft'), '10000000-0000-0000-0000-0000000000c2')$$);
 select t.expect_ok('candidate applies to the newly published job',
@@ -364,6 +364,14 @@ select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_ok('HQ resolves a report', $$update public.reports set status = 'dismissed', reviewed_at = now()$$);
 select t.reset();
 
+\echo '── Job moderation notice'
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_ok('HQ takes a job down', $$update public.jobs set moderation_status = 'rejected' where id = '30000000-0000-0000-0000-000000000001'$$);
+select t.expect_ok('HQ restores it', $$update public.jobs set moderation_status = 'approved' where id = '30000000-0000-0000-0000-000000000001'$$);
+select t.reset();
+select t.check('employer told the job was removed', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000e1' and type = 'job_removed'));
+select t.check('employer told the job is back', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000e1' and type = 'job_approved'));
+
 \echo '── Payments'
 select t.act_as('00000000-0000-0000-0000-0000000000e1');
 select t.expect_ok('employer submits payment (claims $1 for 999 credits)',
@@ -434,7 +442,12 @@ select t.reset();
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_ok('HQ anonymizes on request', $$select public.admin_anonymize_profile('10000000-0000-0000-0000-0000000000c1')$$);
 select t.expect_rows('HQ reads the admin audit log', $$select * from public.admin_audit_log where action = 'profile.anonymize'$$, 1);
+select t.expect_error('HQ cannot erase a company owner before the company is handled', $$select public.admin_anonymize_profile('10000000-0000-0000-0000-0000000000e1')$$);
+select t.expect_ok('HQ erases a team member', $$select public.admin_anonymize_profile('10000000-0000-0000-0000-0000000000b2')$$);
 select t.reset();
+select t.check('erased team member lost the seat and employer role',
+  not exists (select 1 from public.team_members where user_id = '00000000-0000-0000-0000-0000000000b2')
+  and (select role = 'candidate' from public.profiles where id = '10000000-0000-0000-0000-0000000000b2'));
 select t.act_as('00000000-0000-0000-0000-0000000000e1');
 select t.expect_rows('employers cannot read the admin audit log', $$select * from public.admin_audit_log$$, 0);
 select t.reset();

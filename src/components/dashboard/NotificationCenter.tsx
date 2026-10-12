@@ -25,6 +25,15 @@ const TYPE_KEYS: Partial<Record<NotificationType, string>> = {
 export type NotificationAudience = 'candidate' | 'employer' | 'md' | 'admin'
 
 /** Resolve a notification to the page where this person can act on it. */
+/** In the phone app (/m) keep people inside the mobile screens. */
+function mobileLink(path: string | undefined): string | undefined {
+  if (!path) return path
+  if (path === '/candidate/applications') return '/m/applications'
+  if (path === '/employer/post-job') return '/m/post'
+  if (path.startsWith('/employer/')) return '/m/home'
+  return path
+}
+
 function notificationLink(n: Notification, audience: NotificationAudience): string | undefined {
   const data = (n.data ?? {}) as Record<string, unknown>
   const jobId = typeof data.job_id === 'string' ? data.job_id : undefined
@@ -67,6 +76,19 @@ function notificationBody(n: Notification, t: (k: string) => string): string {
   return n.body
 }
 
+/**
+ * The database stores the subject (a name or job title) and a detail; the
+ * sentence around them is translated here, so Spanish/Portuguese users don't
+ * see English notifications.
+ */
+function notificationHeading(n: Notification, t: (k: string) => string): { heading: string; detail: string } {
+  const key = `notifications.kind.${n.type as string}`
+  const label = t(key)
+  const body = notificationBody(n, t)
+  if (label === key) return { heading: n.title || t(TYPE_KEYS[n.type] ?? 'notifications.type.application_received'), detail: body }
+  return { heading: label, detail: [n.title, body].filter(s => s && s !== '—').join(' · ') }
+}
+
 /** Compact relative time using the shared time helper keys. */
 function relativeTime(iso: string, t: (k: string, p?: Record<string, string | number>) => string): string {
   const diffMs = Date.now() - new Date(iso).getTime()
@@ -81,7 +103,11 @@ function relativeTime(iso: string, t: (k: string, p?: Record<string, string | nu
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-export function NotificationCenter({ audience = 'employer' }: { audience?: NotificationAudience } = {}) {
+export function NotificationCenter({
+  audience = 'employer',
+  align = 'left',
+  mobile = false,
+}: { audience?: NotificationAudience; align?: 'left' | 'right'; mobile?: boolean } = {}) {
   const { user } = useAuth()
   const { t } = useI18n()
   const { data: notifications, isLoading, isError, refetch } = useNotifications(user?.id)
@@ -155,7 +181,7 @@ export function NotificationCenter({ audience = 'employer' }: { audience?: Notif
       </Button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-border bg-card shadow-lg z-50 overflow-hidden">
+        <div className={`${mobile ? 'fixed left-3 right-3 top-[calc(env(safe-area-inset-top)+3.75rem)]' : `absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-2 w-80 max-w-[calc(100vw-2rem)]`} rounded-xl border border-border bg-card shadow-lg z-50 overflow-hidden`}>
           <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
             <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <Bell className="size-3.5 text-primary" />
@@ -197,7 +223,7 @@ export function NotificationCenter({ audience = 'employer' }: { audience?: Notif
             ) : (
               <ul className="divide-y divide-border">
                 {items.map((n) => {
-                  const link = notificationLink(n, audience)
+                  const link = mobile ? mobileLink(notificationLink(n, audience)) : notificationLink(n, audience)
                   const deleteBtn = (
                     <button
                       type="button"
@@ -213,9 +239,9 @@ export function NotificationCenter({ audience = 'employer' }: { audience?: Notif
                       <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${n.readAt ? 'bg-transparent' : 'bg-primary'}`} />
                       <span className="min-w-0 flex-1">
                         <span className={`block text-xs ${n.readAt ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
-                          {n.title || t(TYPE_KEYS[n.type] ?? 'notifications.type.application_received')}
+                          {notificationHeading(n, t).heading}
                         </span>
-                        <span className="block text-xs text-muted-foreground truncate">{notificationBody(n, t)}</span>
+                        <span className="block text-xs text-muted-foreground truncate">{notificationHeading(n, t).detail}</span>
                         <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
                           {relativeTime(n.createdAt, t)}
                         </span>

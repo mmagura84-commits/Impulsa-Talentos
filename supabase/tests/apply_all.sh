@@ -3,11 +3,17 @@
 # live project received them (004_rls_policies needs 012's uuid fix first;
 # 002_seed is demo data and is never applied).
 # Usage: supabase/tests/apply_all.sh [psql connection args...]
+#   IMPULSA_DB=name   database to build (default impulsa_test)
+#   KEEP_DB=1         apply into an existing database (e.g. one GoTrue already
+#                     migrated for the end-to-end stack) instead of recreating it
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"; mig="$here/../migrations"
 PSQL=(psql "$@" -q -v ON_ERROR_STOP=1)
-"${PSQL[@]}" -d postgres -c "drop database if exists impulsa_test" -c "create database impulsa_test"
-run() { "${PSQL[@]}" -d impulsa_test -f "$1" >/dev/null || { echo "FAILED: $1" >&2; exit 1; }; }
+DB="${IMPULSA_DB:-impulsa_test}"
+if [ "${KEEP_DB:-0}" != "1" ]; then
+  "${PSQL[@]}" -d postgres -c "drop database if exists $DB" -c "create database $DB"
+fi
+run() { "${PSQL[@]}" -d "$DB" -f "$1" >/dev/null || { echo "FAILED: $1" >&2; exit 1; }; }
 run "$here/00_supabase_stubs.sql"
 order=()
 for f in $(ls "$mig"/*.sql | sort); do

@@ -76,7 +76,7 @@ import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/cand
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
 import { Route as AppEmployerManageIdRouteImport } from './routes/_app/employer/manage.$id'
 import { Route as AppEmployerEditJobIdRouteImport } from './routes/_app/employer/edit-job.$id'
-import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id.confirm'
+import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id_.confirm'
 
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
@@ -421,9 +421,9 @@ const AppEmployerEditJobIdRoute = AppEmployerEditJobIdRouteImport.update({
   getParentRoute: () => AppEmployerRoute,
 } as any)
 const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
-  id: '/confirm',
-  path: '/confirm',
-  getParentRoute: () => AppApplyIdRoute,
+  id: '/apply/$id_/confirm',
+  path: '/apply/$id/confirm',
+  getParentRoute: () => AppRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -458,7 +458,7 @@ export interface FileRoutesByFullPath {
   '/m/saved': typeof MSavedRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
-  '/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/apply/$id': typeof AppApplyIdRoute
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
@@ -522,7 +522,7 @@ export interface FileRoutesByTo {
   '/m/saved': typeof MSavedRoute
   '/companies': typeof CompaniesIndexRoute
   '/m': typeof MIndexRoute
-  '/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/apply/$id': typeof AppApplyIdRoute
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
@@ -593,7 +593,7 @@ export interface FileRoutesById {
   '/m/saved': typeof MSavedRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
-  '/_app/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/_app/apply/$id': typeof AppApplyIdRoute
   '/_app/candidate/applications': typeof AppCandidateApplicationsRoute
   '/_app/candidate/care': typeof AppCandidateCareRoute
   '/_app/candidate/saved': typeof AppCandidateSavedRoute
@@ -626,7 +626,7 @@ export interface FileRoutesById {
   '/_app/employer/': typeof AppEmployerIndexRoute
   '/_app/managingdirector/': typeof AppManagingdirectorIndexRoute
   '/_app/md/': typeof AppMdIndexRoute
-  '/_app/apply/$id/confirm': typeof AppApplyIdConfirmRoute
+  '/_app/apply/$id_/confirm': typeof AppApplyIdConfirmRoute
   '/_app/employer/edit-job/$id': typeof AppEmployerEditJobIdRoute
   '/_app/employer/manage/$id': typeof AppEmployerManageIdRoute
 }
@@ -831,7 +831,7 @@ export interface FileRouteTypes {
     | '/_app/employer/'
     | '/_app/managingdirector/'
     | '/_app/md/'
-    | '/_app/apply/$id/confirm'
+    | '/_app/apply/$id_/confirm'
     | '/_app/employer/edit-job/$id'
     | '/_app/employer/manage/$id'
   fileRoutesById: FileRoutesById
@@ -1325,12 +1325,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEmployerEditJobIdRouteImport
       parentRoute: typeof AppEmployerRoute
     }
-    '/_app/apply/$id/confirm': {
-      id: '/_app/apply/$id/confirm'
-      path: '/confirm'
+    '/_app/apply/$id_/confirm': {
+      id: '/_app/apply/$id_/confirm'
+      path: '/apply/$id/confirm'
       fullPath: '/apply/$id/confirm'
       preLoaderRoute: typeof AppApplyIdConfirmRouteImport
-      parentRoute: typeof AppApplyIdRoute
+      parentRoute: typeof AppRoute
     }
   }
 }
@@ -1451,18 +1451,6 @@ const AppMdRouteChildren: AppMdRouteChildren = {
 
 const AppMdRouteWithChildren = AppMdRoute._addFileChildren(AppMdRouteChildren)
 
-interface AppApplyIdRouteChildren {
-  AppApplyIdConfirmRoute: typeof AppApplyIdConfirmRoute
-}
-
-const AppApplyIdRouteChildren: AppApplyIdRouteChildren = {
-  AppApplyIdConfirmRoute: AppApplyIdConfirmRoute,
-}
-
-const AppApplyIdRouteWithChildren = AppApplyIdRoute._addFileChildren(
-  AppApplyIdRouteChildren,
-)
-
 interface AppRouteChildren {
   AppCandidateRoute: typeof AppCandidateRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
@@ -1472,7 +1460,8 @@ interface AppRouteChildren {
   AppManagingdirectorRoute: typeof AppManagingdirectorRouteWithChildren
   AppMdRoute: typeof AppMdRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
-  AppApplyIdRoute: typeof AppApplyIdRouteWithChildren
+  AppApplyIdRoute: typeof AppApplyIdRoute
+  AppApplyIdConfirmRoute: typeof AppApplyIdConfirmRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1484,7 +1473,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppManagingdirectorRoute: AppManagingdirectorRouteWithChildren,
   AppMdRoute: AppMdRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
-  AppApplyIdRoute: AppApplyIdRouteWithChildren,
+  AppApplyIdRoute: AppApplyIdRoute,
+  AppApplyIdConfirmRoute: AppApplyIdConfirmRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

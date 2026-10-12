@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { BrandMark } from '@/components/BrandMark'
 import { Mail, CheckCircle2, Loader2 } from 'lucide-react'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /**
  * Pathless candidate layout — role-gates every /candidate/* page.
@@ -63,7 +64,7 @@ function CandidateLayout() {
         await resendVerificationEmail(user.email, window.location.origin + returnPath)
         setResent(true)
       } catch (err) {
-        setResendError(err instanceof Error ? err.message : t('common.retry'))
+        setResendError(friendlyDbError(err, t) || t('common.retry'))
       } finally {
         setResending(false)
       }

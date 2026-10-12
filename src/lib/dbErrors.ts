@@ -13,9 +13,12 @@ export function friendlyDbError(err: unknown, t: T): string {
   if (/must be verified/i.test(msg)) return t('errors.companyNotVerified')
   if (/APPLICANT_LIMIT/.test(msg)) return t('errors.applicantLimit')
   if (/only be changed by HQ|done by HQ|set by HQ|managed by HQ|Only HQ/i.test(msg)) return t('errors.hqOnly')
+  if (/last active admin/i.test(msg)) return t('errors.lastAdmin')
   if (/No permission to update|row-level security|permission denied/i.test(msg)) return t('errors.noPermission')
   if (/duplicate key|already exists/i.test(msg)) return t('errors.duplicate')
-  return msg
+  if (/Failed to fetch|NetworkError|Load failed/i.test(msg)) return t('errors.network')
+  // Internal context prefix ("[supabase:jobs] …") is for logs, not people.
+  return msg.replace(/^\[supabase:[^\]]*\]\s*/, '')
 }
 
 /** Strip a leading `NO_JOB_CREDITS:`-style marker for raw display. */

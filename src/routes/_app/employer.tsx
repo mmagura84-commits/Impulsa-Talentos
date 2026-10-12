@@ -9,6 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BrandMark } from '@/components/BrandMark'
 import { Mail, CheckCircle2, AlertTriangle, ShieldX, Loader2, ArrowRight, BadgeCheck, Clock } from 'lucide-react'
 import type { Company } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /**
  * Pathless employer layout — role-gates every /employer/* page with
@@ -67,7 +68,7 @@ function EmployerLayout() {
         await resendVerificationEmail(user.email, window.location.origin + returnPath)
         setResent(true)
       } catch (err) {
-        setResendError(err instanceof Error ? err.message : t('common.retry'))
+        setResendError(friendlyDbError(err, t) || t('common.retry'))
       } finally {
         setResending(false)
       }

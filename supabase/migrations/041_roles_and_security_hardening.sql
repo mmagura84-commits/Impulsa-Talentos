@@ -283,6 +283,14 @@ revoke all on function public.decrement_company_credits(uuid) from public, anon,
 -- ═════════════════════════════════════════════════════════════════════════════
 -- 5. Jobs: moderation is HQ-only; credits charged server-side on first publish
 -- ═════════════════════════════════════════════════════════════════════════════
+-- The post-job form tags each vacancy as a company or household (care) job;
+-- the repo schema only had that column on companies, so every job insert
+-- failed with "Could not find the 'entity_type' column of 'jobs'".
+alter table public.jobs add column if not exists entity_type text not null default 'company';
+do $$ begin
+  alter table public.jobs add constraint jobs_entity_type_check check (entity_type in ('company', 'household'));
+exception when duplicate_object then null; end $$;
+
 -- Jobs that already went live are considered paid for.
 update public.jobs set published_at = coalesce(published_at, created_at)
  where status <> 'draft' and published_at is null;
@@ -1028,7 +1036,7 @@ begin
   if tg_op = 'INSERT' then
     for v_uid in select * from public.company_staff_user_ids(v_job.company_id) loop
       perform public.push_notification(v_uid, 'application_received',
-        'New applicant: ' || coalesce(nullif(v_cand.full_name, ''), 'a candidate'),
+        coalesce(nullif(v_cand.full_name, ''), '—'),
         coalesce(v_job.title, ''),
         jsonb_build_object('application_id', new.id, 'job_id', new.job_id));
     end loop;
@@ -1036,12 +1044,12 @@ begin
     if new.status = 'withdrawn' then
       for v_uid in select * from public.company_staff_user_ids(v_job.company_id) loop
         perform public.push_notification(v_uid, 'application_withdrawn',
-          coalesce(nullif(v_cand.full_name, ''), 'A candidate') || ' withdrew',
-          coalesce(v_job.title, ''), jsonb_build_object('application_id', new.id));
+          coalesce(nullif(v_cand.full_name, ''), '—'),
+          coalesce(v_job.title, ''), jsonb_build_object('application_id', new.id, 'job_id', new.job_id));
       end loop;
     else
       perform public.push_notification(v_cand.user_id, 'application_status',
-        coalesce(v_job.title, 'Your application'), new.status,
+        coalesce(v_job.title, '—'), new.status,
         jsonb_build_object('application_id', new.id, 'status', new.status));
     end if;
   end if;
@@ -1061,13 +1069,13 @@ begin
   select * into v_cand from public.profiles where id = v_app.candidate_id;
   if tg_op = 'INSERT' or (new.status = 'revised' and old.status is distinct from 'revised') then
     perform public.push_notification(v_cand.user_id, 'offer_received',
-      'Offer: ' || coalesce(v_job.title, ''), 'You have a new offer to review',
+      coalesce(v_job.title, '—'), '',
       jsonb_build_object('offer_id', new.id, 'application_id', new.application_id));
   elsif new.status in ('accepted', 'declined') and old.status is distinct from new.status then
     for v_uid in select * from public.company_staff_user_ids(v_job.company_id) loop
       perform public.push_notification(v_uid, 'offer_' || new.status,
-        coalesce(nullif(v_cand.full_name, ''), 'The candidate') || ' ' || new.status || ' your offer',
-        coalesce(v_job.title, ''), jsonb_build_object('offer_id', new.id));
+        coalesce(nullif(v_cand.full_name, ''), '—'),
+        coalesce(v_job.title, ''), jsonb_build_object('offer_id', new.id, 'job_id', v_job.id));
     end loop;
   end if;
   return null;
@@ -1085,7 +1093,7 @@ begin
   select * into v_job from public.jobs where id = new.job_id;
   if tg_op = 'INSERT' or new.scheduled_at is distinct from old.scheduled_at or new.status is distinct from old.status then
     perform public.push_notification(v_cand.user_id, 'interview_' || new.status,
-      'Interview: ' || coalesce(v_job.title, ''), to_char(new.scheduled_at at time zone 'America/Bogota', 'YYYY-MM-DD HH24:MI') || ' (Bogotá)',
+      coalesce(v_job.title, '—'), to_char(new.scheduled_at at time zone 'America/Bogota', 'YYYY-MM-DD HH24:MI') || ' (Bogotá)',
       jsonb_build_object('interview_id', new.id, 'job_id', new.job_id));
   end if;
   return null;
@@ -1105,12 +1113,12 @@ begin
   if new.sender_id = v_app.candidate_id then
     for v_uid in select * from public.company_staff_user_ids(v_job.company_id) loop
       perform public.push_notification(v_uid, 'message_received',
-        'Message from ' || coalesce(nullif(v_cand.full_name, ''), 'a candidate'),
-        left(coalesce(new.body, ''), 140), jsonb_build_object('application_id', new.application_id));
+        coalesce(nullif(v_cand.full_name, ''), '—'),
+        left(coalesce(new.body, ''), 140), jsonb_build_object('application_id', new.application_id, 'job_id', v_app.job_id));
     end loop;
   else
     perform public.push_notification(v_cand.user_id, 'message_received',
-      'New message: ' || coalesce(v_job.title, ''), left(coalesce(new.body, ''), 140),
+      coalesce(v_job.title, '—'), left(coalesce(new.body, ''), 140),
       jsonb_build_object('application_id', new.application_id));
   end if;
   return null;
@@ -1127,13 +1135,12 @@ begin
   if tg_table_name = 'companies' then
     if new.verified and not coalesce(old.verified, false) then
       perform public.push_notification(new.employer_id, 'company_verified',
-        'Your company is verified', 'You can now publish jobs', jsonb_build_object('company_id', new.id));
+        coalesce(new.name, '—'), '', jsonb_build_object('company_id', new.id));
     end if;
   elsif tg_table_name = 'manual_payments' then
     if new.status is distinct from old.status and new.status in ('granted', 'rejected') then
       perform public.push_notification(new.submitter_id, 'payment_' || new.status,
-        case when new.status = 'granted' then 'Payment confirmed' else 'Payment not confirmed' end,
-        case when new.status = 'granted' then 'Your job credits were added' else 'Contact us about your transfer' end,
+        coalesce(new.package_id, '—'), '$' || new.amount_usd || ' USD',
         jsonb_build_object('payment_id', new.id));
     end if;
   end if;
@@ -1155,13 +1162,13 @@ declare v_uid text; v_title text; v_body text; v_type text; v_data jsonb;
 begin
   if tg_table_name = 'manual_payments' and tg_op = 'INSERT' then
     v_type := 'hq_payment_submitted';
-    v_title := 'Payment to verify: ' || coalesce((select name from public.companies where id = new.company_id), '');
+    v_title := coalesce((select name from public.companies where id = new.company_id), '—');
     v_body := new.package_id || ' · $' || new.amount_usd
               || coalesce(' · ref ' || nullif(new.transaction_reference, ''), '');
     v_data := jsonb_build_object('payment_id', new.id);
   elsif tg_table_name = 'leads' and tg_op = 'INSERT' then
     v_type := 'hq_new_lead';
-    v_title := 'New lead: ' || coalesce(nullif(new.company, ''), nullif(new.name, ''), new.email, '');
+    v_title := coalesce(nullif(new.company, ''), nullif(new.name, ''), new.email, '—');
     v_body := coalesce(new.email, '') || ' · ' || coalesce(new.source, '');
     v_data := jsonb_build_object('lead_id', new.id);
   elsif tg_table_name = 'companies' then
@@ -1170,12 +1177,12 @@ begin
       return null;
     end if;
     v_type := 'hq_verification_requested';
-    v_title := 'Verify company: ' || new.name;
-    v_body := 'The employer asked to be verified so they can publish';
+    v_title := coalesce(new.name, '—');
+    v_body := '';
     v_data := jsonb_build_object('company_id', new.id);
   elsif tg_table_name = 'reports' and tg_op = 'INSERT' then
     v_type := 'hq_job_reported';
-    v_title := 'Job reported: ' || coalesce((select title from public.jobs where id = new.job_id), '');
+    v_title := coalesce((select title from public.jobs where id = new.job_id), '—');
     v_body := coalesce(new.reason, '');
     v_data := jsonb_build_object('report_id', new.id, 'job_id', new.job_id);
   else
@@ -1198,6 +1205,28 @@ create trigger trg_notify_hq_verification after update of verification_requested
 drop trigger if exists trg_notify_hq_report on public.reports;
 create trigger trg_notify_hq_report after insert on public.reports
   for each row execute function public.notify_hq();
+
+-- The employer is told when HQ takes a job down (or puts it back up), so a
+-- listing never just disappears without a reason.
+create or replace function public.notify_job_moderation()
+returns trigger language plpgsql security definer set search_path = public as $$
+declare v_uid text;
+begin
+  if new.moderation_status is distinct from old.moderation_status
+     and new.moderation_status in ('rejected', 'approved') then
+    for v_uid in select * from public.company_staff_user_ids(new.company_id) loop
+      perform public.push_notification(v_uid,
+        case when new.moderation_status = 'rejected' then 'job_removed' else 'job_approved' end,
+        coalesce(new.title, ''),
+        '',
+        jsonb_build_object('job_id', new.id));
+    end loop;
+  end if;
+  return null;
+end $$;
+drop trigger if exists trg_notify_job_moderation on public.jobs;
+create trigger trg_notify_job_moderation after update of moderation_status on public.jobs
+  for each row execute function public.notify_job_moderation();
 
 -- The card payment link the MD submitted is public by nature (it is a hosted
 -- checkout page), so employers can see it at checkout. Nothing else from the
@@ -1261,8 +1290,9 @@ begin
   update public.profiles set deletion_requested_at = now() where user_id = auth.uid()::text;
   if not found then raise exception 'profile not found'; end if;
   for v_uid in select user_id from public.profiles where role = 'admin' and profile_status = 'active' loop
-    perform public.push_notification(v_uid, 'deletion_requested', 'Account deletion requested',
-      'A user asked to delete their data (Ley 1581: answer within 15 business days)',
+    perform public.push_notification(v_uid, 'deletion_requested',
+      coalesce((select nullif(full_name, '') from public.profiles where user_id = auth.uid()::text), '—'),
+      'Ley 1581',
       jsonb_build_object('user_id', auth.uid()::text));
   end loop;
 end $$;
@@ -1278,6 +1308,17 @@ begin
     raise exception 'forbidden: admin only';
   end if;
   select user_id into v_uid from public.profiles where id = p_profile_id;
+  if v_uid is null then raise exception 'profile not found'; end if;
+  if exists (select 1 from public.companies where employer_id = v_uid) then
+    raise exception 'This person owns a company. Transfer or close the company first.';
+  end if;
+  -- An erased person keeps no access: team seats go, the role drops to
+  -- candidate, and the login is blocked.
+  delete from public.team_members where user_id = v_uid;
+  begin
+    update auth.users set banned_until = now() + interval '100 years' where id::text = v_uid;
+  exception when others then null;  -- no rights on auth.users: HQ removes the login in Auth → Users
+  end;
   delete from public.candidate_documents where profile_id = p_profile_id;
   delete from public.candidate_work_experience where profile_id = p_profile_id;
   delete from public.candidate_education where profile_id = p_profile_id;
@@ -1291,7 +1332,8 @@ begin
      set full_name = 'Deleted user', email = null, phone = null, location = null, bio = null,
          languages = null, avatar_url = null, cv_url = null, parsed_cv_text = null,
          linkedin_url = null, twitter_url = null, instagram_url = null, whatsapp_number = null,
-         tiktok_url = null, youtube_url = null, marketing_consent = false, updated_at = now()
+         tiktok_url = null, youtube_url = null, marketing_consent = false, role = 'candidate',
+         updated_at = now()
    where id = p_profile_id;
   perform public.write_admin_audit('profile.anonymize', 'profile', p_profile_id::text);
 end $$;
@@ -1419,7 +1461,11 @@ alter table public.notifications enable row level security;
 alter table public.team_members enable row level security;
 
 -- profiles
-create policy profiles_select on public.profiles for select using (public.can_see_profile(id));
+-- The own-row check is inline (not only inside can_see_profile): the app
+-- inserts with RETURNING, and a helper that looks the row up by id cannot see
+-- a row the same statement is inserting — sign-up failed with 403.
+create policy profiles_select on public.profiles for select
+  using (user_id = auth.uid()::text or public.can_see_profile(id));
 create policy profiles_insert_own on public.profiles for insert with check (user_id = auth.uid()::text);
 create policy profiles_update_own on public.profiles for update
   using (user_id = auth.uid()::text) with check (user_id = auth.uid()::text);
@@ -1455,7 +1501,8 @@ create policy jobs_delete_team on public.jobs for delete
   using (public.is_company_editor(company_id) and not public.job_has_applications(id));
 
 -- applications
-create policy applications_select on public.applications for select using (public.can_view_application(id));
+create policy applications_select on public.applications for select
+  using (candidate_id = public.current_profile_id() or public.can_view_application(id));  -- inline: INSERT … RETURNING
 create policy applications_insert_candidate on public.applications for insert with check (
   candidate_id = public.current_profile_id()
   and exists (select 1 from public.jobs j where j.id = job_id and public.job_is_public(j)));
