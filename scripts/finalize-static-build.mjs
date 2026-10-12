@@ -26,6 +26,7 @@
  */
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
+import { createHash } from 'node:crypto'
 
 const SRC = '.vite-out/client'
 const DEST = 'dist'
@@ -175,6 +176,40 @@ writeFileSync(
     `<body>${bodyScripts}</body></html>`,
 )
 console.log('[finalize] ✓ spa-fallback.html generated (neutral shell + TanStack bootstrap — no hydration mismatch)')
+
+// ── Self-updating pages (Hostinger caches every file for a year) ──
+// The host sends `Cache-Control: max-age=31536000` on HTML too and ignores
+// .htaccess headers, so a browser (or the CDN, until flushed) can keep an old
+// page that names scripts from an earlier build. Every page gets a tiny inline
+// script that runs before the app:
+//   · compares its build id with /version.json (fetched past every cache);
+//     if the site has moved on, it re-downloads this page (cache: 'reload',
+//     which also replaces the browser's saved copy) and reloads once;
+//   · if one of its own /assets/ files fails to load (deleted old build), or
+//     Vite reports a failed lazy chunk, it does the same.
+// A session flag stops it from ever looping.
+const assetNames = existsSync(join(DEST, 'assets')) ? readdirSync(join(DEST, 'assets')).sort() : []
+const BUILD_ID = createHash('sha1').update(assetNames.join('\n')).digest('hex').slice(0, 12)
+writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + '\n')
+const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh";function go(){try{var t=+sessionStorage.getItem(K)||0;if(Date.now()-t<60000)return;sessionStorage.setItem(K,String(Date.now()))}catch(e){return}fetch(location.pathname+location.search,{cache:"reload",credentials:"same-origin"}).catch(function(){}).then(function(){location.reload()})}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go()}).catch(function(){})})();</script>`
+const htmlFiles = []
+const walk = (dir) => {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const f = join(dir, e.name)
+    if (e.isDirectory()) { if (e.name !== 'assets') walk(f) } else if (e.name.endsWith('.html')) htmlFiles.push(f)
+  }
+}
+walk(DEST)
+let injected = 0
+for (const f of htmlFiles) {
+  const html = readFileSync(f, 'utf8')
+  if (html.includes('data-build=')) continue
+  const at = html.indexOf('<head>')
+  if (at === -1) continue
+  writeFileSync(f, html.slice(0, at + 6) + FRESH_SCRIPT + html.slice(at + 6))
+  injected++
+}
+console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)
 
 if (!existsSync(join(DEST, 'index.html'))) {
   console.error('[finalize] dist/index.html missing after flatten — build is not publishable')

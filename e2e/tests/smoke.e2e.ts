@@ -50,3 +50,14 @@ test('sign-up form asks for name, email, password and data consent', async ({ pa
   await expect(page.getByPlaceholder('Password')).toBeVisible()
   await expect(page.locator('#signup-data-consent')).not.toBeChecked()
 })
+
+test('pages are the current build and carry the self-update script', async ({ page, request }) => {
+  const res = await request.get(`/version.json?b=${Date.now()}`)
+  expect(res.ok()).toBeTruthy()
+  const { build } = await res.json() as { build: string }
+  for (const path of ['/', '/privacy/', '/jobs/']) {
+    await page.goto(path)
+    const pageBuild = await page.locator('script[data-build]').first().getAttribute('data-build')
+    expect(pageBuild, `${path} should be build ${build}`).toBe(build)
+  }
+})
