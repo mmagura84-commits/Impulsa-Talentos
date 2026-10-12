@@ -6,13 +6,14 @@
 //
 // ── Request ────────────────────────────────────────────────────────────
 //   POST /functions/v1/parse-cv
-//   Authorization: Bearer <anon or service_role key>
+//   Authorization: Bearer <signed-in user's access token>
 //   Content-Type: application/json
 //   { "fileUrl": "https://<ref>.supabase.co/storage/v1/object/public/cvs/<name>.pdf" }
 //
 // `fileUrl` may be a public object URL or a signed URL
-// (/storage/v1/object/sign/cvs/...). Only Supabase Storage URLs in the
-// `cvs` bucket are accepted (SSRF guard).
+// (/storage/v1/object/sign/cvs/...). Only this project's own Storage host and
+// the `cvs` bucket are accepted (SSRF guard); files over 5 MB are refused.
+// Only signed-in users can call it.
 //
 // ── Response ───────────────────────────────────────────────────────────
 //   200 { "text": "...", "charCount": 1234, "format": "pdf" }
@@ -31,12 +32,14 @@
 //
 // ── Deploy (requires Supabase CLI + project access token) ──────────────
 //   supabase login
-//   supabase link --project-ref wpnkeryyhsdsislqaegb
-//   supabase functions deploy parse-cv
+//   supabase functions deploy parse-cv --project-ref cmdqlybsgkegolqydmbh
 //   # then call it from the app:
-//   # https://wpnkeryyhsdsislqaegb.supabase.co/functions/v1/parse-cv
+//   # https://cmdqlybsgkegolqydmbh.supabase.co/functions/v1/parse-cv
 
-const PROJECT_REF = 'wpnkeryyhsdsislqaegb'
+// Provided by the Edge runtime: the project's own URL and anon key.
+const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
+const SUPABASE_ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+const MAX_BYTES = 5 * 1024 * 1024
 
 interface ParseCvRequest {
   fileUrl?: string
@@ -53,6 +56,14 @@ Deno.serve(async (req: Request) => {
     return new Response('ok', { headers: corsHeaders })
   }
   try {
+    // Signed-in users only (the anon key alone is public).
+    const auth = req.headers.get('authorization') ?? ''
+    if (!auth.startsWith('Bearer ') || !SUPABASE_URL) return json({ error: 'sign in required' }, 401)
+    const who = await fetch(`${SUPABASE_URL}/auth/v1/user`, {
+      headers: { apikey: SUPABASE_ANON_KEY, Authorization: auth },
+    })
+    if (!who.ok) return json({ error: 'sign in required' }, 401)
+
     const body = (await req.json()) as ParseCvRequest
     const fileUrl = body.fileUrl?.trim()
     if (!fileUrl) return json({ error: 'fileUrl is required' }, 400)
@@ -64,16 +75,23 @@ Deno.serve(async (req: Request) => {
     } catch {
       return json({ error: 'fileUrl is not a valid URL' }, 400)
     }
-    if (!u.hostname.endsWith('supabase.co') || !u.pathname.includes('/cvs/')) {
+    const ownHost = new URL(SUPABASE_URL).hostname
+    if (
+      u.protocol !== 'https:' ||
+      u.hostname !== ownHost ||
+      !/^\/storage\/v1\/object\/(public|sign|authenticated)\/cvs\//.test(u.pathname)
+    ) {
       return json(
         { error: 'fileUrl must be a Supabase Storage URL inside the cvs bucket' },
         400,
       )
     }
 
-    const res = await fetch(u.toString())
+    const res = await fetch(u.toString(), { redirect: 'error' })
     if (!res.ok) return json({ error: `download failed (HTTP ${res.status})` }, 502)
+    if (Number(res.headers.get('content-length') ?? 0) > MAX_BYTES) return json({ error: 'file is larger than 5 MB' }, 413)
     const buf = new Uint8Array(await res.arrayBuffer())
+    if (buf.byteLength > MAX_BYTES) return json({ error: 'file is larger than 5 MB' }, 413)
 
     const fileName = (u.pathname.split('/').pop() || 'unknown').toLowerCase()
     if (!/\.(txt|md|csv|pdf)$/.test(fileName)) {
@@ -97,7 +115,7 @@ Deno.serve(async (req: Request) => {
       text: text.trim(),
       charCount: text.trim().length,
       format: fileName.split('.').pop(),
-    })
+    }, 200)
   } catch (err) {
     return json({ error: err instanceof Error ? err.message : String(err) }, 500)
   }

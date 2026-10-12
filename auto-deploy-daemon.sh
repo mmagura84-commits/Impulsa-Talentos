@@ -5,6 +5,14 @@
 set -euo pipefail
 cd "$(dirname "$0")"
 
+# DISABLED by default: unattended deploys of whatever is on disk skip review
+# and QA. Production deploys go through ./deploy.sh (or the manual GitHub
+# workflow) after the change is tested. Opt in explicitly if you really want it.
+if [ "${AUTO_DEPLOY_ENABLED:-0}" != "1" ]; then
+  echo "auto-deploy-daemon is disabled. Deploy with ./deploy.sh, or set AUTO_DEPLOY_ENABLED=1." >&2
+  exit 0
+fi
+
 STAMP_FILE="/home/team/shared/.last-deploy-hash"
 LOG_FILE="/home/team/shared/site/.run/auto-deploy.log"
 mkdir -p /home/team/shared/site/.run

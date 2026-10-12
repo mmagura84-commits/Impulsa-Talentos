@@ -13,19 +13,25 @@
  * Usage (from the site root):
  *   bun run scripts/seed.ts
  *
- * Credentials come from env vars, defaulting to the project values:
- *   SUPABASE_URL=https://wpnkeryyhsdsislqaegb.supabase.co
- *   SUPABASE_ANON_KEY=sb_publishable_k5kORoRSOzJffgewGUZvcg_1r3igrAi
- * (Tables are created without RLS by migration 001, so the anon key can
- * read/write them. Add a service-role key for locked-down environments.)
+ * Credentials must be passed explicitly — there is no default project:
+ *   SUPABASE_URL=https://<ref>.supabase.co
+ *   SUPABASE_SERVICE_ROLE_KEY=<service role key>   (RLS blocks anon writes)
+ * It refuses the live project (cmdqlybsgkegolqydmbh) unless
+ * SEED_ALLOW_PRODUCTION=1 — sample companies must never appear on the live site.
  */
 import { createClient } from '@supabase/supabase-js'
 
-const supabase = createClient(
-  process.env.SUPABASE_URL || 'https://wpnkeryyhsdsislqaegb.supabase.co',
-  process.env.SUPABASE_ANON_KEY ||
-    'sb_publishable_k5kORoRSOzJffgewGUZvcg_1r3igrAi',
-)
+const SEED_URL = process.env.SUPABASE_URL
+const SEED_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY
+if (!SEED_URL || !SEED_KEY) {
+  console.error('Set SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY for the project to seed (never the live one).')
+  process.exit(1)
+}
+if (SEED_URL.includes('cmdqlybsgkegolqydmbh') && process.env.SEED_ALLOW_PRODUCTION !== '1') {
+  console.error('Refusing to seed the LIVE project. Use a staging/branch project (or SEED_ALLOW_PRODUCTION=1).')
+  process.exit(1)
+}
+const supabase = createClient(SEED_URL, SEED_KEY, { auth: { persistSession: false } })
 
 const now = new Date().toISOString()
 const daysAgo = (n: number) => new Date(Date.now() - n * 86_400_000).toISOString()

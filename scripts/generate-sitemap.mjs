@@ -35,7 +35,7 @@ const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const SUPABASE_URL = process.env.VITE_SUPABASE_URL
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY
 // Published domain — the ONLY address the owner/crawlers can open.
-const SITE_URL = (process.env.SITE_URL || 'https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app').replace(/\/+$/, '')
+const SITE_URL = (process.env.SITE_URL || 'https://impulsatalentos.expert').replace(/\/+$/, '')
 
 const STATIC_ROUTES = ['/', '/jobs', '/companies', '/pricing', '/terms', '/privacy']
 

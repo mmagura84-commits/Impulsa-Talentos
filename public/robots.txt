@@ -17,4 +17,4 @@ User-agent: PerplexityBot
 Allow: /
 
 # Sitemap (absolute URL, regenerated at build time by scripts/generate-sitemap.mjs)
-Sitemap: https://fd0b55b61392401b29d1842ca353f8b6.ctonew.app/sitemap.xml
+Sitemap: https://impulsatalentos.expert/sitemap.xml

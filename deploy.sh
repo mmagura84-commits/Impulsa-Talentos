@@ -1,72 +1,74 @@
 #!/usr/bin/env bash
-# Auto-deploy to Hostinger — build + upload
-# Usage: ./deploy.sh
+# Deploy the static build to Hostinger without taking the site down.
+#
+#   ./deploy.sh
+#
+# Order (the old script deleted public_html first, then uploaded — a failed
+# upload left the site at 403/404, see the 2026-08-27 incident):
+#   1. build into a temp workspace and check the bundle targets the LIVE
+#      Supabase project and contains index.html + .htaccess
+#   2. upload everything to public_html.incoming (live site untouched)
+#   3. on the server: verify the upload, back up public_html to
+#      public_html.prev, copy the new files over the live ones, then remove
+#      files that are no longer part of the build
+#   Roll back: ssh in and `rm -rf public_html && cp -a public_html.prev public_html`
+#
+# SSH host keys are verified (trust on first connection, then pinned in
+# ~/.ssh/known_hosts). Override any setting with env vars.
 set -euo pipefail
 cd "$(dirname "$0")"
 
-SSH_KEY="/home/agent-lead/.ssh/hostinger_deploy"
-REMOTE_HOST="72.62.221.138"
-REMOTE_PORT="65002"
-REMOTE_USER="u774117868_0D7T1hSPl"
-REMOTE_PATH="/home/u774117868/websites/0D7T1hSPl/public_html"
+SSH_KEY="${DEPLOY_SSH_KEY:-$HOME/.ssh/hostinger_deploy}"
+REMOTE_HOST="${DEPLOY_HOST:-72.62.221.138}"
+REMOTE_PORT="${DEPLOY_PORT:-65002}"
+REMOTE_USER="${DEPLOY_USER:-u774117868_0D7T1hSPl}"
+REMOTE_PATH="${DEPLOY_PATH:-/home/u774117868/websites/0D7T1hSPl/public_html}"
+LIVE_REF="cmdqlybsgkegolqydmbh"
+LEGACY_REF="wpnkeryyhsdsislqaegb"
 
-SSH_CMD="ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p $REMOTE_PORT -i $SSH_KEY"
+SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 -i "$SSH_KEY")
+REMOTE="$REMOTE_USER@$REMOTE_HOST"
+INCOMING="${REMOTE_PATH%/}.incoming"
+PREV="${REMOTE_PATH%/}.prev"
 
 echo "═══ Impulsa Talentos Deploy ═══"
-echo ""
+[ -f "$SSH_KEY" ] || { echo "SSH key not found: $SSH_KEY (set DEPLOY_SSH_KEY)"; exit 1; }
 
-# 1. Build
+# 1. Build in a throwaway copy (keeps the working tree's dist/ untouched)
 echo "📦 Building..."
-BUILD_DIR=/tmp/impulsa-deploy-$$
-rm -rf "$BUILD_DIR" 2>/dev/null || true
-mkdir -p "$BUILD_DIR"
-# Copy everything except node_modules and dist (bun install + build recreate them)
-find . -mindepth 1 -maxdepth 1 ! -name node_modules ! -name dist ! -name .run \
-  -exec cp -a {} "$BUILD_DIR/" \;
+BUILD_DIR="$(mktemp -d /tmp/impulsa-deploy-XXXXXX)"
+trap 'rm -rf "$BUILD_DIR"' EXIT
+tar --exclude='./node_modules' --exclude='./dist' --exclude='./.run' --exclude='./.git' -cf - . | (cd "$BUILD_DIR" && tar -xf -)
 cd "$BUILD_DIR"
 BUN_INSTALL_CACHE_DIR=/tmp/.bun-cache bun install --silent
 rm -rf dist
 SITE_URL="https://impulsatalentos.expert" bun run build
+cp .htaccess dist/.htaccess
 
-# Copy htaccess
-HTACCESS_SRC="/home/team/shared/hostinger-deploy/.htaccess"
-if [ -f "$HTACCESS_SRC" ]; then
-  cp "$HTACCESS_SRC" dist/.htaccess
+for f in index.html .htaccess; do
+  [ -f "dist/$f" ] || { echo "❌ dist/$f missing — refusing to deploy"; exit 1; }
+done
+if grep -rq --include='*.js' "$LEGACY_REF" dist/assets/; then
+  echo "❌ bundle references the LEGACY Supabase project — refusing to deploy"; exit 1
 fi
+if ! grep -rq --include='*.js' "$LIVE_REF" dist/assets/; then
+  echo "❌ bundle does not reference the LIVE Supabase project — refusing to deploy"; exit 1
+fi
+FILE_COUNT=$(find dist -type f | wc -l | tr -d ' ')
+echo "✅ Build OK ($FILE_COUNT files)"
 
-FILE_COUNT=$(find dist -type f | wc -l)
-echo "✅ Build complete ($FILE_COUNT files)"
-echo ""
+# 2. Upload to the staging folder next to public_html
+echo "🚀 Uploading to staging folder..."
+ssh "${SSH_OPTS[@]}" -p "$REMOTE_PORT" "$REMOTE" "rm -rf '$INCOMING' && mkdir -p '$INCOMING'"
+BATCH_FILE="$BUILD_DIR/sftp-batch.txt"
+: > "$BATCH_FILE"
+(cd dist && find . -type d ! -name . | sort | sed 's#^\./##' | while read -r d; do echo "mkdir \"$d\""; done) >> "$BATCH_FILE"
+(cd dist && find . -type f | sed 's#^\./##' | while read -r f; do echo "put \"$f\" \"$f\""; done) >> "$BATCH_FILE"
+(cd dist && sftp -b "$BATCH_FILE" "${SSH_OPTS[@]}" -P "$REMOTE_PORT" "$REMOTE:$INCOMING" >/dev/null)
 
-# 2. Clear remote public_html
-echo "🧹 Clearing old files..."
-$SSH_CMD "$REMOTE_USER@$REMOTE_HOST" "cd '$REMOTE_PATH' && rm -rf ./* .htaccess 2>/dev/null; echo 'cleared'"
-
-# 3. Upload new files via SFTP
-echo "🚀 Uploading..."
-
-BATCH_FILE="/tmp/sftp-batch-$$.txt"
-cd dist
-
-# Create directory structure first
-find . -type d | while read -r dir; do
-  [ "$dir" = "." ] && continue
-  echo "mkdir $dir" >> "$BATCH_FILE"
-done
-
-# Then upload all files
-find . -type f | while read -r file; do
-  echo "put \"$file\" \"$file\"" >> "$BATCH_FILE"
-done
-
-sftp -b "$BATCH_FILE" -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null \
-  -P "$REMOTE_PORT" -i "$SSH_KEY" "$REMOTE_USER@$REMOTE_HOST:$REMOTE_PATH" 2>&1 | tail -3
-
-# Cleanup
-rm -f "$BATCH_FILE"
-cd /
-rm -rf "$BUILD_DIR"
+# 3. Verify on the server, back up, then swap in place
+echo "🔁 Swapping in the new build..."
+ssh "${SSH_OPTS[@]}" -p "$REMOTE_PORT" "$REMOTE" bash -s -- "$REMOTE_PATH" "$INCOMING" "$PREV" "$FILE_COUNT" < "$BUILD_DIR/scripts/remote-swap.sh"
 
 echo ""
-echo "✅ Deploy complete!"
-echo "   https://impulsatalentos.expert"
+echo "✅ Deploy complete — https://impulsatalentos.expert"
