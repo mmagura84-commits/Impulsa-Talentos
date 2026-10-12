@@ -3,6 +3,10 @@
 # Hostinger shared hosting: place this file at public_html/.htaccess
 # ================================================================
 Options -Indexes
+# Hostinger answers unknown paths with the prerendered home page unless told
+# otherwise; if the rewrite below is not applied, the 404 handler still hands
+# out the neutral SPA shell (status 404, page renders normally).
+ErrorDocument 404 /spa-fallback.html
 RewriteEngine On
 
 # Deploy staging/backup folder (scripts/remote-swap.sh) is never public.
