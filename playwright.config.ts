@@ -13,7 +13,7 @@ export default defineConfig({
   testMatch: '**/*.e2e.ts',
   timeout: 30_000,
   retries: process.env.CI ? 1 : 0,
-  reporter: [['list']],
+  reporter: process.env.CI ? [['list'], ['github']] : [['list']],
   use: {
     baseURL: process.env.E2E_BASE_URL ?? 'http://localhost:3100',
     locale: 'en-US',
