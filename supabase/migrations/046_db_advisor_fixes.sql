@@ -10,8 +10,8 @@
 -- 3. Indexes for the 14 foreign keys that had none (joins and cascading
 --    deletes would otherwise scan the whole child table).
 -- 4. The public caregiver directory stops returning each caregiver's internal
---    account id (user_id). Nothing on the page needs it, and anonymous
---    visitors can call this function.
+--    account id (user_id is always empty). Nothing on the page needs it, and
+--    anonymous visitors can call this function.
 
 -- ── 1. search_path ─────────────────────────────────────────────────────────
 alter function public.guard_notification_update() set search_path = public, pg_temp;
@@ -59,15 +59,16 @@ create index if not exists meetings_company_id_idx                       on publ
 create index if not exists saved_jobs_job_id_idx                         on public.saved_jobs (job_id);
 
 -- ── 4. Caregiver directory: no account ids ─────────────────────────────────
-drop function if exists public.search_vetted_caregivers(text, text, text, text);
-create function public.search_vetted_caregivers(
+-- Same result shape (no drop, so grants and callers are untouched), but
+-- user_id is never filled.
+create or replace function public.search_vetted_caregivers(
   p_competency text default null,
   p_barrio text default null,
   p_live_in_live_out text default null,
   p_certification text default null
 )
 returns table (
-  id uuid, competencies text[], availability text, live_in_live_out text,
+  id uuid, user_id text, competencies text[], availability text, live_in_live_out text,
   age_bands text[], barrio text, city text, languages text[], years_experience integer,
   certifications text[], about text, photo_pointer text, verification_status text,
   created_at timestamptz
@@ -77,8 +78,10 @@ stable
 security definer
 set search_path = public
 as $$
+  -- user_id is kept in the result shape for compatibility but never filled:
+  -- visitors who aren't signed in can call this, and the page doesn't need it.
   select
-    cp.id, cp.competencies, cp.availability, cp.live_in_live_out,
+    cp.id, null::text, cp.competencies, cp.availability, cp.live_in_live_out,
     cp.age_bands, cp.barrio, cp.city, cp.languages, cp.years_experience,
     cp.certifications, cp.about, cp.photo_pointer, cp.verification_status, cp.created_at
   from public.caregiver_profiles cp
@@ -89,5 +92,3 @@ as $$
     and (p_certification     is null or p_certification     = any(cp.certifications))
   order by cp.created_at desc;
 $$;
-revoke all on function public.search_vetted_caregivers(text, text, text, text) from public;
-grant execute on function public.search_vetted_caregivers(text, text, text, text) to anon, authenticated, service_role;

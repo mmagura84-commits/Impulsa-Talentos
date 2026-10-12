@@ -572,9 +572,12 @@ select t.check('flagged functions pin their search_path',
   not exists (select 1 from pg_proc p where p.pronamespace = 'public'::regnamespace
     and p.proname in ('guard_notification_update', 'job_is_public', 'request_jwt_role')
     and not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%')));
-select t.check('public caregiver directory does not return account ids',
-  not exists (select 1 from pg_proc p, unnest(p.proargnames) a
-    where p.oid = 'public.search_vetted_caregivers'::regproc and a = 'user_id'));
+insert into public.caregiver_profiles (user_id, verification_status, barrio, city)
+  values ('00000000-0000-0000-0000-00000000ca01', 'verified', 'Laureles', 'Medellín');
+select t.act_as(null, 'anon');
+select t.check('public caregiver directory lists verified caregivers without account ids',
+  (select count(*) = 1 and bool_and(user_id is null) from public.search_vetted_caregivers()));
+select t.reset();
 select t.act_as(null, 'anon');
 select t.expect_ok('visitors can still browse the caregiver directory', $$select * from public.search_vetted_caregivers()$$);
 select t.reset();
