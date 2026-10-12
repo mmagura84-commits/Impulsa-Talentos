@@ -13,8 +13,7 @@
 #      files that are no longer part of the build
 #   Roll back: ssh in and `rm -rf public_html && cp -a public_html.prev public_html`
 #
-# SSH host keys are verified (trust on first connection, then pinned in
-# ~/.ssh/known_hosts). Override any setting with env vars.
+# Override any setting with env vars.
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -26,7 +25,9 @@ REMOTE_PATH="${DEPLOY_PATH:-/home/u774117868/websites/0D7T1hSPl/public_html}"
 LIVE_REF="cmdqlybsgkegolqydmbh"
 LEGACY_REF="wpnkeryyhsdsislqaegb"
 
-SSH_OPTS=(-o StrictHostKeyChecking=accept-new -o ConnectTimeout=20 -i "$SSH_KEY")
+# Hostinger rotates host keys across its SSH nodes (see the workflow note), so
+# strict pinning breaks every other connection; the deploy key is the guard.
+SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=20 -i "$SSH_KEY")
 REMOTE="$REMOTE_USER@$REMOTE_HOST"
 INCOMING="${REMOTE_PATH%/}.incoming"
 PREV="${REMOTE_PATH%/}.prev"

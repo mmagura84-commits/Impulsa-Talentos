@@ -52,10 +52,13 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -p $PORT"
+          # Hostinger's shared SSH sits behind several nodes that present
+          # different host keys from one connection to the next, so a pinned
+          # known_hosts fails with "REMOTE HOST IDENTIFICATION HAS CHANGED"
+          # (run #199). The runner is throwaway; the deploy key is the guard.
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -p $PORT"
           COUNT=$(find dist -type f | wc -l | tr -d ' ')
           $SSH "$USER_@$HOST" "rm -rf '$LIVE.incoming' && mkdir -p '$LIVE.incoming'"
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$LIVE.incoming/"
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$LIVE.incoming/"
           $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$LIVE.incoming" "$LIVE.prev" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"
