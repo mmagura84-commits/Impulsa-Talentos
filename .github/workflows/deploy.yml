@@ -59,8 +59,24 @@ jobs:
           SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -p $PORT"
           COUNT=$(find dist -type f | wc -l | tr -d ' ')
           INCOMING="$LIVE/.deploy/incoming"; PREV="$LIVE/.deploy/prev"
-          $SSH "$USER_@$HOST" "rm -rf '$INCOMING' && mkdir -p '$INCOMING'"
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$INCOMING/"
+          # One compressed stream instead of scp's file-by-file transfer: the
+          # build is ~900 small files and this host kept closing the connection
+          # part-way through (run #240, "scp: Connection closed"). Retried
+          # twice, since the drop is on their side and a half-upload is thrown
+          # away each time (the live site is only swapped after the upload is
+          # verified complete).
+          for attempt in 1 2 3; do
+            $SSH "$USER_@$HOST" "rm -rf '$INCOMING' && mkdir -p '$INCOMING'"
+            if tar -C dist -czf - . | $SSH "$USER_@$HOST" "tar -C '$INCOMING' -xzf -"; then
+              GOT=$($SSH "$USER_@$HOST" "find '$INCOMING' -type f | wc -l | tr -d ' '")
+              [ "$GOT" = "$COUNT" ] && break
+              echo "::warning::upload attempt $attempt landed $GOT of $COUNT files"
+            else
+              echo "::warning::upload attempt $attempt was cut off by the host"
+            fi
+            [ "$attempt" = 3 ] && { echo "::error::could not upload the build after 3 attempts"; exit 1; }
+            sleep 10
+          done
           $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$INCOMING" "$PREV" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"
       - name: Flush Hostinger's cache (optional, needs HOSTINGER_API_TOKEN)
