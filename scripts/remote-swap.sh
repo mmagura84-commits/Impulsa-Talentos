@@ -8,7 +8,7 @@
 set -euo pipefail
 LIVE="$1"; NEW="$2"; PREV="$3"; EXPECTED="$4"
 GOT=$(find "$NEW" -type f | wc -l | tr -d ' ')
-if [ "$GOT" != "$EXPECTED" ] || [ ! -f "$NEW/index.html" ] || [ ! -f "$NEW/.htaccess" ]; then
+if [ "$GOT" != "$EXPECTED" ] || [ ! -f "$NEW/index.html" ] || [ ! -f "$NEW/spa-fallback.html" ] || [ ! -f "$NEW/.htaccess" ]; then
   echo "upload incomplete ($GOT of $EXPECTED files) — live site NOT changed"; exit 1
 fi
 # back up the current site (everything except .deploy/)

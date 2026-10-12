@@ -46,7 +46,7 @@ rm -rf dist
 SITE_URL="https://impulsatalentos.expert" bun run build
 cp .htaccess dist/.htaccess
 
-for f in index.html .htaccess; do
+for f in index.html spa-fallback.html .htaccess; do
   [ -f "dist/$f" ] || { echo "❌ dist/$f missing — refusing to deploy"; exit 1; }
 done
 if grep -rq --include='*.js' "$LEGACY_REF" dist/assets/; then
