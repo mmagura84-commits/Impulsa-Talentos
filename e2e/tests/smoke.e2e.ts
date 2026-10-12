@@ -61,3 +61,11 @@ test('pages are the current build and carry the self-update script', async ({ pa
     expect(pageBuild, `${path} should be build ${build}`).toBe(build)
   }
 })
+
+test('service worker takes over page loads (keeps pages fresh despite the host caching them)', async ({ page }) => {
+  await page.goto('/privacy/')
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true))
+  await page.reload()
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller)).toBe(true)
+  await expect(page.locator('h1').first()).toBeVisible()
+})
