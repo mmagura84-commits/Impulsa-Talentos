@@ -274,50 +274,56 @@ const CITIES: { key: string; re: RegExp }[] = [
 function capitalize(s: string) {
   return s.charAt(0).toUpperCase() + s.slice(1)
 }
-/* ── City showcase — Colombia's talent markets with live counts ── */
-function CityShowcase() {
-  const { t } = useI18n()
-  const { data: allJobs } = useAllJobs()
-  const openJobs = (allJobs ?? []).filter(isOpen)
+/* ── Phone slideshow: one full-width slide at a time ──────────────────────
+   Drives a horizontal snap scroller on phones (<640px): advances every
+   `intervalMs` while the strip is on screen, pauses for 8 s after a touch,
+   and reports the slide in view. One light timer instead of scroll events,
+   which proved unreliable on some engines once snapping kicks in. */
+function usePhoneSlideshow(count: number, intervalMs: number) {
   const reduce = useReducedMotion()
-
-  // Phones: a one-city-at-a-time slideshow (swipe or tap a dot; advances by
-  // itself while on screen, pauses after a touch). Tablet/desktop: a grid.
-  const scrollerRef = useRef<HTMLDivElement | null>(null)
+  const ref = useRef<HTMLDivElement | null>(null)
   const [active, setActive] = useState(0)
   const pausedUntil = useRef(0)
   const goTo = (i: number) => {
-    const el = scrollerRef.current
+    const el = ref.current
     if (!el) return
     setActive(i)
     el.scrollTo({ left: i * el.clientWidth, behavior: reduce ? 'auto' : 'smooth' })
   }
-  // One light timer drives everything (scroll events proved unreliable on some
-  // engines once snapping kicks in): it reads the scroll position to keep the
-  // dots in step with swipes, and every ~4.5 s moves to the next city while
-  // the slideshow is on screen and nobody has touched it recently.
   useEffect(() => {
     let last = Date.now()
     const id = window.setInterval(() => {
-      const el = scrollerRef.current
+      const el = ref.current
       if (!el || !window.matchMedia('(max-width: 639px)').matches) return
       const w = Math.max(1, el.clientWidth)
-      const current = Math.min(CITIES.length - 1, Math.round(el.scrollLeft / w))
+      const current = Math.min(count - 1, Math.round(el.scrollLeft / w))
       setActive(current)
       const now = Date.now()
       if (reduce || now < pausedUntil.current) { last = now; return }
       const r = el.getBoundingClientRect()
       const visible = r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25
       if (!visible) { last = now; return }
-      if (now - last < 4500) return
+      if (now - last < intervalMs) return
       last = now
-      const next = (current + 1) % CITIES.length
+      const next = (current + 1) % count
       setActive(next)
       el.scrollTo({ left: next * w, behavior: 'smooth' })
     }, 250)
     return () => window.clearInterval(id)
-  }, [reduce])
+  }, [reduce, count, intervalMs])
   const pause = () => { pausedUntil.current = Date.now() + 8000 }
+  return { ref, active, goTo, pause }
+}
+
+/* ── City showcase — Colombia's talent markets with live counts ── */
+function CityShowcase() {
+  const { t } = useI18n()
+  const { data: allJobs } = useAllJobs()
+  const openJobs = (allJobs ?? []).filter(isOpen)
+
+  // Phones: a one-city-at-a-time slideshow (swipe or tap a dot; advances by
+  // itself while on screen, pauses after a touch). Tablet/desktop: a grid.
+  const { ref: scrollerRef, active, goTo, pause } = usePhoneSlideshow(CITIES.length, 4500)
 
   return (
     <section className="border-y border-border bg-muted/30 py-12 sm:py-20">
@@ -386,6 +392,23 @@ function CityShowcase() {
       </div>
       </div></SectionReveal>
     </section>
+  )
+}
+/* Industries: a 4-second slideshow on phones (no indicators), grid from sm up. */
+function IndustrySlides({ children }: { children: ReactNode }) {
+  const { t } = useI18n()
+  const { ref, pause } = usePhoneSlideshow(INDUSTRY_FAMILIES.length + 1, 4000)
+  return (
+    <div
+      ref={ref}
+      onTouchStart={pause}
+      onPointerDown={pause}
+      aria-roledescription="carousel"
+      aria-label={t('industries.sectionTitle')}
+      className="-mx-5 mt-8 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible lg:grid-cols-3"
+    >
+      {children}
+    </div>
   )
 }
 function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
@@ -487,7 +510,7 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><div className="mt-8 sm:mt-10 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-[78%] shrink-0 snap-start sm:w-auto"><FamilyCard family={family} /></div>)}<div className="w-[78%] shrink-0 snap-start sm:w-auto"><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></div></SectionReveal></div></section>
+      <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><FamilyCard family={family} /></div>)}<div className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
