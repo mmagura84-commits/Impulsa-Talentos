@@ -48,6 +48,8 @@ import {
   BellRing,
 } from 'lucide-react'
 import { friendlyDbError } from '@/lib/dbErrors'
+import { CV_EXTENSIONS, MAX_UPLOAD_BYTES, fileExtension, uploadContentType } from '@/lib/uploadTypes'
+import { requestCvParse } from '@/lib/parseCv'
 import { PrivacyCard } from '@/components/profile/PrivacyCard'
 
 export const Route = createFileRoute('/_app/profile')({
@@ -373,7 +375,7 @@ function ProfilePage() {
     try {
       const ext = file.name.split('.').pop()?.toLowerCase() || 'jpg'
       const path = `avatars/${user.id}/${Date.now()}.${ext}`
-      const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true })
+      const { error } = await supabase.storage.from('cvs').upload(path, file, { upsert: true, contentType: uploadContentType(file) ?? undefined })
       if (error) throw error
       const publicUrl = storagePointer(path)
       update('avatarUrl', publicUrl)
@@ -399,21 +401,42 @@ function ProfilePage() {
 
   const handleCvFile = async (file: File) => {
     if (!user) return
-    if (file.size > 10 * 1024 * 1024) { toast.error('File must be under 10MB'); return }
-    const allowed = ['pdf', 'doc', 'docx']
-    const ext = file.name.split('.').pop()?.toLowerCase() || ''
-    if (!allowed.includes(ext)) { toast.error('Only PDF, DOC, DOCX files allowed'); return }
+    if (file.size > MAX_UPLOAD_BYTES) { toast.error(t('profile.cv.sizeError')); return }
+    const ext = fileExtension(file.name)
+    const contentType = uploadContentType(file)
+    if (!(CV_EXTENSIONS as readonly string[]).includes(ext) || !contentType) { toast.error(t('profile.cv.typeError')); return }
     setUploadingCv(true)
     try {
       const path = `cvs/${user.id}/${Date.now()}.${ext}`
-      const { error } = await supabase.storage.from('cvs').upload(path, file)
+      const { error } = await supabase.storage.from('cvs').upload(path, file, { contentType })
       if (error) throw error
-      const publicUrl = storagePointer(path)
-      update('cvUrl', publicUrl)
-      toast.success('CV uploaded successfully')
+      const pointer = storagePointer(path)
+      update('cvUrl', pointer)
+      // Save straight away (like the photo): leaving the page before pressing
+      // Save used to lose the upload.
+      if (profile) {
+        await updateProfile.mutateAsync({ id: profile.id, data: { cvUrl: pointer } })
+        toast.success(t('profile.cv.uploaded'), { duration: 1800 })
+        // Read the CV's text for matching; a CV we can't read is still saved.
+        void requestCvParse(path).then(r => {
+          if (r === 'ok') toast.success(t('profile.cv.readOk'))
+          else if (r === 'no_text' || r === 'unsupported') toast.message(t('profile.cv.readFailed'), { duration: 8000 })
+        })
+      } else {
+        toast.success(t('profile.cv.uploaded'), { duration: 1800 })
+      }
     } catch (err) {
-      toast.error(friendlyDbError(err, t) || 'Upload failed')
+      toast.error(friendlyDbError(err, t) || t('profile.cv.uploadError'))
     } finally { setUploadingCv(false) }
+  }
+
+  const handleRemoveCv = async () => {
+    update('cvUrl', '')
+    if (!profile?.cvUrl) return
+    try {
+      await updateProfile.mutateAsync({ id: profile.id, data: { cvUrl: '', parsedCvText: '' } })
+      toast.success(t('profile.cv.removed'), { duration: 1800 })
+    } catch (err) { toast.error(friendlyDbError(err, t) || t('common.retry')) }
   }
 
   const handleSave = async () => {
@@ -475,6 +498,8 @@ function ProfilePage() {
           dataProcessingConsentAt: new Date().toISOString(),
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
+        // A CV uploaded before the profile existed is read now, for matching.
+        if (form.cvUrl.startsWith('storage:cvs:')) void requestCvParse(form.cvUrl.slice('storage:cvs:'.length))
       }
       setSavedFlag(true)
       setTimeout(() => setSavedFlag(false), 3000)
@@ -803,14 +828,14 @@ function ProfilePage() {
                             rel="noopener noreferrer"
                             className="text-xs text-primary hover:underline inline-flex items-center gap-0.5"
                           >
-                            View CV <ArrowUpRight className="size-3" />
+                            {t('profile.cv.view')} <ArrowUpRight className="size-3" />
                           </a>
                           <button
                             type="button"
-                            onClick={() => update('cvUrl', '')}
+                            onClick={handleRemoveCv}
                             className="text-xs text-muted-foreground hover:text-destructive underline underline-offset-2 cursor-pointer"
                           >
-                            Remove
+                            {t('profile.cv.remove')}
                           </button>
                         </div>
                       </div>
@@ -827,12 +852,12 @@ function ProfilePage() {
                           onClick={() => cvInputRef.current?.click()}
                         >
                           {uploadingCv ? (
-                            <><span className="inline-block size-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />Uploading...</>
+                            <><span className="inline-block size-3.5 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />{t('profile.cv.uploading')}</>
                           ) : (
-                            <><Upload className="size-3.5" />Upload CV</>
+                            <><Upload className="size-3.5" />{t('profile.cv.upload')}</>
                           )}
                         </Button>
-                        <span className="text-xs text-muted-foreground">PDF, DOC, DOCX — max 10 MB</span>
+                        <span className="text-xs text-muted-foreground">{t('profile.cv.formats')}</span>
                       </div>
                       <input
                         ref={cvInputRef}

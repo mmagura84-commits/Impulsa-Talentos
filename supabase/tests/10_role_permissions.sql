@@ -581,3 +581,26 @@ select t.reset();
 select t.act_as(null, 'anon');
 select t.expect_ok('visitors can still browse the caregiver directory', $$select * from public.search_vetted_caregivers()$$);
 select t.reset();
+
+\echo '── Campaign readiness (047)'
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000a7', 'tiktok@test.co', '{"role":"candidate","full_name":"Tik Tok","data_consent":true,"attribution":"{\"utm_source\":\"tiktok\",\"utm_campaign\":\"launch\",\"landing\":\"/jobs\",\"evil\":\"x\",\"at\":\"2026-10-12T00:00:00Z\"}"}'),
+  ('00000000-0000-0000-0000-0000000000a8', 'broken@test.co', '{"role":"candidate","full_name":"Broken Tags","data_consent":true,"attribution":"not json"}');
+select t.check('sign-up attribution lands on the profile, unknown keys dropped',
+  (select signup_attribution ->> 'utm_source' = 'tiktok' and signup_attribution ->> 'utm_campaign' = 'launch'
+          and not (signup_attribution ? 'evil')
+     from public.profiles where user_id = '00000000-0000-0000-0000-0000000000a7'));
+select t.check('malformed attribution never blocks a sign-up',
+  (select signup_attribution is null from public.profiles where user_id = '00000000-0000-0000-0000-0000000000a8'));
+update public.profiles set cv_url = 'storage:cvs:cvs/00000000-0000-0000-0000-0000000000a7/cv.pdf', parsed_cv_text = 'SQL Python'
+ where user_id = '00000000-0000-0000-0000-0000000000a7';
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.check('HQ funnel counts the TikTok sign-up, its CV and the read text',
+  (select signups = 1 and cv_uploaded = 1 and cv_read = 1 from public.admin_campaign_funnel() where source = 'tiktok' and campaign = 'launch'));
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a7');
+select t.expect_error('candidates cannot read the campaign funnel', $$select * from public.admin_campaign_funnel()$$);
+select t.reset();
+select t.check('CV bucket enforces 10 MB and document/image types',
+  (select file_size_limit = 10485760 and 'application/pdf' = any(allowed_mime_types) and not ('application/zip' = any(allowed_mime_types))
+     from storage.buckets where id = 'cvs'));

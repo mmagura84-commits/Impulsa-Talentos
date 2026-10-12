@@ -9,7 +9,8 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider, useI18n } from '@/i18n/I18nProvider'
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
+import { captureUTMParams } from '@/lib/marketing'
 import indexCss from '../index.css?url'
 
 /**
@@ -140,6 +141,7 @@ function RootDocument({ children }: { children: ReactNode }) {
           <I18nProvider>
             <TooltipProvider delayDuration={0}>
               <Toaster />
+              <AttributionCapture />
               {/*
                 Full-bleed by default — NO app chrome. Child routes render directly.
                 SaaS / dashboard app? Opt in by adding a `src/routes/_app.tsx` layout
@@ -160,6 +162,12 @@ function RootDocument({ children }: { children: ReactNode }) {
       </body>
     </html>
   )
+}
+
+/** Remembers the campaign tags of the page a visitor first lands on. */
+function AttributionCapture() {
+  useEffect(() => { captureUTMParams() }, [])
+  return null
 }
 
 /** Global legal footer strip — localized (EN/ES) on every route. */

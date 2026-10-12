@@ -108,23 +108,29 @@ function languageLevelScore(candidateLangs: string, jobLang: string): { score: n
 /**
  * Skills overlap. Structured `profileSkills` take precedence; when absent
  * (pre-enrichment profiles) the candidate's free text is tokenized instead,
- * preserving the original behavior.
+ * preserving the original behavior. The text of the candidate's CV (read by
+ * the parse-cv function) also counts: a required skill named in the CV is a
+ * match even if the candidate didn't list it.
  */
 function skillsScore(
   profileSkills: string[] | undefined,
   candidateText: string,
   jobSkillsCsv: string,
-): { score: number; matched: string[] } {
+  cvText = '',
+): { score: number; matched: string[]; fromCv: string[] } {
   const jobSkills = (jobSkillsCsv || '')
     .split(/[,;|]/)
     .map(s => s.trim())
     .filter(Boolean)
-  if (jobSkills.length === 0) return { score: 50, matched: [] }
+  if (jobSkills.length === 0) return { score: 50, matched: [], fromCv: [] }
   const declared = new Set(
     (profileSkills ?? []).map(normalizeSkill).filter(Boolean),
   )
   const textTokens = new Set(tokens(candidateText))
+  // Whole-phrase search in the CV: " power bi " must appear as words.
+  const cv = cvText ? ` ${normalizeSkill(cvText)} ` : ''
   const matched: string[] = []
+  const fromCv: string[] = []
   for (const skill of jobSkills) {
     const norm = normalizeSkill(skill)
     if (!norm) continue
@@ -141,11 +147,15 @@ function skillsScore(
       // Legacy fallback: any of the skill's tokens appear in bio/languages.
       hit = tokens(skill).some(t => textTokens.has(t))
     }
+    if (!hit && cv && norm.length >= 2 && cv.includes(` ${norm} `)) {
+      hit = true
+      fromCv.push(skill)
+    }
     if (hit) matched.push(skill)
   }
   // Jaccard-style: matched / union
   const score = Math.round(50 * (matched.length / jobSkills.length))
-  return { score, matched }
+  return { score, matched, fromCv }
 }
 /** Map structured years of experience to a seniority bucket. */
 function experienceBucket(years: number | undefined | null): string | null {
@@ -232,7 +242,7 @@ export function scoreMatch(profile: Profile | null, job: Job): MatchScore {
     profile?.languages || '',
     profile?.location || '',
   ].join(' ')
-  const skills = skillsScore(profile?.skills, candidateText, job.skillsRequired)
+  const skills = skillsScore(profile?.skills, candidateText, job.skillsRequired, profile?.parsedCvText ?? '')
   const language = languageLevelScore(profile?.languages || '', job.languagesRequired || '')
   const seniority = seniorityScore(candidateText, profile?.experienceYears, job.level || '')
   const modality = modalityScore(job.locationType || '')
@@ -251,6 +261,7 @@ export function scoreMatch(profile: Profile | null, job: Job): MatchScore {
             skills.matched.length > 3 ? '…' : ''
           }`,
     )
+    if (skills.fromCv.length > 0) rationale.push(`From your CV: ${skills.fromCv.slice(0, 3).join(', ')}`)
   } else if (job.skillsRequired) {
     rationale.push('No direct skill overlap')
   }

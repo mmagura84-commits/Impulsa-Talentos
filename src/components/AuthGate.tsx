@@ -1,3 +1,4 @@
+import { getAttribution } from '@/lib/marketing'
 import { useState, type FormEvent } from 'react'
 import { Link } from '@tanstack/react-router'
 import { getOnboardingIntent, setOnboardingIntent, type OnboardingIntent } from '@/lib/intent'
@@ -107,6 +108,8 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
           full_name: fullName.trim(),
           data_consent: dataConsent,
           marketing_consent: marketingConsent,
+          // First-touch campaign tags → profiles.signup_attribution (migration 047).
+          attribution: JSON.stringify(getAttribution()),
         })
         if (result.error) {
           // supabase-js v2 returns { data, error } on HTTP 4xx instead of

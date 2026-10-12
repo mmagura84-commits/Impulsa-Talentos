@@ -7,6 +7,7 @@
  * result + logs once, so the Phase-1 UI ships gracefully and lights up the
  * moment the schema lands. Writers surface a clear, honest error toast.
  */
+import { uploadContentType } from '@/lib/uploadTypes'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, throwIfError } from '@/lib/supabase'
 import { useAuth } from '@/hooks/useAuth'
@@ -135,7 +136,7 @@ export function useUploadCareDocument() {
       const path = `care/${userId}/${safe}-${Date.now()}.${ext}`
       const { error } = await supabase.storage.from(CVS_BUCKET).upload(path, file, {
         upsert: false,
-        contentType: file.type || 'application/octet-stream',
+        contentType: uploadContentType(file) ?? (file.type || 'application/octet-stream'),
       })
       throwIfError(error, 'care-upload')
       return storagePointer(path)

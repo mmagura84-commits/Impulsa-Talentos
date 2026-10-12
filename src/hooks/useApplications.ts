@@ -1,3 +1,5 @@
+import { fileExtension, uploadContentType } from '@/lib/uploadTypes'
+import { requestCvParse } from '@/lib/parseCv'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { supabase, listRows, getRow, createRow, updateRow, snakeToCamel } from '@/lib/supabase'
 import type { Application, ApplicationStatusHistory } from '@/types'
@@ -116,13 +118,15 @@ export function useApply() {
       //    createSignedUrl at render time.
       let finalResumeUrl: string | undefined = resumeUrl?.trim() || undefined
       if (!finalResumeUrl && resumeFile) {
-        const ext = resumeFile.name.split('.').pop()?.toLowerCase() || 'pdf'
+        const ext = fileExtension(resumeFile.name) || 'pdf'
         const path = `resumes/${candidateId}/${jobId}-${Date.now()}.${ext}`
         const { error } = await supabase.storage
           .from('cvs')
-          .upload(path, resumeFile, { upsert: true })
+          .upload(path, resumeFile, { upsert: true, contentType: uploadContentType(resumeFile) ?? undefined })
         if (error) throw error
         finalResumeUrl = storagePointer(path)
+        // The newest CV also feeds the candidate's matching profile.
+        void requestCvParse(path)
       }
 
       // 2) Persist the application. coverLetter carries the resume pointer when

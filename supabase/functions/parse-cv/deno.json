@@ -1,0 +1,6 @@
+{
+  "imports": {
+    "unpdf": "npm:unpdf@1.8.1",
+    "fflate": "npm:fflate@0.8.3"
+  }
+}
