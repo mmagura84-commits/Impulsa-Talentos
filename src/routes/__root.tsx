@@ -77,13 +77,6 @@ export const Route = createRootRoute({
       { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
       { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossOrigin: 'anonymous' },
       { rel: 'dns-prefetch', href: 'https://images.unsplash.com' },
-      {
-        rel: 'stylesheet',
-        href: 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap',
-        media: 'print',
-        // Onload swap to `all` after the stylesheet is fetched so the
-        // first paint never blocks on Google Fonts.
-      },
       { rel: 'stylesheet', href: indexCss },
       // ?v= : Hostinger caches every file for a year, so a new icon needs a new URL.
       { rel: 'icon', href: '/favicon.ico?v=2', sizes: '48x48' },
@@ -92,20 +85,28 @@ export const Route = createRootRoute({
       { rel: 'apple-touch-icon', sizes: '180x180', href: '/apple-touch-icon.png' },
       { rel: 'manifest', href: '/manifest.json?v=2' },
     ],
-    scripts: [
-      {
-        // The non-blocking font-swap pattern: load the Google Fonts
-        // stylesheet with `media=print` then flip to `media=all` once
-        // it's loaded so the browser never blocks first paint on it.
-        children: `(function(){var l=document.querySelector('link[rel=stylesheet][href*="fonts.googleapis.com"]');if(!l||!l.media||l.media.indexOf('print')===-1)return;l.addEventListener('load',function(){l.media='all'});l.addEventListener('error',function(){l.media='all'})})();`,
-      },
-    ],
   }),
   shellComponent: RootDocument,
 })
 
+// Brand fonts (Google Fonts) load once the app is running, i.e. after the page
+// is already on screen, so they never hold up the first paint; text shows in
+// the system font until then (font-display: swap).
+const FONTS_CSS = 'https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Lora:ital,wght@0,400..700;1,400..700&family=IBM+Plex+Mono:ital,wght@0,100..700;1,100..700&display=swap'
+function useBrandFonts() {
+  useEffect(() => {
+    if (document.querySelector('link[data-brand-fonts]')) return
+    const link = document.createElement('link')
+    link.rel = 'stylesheet'
+    link.href = FONTS_CSS
+    link.dataset.brandFonts = ''
+    document.head.appendChild(link)
+  }, [])
+}
+
 function RootDocument({ children }: { children: ReactNode }) {
   const { location } = useRouterState()
+  useBrandFonts()
   return (
     // translate="no" (+ the `google: notranslate` meta): the site ships its own
     // EN/ES/PT switcher. Browser auto-translate rewrites React-owned text nodes

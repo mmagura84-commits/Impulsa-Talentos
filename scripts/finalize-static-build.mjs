@@ -203,6 +203,35 @@ const walk = (dir) => {
 }
 walk(DEST)
 htmlFiles.sort()
+
+// Critical CSS: each page gets the rules it actually uses inlined in <head>, so
+// the first paint doesn't wait for the full stylesheet; the full file still
+// loads (media="print" → "all" once fetched) for anything added after load
+// (menus, dialogs). Dark-theme and animation rules are always kept, because
+// the theme class and some animations are only set in the browser.
+{
+  const { default: Beasties } = await import('beasties')
+  const beasties = new Beasties({
+    path: DEST,
+    publicPath: '/',
+    preload: 'media',
+    pruneSource: false,
+    inlineFonts: false,
+    reduceInlineStyles: false,
+    compress: true,
+    keyframes: 'all',
+    logLevel: 'warn',
+    allowRules: [/\.dark\b/, /:root/, /^html/, /^body/, /prefers-color-scheme/, /prefers-reduced-motion/],
+  })
+  let inlined = 0
+  for (const f of htmlFiles) {
+    const html = readFileSync(f, 'utf8')
+    if (!/<link rel="stylesheet" href="\/assets\//.test(html)) continue
+    writeFileSync(f, (await beasties.process(html)).replace(' data-beasties-container', ''))
+    inlined++
+  }
+  console.log(`[finalize] ✓ critical CSS inlined in ${inlined} pages`)
+}
 // Build id covers every script name AND every page's content, so a deploy that
 // only changes pages (new prerendered jobs, copy edits) still gets a new id.
 const idHash = createHash('sha1').update(assetNames.join('\n'))
