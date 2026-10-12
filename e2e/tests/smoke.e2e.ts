@@ -57,8 +57,9 @@ test('pages are the current build and carry the self-update script', async ({ pa
   const { build } = await res.json() as { build: string }
   for (const path of ['/', '/privacy/', '/jobs/']) {
     await page.goto(path)
-    const pageBuild = await page.locator('script[data-build]').first().getAttribute('data-build')
-    expect(pageBuild, `${path} should be build ${build}`).toBe(build)
+    // An old copy (browser or CDN) refreshes itself to the live build within a few seconds.
+    await expect.poll(async () => page.locator('script[data-build]').first().getAttribute('data-build'), { timeout: 15_000, message: `${path} should become build ${build}` }).toBe(build)
+    expect(new URL(page.url()).searchParams.has('_b'), 'address bar stays clean').toBe(false)
   }
 })
 

@@ -63,14 +63,14 @@ jobs:
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$INCOMING/"
           $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$INCOMING" "$PREV" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"
-      - name: Flush Hostinger's cache (CDN keeps pages for a year otherwise)
+      - name: Flush Hostinger's cache (optional, needs HOSTINGER_API_TOKEN)
         env:
           HOSTINGER_API_TOKEN: ${{ secrets.HOSTINGER_API_TOKEN }}
         run: |
           # Hostinger API: Clear website cache (same as hPanel > Dashboard > Flush cache).
           # Token: hPanel > Account > API (add it as the repo secret HOSTINGER_API_TOKEN).
           if [ -z "$HOSTINGER_API_TOKEN" ]; then
-            echo "::warning::HOSTINGER_API_TOKEN is not set, so the cache was not flushed. Flush it in hPanel (Websites > impulsatalentos.expert > Dashboard > Flush cache) if the next step waits."
+            echo "HOSTINGER_API_TOKEN not set: skipping the optional cache flush (pages refresh themselves through /sw.js)."
             exit 0
           fi
           code=$(curl -sS -o /tmp/flush.json -w '%{http_code}' -X DELETE \
@@ -80,23 +80,29 @@ jobs:
           if [ "$code" -ge 300 ]; then head -c 400 /tmp/flush.json; echo; echo "::error::Cache flush failed (HTTP $code)"; exit 1; fi
       - name: Wait until visitors get this build
         run: |
-          # Check the plain URLs visitors load (through Hostinger's CDN), not a
-          # cache-busting variant: pages are served no-cache, so the CDN should
-          # pick up the new build within seconds.
+          # Pages load through /sw.js as /path?_b=<build> (a URL the CDN has
+          # never cached), so the new build is what visitors get even if the
+          # CDN still holds old copies of the plain URLs.
+          BUILD=$(node -p "require('./dist/version.json').build")
           ASSET=$(grep -aoE '/assets/[^"]+\.js' dist/index.html | head -1)
-          if [ -z "$ASSET" ]; then echo "::error::No script found in dist/index.html"; exit 1; fi
-          echo "Waiting for $ASSET"
+          [ -n "$BUILD" ] && [ -n "$ASSET" ] || { echo "::error::dist is missing version.json or a script"; exit 1; }
+          echo "Waiting for build $BUILD"
           for i in $(seq 1 24); do
             ok=1
+            curl -fsS "https://impulsatalentos.expert/version.json?b=$RANDOM$i" | grep -qF "$BUILD" || ok=0
             for p in / /privacy/ /jobs/; do
-              curl -fsS --compressed "https://impulsatalentos.expert$p" | grep -aqF "$ASSET" || ok=0
+              curl -fsS --compressed "https://impulsatalentos.expert$p?_b=$BUILD" | grep -aqF "$ASSET" || ok=0
             done
-            [ "$ok" = 1 ] && { echo "Visitors get this build"; exit 0; }
+            [ "$ok" = 1 ] && break
             sleep 10
           done
-          echo "::error::Hostinger's CDN still serves an older build after 4 minutes. Flush the CDN cache in hPanel (Websites › impulsatalentos.expert › CDN › Flush cache) and re-run."
-          curl -sSI "https://impulsatalentos.expert/" | grep -iE "cache-control|x-hcdn|age" || true
-          exit 1
+          [ "$ok" = 1 ] || { echo "::error::The live site does not serve build $BUILD after 4 minutes"; exit 1; }
+          echo "Visitors get build $BUILD"
+          # Informational: plain URLs straight from the CDN (pages heal themselves if these are old).
+          for p in / /privacy/ /jobs/; do
+            if curl -fsS --compressed "https://impulsatalentos.expert$p" | grep -aqF "$ASSET"; then echo "CDN copy of $p: current"
+            else echo "::warning::CDN still holds an older copy of $p (visitors are refreshed to the new build automatically; flushing in hPanel clears it)"; fi
+          done
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Smoke-test the live site (read-only)
