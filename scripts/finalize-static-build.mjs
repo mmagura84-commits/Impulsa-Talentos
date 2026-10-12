@@ -223,11 +223,12 @@ const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUIL
 // Loading order: the HTML, stylesheet and hero photo get the connection to
 // themselves until the page is on screen. The app's JavaScript (the entry and
 // the chunks it needs, which Vite lists as modulepreload links) is requested
-// once the browser reports the first paint and the high-priority (hero) photo
-// has loaded — capped at 1.5 s, and at most 3 s in all (e.g. a background tab,
-// where nothing paints). Pages are prerendered, so everything is readable
-// before the scripts arrive; they then hydrate the page as before.
-const START_AFTER_PAINT = (src, preloads) => `<script>(function(){var d=0;function go(){if(d)return;d=1;${JSON.stringify(preloads)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.appendChild(l)});var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(src)};document.body.appendChild(s)}function once(f){var c=0;return function(){if(!c){c=1;f()}}}function painted(f){f=once(f);try{new PerformanceObserver(function(l,o){o.disconnect();f()}).observe({type:"paint",buffered:true})}catch(e){requestAnimationFrame(function(){setTimeout(f,0)})}setTimeout(f,1500)}function hero(f){f=once(f);var w=[].filter.call(document.querySelectorAll('img[fetchpriority="high"]'),function(i){return!i.complete}),n=w.length;if(!n)return f();w.forEach(function(i){i.addEventListener("load",function(){--n||f()});i.addEventListener("error",function(){--n||f()})});setTimeout(f,1500)}function start(){hero(function(){painted(function(){setTimeout(go,0)})})}setTimeout(go,3000);document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start):start()})()</script>`
+// once the browser reports that the hero photo (the high-priority image) has
+// been painted — or the first paint, on pages without one. Fallbacks: 1.5 s
+// after the HTML is parsed, and 3 s in all (e.g. a background tab, where
+// nothing paints). Pages are prerendered, so everything is readable before the
+// scripts arrive; they then hydrate the page as before.
+const START_AFTER_PAINT = (src, preloads) => `<script>(function(){var d=0;function go(){if(d)return;d=1;${JSON.stringify(preloads)}.forEach(function(h){var l=document.createElement("link");l.rel="modulepreload";l.href=h;document.head.appendChild(l)});var s=document.createElement("script");s.type="module";s.src=${JSON.stringify(src)};document.body.appendChild(s)}function next(){setTimeout(go,0)}function watch(type,ok){try{new PerformanceObserver(function(l,o){if(l.getEntries().some(ok)){o.disconnect();next()}}).observe({type:type,buffered:true});return 1}catch(e){return 0}}function start(){setTimeout(go,1500);var hero=[].slice.call(document.querySelectorAll('img[fetchpriority="high"]'));if(hero.length&&watch("largest-contentful-paint",function(e){return hero.indexOf(e.element)>-1}))return;if(watch("paint",function(){return 1}))return;requestAnimationFrame(next)}setTimeout(go,3000);document.readyState==="loading"?document.addEventListener("DOMContentLoaded",start):start()})()</script>`
 const ENTRY = /<script type="module"[^>]*\ssrc="(\/assets\/[^"]+\.js)"[^>]*><\/script>/
 const PRELOAD = /<link rel="modulepreload"[^>]*\shref="(\/assets\/[^"]+\.js)"[^>]*\/?>/g
 const lowPriorityScripts = (html) => {
@@ -242,9 +243,13 @@ let injected = 0
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8')
   if (html.includes('data-build=')) continue
-  const at = html.indexOf('<head>')
-  if (at === -1) continue
-  writeFileSync(f, lowPriorityScripts(html.slice(0, at + 6) + FRESH_SCRIPT + html.slice(at + 6)))
+  const head = html.indexOf('<head>')
+  if (head === -1) continue
+  // Right after <meta charset> (which must stay within the first 1024 bytes),
+  // otherwise right after <head>.
+  const cs = html.slice(head, head + 400).match(/<meta charset="[^"]*"\s*\/?>/i)
+  const at = cs ? head + cs.index + cs[0].length : head + 6
+  writeFileSync(f, lowPriorityScripts(html.slice(0, at) + FRESH_SCRIPT + html.slice(at)))
   injected++
 }
 console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)

@@ -501,9 +501,9 @@ function LandingPage() {
         </SectionReveal>
         <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-5">
           {[
-            { step: '01', img: '/images/industry-creative-media.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
-            { step: '02', img: '/images/employer/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
-            { step: '03', img: '/images/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
+            { step: '01', img: '/images/sm/industry-creative-media.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '02', img: '/images/sm/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
+            { step: '03', img: '/images/sm/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
               <div className="card-lift flex h-full flex-col overflow-hidden rounded-2xl border transition-shadow hover:shadow-lg">
@@ -535,10 +535,10 @@ function LandingPage() {
           </SectionReveal>
           <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {[
-              { img: '/images/industry-education-training.webp', title: t('landing.why1Title'), desc: t('landing.why1Desc') },
-              { img: '/images/industry-legal-public-sector.webp', title: t('landing.why2Title'), desc: t('landing.why2Desc') },
-              { img: '/images/professional-medellin-v2.webp', title: t('landing.why3Title'), desc: t('landing.why3Desc') },
-              { img: '/images/professional-cucuta-v2.webp', title: t('landing.why4Title'), desc: t('landing.why4Desc') },
+              { img: '/images/sm/industry-education-training.webp', title: t('landing.why1Title'), desc: t('landing.why1Desc') },
+              { img: '/images/sm/industry-legal-public-sector.webp', title: t('landing.why2Title'), desc: t('landing.why2Desc') },
+              { img: '/images/sm/professional-medellin-v2.webp', title: t('landing.why3Title'), desc: t('landing.why3Desc') },
+              { img: '/images/sm/professional-cucuta-v2.webp', title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
                 <div className="card-lift flex h-full items-center gap-4 overflow-hidden rounded-2xl border p-3 transition-shadow hover:shadow-lg sm:block sm:p-0">
