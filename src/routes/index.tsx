@@ -27,7 +27,6 @@ import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
-import { formatSalaryValue } from '@/lib/formatSalary'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
 import { useAllJobs } from '@/hooks/useJobs'
 import { useAllCompanies } from '@/hooks/useCompanies'
@@ -135,7 +134,7 @@ function LandingCTAs() {
   if (isLoading) return null
   if (user) {
     return (
-      <Button asChild size="lg" className="h-12 gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90">
+      <Button asChild size="lg" className="h-12 w-full gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90 sm:w-auto">
         <Link to="/dashboard">
           <Briefcase className="size-4" />
           {t('landing.ctaGoDashboard')}
@@ -146,15 +145,15 @@ function LandingCTAs() {
   }
   const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer', search: { signup: 1 } as never }) }
   return (
-    <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
-      <Button asChild size="lg" className="h-12 gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90">
+    <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-start">
+      <Button asChild size="lg" className="h-12 gap-2 bg-white px-4 text-[15px] font-semibold text-slate-900 shadow-lg hover:bg-white/90 sm:px-7 sm:text-base">
         <Link to="/jobs">
           <Search className="size-4" />
           {t('landing.ctaSearch')}
-          <ArrowRight className="size-4" />
+          <ArrowRight className="hidden size-4 sm:block" />
         </Link>
       </Button>
-      <Button variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-7 text-base font-semibold text-white hover:bg-white/10 hover:text-white" onClick={goEmployer}>
+      <Button variant="outline" size="lg" className="h-12 gap-2 border-white/40 bg-transparent px-4 text-[15px] font-semibold text-white sm:px-7 sm:text-base hover:bg-white/10 hover:text-white" onClick={goEmployer}>
         <Building2 className="size-4" />{t('landing.ctaHire')}
       </Button>
     </div>
@@ -162,6 +161,8 @@ function LandingCTAs() {
 }
 
 /* ── Live job feed — auto-rotating animated widget ─────────── */
+const compactMoney = (v: number, locale: string) =>
+  new Intl.NumberFormat(locale === 'es' ? 'es-CO' : locale === 'pt' ? 'pt-BR' : 'en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(v).replace(/\s/g, '')
 function JobFeedPreview() {
   const { t, locale } = useI18n()
   const { data: jobs } = useAllJobs()
@@ -181,17 +182,23 @@ function JobFeedPreview() {
     const salary =
       job.salaryMin && job.salaryMax
         ? job.currency === 'USD'
-          ? `$${formatSalaryValue(job.salaryMin, locale)}–$${formatSalaryValue(job.salaryMax, locale)}`
-          : `${job.currency} ${formatSalaryValue(job.salaryMin, locale)}–${formatSalaryValue(job.salaryMax, locale)}`
+          ? `$${compactMoney(job.salaryMin, locale)}–$${compactMoney(job.salaryMax, locale)}`
+          : `${job.currency} ${compactMoney(job.salaryMin, locale)}–${compactMoney(job.salaryMax, locale)}`
         : t('jobs.salaryTBD')
-    return <Link to="/jobs/$id" params={{ id: job.id }} className="group flex items-start gap-3 p-4 transition-colors hover:bg-white/5">
+    // Every row is a single line (truncated), so each job renders at exactly
+    // the same height and the rotating card never makes the hero jump.
+    return <Link to="/jobs/$id" params={{ id: job.id }} className="group flex items-center gap-3 p-4 transition-colors hover:bg-white/5">
       <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-accent/15 text-sm font-bold text-accent">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full rounded-lg object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
-      <div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p><p className="truncate text-xs text-white/60">{company?.name ?? 'Impulsa Talentos partner'}</p><div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-white/60"><span className="inline-flex items-center gap-1"><MapPin className="size-3" />{formatLocationType(job.locationType, t)}</span><span className="font-medium text-white/80">{salary}</span><span className="rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></div></div><ArrowRight className="size-4 shrink-0 self-center text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
+      <div className="min-w-0 flex-1 leading-tight">
+        <p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p>
+        <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-white/60"><span className="truncate">{company?.name ?? 'Impulsa Talentos partner'}</span><span aria-hidden className="shrink-0">·</span><MapPin className="size-3 shrink-0" /><span className="truncate">{formatLocationType(job.locationType, t)}</span></p>
+        <p className="mt-1.5 flex min-w-0 items-center gap-2 text-xs"><span className="shrink-0 font-medium text-white/85">{salary}</span><span className="truncate rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></p>
+      </div><ArrowRight className="size-4 shrink-0 text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
     </Link>
   }
   return <div data-testid="hero-live-feed" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} className="w-full overflow-hidden rounded-2xl border border-white/15 bg-black/35 shadow-2xl backdrop-blur-md" aria-label={t('landing.feedTitle')}>
-    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><div className="flex items-center gap-2 text-sm font-semibold text-white"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>{t('landing.feedLiveLabel')}</div><Link to="/jobs" className="text-xs font-medium text-accent hover:underline">{t('landing.feedViewAll')} →</Link></div>
-    {featured.length === 0 ? <div className="p-4"><div className="h-20 rounded-lg bg-white/10 animate-pulse" /></div> : reduce ? <div className="divide-y divide-white/10">{featured.slice(0, 3).map(card)}</div> : <div className="relative min-h-[100px]"><AnimatePresence initial={false} mode="wait"><motion.div key={featured[index]?.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.3 }}>{card(featured[index])}</motion.div></AnimatePresence></div>}
+    <div className="flex items-center justify-between border-b border-white/10 px-4 py-3"><div className="flex items-center gap-2 text-sm font-semibold text-white"><span className="relative flex h-2 w-2"><span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" /></span>{t('landing.feedLiveLabel')}</div><Link to="/jobs" className="inline-flex items-center text-xs font-medium text-accent hover:underline">{t('landing.feedViewAll')} →</Link></div>
+    {featured.length === 0 ? <div className="p-4"><div className="h-20 rounded-lg bg-white/10 animate-pulse" /></div> : reduce ? <div className="divide-y divide-white/10">{featured.slice(0, 3).map(card)}</div> : <div className="relative"><div aria-hidden="true" className="invisible">{card(featured[0])}</div><AnimatePresence initial={false}><motion.div key={featured[index]?.id} className="absolute inset-0" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }} transition={{ duration: 0.35 }}>{card(featured[index])}</motion.div></AnimatePresence></div>}
   </div>
 }
 /* ── Stats bar — LIVE numbers from Supabase ────────────────── */
@@ -223,10 +230,10 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
       <span
         key={keyPrefix + c.id}
         aria-hidden={!link}
-        className="flex items-center gap-5 px-4 text-[13px] font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5"
+        className="flex items-center gap-4 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5 sm:text-[13px]"
       >
         {link ? (
-          <Link to="/companies/$id" params={{ id: c.id }} className="text-white/90 transition-colors hover:text-accent active:text-accent">
+          <Link to="/companies/$id" params={{ id: c.id }} className="min-h-0 min-w-0 text-white/90 transition-colors hover:text-accent active:text-accent">
             {c.name}
           </Link>
         ) : (
@@ -238,7 +245,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
   return (
     <section
       aria-label={t('landing.trustedBy', { n: companies.length })}
-      className="group relative z-10 overflow-hidden border-y border-primary/80 bg-primary py-3.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
+      className="group relative z-10 overflow-hidden border-y border-primary/80 bg-primary py-2.5 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)] sm:py-4 [mask-image:linear-gradient(to_right,transparent,black_8%,black_92%,transparent)]"
     >
       {reduce ? (
         <div className="flex flex-wrap items-center justify-center gap-x-7 gap-y-2 px-5 sm:justify-start">
@@ -502,10 +509,10 @@ function LandingPage() {
           {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-12 pt-12 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
-          <div className="grid w-full items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
-            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div></div>
-            <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
+        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 pb-10 pt-[5.75rem] sm:px-6 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
+          <div className="grid w-full items-center gap-9 sm:gap-12 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
+            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm sm:px-3.5 sm:py-1.5 sm:text-sm"><Sparkles className="size-3.5 text-accent sm:size-4" />{t('landing.badge')}</span><h1 className="mt-4 text-[2.15rem] font-bold tracking-tight leading-[1.08] text-white sm:mt-3 sm:text-5xl sm:leading-[1.04] lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/80 sm:mt-3 sm:text-lg sm:text-white/85 xl:text-xl">{t('landing.heroSub')}</p><div className="mt-7 w-full sm:mt-5 sm:w-auto"><BlinkClientBoundary fallback={<div className="h-12 w-full rounded-lg bg-white/20 animate-pulse sm:w-44" />}><LandingCTAs /></BlinkClientBoundary></div></div>
+            <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
