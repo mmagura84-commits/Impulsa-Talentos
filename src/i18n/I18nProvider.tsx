@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { dictionaries, defaultLocale, loadLocaleDict, type Dict, type Locale } from './translations'
+import { saveLanguageToAccount } from '@/lib/accountLanguage'
 
 const STORAGE_KEY = 'it_locale'
 
@@ -84,7 +85,12 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     const fallback: Dict = dictionaries.en
     return {
       locale,
-      setLocale: (l: Locale) => setLocaleState(l),
+      // Called only by the language switchers (an explicit choice), never by
+      // detection — so it is also saved to a signed-in account for emails.
+      setLocale: (l: Locale) => {
+        setLocaleState(l)
+        void saveLanguageToAccount(l)
+      },
       t: (key, vars) => {
         const raw = dict[key] ?? fallback[key] ?? key
         return interpolate(raw, vars)

@@ -29,7 +29,7 @@ interface AuthGateProps {
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, signUpDisabled }: AuthGateProps) {
   const { isAuthenticated, isLoading, signInWithPassword, signUpWithPassword, resendVerificationEmail } = useAuth()
-  const { t } = useI18n()
+  const { t, locale } = useI18n()
   const [showReset, setShowReset] = useState(false)
   // Password-only auth (owner decision 2026-08-11): magic-link/passwordless
   // sign-in is out of scope and was REMOVED from the UI — the password form
@@ -73,7 +73,7 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
         // Preserve the lane where signup started (candidate, employer, etc.) so
         // email confirmation returns to the correct role-gated route.
         const returnPath = window.location.pathname + window.location.search
-        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath)
+        const result = await signUpWithPassword(email.trim(), password, window.location.origin + returnPath, locale)
         if (result.error) {
           // supabase-js v2 returns { data, error } on HTTP 4xx instead of
           // throwing — surface the failure instead of silently falling

@@ -96,6 +96,9 @@ insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000b1', 'member@test.co'),
   ('00000000-0000-0000-0000-0000000000b2', 'invitee@test.co'),
   ('00000000-0000-0000-0000-0000000000f1', 'newuser@test.co');
+-- Signed up while the site was in English (the app sends it as metadata).
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000f2', 'english@test.co', '{"locale":"en"}');
 
 insert into public.profiles (id, user_id, role, full_name, email, profile_status) values
   ('10000000-0000-0000-0000-0000000000a1', '00000000-0000-0000-0000-0000000000a1', 'admin', 'Admin', 'admin@test.co', 'active'),
@@ -147,6 +150,26 @@ select t.expect_ok('new user can sign up as employer (insert … returning, like
   $$insert into public.profiles (user_id, role, full_name, profile_status) values ('00000000-0000-0000-0000-0000000000f1', 'employer', 'New', 'rejected') returning *$$);
 select t.reset();
 select t.check('signup status forced to active', (select profile_status = 'active' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f1'));
+
+\echo '── Email language'
+select t.check('no sign-up language keeps the Spanish default',
+  (select preferred_language = 'es' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f1'));
+select t.act_as('00000000-0000-0000-0000-0000000000f2');
+select t.expect_ok('English sign-up creates its profile',
+  $$insert into public.profiles (user_id, role, full_name) values ('00000000-0000-0000-0000-0000000000f2', 'candidate', 'English') returning *$$);
+select t.reset();
+select t.check('profile takes the sign-up language',
+  (select preferred_language = 'en' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f2'));
+select t.act_as('00000000-0000-0000-0000-0000000000f2');
+select t.expect_ok('user saves a language switch on their own profile',
+  $$update public.profiles set preferred_language = 'pt' where user_id = '00000000-0000-0000-0000-0000000000f2'$$);
+select t.expect_no_effect('user cannot change someone else''s language',
+  $$update public.profiles set preferred_language = 'pt' where user_id = '00000000-0000-0000-0000-0000000000c2'$$);
+select t.expect_error('only es/en/pt are accepted',
+  $$update public.profiles set preferred_language = 'fr' where user_id = '00000000-0000-0000-0000-0000000000f2'$$);
+select t.reset();
+select t.check('language switch saved',
+  (select preferred_language = 'pt' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f2'));
 
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_ok('admin assigns md role', $$select public.admin_set_user_role('10000000-0000-0000-0000-0000000000b2', 'md', 'pending')$$);
