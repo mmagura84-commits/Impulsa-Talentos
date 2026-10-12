@@ -29,7 +29,7 @@ const enDashboard: Dict = {
   'dashboard.recommendedJobs.title': 'Recent Jobs',
   'dashboard.recommendedJobs.desc': 'The latest opportunities posted on the platform.',
   'dashboard.matches.title': 'Best matches for you',
-  'dashboard.matches.desc': 'Scored against your profile using our proprietary technology — top first.',
+  'dashboard.matches.desc': 'Scored on your skills, languages, experience, salary and location, with the reasons. Best first.',
   'dashboard.matches.matchScore': 'Match',
   'dashboard.matches.empty': 'Add skills, languages, and a bio to your profile to see matches.',
   'dashboard.matches.weakTitle': 'Recent jobs',

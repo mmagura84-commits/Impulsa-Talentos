@@ -6,6 +6,7 @@ import { useApplicationPrivate, useSaveApplicationPrivate } from '@/hooks/useApp
 import { useProfileById } from '@/hooks/useProfile'
 import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { scoreMatch, type MatchScore } from '@/lib/matchScore'
+import { useJobApplicantMatches, matchReasons, MATCH_WEIGHTS, type MatchDetail } from '@/hooks/useJobMatches'
 import { Button } from '@/components/ui/button'
 import { Switch } from '@/components/ui/switch'
 import { Textarea } from '@/components/ui/textarea'
@@ -236,10 +237,13 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
     profile?.location?.trim() ||
     (profile?.skills && profile.skills.length > 0)
   )
+  const { data: stored } = useJobApplicantMatches(job.id)
+  const db = profile ? stored?.get(profile.id) : undefined
   const score = useMemo<MatchScore | null>(
-    () => (hasSignal && profile ? scoreMatch(profile, job) : null),
-    [hasSignal, profile, job],
+    () => (!db && hasSignal && profile ? scoreMatch(profile, job) : null),
+    [db, hasSignal, profile, job],
   )
+  if (db) return <StoredMatch total={db.score} detail={db.detail} jobSkills={job.skillsRequired} />
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1.5">
@@ -285,6 +289,49 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
           </div>
         </>
       )}
+    </div>
+  )
+}
+
+/** Stored score (job_matches): the same number and reasons the candidate sees. */
+function StoredMatch({ total, detail, jobSkills }: { total: number; detail: MatchDetail; jobSkills?: string }) {
+  const { t } = useI18n()
+  const reasons = matchReasons(detail, t, jobSkills)
+  return (
+    <div>
+      <div className="flex items-center justify-between gap-2 mb-1.5">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+          <Sparkles className="size-3" />
+          {t('review.matchTitle')}
+        </p>
+        <span className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${scoreColor(total)}`}>
+          <Sparkles className="size-3" />
+          {total}%
+        </span>
+      </div>
+      {!detail.eligible && <p className="text-xs text-amber-700 mb-1.5">{t('match.notEligible')}</p>}
+      <div className="space-y-1.5">
+        {MATCH_WEIGHTS.map(({ key, weight }) => {
+          const pct = Math.round((detail.components[key] ?? 0) * 100)
+          return (
+            <div key={key} className="flex items-center gap-2">
+              <span className="text-xs sm:text-[10px] text-muted-foreground w-20 shrink-0">{t(`match.dim.${key}`)}</span>
+              <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${barColor(pct)}`} style={{ width: `${pct}%` }} />
+              </div>
+              <span className="text-xs sm:text-[10px] font-medium text-foreground w-12 text-right tabular-nums">
+                {Math.round((detail.components[key] ?? 0) * weight)}/{weight}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+      {reasons.length > 0 && (
+        <ul className="mt-2 space-y-0.5 text-xs text-muted-foreground list-disc pl-4">
+          {reasons.map(r => <li key={r}>{r}</li>)}
+        </ul>
+      )}
+      <p className="mt-2 text-xs sm:text-[11px] text-muted-foreground">{t('match.employerNote')}</p>
     </div>
   )
 }

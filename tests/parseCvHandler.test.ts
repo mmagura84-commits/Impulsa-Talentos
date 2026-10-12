@@ -11,18 +11,23 @@ const pdf = new Uint8Array(readFileSync(join(import.meta.dir, 'fixtures/cv/chrom
 const scanned = new Uint8Array(readFileSync(join(import.meta.dir, 'fixtures/cv/scanned.pdf')))
 
 let handler: (req: Request) => Promise<Response>
-const saved: { body?: Record<string, unknown>; url?: string } = {}
+const saved: { body?: Record<string, unknown>; url?: string; extracted?: Record<string, unknown> } = {}
+let claudeDown = false
 let files: Record<string, Uint8Array> = {}
 
 beforeAll(async () => {
   ;(globalThis as Record<string, unknown>).Deno = {
-    env: { get: (k: string) => ({ SUPABASE_URL: URL_, SUPABASE_ANON_KEY: 'anon' } as Record<string, string>)[k] },
+    env: { get: (k: string) => ({ SUPABASE_URL: URL_, SUPABASE_ANON_KEY: 'anon', ANTHROPIC_API_KEY: 'test-key' } as Record<string, string>)[k] },
     serve: (h: typeof handler) => { handler = h },
   }
   const realFetch = globalThis.fetch
   globalThis.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
     const u = String(input)
     const auth = new Headers(init?.headers).get('authorization')
+    if (u.startsWith('https://api.anthropic.com/')) {
+      if (claudeDown) return new Response('{}', { status: 529 })
+      return Response.json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({ skills: ['SQL', 'Power BI'], languages: [{ name: 'English', level: 'C1' }], years_experience: 4, current_title: 'Analista de Riesgo', desired_role: null, seniority: 'mid', industries: ['Banking'], education: [], summary: 'Analista de datos bilingüe.' }) }] })
+    }
     if (!u.startsWith(URL_)) return realFetch(input, init)
     if (u.endsWith('/auth/v1/user')) return auth === 'Bearer good' ? Response.json({ id: USER }) : new Response('{}', { status: 401 })
     if (u.includes('/rest/v1/profiles?select=id')) return Response.json([{ id: PROFILE }])
@@ -31,7 +36,9 @@ beforeAll(async () => {
       return files[path] ? new Response(files[path]) : new Response('{}', { status: 400 })
     }
     if (u.includes(`/rest/v1/profiles?id=eq.${PROFILE}`) && init?.method === 'PATCH') {
-      saved.url = u; saved.body = JSON.parse(String(init.body)); return new Response(null, { status: 204 })
+      const body = JSON.parse(String(init.body))
+      if ('cv_extracted' in body) saved.extracted = body; else { saved.url = u; saved.body = body }
+      return new Response(null, { status: 204 })
     }
     return new Response('{}', { status: 500 })
   }) as typeof fetch
@@ -48,6 +55,23 @@ describe('parse-cv handler', () => {
     expect(res.status).toBe(200)
     expect((await res.json()).format).toBe('pdf')
     expect(String(saved.body?.parsed_cv_text)).toContain('Power BI')
+  })
+  test('Claude\'s structured fields are saved after the text', async () => {
+    files = { [`cvs/${USER}/cv.pdf`]: pdf }
+    saved.extracted = undefined
+    const res = await call({ path: `cvs/${USER}/cv.pdf` })
+    expect((await res.json()).extracted).toBe(true)
+    const ex = saved.extracted?.cv_extracted as { skills: string[]; model: string }
+    expect(ex.skills).toEqual(['SQL', 'Power BI'])
+    expect(ex.model).toBe('claude-haiku-5-5')
+  })
+  test('Claude being down never fails the upload', async () => {
+    files = { [`cvs/${USER}/cv.pdf`]: pdf }
+    claudeDown = true
+    const res = await call({ path: `cvs/${USER}/cv.pdf` })
+    claudeDown = false
+    expect(res.status).toBe(200)
+    expect((await res.json()).extracted).toBe(false)
   })
   test('application CVs under resumes/<own profile>/ work too', async () => {
     files = { [`resumes/${PROFILE}/job-1.pdf`]: pdf }

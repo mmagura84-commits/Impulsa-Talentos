@@ -10,7 +10,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
-import { useProfile, useCreateProfile, useUpdateProfile } from '@/hooks/useProfile'
+import { useProfile, useCreateProfile, useUpdateProfile, profileKeys } from '@/hooks/useProfile'
+import { useQueryClient } from '@tanstack/react-query'
+import { CvSuggestions, type CvPatch } from '@/components/profile/CvSuggestions'
 import { useCompany } from '@/hooks/useCompanies'
 import { useI18n } from '@/i18n/I18nProvider'
 import { Switch } from '@/components/ui/switch'
@@ -278,6 +280,7 @@ function NotificationPrefsCard({
 function ProfilePage() {
   const { user } = useAuth()
   const { data: profile, isLoading } = useProfile(user?.id)
+  const queryClient = useQueryClient()
   const createProfile = useCreateProfile()
   const updateProfile = useUpdateProfile()
   const { locale, t } = useI18n()
@@ -419,7 +422,8 @@ function ProfilePage() {
         toast.success(t('profile.cv.uploaded'), { duration: 1800 })
         // Read the CV's text for matching; a CV we can't read is still saved.
         void requestCvParse(path).then(r => {
-          if (r === 'ok') toast.success(t('profile.cv.readOk'))
+          // The text and Claude's suggestions are now on the profile row.
+          if (r === 'ok') { void queryClient.invalidateQueries({ queryKey: profileKeys.all }); toast.success(t('profile.cv.readOk')) }
           else if (r === 'no_text' || r === 'unsupported') toast.message(t('profile.cv.readFailed'), { duration: 8000 })
         })
       } else {
@@ -436,6 +440,24 @@ function ProfilePage() {
     try {
       await updateProfile.mutateAsync({ id: profile.id, data: { cvUrl: '', parsedCvText: '' } })
       toast.success(t('profile.cv.removed'), { duration: 1800 })
+    } catch (err) { toast.error(friendlyDbError(err, t) || t('common.retry')) }
+  }
+
+  /** Add what the CV showed (picked in CvSuggestions) to the form and the saved profile. */
+  const applyCvSuggestions = async (patch: CvPatch) => {
+    if (!profile) return
+    const skills = [...form.skills.split(',').map(s => s.trim()).filter(Boolean), ...(patch.skills ?? [])]
+    const languages = [form.languages.trim(), ...(patch.languages ?? [])].filter(Boolean).join(', ')
+    const years = patch.years != null ? String(patch.years) : form.yearsOfExperience
+    const role = patch.role ?? form.positionTitle
+    setForm(f => ({ ...f, skills: skills.join(', '), languages, yearsOfExperience: years, positionTitle: role }))
+    try {
+      await updateProfile.mutateAsync({ id: profile.id, data: {
+        skills, languages,
+        ...(patch.years != null ? { experienceYears: patch.years } : {}),
+        ...(patch.role ? { desiredRole: patch.role } : {}),
+      } })
+      toast.success(t('match.cv.added'), { duration: 1800 })
     } catch (err) { toast.error(friendlyDbError(err, t) || t('common.retry')) }
   }
 
@@ -840,7 +862,16 @@ function ProfilePage() {
                         </div>
                       </div>
                     </div>
-                  ) : (
+                  ) : null}
+                  {form.cvUrl && profile?.cvExtracted && (
+                    <CvSuggestions
+                      extracted={profile.cvExtracted}
+                      stamp={profile.cvExtractedAt ?? ''}
+                      current={{ skills: form.skills, languages: form.languages, years: form.yearsOfExperience, role: form.positionTitle }}
+                      onAdd={applyCvSuggestions}
+                    />
+                  )}
+                  {form.cvUrl ? null : (
                     <>
                       <div className="flex flex-wrap items-center gap-3">
                         <Button

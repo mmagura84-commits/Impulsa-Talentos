@@ -21,6 +21,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { BarChart3, Clock, Gauge, Users } from 'lucide-react'
 import { useAllProfiles } from '@/hooks/useProfile'
 import { scoreMatch } from '@/lib/matchScore'
+import { useJobApplicantMatches } from '@/hooks/useJobMatches'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { Job, Application } from '@/types'
 import { PIPELINE_STATUSES, STATUS_HEX_COLORS } from '@/lib/applicationStatus'
@@ -28,6 +29,7 @@ import { PIPELINE_STATUSES, STATUS_HEX_COLORS } from '@/lib/applicationStatus'
 export function JobAnalytics({ job, applications }: { job: Job; applications: Application[] }) {
   const { t, locale } = useI18n()
   const { data: profiles } = useAllProfiles()
+  const { data: stored } = useJobApplicantMatches(job.id)
 
   const profileById = useMemo(
     () => new Map((profiles ?? []).map(p => [p.id, p])),
@@ -39,11 +41,14 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
     () =>
       applications
         .map(a => {
+          // Stored score first (same as candidate and review panel), heuristic fallback.
+          const db = stored?.get(a.candidateId)
+          if (db) return db.score
           const p = profileById.get(a.candidateId)
           return p ? scoreMatch(p, job).total : null
         })
         .filter((s): s is number => s !== null),
-    [applications, profileById, job],
+    [applications, profileById, job, stored],
   )
   const avgScore = scores.length
     ? Math.round(scores.reduce((a, b) => a + b, 0) / scores.length)

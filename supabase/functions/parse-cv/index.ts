@@ -3,26 +3,19 @@
 // Reads the signed-in candidate's CV from the private `cvs` bucket, extracts
 // its text (PDF or DOCX, see extract.ts) and stores it in their own
 // profiles.parsed_cv_text, which the matcher uses as evidence of skills.
-// The text is never shown to anyone.
+// The text is never shown to anyone. When ANTHROPIC_API_KEY is set, Claude
+// then turns the text into structured fields (claude.ts) stored in
+// profiles.cv_extracted: suggestions for the candidate's profile and extra
+// evidence for matching. Extraction failing never fails the upload.
 //
-// ── Request ────────────────────────────────────────────────────────────
-//   POST /functions/v1/parse-cv
-//   Authorization: Bearer <candidate's access token>
-//   { "path": "cvs/<auth-user-id>/<file>.pdf" }      (profile CV)
-//        or "resumes/<profile-id>/<file>.docx"        (CV attached when applying)
-//
-// Everything runs with the CALLER's token: Storage row-level security decides
-// whether the file can be read, and the profile update can only touch the
-// caller's own row. The path must also belong to the caller.
-//
-// ── Response ───────────────────────────────────────────────────────────
-//   200 { "format": "pdf" | "docx", "charCount": 1234 }
-//   400 bad request · 401 not signed in · 403 not your file
-//   413 over 10 MB · 415 not a PDF/DOCX · 422 no text (scanned image)
+// Request:  POST /functions/v1/parse-cv  { "path": "cvs/<auth-user-id>/<file>" | "resumes/<profile-id>/<file>" }
+// Response: 200 { format, charCount, extracted } · 400 · 401 · 403 · 413 · 415 · 422 (no text)
 import { extractCvText, UnsupportedCvError } from './extract.ts'
+import { CLAUDE_MODEL, extractWithClaude } from './claude.ts'
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const ANON = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
 const MAX_BYTES = 10 * 1024 * 1024
 const PATH_RE = /^(cvs|resumes)\/([0-9a-f-]{36})\/[^/]{1,200}$/i
 
@@ -80,7 +73,23 @@ Deno.serve(async (req) => {
       body: JSON.stringify({ parsed_cv_text: result.text }),
     })
     if (!upd.ok) return json({ error: `could not save (HTTP ${upd.status})` }, 502)
-    return json({ format: result.format, charCount: result.text.length })
+
+    // Structured fields with Claude (optional; the text is already saved).
+    let extracted = false
+    if (ANTHROPIC_KEY) {
+      try {
+        const fields = await extractWithClaude(result.text, ANTHROPIC_KEY)
+        const save = await fetch(`${SUPABASE_URL}/rest/v1/profiles?id=eq.${own.id}`, {
+          method: 'PATCH',
+          headers: { ...asUser, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+          body: JSON.stringify({ cv_extracted: { ...fields, model: CLAUDE_MODEL }, cv_extracted_at: new Date().toISOString() }),
+        })
+        extracted = save.ok
+      } catch (err) {
+        console.error('parse-cv extraction', err instanceof Error ? err.message : err)
+      }
+    }
+    return json({ format: result.format, charCount: result.text.length, extracted })
   } catch (err) {
     console.error('parse-cv', err)
     return json({ error: 'internal error' }, 500)

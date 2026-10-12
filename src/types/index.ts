@@ -2,6 +2,20 @@
 
 import type { CareVacancyFields } from '@/lib/care'
 
+/** Output of the parse-cv function's Claude step (supabase/functions/parse-cv/claude.ts). */
+export interface CvExtracted {
+  skills: string[]
+  languages: { name: string; level: string }[]
+  years_experience: number | null
+  current_title: string | null
+  desired_role: string | null
+  seniority: string
+  industries: string[]
+  education: { degree: string | null; field: string | null; institution: string | null }[]
+  summary: string
+  model?: string
+}
+
 export interface Profile {
   id: string
   userId: string
@@ -39,6 +53,9 @@ export interface Profile {
   desiredSalaryMax?: number
   /** Raw text extracted from the uploaded CV — used for matching, never displayed. */
   parsedCvText?: string
+  /** Professional fields Claude read from the CV (contact details removed first). Suggestions only. */
+  cvExtracted?: CvExtracted | null
+  cvExtractedAt?: string | null
   /** Employer meeting provider preference. */
   meetingProvider?: string
   /** Employer default meeting room URL. */

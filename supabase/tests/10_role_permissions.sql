@@ -604,3 +604,54 @@ select t.reset();
 select t.check('CV bucket enforces 10 MB and document/image types',
   (select file_size_limit = 10485760 and 'application/pdf' = any(allowed_mime_types) and not ('application/zip' = any(allowed_mime_types))
      from storage.buckets where id = 'cvs'));
+
+\echo '── Matching and scoring (048)'
+insert into auth.users (id, email) values
+  ('00000000-0000-0000-0000-0000000000a5', 'match1@test.co'), ('00000000-0000-0000-0000-0000000000a6', 'match2@test.co');
+insert into public.profiles (id, user_id, role, full_name, languages, location, experience_years, parsed_cv_text) values
+  ('10000000-0000-0000-0000-0000000000a5', '00000000-0000-0000-0000-0000000000a5', 'candidate', 'Match Uno', 'Inglés C1', 'Medellín',
+   4, 'Analista con experiencia en análisis de datos, SQL y Power BI.'),
+  ('10000000-0000-0000-0000-0000000000a6', '00000000-0000-0000-0000-0000000000a6', 'candidate', 'Match Dos', 'English A2', 'Bogotá',
+   1, null);
+update public.profiles set skills = '{SQL}' where id = '10000000-0000-0000-0000-0000000000a6';
+insert into public.jobs (id, company_id, title, status, moderation_status, published_at, level, location_type,
+                         skills_required, languages_required, salary_min, salary_max, currency) values
+  ('30000000-0000-0000-0000-0000000000a5', '20000000-0000-0000-0000-0000000000e1', 'Bilingual Data Analyst', 'open', 'approved', now(),
+   'Mid-level', 'Hybrid · Medellín', 'SQL, Power BI, Data Analysis, Python', 'English B2+, Spanish Native', 6000000, 9000000, 'COP');
+insert into public.applications (id, job_id, candidate_id, status, cover_letter) values
+  ('40000000-0000-0000-0000-0000000000a5', '30000000-0000-0000-0000-0000000000a5', '10000000-0000-0000-0000-0000000000a5', 'applied', 'hola');
+select t.check('a new job is scored against ready candidates',
+  (select count(*) = 2 from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5'
+     and profile_id in ('10000000-0000-0000-0000-0000000000a5', '10000000-0000-0000-0000-0000000000a6')));
+select t.check('Spanish CV text matches English job skills, and the missing one is named',
+  (select score >= 80 and eligible and detail -> 'skills' -> 'missing' = '["python"]'::jsonb
+          and detail -> 'skills' -> 'from_cv' ? 'data analysis'
+     from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5' and profile_id = '10000000-0000-0000-0000-0000000000a5'));
+select t.check('English two levels under the bar is flagged, not hidden',
+  (select not eligible and score < 50 from public.job_matches
+    where job_id = '30000000-0000-0000-0000-0000000000a5' and profile_id = '10000000-0000-0000-0000-0000000000a6'));
+update public.profiles set languages = 'English B2' where id = '10000000-0000-0000-0000-0000000000a6';
+select t.check('a profile change rescores at once',
+  (select eligible from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5' and profile_id = '10000000-0000-0000-0000-0000000000a6'));
+select t.act_as('00000000-0000-0000-0000-0000000000a5');
+select t.expect_rows('a candidate sees only their own scores', $$select * from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5'$$, 1);
+select t.expect_error('a candidate cannot write scores', $$insert into public.job_matches (job_id, profile_id, score, eligible, detail) values ('30000000-0000-0000-0000-0000000000a5', '10000000-0000-0000-0000-0000000000a5', 100, true, '{}')$$);
+select t.expect_error('only HQ can rebuild all scores', $$select public.admin_rebuild_matches()$$);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000e1');
+select t.expect_rows('an employer sees scores only for candidates who applied', $$select * from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5'$$, 1);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000e2');
+select t.expect_rows('another company sees none', $$select * from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5'$$, 0);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_ok('HQ rebuilds all scores', $$select public.admin_rebuild_matches()$$);
+select t.reset();
+update public.jobs set status = 'closed' where id = '30000000-0000-0000-0000-0000000000a5';
+select t.check('closing a job removes its scores',
+  not exists (select 1 from public.job_matches where job_id = '30000000-0000-0000-0000-0000000000a5'));
+update public.profiles set cv_extracted = '{"skills":["SQL"]}', cv_extracted_at = now(), cv_url = 'cvs/x/cv.pdf', parsed_cv_text = 'SQL'
+ where id = '10000000-0000-0000-0000-0000000000a6';
+update public.profiles set cv_url = '', parsed_cv_text = '' where id = '10000000-0000-0000-0000-0000000000a6';
+select t.check('removing the CV also removes what was extracted from it',
+  (select cv_extracted is null and cv_extracted_at is null from public.profiles where id = '10000000-0000-0000-0000-0000000000a6'));

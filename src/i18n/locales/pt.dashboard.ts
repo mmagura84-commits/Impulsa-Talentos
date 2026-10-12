@@ -29,7 +29,7 @@ const ptDashboard: Dict = {
   'dashboard.recommendedJobs.title': 'Vagas Recentes',
   'dashboard.recommendedJobs.desc': 'As últimas oportunidades publicadas na plataforma.',
   'dashboard.matches.title': 'Melhores combinações para você',
-  'dashboard.matches.desc': 'Pontuadas com nossa tecnologia proprietária segundo seu perfil — as melhores no topo.',
+  'dashboard.matches.desc': 'Pontuadas pelas suas habilidades, idiomas, experiência, salário e localização, com os motivos. As melhores primeiro.',
   'dashboard.matches.matchScore': 'Match',
   'dashboard.matches.empty': 'Adicione habilidades, idiomas e uma bio ao seu perfil para ver combinações.',
   'dashboard.matches.weakTitle': 'Vagas recentes',

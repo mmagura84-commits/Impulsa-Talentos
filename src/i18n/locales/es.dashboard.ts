@@ -29,7 +29,7 @@ const esDashboard: Dict = {
   'dashboard.recommendedJobs.title': 'Vacantes Recientes',
   'dashboard.recommendedJobs.desc': 'Las ultimas oportunidades publicadas en la plataforma.',
   'dashboard.matches.title': 'Mejores coincidencias para ti',
-  'dashboard.matches.desc': 'Puntuadas con nuestra tecnología propietaria según tu perfil — las mejores arriba.',
+  'dashboard.matches.desc': 'Puntuadas según tus habilidades, idiomas, experiencia, salario y ubicación, con las razones. Las mejores arriba.',
   'dashboard.matches.matchScore': 'Match',
   'dashboard.matches.empty': 'Agrega habilidades, idiomas y una bio a tu perfil para ver coincidencias.',
   'dashboard.matches.weakTitle': 'Vacantes recientes',
