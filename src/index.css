@@ -187,9 +187,10 @@ html, body {
     -webkit-overflow-scrolling: touch;
   }
 
-  /* Prevent browser chrome from interfering with pull-to-refresh / overscroll. */
-  html {
-    overscroll-behavior-y: none;
+  /* Leave the page's vertical overscroll to the browser so pulling down at the
+     top of a page on a phone shows the browser's pull-to-refresh. */
+  html, body {
+    overscroll-behavior-y: auto;
   }
 
   /* Full viewport chain so AppShell / Sidebar h-full + flex-1 work */
@@ -299,5 +300,24 @@ html, body {
     padding-inline: 1.5rem;
     font-size: 1rem;
     font-weight: 600;
+  }
+}
+
+/* Home and public pages: clear separation between section backgrounds and the
+   cards on them (tinted band with white cards, white band with lifted cards). */
+.section-tint { background-color: #e8eefb; }
+.dark .section-tint { background-color: oklch(0.2 0.03 260); }
+.card-lift {
+  background-color: var(--color-card);
+  border-color: rgb(31 58 138 / 0.14);
+  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 10px 28px -14px rgb(31 58 138 / 0.35);
+}
+.dark .card-lift { border-color: rgb(255 255 255 / 0.1); box-shadow: none; }
+
+/* Public pages on phones: darker secondary text so it reads on white and tint. */
+@media (max-width: 767px) {
+  :root:not(.dark) body:has([data-public-header]) main#main {
+    --muted-foreground: oklch(0.42 0.025 260);
+    --color-muted-foreground: oklch(0.42 0.025 260);
   }
 }

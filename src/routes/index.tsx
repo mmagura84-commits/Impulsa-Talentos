@@ -4,19 +4,9 @@ import {
   ArrowRight,
   Briefcase,
   Building2,
-  Clock,
-  Code2,
-  DollarSign,
-  Globe,
-  Headphones,
-  HeartPulse,
-  Landmark,
-  Languages,
   MapPin,
   Sparkles,
   Search,
-  Truck,
-  Users,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
@@ -84,7 +74,7 @@ function LandingCTAs() {
   }
   const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer', search: { signup: 1 } as never }) }
   return (
-    <div className="grid w-full grid-cols-2 gap-3 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-start">
+    <div className="grid w-full grid-cols-1 gap-3 sm:flex sm:w-auto sm:flex-wrap sm:items-center sm:justify-start">
       <Button asChild size="lg" className="h-12 gap-2 bg-white px-4 text-[15px] font-semibold text-slate-900 shadow-lg hover:bg-white/90 sm:px-7 sm:text-base">
         <Link to="/jobs">
           <Search className="size-4" />
@@ -145,7 +135,7 @@ function StatsBar() {
   const { t } = useI18n()
 
   return (
-    <section className="border-y border-border bg-muted/40">
+    <section className="border-b border-border bg-card">
       <div className="mx-auto max-w-6xl px-5 py-8 text-center">
         <p className="text-lg font-semibold text-foreground">{t('landing.trustedByLine')}</p>
       </div>
@@ -326,7 +316,7 @@ function CityShowcase() {
   const { ref: scrollerRef, active, goTo, pause } = usePhoneSlideshow(CITIES.length, 4500)
 
   return (
-    <section className="border-y border-border bg-muted/30 py-12 sm:py-20">
+    <section className="section-tint py-12 sm:py-20">
       <div className="mx-auto max-w-6xl px-5"><SectionReveal>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -411,11 +401,27 @@ function IndustrySlides({ children }: { children: ReactNode }) {
     </div>
   )
 }
+/* Photo for each industry family card (images read better than icons). */
+const FAMILY_PHOTOS: Record<string, string> = {
+  'tech-engineering': '/images/industry-technology.webp',
+  'finance-business': '/images/industry-finance.webp',
+  'customer-hospitality': '/images/industry-customer-hospitality.webp',
+  'operations-industrial': '/images/industry-operations-logistics.webp',
+  'healthcare-public': '/images/industry-healthcare.webp',
+}
 function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
   const { t } = useI18n(); const { data: jobs } = useAllJobs(); const counts = new Map<string, number>();
   for (const j of (jobs ?? []).filter(j => isOpen(j) && j.industry)) counts.set(j.industry!, (counts.get(j.industry!) ?? 0) + 1);
-  const total = family.members.reduce((n, m) => n + (counts.get(m) ?? 0), 0); const Icon = family.icon === 'Code2' ? Code2 : family.icon === 'Landmark' ? Landmark : family.icon === 'Headphones' ? Headphones : family.icon === 'Truck' ? Truck : HeartPulse;
-  return <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5"><div className="flex items-center justify-between"><div className="flex h-11 w-11 items-center justify-center rounded-lg bg-primary/10 text-primary"><Icon className="size-5" /></div>{total > 0 && <span className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">{t('industries.open', { n: total })}</span>}</div><h3 className="mt-4 font-semibold text-foreground">{t(`industries.family.${family.slug}`)}</h3><div className="mt-3 flex flex-wrap gap-1.5">{family.members.filter(m => (counts.get(m) ?? 0) > 0).map(m => { const slug = INDUSTRIES.find(x => x.canonical === m)?.slug; return <Link key={m} to="/jobs" search={{ industry: slug }} className="rounded-full border border-border px-2.5 py-1 text-xs text-muted-foreground hover:border-primary/40 hover:text-primary">{t(`industries.${slug}`)} <b className="text-primary">{counts.get(m)}</b></Link> })}{total === 0 && <p className="text-xs text-muted-foreground/70">{t('industries.comingSoon')}</p>}</div></div>
+  const total = family.members.reduce((n, m) => n + (counts.get(m) ?? 0), 0)
+  return <div className="card-lift flex h-full flex-col overflow-hidden rounded-2xl border">
+    <div className="relative h-36 shrink-0">
+      <img src={FAMILY_PHOTOS[family.slug] ?? '/images/hero-professional-coworking.webp'} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent" />
+      <h3 className="absolute inset-x-4 bottom-3 font-semibold text-white drop-shadow-sm">{t(`industries.family.${family.slug}`)}</h3>
+      {total > 0 && <span className="absolute right-3 top-3 rounded-full bg-accent px-2.5 py-0.5 text-xs font-bold text-[#0f1f4d] shadow">{t('industries.open', { n: total })}</span>}
+    </div>
+    <div className="flex flex-1 flex-wrap content-start gap-1.5 p-4">{family.members.filter(m => (counts.get(m) ?? 0) > 0).map(m => { const slug = INDUSTRIES.find(x => x.canonical === m)?.slug; return <Link key={m} to="/jobs" search={{ industry: slug }} className="rounded-full border border-primary/15 bg-primary/[.04] px-2.5 py-1 text-xs text-foreground/80 hover:border-primary/40 hover:text-primary">{t(`industries.${slug}`)} <b className="text-primary">{counts.get(m)}</b></Link> })}{total === 0 && <p className="text-sm text-muted-foreground">{t('industries.comingSoon')}</p>}</div>
+  </div>
 }
 
 function LandingPage() {
@@ -469,19 +475,22 @@ function LandingPage() {
           {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 pb-10 pt-[5.75rem] sm:px-6 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
+        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-5 pb-14 pt-[6.5rem] sm:px-6 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
           <div className="grid w-full items-center gap-9 sm:gap-12 [&>*]:min-w-0 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
-            <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs font-semibold text-white/90 backdrop-blur-sm sm:px-3.5 sm:py-1.5 sm:text-sm"><Sparkles className="size-3.5 text-accent sm:size-4" />{t('landing.badge')}</span><h1 className="mt-4 text-[2.15rem] font-bold tracking-tight leading-[1.08] text-white sm:mt-3 sm:text-5xl sm:leading-[1.04] lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-4 max-w-xl text-[15px] leading-relaxed text-white/80 sm:mt-3 sm:text-lg sm:text-white/85 xl:text-xl">{t('landing.heroSub')}</p><div className="mt-7 w-full sm:mt-5 sm:w-auto"><BlinkClientBoundary fallback={<div className="h-12 w-full rounded-lg bg-white/20 animate-pulse sm:w-44" />}><LandingCTAs /></BlinkClientBoundary></div></div>
-            <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
+            <div className="flex flex-col items-start text-left"><span className="hidden items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3 py-1 text-xs sm:inline-flex font-semibold text-white/90 backdrop-blur-sm sm:px-3.5 sm:py-1.5 sm:text-sm"><Sparkles className="size-3.5 text-accent sm:size-4" />{t('landing.badge')}</span><h1 className="text-[2.15rem] font-bold tracking-tight leading-[1.08] text-white sm:mt-3 sm:text-5xl sm:leading-[1.04] lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-5 max-w-xl text-[15px] leading-relaxed text-white/85 sm:mt-3 sm:text-lg sm:text-white/85 xl:text-xl">{t('landing.heroSub')}</p><div className="mt-8 w-full sm:mt-5 sm:w-auto"><BlinkClientBoundary fallback={<div className="h-12 w-full rounded-lg bg-white/20 animate-pulse sm:w-44" />}><LandingCTAs /></BlinkClientBoundary></div></div>
+            <div className="relative hidden w-full flex-col sm:flex"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 hidden sm:block size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-xs sm:text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <CompanyRibbon companies={companies} />
+      {/* Phones: the live job feed sits in its own band under the hero so the
+          hero itself stays to a headline, one line and the two buttons. */}
+      <section className="bg-[#0f1f4d] px-5 py-6 sm:hidden"><JobFeedPreview /></section>
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
+      <section className="section-tint"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
         <SectionReveal>
           <div className="mx-auto max-w-xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -492,15 +501,15 @@ function LandingPage() {
         </SectionReveal>
         <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-5">
           {[
-            { step: '01', img: '/images/industry-technology.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '01', img: '/images/industry-creative-media.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
             { step: '02', img: '/images/employer/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
             { step: '03', img: '/images/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
-              <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
-                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="hidden h-32 w-full object-cover sm:block" />
+              <div className="card-lift flex h-full flex-col overflow-hidden rounded-2xl border transition-shadow hover:shadow-lg">
+                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="h-36 w-full object-cover sm:h-32" />
                 <div className="relative flex-1 p-5 sm:p-6">
-                  <span className="absolute top-4 right-5 text-3xl font-bold text-primary/20 sm:top-5">{s.step}</span>
+                  <span className="absolute -top-5 right-5 flex size-10 items-center justify-center rounded-full bg-accent text-sm font-bold text-primary shadow-md ring-4 ring-card">{s.step}</span>
                   <h3 className="font-semibold text-foreground">{s.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                 </div>
@@ -508,13 +517,13 @@ function LandingPage() {
             </SectionReveal>
           ))}
         </div>
-      </section>
+      </div></section>
 
-      <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><FamilyCard family={family} /></div>)}<div className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><FamilyCard family={family} /></div>)}<div className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><Link to="/dashboard" className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-2xl p-5 text-white shadow-lg"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105" /><div className="absolute inset-0 bg-gradient-to-t from-[#0f1f4d] via-[#0f1f4d]/70 to-[#0f1f4d]/10" /><h3 className="relative font-semibold">{t('industries.ctaTitle')}</h3><p className="relative mt-1.5 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-semibold text-accent">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
-      <section className="border-t border-border bg-muted/40">
+      <section className="bg-card">
         <div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
           <SectionReveal>
             <div className="mx-auto max-w-2xl text-center">
@@ -526,18 +535,16 @@ function LandingPage() {
           </SectionReveal>
           <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {[
-              { icon: Languages, title: t('landing.why1Title'), desc: t('landing.why1Desc') },
-              { icon: DollarSign, title: t('landing.why2Title'), desc: t('landing.why2Desc') },
-              { icon: Clock, title: t('landing.why3Title'), desc: t('landing.why3Desc') },
-              { icon: Users, title: t('landing.why4Title'), desc: t('landing.why4Desc') },
+              { img: '/images/industry-education-training.webp', title: t('landing.why1Title'), desc: t('landing.why1Desc') },
+              { img: '/images/industry-legal-public-sector.webp', title: t('landing.why2Title'), desc: t('landing.why2Desc') },
+              { img: '/images/professional-medellin-v2.webp', title: t('landing.why3Title'), desc: t('landing.why3Desc') },
+              { img: '/images/professional-cucuta-v2.webp', title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
-                <div className="flex h-full gap-3 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md sm:block sm:p-5">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                    <feat.icon className="size-5" />
-                  </div>
-                  <div className="min-w-0">
-                    <h3 className="font-semibold text-foreground sm:mt-4">{feat.title}</h3>
+                <div className="card-lift flex h-full items-center gap-4 overflow-hidden rounded-2xl border p-3 transition-shadow hover:shadow-lg sm:block sm:p-0">
+                  <img src={feat.img} alt="" loading="lazy" decoding="async" className="size-24 shrink-0 rounded-xl object-cover sm:h-36 sm:w-full sm:rounded-none" />
+                  <div className="min-w-0 sm:p-5">
+                    <h3 className="font-semibold text-foreground">{feat.title}</h3>
                     <p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:mt-1.5">{feat.desc}</p>
                   </div>
                 </div>
@@ -548,7 +555,7 @@ function LandingPage() {
       </section>
 
       {/* ── Colombian talent at work ───────────────────────── */}
-      <section className="border-t border-border bg-background">
+      <section className="section-tint">
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-5 py-12 sm:gap-8 sm:py-20 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl border border-border shadow-lg shadow-primary/5">
@@ -570,23 +577,22 @@ function LandingPage() {
         </div>
       </section>
       {/* ── Employer acquisition CTA ─────────────────────────── */}
-      <section className="border-t border-border bg-primary/[.04]">
+      <section className="bg-gradient-to-br from-[#1f3a8a] to-[#16306e] text-white">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
-          <div><p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-muted-foreground">{t('landing.employerCtaDesc')}</p></div>
-          <Button size="lg" className="shrink-0" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer?signup=1' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
+          <div><p className="text-sm font-semibold uppercase tracking-wider text-accent">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight text-white sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-white/85">{t('landing.employerCtaDesc')}</p></div>
+          <Button size="lg" className="w-full shrink-0 bg-accent font-semibold text-[#0f1f4d] hover:bg-accent/90 sm:w-auto" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer?signup=1' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           <img src={CTA_BAND_PHOTO} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover object-center" />
-          <div className="absolute inset-0 bg-background/75" />
+          <div className="absolute inset-0 bg-background/85" />
           <div className="absolute -bottom-32 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         </div>
         <div className="mx-auto max-w-3xl px-5 py-12 text-center sm:py-20">
           <SectionReveal>
-            <Globe className="mx-auto size-10 text-primary" />
-            <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
+            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
               {t('landing.footerTitle')}
             </h2>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">

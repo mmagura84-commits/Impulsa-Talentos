@@ -29,6 +29,12 @@ test('home page has no horizontal scroll', async ({ page }) => {
   expect(overflow).toBeLessThanOrEqual(1)
 })
 
+test('pulling down at the top of the page can refresh it (overscroll not blocked)', async ({ page }) => {
+  await page.goto('/')
+  const blocked = await page.evaluate(() => [document.documentElement, document.body].map(el => getComputedStyle(el).overscrollBehaviorY))
+  expect(blocked).toEqual(['auto', 'auto'])
+})
+
 test('job board lists open jobs', async ({ page }) => {
   await page.goto('/jobs')
   await expect(page.locator('a[href^="/jobs/"]').first()).toBeVisible({ timeout: 15_000 })
