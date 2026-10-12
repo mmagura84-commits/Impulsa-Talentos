@@ -40,7 +40,7 @@ jobs:
           echo "Bundle Supabase target OK: LIVE cmdqlybsgkegolqydmbh"
       - name: Guard — build is complete
         run: |
-          test -f dist/index.html && test -f dist/spa-fallback.html && test -f dist/.htaccess && test -f dist/page.php || { echo "::error::dist/index.html, .htaccess or page.php missing"; exit 1; }
+          test -f dist/index.html && test -f dist/spa-fallback.html && test -f dist/.htaccess && test -f dist/index.php || { echo "::error::dist/index.html, .htaccess or index.php missing"; exit 1; }
       - name: Deploy (upload to staging folder, verify, then swap — never clears the live site first)
         env:
           HOST: ${{ secrets.HOSTINGER_HOST }}

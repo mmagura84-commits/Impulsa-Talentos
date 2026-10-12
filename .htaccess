@@ -23,10 +23,10 @@ RewriteRule ^api/ - [F,L]
 # Verified 2026-10-12 with cache-busting requests: /api/x and unknown paths
 # both return the prerendered home page (not 403 / the app shell), and pages
 # are served straight from disk with max-age=31536000. The rules are kept for
-# a host that honours them. What actually keeps pages fresh here is PHP: see
-# the index.php files the build writes next to each page (they send
-# s-maxage=60 so the CDN re-asks within a minute of a deploy), plus the
-# self-update script in every page.
+# a host that honours them. What actually keeps pages fresh here is PHP: the
+# build writes an index.php next to every page (this host serves it ahead of
+# index.html) which sends s-maxage=60, so the CDN re-asks within a minute of a
+# deploy; plus the self-update script in every page.
 
 # --- 2. SPA/SSR fallback -----------------------------------------
 # Serve existing files and prerendered directories directly, e.g.
@@ -65,7 +65,7 @@ RewriteRule ^ /spa-fallback.html [L]
   # NOTE (2026-10-12): this Hostinger plan ignores Header/Expires lines here
   # and sends "max-age=31536000" on every file, HTML included (verified with
   # the CDN bypassed). Kept for a host that honours them. What actually keeps
-  # pages fresh: page.php (rule 1b) sets s-maxage=60 on every page, plus the
+  # pages fresh: the index.php beside each page sets s-maxage=60, plus the
   # self-update script in every page (scripts/finalize-static-build.mjs) and
   # old /assets kept for 14 days (scripts/remote-swap.sh).
   <FilesMatch "\.html?$">

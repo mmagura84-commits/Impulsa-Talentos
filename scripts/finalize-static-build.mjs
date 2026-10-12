@@ -294,6 +294,33 @@ for (const f of htmlFiles) {
 }
 console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)
 
+// A tiny index.php next to every page, which this host serves ahead of
+// index.html (verified live). It returns the very same bytes, but with
+// "s-maxage=60": Hostinger's CDN then re-asks this server within a minute of
+// a deploy instead of holding the page for a year. Hostinger ignores the
+// .htaccess header and rewrite rules, and headers set by PHP are the only
+// ones it honours. Pages stay prerendered; nothing else changes.
+const PAGE_PHP = `<?php
+// Written by scripts/finalize-static-build.mjs. Serves the prerendered
+// index.html in this folder with a one-minute CDN lifetime (the host ignores
+// .htaccess cache headers, so this is what keeps pages fresh after a deploy).
+header('Content-Type: text/html; charset=utf-8');
+header('Cache-Control: public, max-age=0, s-maxage=60');
+header('X-Impulsa-Page: php');
+$file = __DIR__ . '/index.html';
+if (!is_file($file)) { http_response_code(404); exit; }
+if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') { header('Content-Length: ' . (string) filesize($file)); exit; }
+readfile($file);
+`
+let phpPages = 0
+for (const f of htmlFiles) {
+  if (!f.endsWith('index.html')) continue
+  writeFileSync(join(f, '..', 'index.php'), PAGE_PHP)
+  phpPages++
+}
+console.log(`[finalize] ✓ index.php (CDN: 60s) beside ${phpPages} pages`)
+
+
 if (!existsSync(join(DEST, 'index.html'))) {
   console.error('[finalize] dist/index.html missing after flatten — build is not publishable')
   process.exit(1)
