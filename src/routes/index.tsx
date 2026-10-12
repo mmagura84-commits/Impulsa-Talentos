@@ -338,6 +338,46 @@ function CityShowcase() {
   const { t } = useI18n()
   const { data: allJobs } = useAllJobs()
   const openJobs = (allJobs ?? []).filter(isOpen)
+  const reduce = useReducedMotion()
+
+  // Phones: a one-city-at-a-time slideshow (swipe or tap a dot; advances by
+  // itself while on screen, pauses after a touch). Tablet/desktop: a grid.
+  const scrollerRef = useRef<HTMLDivElement | null>(null)
+  const [active, setActive] = useState(0)
+  const pausedUntil = useRef(0)
+  const goTo = (i: number) => {
+    const el = scrollerRef.current
+    if (!el) return
+    setActive(i)
+    el.scrollTo({ left: i * el.clientWidth, behavior: reduce ? 'auto' : 'smooth' })
+  }
+  // One light timer drives everything (scroll events proved unreliable on some
+  // engines once snapping kicks in): it reads the scroll position to keep the
+  // dots in step with swipes, and every ~4.5 s moves to the next city while
+  // the slideshow is on screen and nobody has touched it recently.
+  useEffect(() => {
+    let last = Date.now()
+    const id = window.setInterval(() => {
+      const el = scrollerRef.current
+      if (!el || !window.matchMedia('(max-width: 639px)').matches) return
+      const w = Math.max(1, el.clientWidth)
+      const current = Math.min(CITIES.length - 1, Math.round(el.scrollLeft / w))
+      setActive(current)
+      const now = Date.now()
+      if (reduce || now < pausedUntil.current) { last = now; return }
+      const r = el.getBoundingClientRect()
+      const visible = r.top < window.innerHeight * 0.75 && r.bottom > window.innerHeight * 0.25
+      if (!visible) { last = now; return }
+      if (now - last < 4500) return
+      last = now
+      const next = (current + 1) % CITIES.length
+      setActive(next)
+      el.scrollTo({ left: next * w, behavior: 'smooth' })
+    }, 250)
+    return () => window.clearInterval(id)
+  }, [reduce])
+  const pause = () => { pausedUntil.current = Date.now() + 8000 }
+
   return (
     <section className="border-y border-border bg-muted/30 py-12 sm:py-20">
       <div className="mx-auto max-w-6xl px-5"><SectionReveal>
@@ -347,14 +387,23 @@ function CityShowcase() {
           </h2>
           <p className="mt-3 text-muted-foreground">{t('landing.citiesSub')}</p>
         </div>
-      </SectionReveal>
-      <SectionReveal><div className="mt-8 sm:mt-10 sm:gap-4 sm:grid-cols-3 lg:grid-cols-6 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">
-        {CITIES.map((city) => {
+      </SectionReveal></div>
+      {/* Full width from tablet up; a slideshow on phones. */}
+      <SectionReveal><div className="px-5 sm:px-6 lg:px-10">
+      <div
+        ref={scrollerRef}
+        onTouchStart={pause}
+        onPointerDown={pause}
+        aria-roledescription="carousel"
+        aria-label={t('landing.citiesTitle')}
+        className="mt-8 -mx-5 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-3 sm:gap-4 sm:overflow-visible lg:grid-cols-6"
+      >
+        {CITIES.map((city, i) => {
           const count = openJobs.filter((j) => city.re.test(j.locationType)).length
           const name = t(`landing.city${capitalize(city.key)}`)
           return (
-            <div key={city.key} className="w-[78%] shrink-0 snap-start sm:w-auto">
-              <div className="group relative h-48 overflow-hidden rounded-2xl sm:h-52 lg:h-56 border border-border shadow-lg shadow-primary/5">
+            <div key={city.key} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0" aria-roledescription="slide" aria-label={`${i + 1} / ${CITIES.length}: ${name}`}>
+              <div className="group relative h-64 overflow-hidden rounded-2xl border border-border shadow-lg shadow-primary/5 sm:h-56 lg:h-72 xl:h-80">
                 <img
                   src={CITY_PHOTOS[city.key]}
                   alt={t(CITY_IMAGE_ALT_KEY[city.key])}
@@ -364,14 +413,14 @@ function CityShowcase() {
                   className="absolute inset-0 size-full object-cover transition-transform duration-700 group-hover:scale-105"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/25 to-transparent" />
-                <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4">
+                <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4 xl:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2 lg:flex-col lg:items-start lg:gap-1.5">
-                    <h3 className="text-lg font-bold text-white drop-shadow-sm">{name}</h3>
+                    <h3 className="text-lg font-bold text-white drop-shadow-sm xl:text-xl">{name}</h3>
                     <span className={`rounded-full px-2.5 py-0.5 text-xs font-semibold backdrop-blur-sm ${count > 0 ? 'bg-white/15 text-white' : 'bg-black/35 text-white/85'}`}>
                       {count > 0 ? t('landing.cityOpen', { n: count }) : t('landing.cityComingSoon')}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm leading-snug text-white/85 drop-shadow-sm lg:hidden">
+                  <p className="mt-1 text-sm leading-snug text-white/85 drop-shadow-sm lg:hidden 2xl:block">
                     {t(`landing.city${capitalize(city.key)}Tag`)}
                   </p>
                 </div>
@@ -379,7 +428,22 @@ function CityShowcase() {
             </div>
           )
         })}
-      </div></SectionReveal></div>
+      </div>
+      <div className="mt-3 flex justify-center sm:hidden">
+        {CITIES.map((city, i) => (
+          <button
+            key={city.key}
+            type="button"
+            onClick={() => { pause(); goTo(i) }}
+            aria-label={t(`landing.city${capitalize(city.key)}`)}
+            aria-current={i === active ? 'true' : undefined}
+            className="flex items-center justify-center"
+          >
+            <span className={`block h-1.5 rounded-full transition-all ${i === active ? 'w-6 bg-primary' : 'w-1.5 bg-muted-foreground/40'}`} />
+          </button>
+        ))}
+      </div>
+      </div></SectionReveal>
     </section>
   )
 }
