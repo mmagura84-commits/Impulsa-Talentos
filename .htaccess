@@ -19,16 +19,14 @@ RewriteRule ^\.deploy(/|$) - [F,L]
 # home page for /api/* instead.)
 RewriteRule ^api/ - [F,L]
 
-# --- 1b. Pages come from page.php --------------------------------
-# Hostinger sends max-age=31536000 on every static file (HTML included) and
-# ignores the Header lines below, so its CDN kept each page until someone
-# flushed it by hand. Headers set by PHP *are* honoured, so page requests go
-# through page.php, which returns the same prerendered HTML with
-# "s-maxage=60": the CDN re-asks within a minute of a deploy. Anything with a
-# file extension (/assets/*, /images/*, /sw.js, /version.json, favicons,
-# robots.txt, .php itself) is untouched and still served statically.
-RewriteCond %{REQUEST_URI} !\.[A-Za-z0-9]{2,5}$
-RewriteRule ^ /page.php [L]
+# --- 1b. NOTE: this host ignores the RewriteRules below ----------
+# Verified 2026-10-12 with cache-busting requests: /api/x and unknown paths
+# both return the prerendered home page (not 403 / the app shell), and pages
+# are served straight from disk with max-age=31536000. The rules are kept for
+# a host that honours them. What actually keeps pages fresh here is PHP: see
+# the index.php files the build writes next to each page (they send
+# s-maxage=60 so the CDN re-asks within a minute of a deploy), plus the
+# self-update script in every page.
 
 # --- 2. SPA/SSR fallback -----------------------------------------
 # Serve existing files and prerendered directories directly, e.g.
