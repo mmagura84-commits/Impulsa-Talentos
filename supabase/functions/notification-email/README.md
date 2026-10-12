@@ -14,18 +14,19 @@ hand-off; this function turns each one into an email.
 
 1. **Resend**: verify the domain `impulsatalentos.expert` (SPF + DKIM records)
    and create an API key with "sending access".
-2. **Deploy** with JWT verification ON (dashboard editor, or the CLI):
+2. **Deploy** (dashboard editor with "Verify JWT" off, or the CLI):
 
    ```bash
-   supabase functions deploy notification-email --project-ref cmdqlybsgkegolqydmbh
+   supabase functions deploy notification-email --no-verify-jwt --project-ref cmdqlybsgkegolqydmbh
    supabase secrets set --project-ref cmdqlybsgkegolqydmbh RESEND_API_KEY=re_xxx
    # optional: SITE_URL, EMAIL_FROM
    ```
 3. **Webhook**: Dashboard → Integrations → Database Webhooks → *Create*:
    - Table `public.notifications`, event **Insert**
    - Type *Supabase Edge Functions* → `notification-email`, method POST
-   - Click **Add auth header with service key** (the function only accepts
-     callers holding the service role; browsers never have it)
+   - Click **Add auth header with service key**. The function compares that
+     bearer with the project's own service/secret keys and refuses anything
+     else, so browsers can never trigger an email.
 
    Alternative: set a `WEBHOOK_SECRET` secret and send it as the
    `x-webhook-secret` header instead.
