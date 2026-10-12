@@ -249,3 +249,10 @@ html, body {
 @media (max-width: 767px) {
   body.has-tabbar { padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
 }
+
+/* Job page sticky Apply bar (phones): clear the home indicator, and sit above
+   the tab bar for signed-in visitors. */
+.apply-bar { padding-bottom: calc(0.75rem + env(safe-area-inset-bottom, 0px)); }
+@media (max-width: 767px) {
+  body.has-tabbar .apply-bar { bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); padding-bottom: 0.75rem; }
+}

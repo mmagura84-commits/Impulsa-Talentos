@@ -147,7 +147,7 @@ function LandingCTAs() {
       </Button>
     )
   }
-  const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer', search: { signup: '1' } as never }) }
+  const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer', search: { signup: 1 } as never }) }
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
       <Button asChild size="lg" className="h-12 gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90">
@@ -297,12 +297,6 @@ const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
 const INDUSTRY_HERO_ALT_KEYS: Record<string, string> = {
   technology: 'landing.heroIndustryTechnologyAlt', finance: 'landing.heroIndustryFinanceAlt', 'customer-hospitality': 'landing.heroIndustryCustomerAlt', 'operations-logistics': 'landing.heroIndustryOperationsAlt', healthcare: 'landing.heroIndustryHealthcareAlt', 'sales-marketing': 'landing.heroIndustrySalesAlt', 'education-training': 'landing.heroIndustryEducationAlt', 'engineering-construction': 'landing.heroIndustryEngineeringAlt', 'creative-media': 'landing.heroIndustryCreativeAlt', 'legal-public-sector': 'landing.heroIndustryLegalAlt',
 }
-const REFERENCE_PHOTOS = {
-  developer: 'https://images.unsplash.com/photo-1606857521015-7f9fcf423740?auto=format&fit=crop&w=1280&q=80',
-  team: 'https://images.unsplash.com/photo-1553028826-f4804a6dba3b?auto=format&fit=crop&w=1280&q=80',
-  healthcare: 'https://images.unsplash.com/photo-1758691462743-f9fc9e430d39?auto=format&fit=crop&w=1280&q=80',
-  finance: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=1280&q=80',
-} as const
 // Focal points preserve the office mass and contextual greenery in the wide 3:2 source crops.
 const CITY_IMAGE_POSITION: Record<string, string> = {
   medellin: '50% 50%',
@@ -345,7 +339,7 @@ function CityShowcase() {
   const { data: allJobs } = useAllJobs()
   const openJobs = (allJobs ?? []).filter(isOpen)
   return (
-    <section className="border-y border-border bg-muted/30 py-16 sm:py-20">
+    <section className="border-y border-border bg-muted/30 py-12 sm:py-20">
       <div className="mx-auto max-w-6xl px-5"><SectionReveal>
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -354,13 +348,13 @@ function CityShowcase() {
           <p className="mt-3 text-muted-foreground">{t('landing.citiesSub')}</p>
         </div>
       </SectionReveal>
-      <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {CITIES.map((city, i) => {
+      <SectionReveal><div className="mt-8 sm:mt-10 sm:gap-5 sm:grid-cols-2 lg:grid-cols-3 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">
+        {CITIES.map((city) => {
           const count = openJobs.filter((j) => city.re.test(j.locationType)).length
           const name = t(`landing.city${capitalize(city.key)}`)
           return (
-            <SectionReveal key={city.key} delay={i * 0.08}>
-              <div className="group relative h-64 overflow-hidden rounded-2xl border border-border shadow-lg shadow-primary/5">
+            <div key={city.key} className="w-[78%] shrink-0 snap-start sm:w-auto">
+              <div className="group relative h-48 overflow-hidden rounded-2xl sm:h-64 border border-border shadow-lg shadow-primary/5">
                 <img
                   src={CITY_PHOTOS[city.key]}
                   alt={t(CITY_IMAGE_ALT_KEY[city.key])}
@@ -382,10 +376,10 @@ function CityShowcase() {
                   </p>
                 </div>
               </div>
-            </SectionReveal>
+            </div>
           )
         })}
-      </div></div>
+      </div></SectionReveal></div>
     </section>
   )
 }
@@ -447,21 +441,21 @@ function LandingPage() {
           {!reduce ? <AnimatePresence initial={false} mode="sync"><motion.img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" initial={{ opacity: 0, scale: KB[HERO_SLIDES[slide]].from }} animate={{ opacity: 1, scale: KB[HERO_SLIDES[slide]].to }} exit={{ opacity: 0 }} transition={{ duration: CROSSFADE_S }} className="absolute inset-0 size-full object-cover object-center" /></AnimatePresence> : <img key={slide} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[slide]]} alt={t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[slide]])} loading={slide === 0 ? 'eager' : 'lazy'} fetchPriority={slide === 0 ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-cover object-center" />}
           <div className="absolute inset-0 bg-black/50" /><div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/20 to-black/75" /><div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-black/60 to-transparent" /><div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/75 to-transparent" />
         </div>
-        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-28 pt-12 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
+        <div className="relative z-10 mx-auto w-full max-w-[88rem] px-6 pb-12 pt-12 sm:pb-32 sm:pt-14 lg:px-10 lg:pb-44 lg:pt-20 xl:pb-56 xl:pt-20">
           <div className="grid w-full items-center gap-12 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)] lg:gap-16 xl:gap-24">
             <div className="flex flex-col items-start text-left"><span className="inline-flex items-center gap-1.5 rounded-full border border-white/20 bg-white/10 px-3.5 py-1.5 text-sm font-semibold text-white/90 backdrop-blur-sm"><Sparkles className="size-4 text-accent" />{t('landing.badge')}</span><h1 className="mt-3 text-4xl font-bold tracking-tight leading-[1.04] text-white sm:text-5xl lg:text-6xl xl:text-[3.75rem]">{t('landing.heroTitle1')}<span className="block text-accent">{t('landing.heroTitle2')}</span></h1><p className="mt-3 max-w-xl text-base leading-relaxed text-white/85 sm:text-lg xl:text-xl">{t('landing.heroSub')}</p><div className="mt-5"><BlinkClientBoundary fallback={<div className="h-12 w-44 rounded-lg bg-white/20 animate-pulse" />}><LandingCTAs /></BlinkClientBoundary></div></div>
             <div className="relative flex w-full flex-col"><img src="/images/hero-professional-coworking.webp" alt={t('landing.heroSub')} loading="eager" decoding="async" className="absolute -inset-5 size-[calc(100%+2.5rem)] rounded-3xl object-cover opacity-35" /><div className="relative z-10"><JobFeedPreview /></div></div>
           </div>
         </div>
-        <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
-        <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
-        <div className="absolute inset-x-0 bottom-5 z-10 flex items-center justify-center gap-2">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
-        <p className="absolute bottom-1 left-3 z-10 max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6">Original industry imagery · Generated for Impulsa Talentos</p>
+        <button type="button" onClick={() => setSlide((slide - 1 + HERO_SLIDES.length) % HERO_SLIDES.length)} aria-label={t('landing.heroPrevious')} className="absolute left-3 top-1/2 z-10 hidden sm:inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">‹</span></button>
+        <button type="button" onClick={() => setSlide((slide + 1) % HERO_SLIDES.length)} aria-label={t('landing.heroNext')} className="absolute right-3 top-1/2 z-10 hidden sm:inline-flex size-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/25 bg-black/30 text-white backdrop-blur-sm transition hover:bg-black/55 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"><span aria-hidden="true">›</span></button>
+        <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
+        <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <CompanyRibbon companies={companies} />
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
-      <section className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+      <section className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
         <SectionReveal>
           <div className="mx-auto max-w-xl text-center">
             <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
@@ -470,7 +464,7 @@ function LandingPage() {
             <p className="mt-3 text-muted-foreground">{t('landing.howSub')}</p>
           </div>
         </SectionReveal>
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
+        <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-5">
           {[
             { step: '01', img: '/images/industry-technology.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
             { step: '02', img: '/images/employer/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
@@ -478,9 +472,9 @@ function LandingPage() {
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
               <div className="flex h-full flex-col overflow-hidden rounded-xl border border-border bg-card transition-shadow hover:shadow-md">
-                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="h-32 w-full object-cover" />
-                <div className="relative flex-1 p-6">
-                  <span className="absolute top-5 right-5 text-3xl font-bold text-primary/20">{s.step}</span>
+                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="hidden h-32 w-full object-cover sm:block" />
+                <div className="relative flex-1 p-5 sm:p-6">
+                  <span className="absolute top-4 right-5 text-3xl font-bold text-primary/20 sm:top-5">{s.step}</span>
                   <h3 className="font-semibold text-foreground">{s.title}</h3>
                   <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
                 </div>
@@ -490,18 +484,13 @@ function LandingPage() {
         </div>
       </section>
 
-      <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-16 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><div className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">{INDUSTRY_FAMILIES.map((family, i) => <SectionReveal key={family.slug} delay={(i%3)*.08}><FamilyCard family={family} /></SectionReveal>)}<SectionReveal delay={.16}><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></SectionReveal></div></div></section>
+      <section className="border-t border-border bg-muted/40"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><div className="mt-8 sm:mt-10 sm:gap-4 sm:grid-cols-2 lg:grid-cols-3 -mx-5 flex snap-x snap-mandatory gap-3 overflow-x-auto px-5 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:grid sm:overflow-visible sm:px-0 sm:pb-0">{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-[78%] shrink-0 snap-start sm:w-auto"><FamilyCard family={family} /></div>)}<div className="w-[78%] shrink-0 snap-start sm:w-auto"><Link to="/dashboard" className="group flex h-full flex-col rounded-xl border border-dashed border-primary/30 bg-primary/[.03] p-5"><Sparkles className="size-5 text-primary" /><h3 className="mt-4 font-semibold">{t('industries.ctaTitle')}</h3><p className="mt-1.5 text-sm text-muted-foreground">{t('industries.ctaDesc')}</p><span className="mt-auto pt-3 text-sm font-medium text-primary">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></div></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
       <section className="border-t border-border bg-muted/40">
-        <div className="mx-auto max-w-6xl px-5 py-16 sm:py-20">
+        <div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
           <SectionReveal>
-            <div className="mb-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-              {[
-                ['developer', 'Tech & Digital'], ['team', 'Customer Experience'], ['healthcare', 'Healthcare'], ['finance', 'Finance & BPO'],
-              ].map(([key, label]) => <div key={key} className="overflow-hidden rounded-xl border border-border bg-card"><img src={REFERENCE_PHOTOS[key as keyof typeof REFERENCE_PHOTOS]} alt={label} loading="lazy" className="h-28 w-full object-cover" /><p className="px-3 py-2 text-sm font-semibold text-foreground">{label}</p></div>)}
-            </div>
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
                 {t('landing.whyTitle')}
@@ -509,7 +498,7 @@ function LandingPage() {
               <p className="mt-3 text-muted-foreground">{t('landing.whySub')}</p>
             </div>
           </SectionReveal>
-          <div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {[
               { icon: Languages, title: t('landing.why1Title'), desc: t('landing.why1Desc') },
               { icon: DollarSign, title: t('landing.why2Title'), desc: t('landing.why2Desc') },
@@ -517,12 +506,14 @@ function LandingPage() {
               { icon: Users, title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
-                <div className="h-full rounded-xl border border-border bg-card p-5 transition-shadow hover:shadow-md">
-                  <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+                <div className="flex h-full gap-3 rounded-xl border border-border bg-card p-4 transition-shadow hover:shadow-md sm:block sm:p-5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <feat.icon className="size-5" />
                   </div>
-                  <h3 className="mt-4 font-semibold text-foreground">{feat.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{feat.desc}</p>
+                  <div className="min-w-0">
+                    <h3 className="font-semibold text-foreground sm:mt-4">{feat.title}</h3>
+                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:mt-1.5">{feat.desc}</p>
+                  </div>
                 </div>
               </SectionReveal>
             ))}
@@ -532,20 +523,23 @@ function LandingPage() {
 
       {/* ── Colombian talent at work ───────────────────────── */}
       <section className="border-t border-border bg-background">
-        <div className="mx-auto grid max-w-6xl items-center gap-8 px-5 py-16 sm:py-20 lg:grid-cols-2">
+        <div className="mx-auto grid max-w-6xl items-center gap-6 px-5 py-12 sm:gap-8 sm:py-20 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl border border-border shadow-lg shadow-primary/5">
-              <img src={TALENT_WORK_PHOTO} alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-72 w-full object-cover sm:h-96" />
+              <img src={TALENT_WORK_PHOTO} alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-48 w-full object-cover sm:h-96" />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
             <p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.talentEyebrow')}</p>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">{t('landing.talentTitle')}</h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">{t('landing.talentSub')}</p>
-            <p className="mt-4 text-xs text-muted-foreground/70">{candidatesPhoto.credit} · {t('landing.talentPhotoLicense')}</p>
-            <div className="mt-4 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/60" aria-label={t('landing.photoCreditLabel')}>
+            <details className="mt-4 text-xs text-muted-foreground/70">
+              <summary className="cursor-pointer select-none">{t('landing.photoCreditLabel')}</summary>
+              <p className="mt-2">{candidatesPhoto.credit} · {t('landing.talentPhotoLicense')}</p>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/60" aria-label={t('landing.photoCreditLabel')}>
               {PHOTO_CREDITS.map(([author, license, file, licenseUrl]) => <span key={author}><a href={file} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{author}</a> (<a href={licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{license}</a>)</span>)}
             </div>
+            </details>
           </SectionReveal>
         </div>
       </section>
@@ -563,7 +557,7 @@ function LandingPage() {
           <div className="absolute inset-0 bg-background/75" />
           <div className="absolute -bottom-32 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         </div>
-        <div className="mx-auto max-w-3xl px-5 py-16 text-center sm:py-20">
+        <div className="mx-auto max-w-3xl px-5 py-12 text-center sm:py-20">
           <SectionReveal>
             <Globe className="mx-auto size-10 text-primary" />
             <h2 className="mt-4 text-3xl font-bold tracking-tight text-foreground sm:text-4xl">

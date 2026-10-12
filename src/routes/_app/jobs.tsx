@@ -9,7 +9,8 @@ import { useInfiniteJobs, JOBS_PAGE_SIZE, fetchJobsPage } from '@/hooks/useJobs'
 import { useCompanyById, fetchAllCompanies } from '@/hooks/useCompanies'
 import { INDUSTRIES } from '@/lib/industries'
 import { useI18n } from '@/i18n/I18nProvider'
-import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
+import { formatLocationType, formatLanguageList, formatJobLevel } from '@/lib/jobEnums'
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet'
 import { SocialShare } from '@/components/SocialShare'
 import { SaveJobButton } from '@/components/SaveJobButton'
 import {
@@ -20,6 +21,7 @@ import {
   AlertCircle,
   X,
   BadgeCheck,
+  SlidersHorizontal,
 } from 'lucide-react'
 import type { Job, Company } from '@/types'
 import type { Locale } from '@/i18n/types'
@@ -135,8 +137,8 @@ function JobListItem({
         aria-label={job.title}
         className="block group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <Card className="h-full hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border">
-          <CardHeader className="pb-3">
+        <Card className="h-full gap-3 py-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border sm:gap-6 sm:py-6">
+          <CardHeader className="px-4 pb-0 sm:px-6 sm:pb-3">
             <div className="flex items-start gap-2">
               <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors line-clamp-2 flex-1">
                 <Link to="/jobs/$id" params={{ id: job.id }} onClick={stop} className="relative z-10 after:absolute after:inset-0 focus-visible:outline-none focus-visible:underline">
@@ -161,14 +163,14 @@ function JobListItem({
               )}
             </p>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2.5 px-4 sm:space-y-3 sm:px-6">
             <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
               <span className="flex items-center gap-1">
                 <MapPin className="size-3" /> {formatLocationType(job.locationType, t)}
               </span>
               {job.level && (
                 <span className="flex items-center gap-1">
-                  <Briefcase className="size-3" /> {job.level}
+                  <Briefcase className="size-3" /> {formatJobLevel(job.level, t)}
                 </span>
               )}
               <span className="flex items-center gap-1">
@@ -188,7 +190,7 @@ function JobListItem({
                 ))}
               </div>
             )}
-            <div className="pt-2 border-t border-border/60" onClick={stop}>
+            <div className="hidden pt-2 border-t border-border/60 sm:block" onClick={stop}>
               <SocialShare
                 variant="compact"
                 title={`${job.title} — ${companyName}`}
@@ -335,6 +337,57 @@ function JobsListView() {
   const hasRemainingJobs = loadedJobs.length < authoritativeTotal
   const remainingJobs = hasRemainingJobs ? authoritativeTotal - loadedJobs.length : 0
   const displayedTotal = filteredTotal
+  // Phones: the filters live in a bottom panel opened from one button.
+  const [filtersOpen, setFiltersOpen] = useState(false)
+  const clearAllFilters = () => { setSearch(''); setLevelFilter(''); setLocationFilter(''); setLanguageFilter(''); setSalaryFilter(''); setIndustryFilter('') }
+  const filterSelects = (
+    <>
+            <select
+              value={levelFilter}
+              onChange={e => setLevelFilter(e.target.value)}
+              className="h-11 w-full rounded-md border border-input sm:h-9 sm:w-auto bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+              disabled={isLoading}
+            >
+              <option value="">{t('jobs.allLevels')}</option>
+              {levels.map(l => (
+                <option key={l} value={l}>{formatJobLevel(l, t)}</option>
+              ))}
+            </select>
+            <select
+              value={locationFilter}
+              onChange={e => setLocationFilter(e.target.value)}
+              className="h-11 w-full rounded-md border border-input sm:h-9 sm:w-auto bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+              disabled={isLoading}
+            >
+              <option value="">{t('jobs.allLocations')}</option>
+              {locations.map(l => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+            <select
+              value={languageFilter}
+              onChange={e => setLanguageFilter(e.target.value)}
+              className="h-11 w-full rounded-md border border-input sm:h-9 sm:w-auto bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+              disabled={isLoading}
+            >
+              <option value="">{t('jobs.allLanguages')}</option>
+              {languages.map(l => (
+                <option key={l} value={l}>{l}</option>
+              ))}
+            </select>
+            <select
+              value={salaryFilter}
+              onChange={e => setSalaryFilter(e.target.value)}
+              className="h-11 w-full rounded-md border border-input sm:h-9 sm:w-auto bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
+              disabled={isLoading}
+            >
+              <option value="">{t('jobs.filterAnySalary')}</option>
+              {[5000000, 8000000, 12000000, 16000000, 20000000].map(v => (
+                <option key={v} value={v}>COP {v.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US')}+</option>
+              ))}
+            </select>
+    </>
+  )
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -364,51 +417,14 @@ function JobsListView() {
               className="pl-9"
             />
           </div>
-          <div className="flex flex-wrap gap-2">
-            <select
-              value={levelFilter}
-              onChange={e => setLevelFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-              disabled={isLoading}
-            >
-              <option value="">{t('jobs.allLevels')}</option>
-              {levels.map(l => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-            <select
-              value={locationFilter}
-              onChange={e => setLocationFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-              disabled={isLoading}
-            >
-              <option value="">{t('jobs.allLocations')}</option>
-              {locations.map(l => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-            <select
-              value={languageFilter}
-              onChange={e => setLanguageFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-              disabled={isLoading}
-            >
-              <option value="">{t('jobs.allLanguages')}</option>
-              {languages.map(l => (
-                <option key={l} value={l}>{l}</option>
-              ))}
-            </select>
-            <select
-              value={salaryFilter}
-              onChange={e => setSalaryFilter(e.target.value)}
-              className="h-9 rounded-md border border-input bg-background px-3 text-sm text-foreground focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] outline-none"
-              disabled={isLoading}
-            >
-              <option value="">{t('jobs.filterAnySalary')}</option>
-              {[5000000, 8000000, 12000000, 16000000, 20000000].map(v => (
-                <option key={v} value={v}>COP {v.toLocaleString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US')}+</option>
-              ))}
-            </select>
+          <div className="flex sm:hidden">
+            <Button variant="outline" onClick={() => setFiltersOpen(true)} className="h-11 flex-1 gap-2">
+              <SlidersHorizontal className="size-4" />
+              {t('jobs.filters')}{activeFilterCount > 0 ? ` (${activeFilterCount})` : ''}
+            </Button>
+          </div>
+          <div className="hidden flex-wrap gap-2 sm:flex">
+            {filterSelects}
             {activeFilterCount > 0 && (
               <Button
                 variant="ghost"
@@ -423,6 +439,19 @@ function JobsListView() {
           </div>
         </div>
       </FadeIn>
+
+      <Sheet open={filtersOpen} onOpenChange={setFiltersOpen}>
+        <SheetContent side="bottom" className="max-h-[85dvh] overflow-y-auto rounded-t-2xl">
+          <SheetHeader>
+            <SheetTitle>{t('jobs.filtersTitle')}</SheetTitle>
+          </SheetHeader>
+          <div className="grid gap-3 px-4">{filterSelects}</div>
+          <div className="flex gap-3 p-4" style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}>
+            <Button variant="outline" className="h-11 flex-1" onClick={clearAllFilters} disabled={activeFilterCount === 0}>{t('jobs.filtersClear')}</Button>
+            <Button className="h-11 flex-1" onClick={() => setFiltersOpen(false)}>{t('jobs.filtersShow', { n: displayedTotal })}</Button>
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* Loading state */}
       {isLoading && (loaderData?.jobs?.length ?? 0) === 0 && (

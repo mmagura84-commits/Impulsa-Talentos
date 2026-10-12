@@ -86,7 +86,13 @@ export function normalizeLocationType(value?: string | null): LocationType | nul
   const prefix = value.split(' · ')[0].trim()
   if (isLocationType(prefix)) return prefix
   const legacy = LEGACY_LOCATION[prefix]
-  return legacy ?? null
+  if (legacy) return legacy
+  // Tolerate case and spelling variants ("remote", "onsite", "on site").
+  const loose = prefix.toLowerCase().replace(/[\s-]+/g, '')
+  if (loose === 'remote' || loose === 'remoto' || loose === 'remota') return 'Remote'
+  if (loose === 'hybrid' || loose === 'hibrido' || loose === 'híbrido') return 'Hybrid'
+  if (loose === 'onsite' || loose === 'presencial') return 'On-site'
+  return null
 }
 
 /** Split a stored locationType into canonical modality + optional city. */
@@ -153,4 +159,22 @@ export function formatLanguageList(
       return key ? t(key) : token
     })
     .join(', ')
+}
+
+/** Experience levels offered by the post-job form, stored in English. */
+export const JOB_LEVELS = ['Junior', 'Junior-Mid', 'Mid', 'Mid-Senior', 'Senior', 'Lead'] as const
+const JOB_LEVEL_KEYS: Record<string, string> = {
+  junior: 'jobEnums.level.junior',
+  juniormid: 'jobEnums.level.juniorMid',
+  mid: 'jobEnums.level.mid',
+  midsenior: 'jobEnums.level.midSenior',
+  senior: 'jobEnums.level.senior',
+  lead: 'jobEnums.level.lead',
+}
+
+/** Localized experience level ("Mid" → "Semi-senior" in Spanish). Unknown values pass through. */
+export function formatJobLevel(value: string | null | undefined, t: (key: string) => string): string {
+  if (!value) return ''
+  const key = JOB_LEVEL_KEYS[value.toLowerCase().replace(/[\s-]+/g, '')]
+  return key ? t(key) : value
 }

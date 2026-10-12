@@ -39,7 +39,8 @@ function laneFromLocation(): OnboardingIntent | null {
 }
 function startsInSignUp(): boolean {
   if (typeof window === 'undefined') return false
-  return new URLSearchParams(window.location.search).get('signup') === '1'
+  // The router may JSON-encode search values (?signup=%221%22), so accept both.
+  return (new URLSearchParams(window.location.search).get('signup') ?? '').replace(/"/g, '') === '1'
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, signUpDisabled }: AuthGateProps) {

@@ -10,7 +10,7 @@ import { useJob, fetchJob } from '@/hooks/useJobs'
 import { useCompanyById, fetchCompanyById } from '@/hooks/useCompanies'
 import { useMyApplications } from '@/hooks/useApplications'
 import { useI18n } from '@/i18n/I18nProvider'
-import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
+import { formatLocationType, formatLanguageList, formatJobLevel } from '@/lib/jobEnums'
 import { SocialShare } from '@/components/SocialShare'
 import { SaveJobButton } from '@/components/SaveJobButton'
 import { ReportJobButton } from '@/components/ReportJobButton'
@@ -101,6 +101,7 @@ function splitList(s: string | null | undefined): string[] {
 /* ── Apply button ──────────────────────────────────────── */
 function ApplyButton({ jobId, candidateProfileId }: { jobId: string; candidateProfileId: string | null }) {
   const navigate = useNavigate()
+  const { user } = useAuth()
   const { data: myApps } = useMyApplications(candidateProfileId ?? undefined)
   const { t } = useI18n()
   const alreadyApplied = !!myApps?.some(a => a.jobId === jobId)
@@ -132,6 +133,12 @@ function ApplyButton({ jobId, candidateProfileId }: { jobId: string; candidatePr
     <Button
       size="lg"
       onClick={() => {
+        // Signed-out visitors go to the apply page, whose sign-up form opens
+        // on "I'm looking for work".
+        if (!user) {
+          navigate({ to: '/apply/$id', params: { id: jobId }, search: { signup: 1 } as never })
+          return
+        }
         if (!candidateProfileId) {
           toast.error(t('jobDetail.applyErrorProfile'), {
             description: t('jobDetail.applyErrorProfileDesc'),
@@ -245,9 +252,9 @@ function JobDetailPage() {
                 )}
               </div>
               <div className="flex items-center gap-2 shrink-0">
-                <SaveJobButton jobId={job.id} variant="chip" />
+                <span className="hidden sm:inline-flex"><SaveJobButton jobId={job.id} variant="chip" /></span>
                 <ReportJobButton jobId={job.id} />
-                <ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} />
+                <span className="hidden sm:inline-flex"><ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} /></span>
               </div>
             </div>
 
@@ -261,7 +268,7 @@ function JobDetailPage() {
               </span>
               {job.level && (
                 <span className="flex items-center gap-1.5">
-                  <Briefcase className="size-4 text-accent" /> {job.level}
+                  <Briefcase className="size-4 text-accent" /> {formatJobLevel(job.level, t)}
                 </span>
               )}
               {job.languagesRequired && (
@@ -363,7 +370,7 @@ function JobDetailPage() {
 
         {/* Bottom CTA */}
         <FadeIn delay={0.25}>
-          <div className="flex flex-col sm:flex-row items-center gap-4 p-6 rounded-xl border border-border bg-card">
+          <div className="hidden sm:flex flex-col sm:flex-row items-center gap-4 p-6 rounded-xl border border-border bg-card">
             <div className="flex-1">
               <p className="font-semibold text-foreground">{t('jobDetail.bottomTitle')}</p>
               <p className="text-sm text-muted-foreground mt-0.5">
@@ -386,6 +393,20 @@ function JobDetailPage() {
             />
           </div>
         </FadeIn>
+
+        {/* Phones: Apply and Save stay in reach while reading (above the tab
+            bar when signed in — see .apply-bar in index.css). */}
+        {job.status === 'open' && (
+          <>
+            <div className="h-24 sm:hidden" aria-hidden="true" />
+            <div className="apply-bar fixed inset-x-0 bottom-0 z-30 flex items-center gap-3 border-t border-border bg-background/95 px-4 pt-3 backdrop-blur-md sm:hidden">
+              <SaveJobButton jobId={job.id} variant="chip" />
+              <div className="min-w-0 flex-1 [&>button]:w-full">
+                <ApplyButton jobId={job.id} candidateProfileId={candidateProfileId} />
+              </div>
+            </div>
+          </>
+        )}
       </div>
   )
 }
