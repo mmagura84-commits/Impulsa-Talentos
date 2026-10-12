@@ -11,7 +11,8 @@ Bun.serve({
     let f = join(DIST, path)
     if (!f.startsWith(DIST)) return new Response('bad path', { status: 400 })
     if (existsSync(f) && statSync(f).isDirectory()) f = join(f, 'index.html')
-    if (!existsSync(f) || !statSync(f).isFile()) f = join(DIST, 'spa-fallback.html')
+    // HOSTINGER=1 mimics the live host: unknown paths get the home page.
+    if (!existsSync(f) || !statSync(f).isFile()) f = join(DIST, process.env.HOSTINGER === '1' ? 'index.html' : 'spa-fallback.html')
     return new Response(Bun.file(f))
   },
 })

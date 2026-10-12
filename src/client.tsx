@@ -48,7 +48,16 @@ if (typeof document !== 'undefined') {
 // <div class="min-h-dvh"> to <main id="main" class="... min-h-dvh">, and a
 // tag-bound selector silently sent every prerendered page down the
 // createRoot(document.body) path (nested <html> inside <body>, SSR discarded).
-const hasSsrContent = () => !!document.querySelector('#main, .min-h-dvh')
+// The prerendered page must also be for THIS path. Hostinger answers unknown
+// paths (/employer, /hq, a job posted after the last build, …) with the
+// prerendered HOME page no matter what .htaccess says; hydrating that against
+// another route throws React #418 and flashes the home page. Each prerendered
+// page records its path on <html data-route>; a mismatch takes the fresh-render
+// path below, exactly like the neutral spa-fallback shell.
+const norm = (p: string) => (p.replace(/\/+$/, '') || '/')
+const prerenderedFor = document.documentElement.getAttribute('data-route')
+const pathMatches = prerenderedFor === null || norm(prerenderedFor) === norm(window.location.pathname)
+const hasSsrContent = () => pathMatches && !!document.querySelector('#main, .min-h-dvh')
 
 startTransition(() => {
   if (hasSsrContent()) {
@@ -59,8 +68,10 @@ startTransition(() => {
       </StrictMode>,
     )
   } else {
-    for (const script of Array.from(document.body.querySelectorAll('script'))) {
-      script.remove()
+    // Executed bootstrap scripts, and any prerendered markup that belongs to a
+    // different path, are cleared before the fresh render.
+    for (const node of Array.from(document.body.childNodes)) {
+      node.remove()
     }
     // Render into the DOCUMENT, not document.body. The route tree renders
     // <html>/<head>/<body>, which React 19 maps onto the real singletons; with

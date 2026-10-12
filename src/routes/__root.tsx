@@ -121,7 +121,7 @@ function RootDocument({ children }: { children: ReactNode }) {
     // EN/ES/PT switcher. Browser auto-translate rewrites React-owned text nodes
     // (wrapping them in <font>), which breaks updates — e.g. the language toggle
     // stopped responding on a Chrome-translated Spanish page.
-    <html lang="en" translate="no" suppressHydrationWarning>
+    <html lang="en" translate="no" data-route={location.pathname} suppressHydrationWarning>
       <head>
         {/* MUST be first: sets the theme class before paint so there is no
             flash-of-wrong-theme. Do not move below <HeadContent />. */}
