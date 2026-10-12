@@ -1,3 +1,4 @@
+import { BrandMark } from '@/components/BrandMark'
 import { Link } from '@tanstack/react-router'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { PublicHeader } from '@/components/PublicHeader'
@@ -11,7 +12,7 @@ export function LegalShell({ title, updated, intro, sections }: { title: string;
     <><PublicHeader transparentOnTop={false} /><div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-border sticky top-0 bg-background/90 backdrop-blur z-10">
         <div className="max-w-3xl mx-auto px-5 py-4 flex items-center justify-between">
-          <Link to="/" className="font-serif font-bold text-lg">Impulsa Talentos</Link>
+          <Link to="/" aria-label="Impulsa Talentos"><BrandMark withWordmark className="h-8" /></Link>
           <div className="flex items-center gap-3">
             <LanguageToggle />
             <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">← Home</Link>

@@ -85,11 +85,8 @@ function TopNav() {
   return (
     <header className={`sticky top-0 z-30 border-b transition-colors ${scrolled ? 'border-border bg-background/90 backdrop-blur-md' : 'border-transparent bg-transparent'}`}>
       <div className="mx-auto flex h-16 w-full max-w-[88rem] items-center justify-between gap-3 px-5 lg:px-10">
-        <Link to="/" className="flex items-center gap-2 min-w-0">
-          <BrandMark className="size-8 rounded-lg" title={t('brand.name')} />
-          <span className={`hidden sm:block text-lg font-bold truncate ${scrolled ? 'text-foreground' : 'text-white'}`}>
-            Impulsa Talentos
-          </span>
+        <Link to="/" className="flex items-center min-w-0">
+          <BrandMark withWordmark className={`h-8 sm:h-10 ${scrolled ? 'text-[#14296b] dark:text-white' : 'text-white'}`} title={t('brand.name')} />
         </Link>
         <nav className="hidden items-center gap-4 text-sm font-medium md:flex" aria-label={t('nav.main')}>
           <Link to="/jobs" className={scrolled ? 'text-muted-foreground hover:text-foreground' : 'text-white/85 hover:text-white'}>{t('nav.jobs')}</Link>

@@ -10,6 +10,7 @@
  * the rest. Mobile: the sidebar is hidden and opens in a Sheet drawer via the
  * hamburger button in the mobile header. Customize freely — this is your code.
  */
+import { BrandMark } from '@/components/BrandMark'
 import { useEffect, useState } from 'react'
 import { useLocation } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
@@ -67,7 +68,7 @@ export function Shell({ sidebar, appName = 'App', bottomBar, mobileActions, chil
           >
             <Menu className="size-5" />
           </Button>
-          <span className="font-semibold text-sm">{appName}</span>
+          <BrandMark withWordmark className="h-7" title={appName} />
           {mobileActions && <div className="ml-auto flex items-center">{mobileActions}</div>}
         </div>
 

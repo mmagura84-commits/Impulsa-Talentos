@@ -1,84 +1,59 @@
 /**
- * Impulsa Talentos — Brand mark + wordmark.
- * Renders as inline SVG so it inherits `currentColor` and works at any size.
- * Typography matches the hero h1 (Lora, 700) so the wordmark reads as a
- * peer of the headline, not body copy.
+ * Impulsa Talentos — Spark logo.
+ *
+ * - `withWordmark`: the lowercase "impulsa / talentos" wordmark whose i carries
+ *   a gold spark. Inherits `currentColor`, so set the colour with a text class
+ *   (navy by default, `text-white` on the blue header). Size it by height.
+ * - Mark only: the i + spark on the brand-blue tile (app icon, tight spots).
+ *   Round it with the usual `rounded-*` class.
+ *
+ * Shapes are outlined paths (see brandPaths.ts), so the logo renders the same
+ * before any web font has loaded.
  */
 import { cn } from '@/lib/utils'
+import {
+  BRAND_GOLD, BRAND_TILE, ICON_I, ICON_SPARK, ICON_SPARK_STROKE, ICON_TRANSFORM,
+  WORDMARK_SPARK, WORDMARK_SPARK_STROKE, WORDMARK_TAG, WORDMARK_VIEWBOX, WORDMARK_WORD,
+} from '@/components/brandPaths'
 
 interface BrandMarkProps {
   className?: string
-  /** When true, renders the full wordmark (mark + text) instead of just the mark. */
+  /** When true, renders the full wordmark instead of the square mark. */
   withWordmark?: boolean
-  /** Title for screen readers. */
+  /** Accessible name; when omitted the logo is decorative. */
   title?: string
 }
 
+const [, , VB_W, VB_H] = WORDMARK_VIEWBOX.split(' ').map(Number)
+
 export function BrandMark({ className, withWordmark = false, title }: BrandMarkProps) {
+  const a11y = title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true }
+
   if (withWordmark) {
     return (
-      <span className={cn('inline-flex items-center gap-2.5 shrink-0', className)}>
-        <svg
-          viewBox="0 0 44 44"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-hidden="true"
-          className="size-8 shrink-0"
-        >
-          <defs>
-            <linearGradient id="bm-grad" x1="6" y1="38" x2="38" y2="6" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#1f3a8a" />
-              <stop offset="100%" stopColor="#3b82f6" />
-            </linearGradient>
-            <linearGradient id="bm-accent" x1="20" y1="6" x2="20" y2="14" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#facc15" />
-              <stop offset="100%" stopColor="#f59e0b" />
-            </linearGradient>
-          </defs>
-          <rect width="44" height="44" rx="11" fill="url(#bm-grad)" />
-          {/* Concentric pulse arcs — talent radiating outward */}
-          <path d="M7 16 A15 15 0 0 1 37 16" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.35" fill="none" strokeLinecap="round" />
-          <path d="M10 19 A12 12 0 0 1 34 19" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
-          {/* Upward chevron (impulse / launch) */}
-          <path d="M13 33 L22 16 L31 33" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-          {/* Apex dot — the talent being launched */}
-          <circle cx="22" cy="16" r="2.5" fill="url(#bm-accent)" />
-        </svg>
-        {title ? <span className="sr-only">{title}</span> : null}
-        <span className="font-serif font-bold text-2xl tracking-tight text-foreground whitespace-nowrap">
-          <span>Impulsa</span>
-          <span className="text-primary"> Talentos</span>
-        </span>
-      </span>
+      <svg
+        viewBox={WORDMARK_VIEWBOX}
+        xmlns="http://www.w3.org/2000/svg"
+        className={cn('block h-8 w-auto shrink-0 text-[#14296b] dark:text-white', className)}
+        style={{ aspectRatio: `${VB_W} / ${VB_H}` }}
+        {...a11y}
+      >
+        <path d={WORDMARK_WORD} fill="currentColor" />
+        <path d={WORDMARK_TAG} fill="currentColor" fillOpacity={0.74} />
+        <path d={WORDMARK_SPARK} fill={BRAND_GOLD} stroke={BRAND_GOLD} strokeWidth={WORDMARK_SPARK_STROKE} strokeLinejoin="round" />
+      </svg>
     )
   }
 
   return (
-    <span
-      className={cn(
-        'inline-flex items-center justify-center rounded-md bg-primary text-primary-foreground shrink-0',
-        className,
-      )}
-    >
-      <svg
-        viewBox="0 0 44 44"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-hidden="true"
-        className="size-full"
-      >
-        <defs>
-          <linearGradient id="bm-mark-only" x1="6" y1="38" x2="38" y2="6" gradientUnits="userSpaceOnUse">
-            <stop offset="0%" stopColor="#ffffff" stopOpacity="0.95" />
-            <stop offset="100%" stopColor="#facc15" stopOpacity="0.95" />
-          </linearGradient>
-        </defs>
-        {/* Pulse arcs */}
-        <path d="M7 16 A15 15 0 0 1 37 16" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.35" fill="none" strokeLinecap="round" />
-        <path d="M10 19 A12 12 0 0 1 34 19" stroke="#ffffff" strokeWidth="1" strokeOpacity="0.55" fill="none" strokeLinecap="round" />
-        {/* Chevron + dot */}
-        <path d="M13 33 L22 16 L31 33" stroke="url(#bm-mark-only)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" fill="none" />
-        <circle cx="22" cy="16" r="2.5" fill="#facc15" />
+    <span className={cn('inline-flex shrink-0 overflow-hidden rounded-md', className)} {...(title ? { role: 'img', 'aria-label': title } : { 'aria-hidden': true })}>
+      <svg viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className="size-full">
+        <rect width="48" height="48" fill={BRAND_TILE} />
+        <g transform={ICON_TRANSFORM}>
+          <path d={ICON_I} fill="#ffffff" />
+          <path d={ICON_SPARK} fill={BRAND_GOLD} stroke={BRAND_GOLD} strokeWidth={ICON_SPARK_STROKE} strokeLinejoin="round" />
+        </g>
       </svg>
-      {title ? <span className="sr-only">{title}</span> : null}
     </span>
   )
 }
