@@ -40,7 +40,7 @@ jobs:
           echo "Bundle Supabase target OK: LIVE cmdqlybsgkegolqydmbh"
       - name: Guard — build is complete
         run: |
-          test -f dist/index.html && test -f dist/spa-fallback.html && test -f dist/.htaccess || { echo "::error::dist/index.html or .htaccess missing"; exit 1; }
+          test -f dist/index.html && test -f dist/spa-fallback.html && test -f dist/.htaccess && test -f dist/page.php || { echo "::error::dist/index.html, .htaccess or page.php missing"; exit 1; }
       - name: Deploy (upload to staging folder, verify, then swap — never clears the live site first)
         env:
           HOST: ${{ secrets.HOSTINGER_HOST }}
@@ -98,11 +98,18 @@ jobs:
           done
           [ "$ok" = 1 ] || { echo "::error::The live site does not serve build $BUILD after 4 minutes"; exit 1; }
           echo "Visitors get build $BUILD"
-          # Informational: plain URLs straight from the CDN (pages heal themselves if these are old).
-          for p in / /privacy/ /jobs/; do
-            if curl -fsS --compressed "https://impulsatalentos.expert$p" | grep -aqF "$ASSET"; then echo "CDN copy of $p: current"
-            else echo "::warning::CDN still holds an older copy of $p (visitors are refreshed to the new build automatically; flushing in hPanel clears it)"; fi
+          # Plain URLs (no ?_b=): pages are served by page.php with s-maxage=60,
+          # so the CDN must hand out this build within ~a minute of the swap.
+          for i in $(seq 1 10); do
+            ok=1
+            for p in / /privacy/ /jobs/; do
+              curl -fsS --compressed "https://impulsatalentos.expert$p" | grep -aqF "$ASSET" || ok=0
+            done
+            [ "$ok" = 1 ] && break
+            sleep 15
           done
+          if [ "$ok" = 1 ]; then echo "CDN serves build $BUILD on plain URLs"
+          else echo "::warning::The CDN still holds older copies of the plain URLs after 2.5 minutes (visitors are still refreshed to the new build by /sw.js; a flush in hPanel clears it)"; fi
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Smoke-test the live site (read-only)

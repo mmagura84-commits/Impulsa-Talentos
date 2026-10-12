@@ -19,6 +19,17 @@ RewriteRule ^\.deploy(/|$) - [F,L]
 # home page for /api/* instead.)
 RewriteRule ^api/ - [F,L]
 
+# --- 1b. Pages come from page.php --------------------------------
+# Hostinger sends max-age=31536000 on every static file (HTML included) and
+# ignores the Header lines below, so its CDN kept each page until someone
+# flushed it by hand. Headers set by PHP *are* honoured, so page requests go
+# through page.php, which returns the same prerendered HTML with
+# "s-maxage=60": the CDN re-asks within a minute of a deploy. Anything with a
+# file extension (/assets/*, /images/*, /sw.js, /version.json, favicons,
+# robots.txt, .php itself) is untouched and still served statically.
+RewriteCond %{REQUEST_URI} !\.[A-Za-z0-9]{2,5}$
+RewriteRule ^ /page.php [L]
+
 # --- 2. SPA/SSR fallback -----------------------------------------
 # Serve existing files and prerendered directories directly, e.g.
 #   /jobs/<id>/index.html, /companies/<id>/index.html, /images/..., /assets/...
@@ -56,9 +67,9 @@ RewriteRule ^ /spa-fallback.html [L]
   # NOTE (2026-10-12): this Hostinger plan ignores Header/Expires lines here
   # and sends "max-age=31536000" on every file, HTML included (verified with
   # the CDN bypassed). Kept for a host that honours them. What actually keeps
-  # pages fresh: the self-update script in every page
-  # (scripts/finalize-static-build.mjs), the cache flush after each deploy
-  # (deploy.yml), and old /assets kept for 14 days (scripts/remote-swap.sh).
+  # pages fresh: page.php (rule 1b) sets s-maxage=60 on every page, plus the
+  # self-update script in every page (scripts/finalize-static-build.mjs) and
+  # old /assets kept for 14 days (scripts/remote-swap.sh).
   <FilesMatch "\.html?$">
     Header always set Cache-Control "no-cache, must-revalidate"
     Header unset Expires
