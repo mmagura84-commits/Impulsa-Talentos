@@ -109,6 +109,10 @@ jobs:
         env:
           E2E_BASE_URL: https://impulsatalentos.expert
         run: npx playwright test
+      - name: Speed check — phones must see the main content within 2 s
+        # Lighthouse mobile (PageSpeed's phone + slow-4G settings), median of 3
+        # runs per page; the results table is in the run summary.
+        run: node scripts/speed-check.mjs https://impulsatalentos.expert "$(node -p "require('./dist/version.json').build")"
       - name: Keep the Playwright report when checks fail
         if: failure()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

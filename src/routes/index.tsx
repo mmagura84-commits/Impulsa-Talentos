@@ -13,8 +13,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { useEffect, useState } from 'react'
 import { useI18n } from '@/i18n/I18nProvider'
 import { formatLocationType, formatLanguageList } from '@/lib/jobEnums'
-import { useAllJobs } from '@/hooks/useJobs'
-import { useAllCompanies } from '@/hooks/useCompanies'
+import { useAllJobs, fetchAllJobs } from '@/hooks/useJobs'
+import { useAllCompanies, fetchAllCompanies } from '@/hooks/useCompanies'
 import { PublicHeader } from '@/components/PublicHeader'
 import type { Job, Company } from '@/types'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
@@ -23,7 +23,33 @@ import { useRef, type ReactNode } from 'react'
 import { captureUTMParams, trackEvent } from '@/lib/marketing'
 import { setOnboardingIntent } from '@/lib/intent'
 
+/* Prerender the open jobs and company names the home page shows (live feed,
+   company ribbon, industry and city counts), so they are in the HTML instead of
+   appearing seconds later. Only the fields the page uses, to keep it small;
+   the browser refetches the full lists after load. Client-side navigation skips
+   this (the lists are usually cached by then). */
+type HomeJob = Pick<Job, 'id' | 'title' | 'companyId' | 'status' | 'moderationStatus' | 'locationType' | 'salaryMin' | 'salaryMax' | 'currency' | 'languagesRequired' | 'industry'>
+async function loadHomeData(): Promise<{ jobs?: Job[]; companies?: Company[] }> {
+  if (typeof window !== 'undefined') return {}
+  try {
+    const [jobs, companies] = await Promise.all([fetchAllJobs(), fetchAllCompanies()])
+    const open: HomeJob[] = jobs.filter(isOpen).slice(0, 60).map((j) => ({
+      id: j.id, title: j.title, companyId: j.companyId, status: j.status, moderationStatus: j.moderationStatus,
+      locationType: j.locationType, salaryMin: j.salaryMin, salaryMax: j.salaryMax, currency: j.currency,
+      languagesRequired: j.languagesRequired, industry: j.industry,
+    }))
+    return {
+      jobs: open as Job[],
+      companies: companies.map((c) => ({ id: c.id, name: c.name, logoUrl: c.logoUrl }) as Company),
+    }
+  } catch (err) {
+    console.error('[home loader]', err)
+    return {}
+  }
+}
+
 export const Route = createFileRoute('/')({
+  loader: loadHomeData,
   head: () => ({
     meta: [
       { title: 'Impulsa Talentos — Bilingual Jobs in Colombia' },
@@ -38,17 +64,33 @@ function isOpen(j: Job) {
   return j.status === 'open' && j.moderationStatus !== 'pending'
 }
 
+/* Scroll reveal that never hides content in the prerendered page: everything
+   is visible before (and without) JavaScript. Once the app runs, sections that
+   are still below the screen are hidden and fade in as they scroll into view;
+   sections already on screen are left alone (no flash). */
 function SectionReveal({ children, delay = 0, className }: { children: ReactNode; delay?: number; className?: string }) {
+  const ref = useRef<HTMLDivElement>(null)
+  const [state, setState] = useState<'static' | 'waiting' | 'shown'>('static')
+  useEffect(() => {
+    const el = ref.current
+    if (!el || typeof IntersectionObserver === 'undefined') return
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+    if (el.getBoundingClientRect().top < window.innerHeight) return
+    setState('waiting')
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setState('shown'); io.disconnect() }
+    }, { rootMargin: '0px 0px -80px 0px' })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 24 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.6, delay, ease: [0.25, 0.1, 0.25, 1] }}
-      className={className}
+    <div
+      ref={ref}
+      style={state === 'static' ? undefined : { transitionDelay: `${delay}s` }}
+      className={`${className ?? ''} ${state === 'static' ? '' : 'transition-[opacity,transform] duration-[600ms] ease-[cubic-bezier(0.25,0.1,0.25,1)]'} ${state === 'waiting' ? 'translate-y-6 opacity-0' : ''}`.trim()}
     >
       {children}
-    </motion.div>
+    </div>
   )
 }
 
@@ -200,10 +242,17 @@ const CROSSFADE_S = 0.9
 const KB: Record<string, { from: number; to: number; xFrom: string; xTo: string; yFrom: string; yTo: string }> = Object.fromEntries(
   HERO_SLIDES.map((key, i) => [key, { from: i % 2 ? 1.06 : 1, to: i % 2 ? 1 : 1.07, xFrom: '0%', xTo: i % 2 ? '1.5%' : '-1.5%', yFrom: '0%', yTo: '0%' }]),
 )
-const CTA_BAND_PHOTO =
-  'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Bogot%C3%A1%2C_Santa_Fe%2C_2023-06_CN-02.jpg/1920px-Bogot%C3%A1%2C_Santa_Fe%2C_2023-06_CN-02.jpg'
-// Professional team image: Unsplash License, stable asset URL (Annie Spratt).
-const TALENT_WORK_PHOTO = candidatesPhoto.src
+// Background of the last section, under an 85% wash: a 500 px (phones) or
+// 960 px thumbnail is plenty.
+const CTA_BAND_AT = (w: number) =>
+  `https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Bogot%C3%A1%2C_Santa_Fe%2C_2023-06_CN-02.jpg/${w}px-Bogot%C3%A1%2C_Santa_Fe%2C_2023-06_CN-02.jpg`
+const CTA_BAND_PHOTO = CTA_BAND_AT(960) // 169 KB (the 1920 px original: 600 KB)
+const CTA_BAND_SRCSET = `${CTA_BAND_AT(500)} 500w, ${CTA_BAND_AT(960)} 960w` // phones: 53 KB
+// Professional team image: Unsplash License, stable asset URL. Sized per screen
+// (Unsplash resizes on request): 480 px for phones, 800 px for wider screens.
+const unsplashAt = (w: number) => candidatesPhoto.src.replace(/([?&])w=\d+/, `$1w=${w}`).replace(/([?&])q=\d+/, '$1q=70')
+const TALENT_WORK_PHOTO = unsplashAt(800)
+const TALENT_WORK_SRCSET = `${unsplashAt(480)} 480w, ${unsplashAt(800)} 800w`
 const CITY_PHOTOS: Record<string, string> = {
   medellin: '/images/industry-technology.webp',
   bogota: '/images/industry-finance.webp',
@@ -450,8 +499,9 @@ function LandingPage() {
     const img = new Image(); img.src = next
   }, [slide])
 
-  const { data: allJobs } = useAllJobs()
-  const { data: allCompanies } = useAllCompanies()
+  const home = Route.useLoaderData()
+  const { data: allJobs } = useAllJobs(home.jobs)
+  const { data: allCompanies } = useAllCompanies(home.companies)
 
   const openJobs = (allJobs ?? []).filter(isOpen)
   const companyOpenCounts = new Map<string, number>()
@@ -559,7 +609,7 @@ function LandingPage() {
         <div className="mx-auto grid max-w-6xl items-center gap-6 px-5 py-12 sm:gap-8 sm:py-20 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl border border-border shadow-lg shadow-primary/5">
-              <img src={TALENT_WORK_PHOTO} alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-48 w-full object-cover sm:h-96" />
+              <img src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-48 w-full object-cover sm:h-96" />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
@@ -586,7 +636,7 @@ function LandingPage() {
       {/* ── Footer CTA ──────────────────────────────────────── */}
       <section className="relative overflow-hidden">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
-          <img src={CTA_BAND_PHOTO} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover object-center" />
+          <img src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover object-center" />
           <div className="absolute inset-0 bg-background/85" />
           <div className="absolute -bottom-32 left-1/2 h-80 w-[40rem] -translate-x-1/2 rounded-full bg-primary/10 blur-3xl" />
         </div>

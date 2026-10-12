@@ -244,10 +244,16 @@ export function useDeleteJob() {
 }
 
 /** List ALL jobs regardless of status (HQ admin view). */
-export function useAllJobs() {
+/**
+ * `initial`: rows already in the page (prerendered by a route loader), shown
+ * at once; the list is still refetched in the browser.
+ */
+export function useAllJobs(initial?: Job[]) {
   return useQuery({
     queryKey: jobKeys.allList,
     queryFn: fetchAllJobs,
+    initialData: initial,
+    initialDataUpdatedAt: initial ? 0 : undefined,
   })
 }
 

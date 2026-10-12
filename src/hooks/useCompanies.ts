@@ -127,9 +127,12 @@ export function useUpdateCompany() {
 }
 
 /** List ALL companies (HQ admin view). */
-export function useAllCompanies() {
+/** `initial`: rows already in the page (see useAllJobs); refetched in the browser. */
+export function useAllCompanies(initial?: Company[]) {
   return useQuery({
     queryKey: companyKeys.allList,
     queryFn: fetchAllCompanies,
+    initialData: initial,
+    initialDataUpdatedAt: initial ? 0 : undefined,
   })
 }
