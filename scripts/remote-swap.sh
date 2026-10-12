@@ -21,7 +21,12 @@ cp -a "$NEW/." "$LIVE/"
 # like the old deploy did; only .htaccess is managed by the build)
 (cd "$LIVE" && find . -path ./.deploy -prune -o -type f -print) | while read -r f; do
   case "$f" in ./.htaccess) ;; */.*) continue ;; esac
-  [ -e "$NEW/$f" ] || rm -f "$LIVE/$f"
+  [ -e "$NEW/$f" ] && continue
+  # Keep earlier builds' scripts and styles for 14 days: a page cached by the
+  # CDN or a browser tab opened before the deploy still loads the files it
+  # names (they are content-hashed, so they never clash with the new build).
+  case "$f" in ./assets/*) [ -n "$(find "$LIVE/$f" -mtime -14 2>/dev/null)" ] && continue ;; esac
+  rm -f "$LIVE/$f"
 done
 find "$LIVE" -path "$LIVE/.deploy" -prune -o -mindepth 1 -type d -empty -print | xargs -r rmdir 2>/dev/null || true
 rm -rf "$NEW"

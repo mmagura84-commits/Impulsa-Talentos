@@ -53,14 +53,17 @@ RewriteRule ^ /spa-fallback.html [L]
   ExpiresByType application/javascript "access plus 1 year"
 </IfModule>
 <IfModule mod_headers.c>
-  # Explicit immutable Cache-Control for content-hashed assets under /assets/.
-  # (All JS/CSS in this build live under /assets/ and embed their content hash
-  # in the filename, so this can never serve stale code after a redeploy.)
-  <LocationMatch "^/assets/">
-    Header set Cache-Control "public, max-age=31536000, immutable"
-  </LocationMatch>
-  # HTML: always revalidate so new publishes are picked up immediately.
-  <LocationMatch "\.html$">
-    Header set Cache-Control "no-cache, must-revalidate"
-  </LocationMatch>
+  # FilesMatch (not LocationMatch, which .htaccess does not allow and was
+  # silently ignored, so Hostinger's CDN cached pages for a year and served
+  # old HTML pointing at deleted scripts after a deploy).
+  # Pages (index.html inside each prerendered folder, spa-fallback.html):
+  # the CDN and browsers must check for a new version every time.
+  <FilesMatch "\.html?$">
+    Header always set Cache-Control "no-cache, must-revalidate"
+    Header unset Expires
+  </FilesMatch>
+  # All JS/CSS live in /assets/ with a content hash in the name: immutable.
+  <FilesMatch "\.(js|css)$">
+    Header always set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
 </IfModule>

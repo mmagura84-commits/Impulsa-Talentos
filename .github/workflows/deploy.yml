@@ -63,20 +63,24 @@ jobs:
           scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$INCOMING/"
           $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$INCOMING" "$PREV" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"
-      - name: Wait until the live site serves this build
+      - name: Wait until visitors get this build
         run: |
-          # Hostinger's CDN can serve the previous index.html for a short while;
-          # test the new build, not the old one.
+          # Check the plain URLs visitors load (through Hostinger's CDN), not a
+          # cache-busting variant: pages are served no-cache, so the CDN should
+          # pick up the new build within seconds.
           ASSET=$(grep -aoE '/assets/[^"]+\.js' dist/index.html | head -1)
           if [ -z "$ASSET" ]; then echo "::error::No script found in dist/index.html"; exit 1; fi
-          echo "Waiting for $ASSET on the live site"
-          for i in $(seq 1 30); do
-            if curl -fsS --compressed "https://impulsatalentos.expert/?deploy=${GITHUB_RUN_ID}-$i" | grep -aqF "$ASSET"; then
-              echo "Live site is serving this build"; exit 0
-            fi
+          echo "Waiting for $ASSET"
+          for i in $(seq 1 24); do
+            ok=1
+            for p in / /privacy/ /jobs/; do
+              curl -fsS --compressed "https://impulsatalentos.expert$p" | grep -aqF "$ASSET" || ok=0
+            done
+            [ "$ok" = 1 ] && { echo "Visitors get this build"; exit 0; }
             sleep 10
           done
-          echo "::error::The live site still serves an older build after 5 minutes"
+          echo "::error::Hostinger's CDN still serves an older build after 4 minutes. Flush the CDN cache in hPanel (Websites › impulsatalentos.expert › CDN › Flush cache) and re-run."
+          curl -sSI "https://impulsatalentos.expert/" | grep -iE "cache-control|x-hcdn|age" || true
           exit 1
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
