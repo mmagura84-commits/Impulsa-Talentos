@@ -67,7 +67,9 @@ test('pages are the current build and carry the self-update script', async ({ pa
   expect(res.ok()).toBeTruthy()
   const { build } = await res.json() as { build: string }
   for (const path of ['/', '/privacy/', '/jobs/']) {
-    await page.goto(path)
+    // An outdated CDN copy switches to the fresh page at once, which can cancel
+    // this navigation mid-way (net::ERR_ABORTED); the poll below checks the result.
+    await page.goto(path).catch((e: Error) => { if (!/ERR_ABORTED|frame was detached/.test(e.message)) throw e })
     // An old copy (browser or CDN) refreshes itself to the live build within a few seconds.
     await expect.poll(async () => page.locator('script[data-build]').first().getAttribute('data-build'), { timeout: 15_000, message: `${path} should become build ${build}` }).toBe(build)
     expect(new URL(page.url()).searchParams.has('_b'), 'address bar stays clean').toBe(false)
