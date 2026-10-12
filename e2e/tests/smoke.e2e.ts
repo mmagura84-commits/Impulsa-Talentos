@@ -31,8 +31,12 @@ test('home page has no horizontal scroll', async ({ page }) => {
 
 test('pulling down at the top of the page can refresh it (overscroll not blocked)', async ({ page }) => {
   await page.goto('/')
-  const blocked = await page.evaluate(() => [document.documentElement, document.body].map(el => getComputedStyle(el).overscrollBehaviorY))
-  expect(blocked).toEqual(['auto', 'auto'])
+  // The page may refresh itself once (an old CDN copy), so poll rather than
+  // reading the styles from a document that is about to be replaced.
+  await expect.poll(
+    () => page.evaluate(() => [document.documentElement, document.body].map((el) => getComputedStyle(el).overscrollBehaviorY).join(',')).catch(() => 'pending'),
+    { timeout: 15_000, message: 'vertical overscroll must stay "auto" so pull-to-refresh works' },
+  ).toBe('auto,auto')
 })
 
 test('job board lists open jobs', async ({ page }) => {
