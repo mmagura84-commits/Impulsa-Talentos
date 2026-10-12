@@ -78,8 +78,10 @@ export function useInviteTeamMember() {
     }) =>
       createRow<TeamMember>('team_members', {
         companyId,
-        userId: `pending_${inviteEmail}`, // placeholder until accepted
-        inviteEmail,
+        // Placeholder until the invitee signs in; the database normalises it
+        // and binds the seat on sign-in (accept_team_invites, migration 041).
+        userId: `pending_${inviteEmail.trim().toLowerCase()}`,
+        inviteEmail: inviteEmail.trim().toLowerCase(),
         role,
         invitedBy,
         status: 'pending' as TeamMemberStatus,

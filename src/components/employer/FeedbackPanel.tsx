@@ -16,6 +16,7 @@ import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Star, Plus, Pencil, Trash2, MessageSquareText, Eye, Lock } from 'lucide-react'
 import type { ApplicationFeedback, FeedbackVisibility } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 interface FeedbackPanelProps {
   applicationId: string
@@ -124,7 +125,7 @@ export function FeedbackPanel({ applicationId, companyId }: FeedbackPanelProps) 
       toast.success(t('feedback.saved'), { description: t('feedback.savedDesc') })
       cancel()
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('feedback.error'))
+      toast.error(friendlyDbError(err, t) || t('feedback.error'))
     }
   }
 
@@ -134,7 +135,7 @@ export function FeedbackPanel({ applicationId, companyId }: FeedbackPanelProps) 
       await deleteFeedback.mutateAsync({ id: f.id, applicationId })
       toast.success(t('feedback.deleted'), { description: t('feedback.deletedDesc') })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('feedback.error'))
+      toast.error(friendlyDbError(err, t) || t('feedback.error'))
     } finally {
       setDeletingId(null)
     }

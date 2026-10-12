@@ -30,6 +30,7 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 import type { Job, Application } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Employer job row ──────────────────────────────────── */
 function EmployerJobRow({ job, appCount }: { job: Job; appCount: number }) {
@@ -110,7 +111,7 @@ function DeleteJobButton({ jobId, jobTitle }: { jobId: string; jobTitle: string 
       toast.success(t('dashboard.jobDeleted'), { description: jobTitle })
       setConfirming(false)
     } catch (err) {
-      toast.error(t('dashboard.jobDeleteError'), { description: err instanceof Error ? err.message : '' })
+      toast.error(t('dashboard.jobDeleteError'), { description: friendlyDbError(err, t) })
     }
   }
 
@@ -174,7 +175,7 @@ function CompanyContactEmailCard({ company }: { company: { id: string; contactEm
       toast.success(t('profile.saved'), { duration: 1800 })
       setEditing(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }
 
@@ -236,7 +237,7 @@ function VerificationCard({ company }: { company: { id: string; name: string; ve
       await updateCompany.mutateAsync({ id: company.id, data: { verificationRequested: true } })
       toast.success(t('verification.requestSuccess'), { duration: 2500 })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }
 
@@ -295,7 +296,7 @@ export function EmployerDashboard({ employerId }: { employerId: string }) {
     {company && <FadeIn delay={0.1}><div className="space-y-4"><CompanyContactEmailCard company={company} /><VerificationCard company={company} /></div></FadeIn>}
     <FadeIn delay={0.14}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base">{t('dashboard.employerJobs.title')}</CardTitle><CardDescription>{company ? company.name : t('dashboard.noCompany')}</CardDescription></div><Button size="sm" asChild><Link to="/employer/post-job"><Plus className="size-3.5 mr-1"/>{t('dashboard.newJob')}</Link></Button></CardHeader><CardContent className="space-y-2">{companyLoading || jobsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !company ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noCompany')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.registerCompany')}</Link></Button></div> : !postedJobs.length ? <div className="py-8 text-center text-sm text-muted-foreground">{t('dashboard.noEmployerJobs')}<br/><Button className="mt-3" size="sm" asChild><Link to="/employer/post-job">{t('dashboard.firstJob')}</Link></Button></div> : postedJobs.map(job=><EmployerJobRow key={job.id} job={job} appCount={allApplications.filter(a=>a.jobId===job.id).length}/>)}</CardContent></Card></FadeIn>
     <FadeIn delay={0.16}><UpcomingInterviewsWidget companyId={company?.id} /></FadeIn>
-    <FadeIn delay={0.18}><Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Clock className="size-4 text-primary"/>{t('dashboard.recentActivity')}</CardTitle></CardHeader><CardContent>{appsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentApplications.length ? <p className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.noApplications')}</p> : <div className="space-y-2">{recentApplications.map(a=><RecentActivityRow key={a.id} app={a}/>)}</div>}</CardContent></Card></FadeIn>
+    <FadeIn delay={0.18}><Card><CardHeader><CardTitle className="text-base flex items-center gap-2"><Clock className="size-4 text-primary"/>{t('dashboard.recentActivity')}</CardTitle></CardHeader><CardContent>{appsLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentApplications.length ? <p className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.noRecentApplicants')}</p> : <div className="space-y-2">{recentApplications.map(a=><RecentActivityRow key={a.id} app={a}/>)}</div>}</CardContent></Card></FadeIn>
   </div>
 }
 

@@ -122,7 +122,7 @@ const enHq: Dict = {
   'hq.moderation.approved': 'Job approved and published',
   'hq.moderation.rejected': 'Job rejected',
   'hq.moderation.reportsTitle': 'Recent reports',
-  'hq.moderation.reportsDesc': 'Flagged by users. Reported jobs are held for review until you decide.',
+  'hq.moderation.reportsDesc': 'Flagged by users. The job stays live until you keep or remove it.',
   'hq.moderation.noReports': 'No reports yet',
   'hq.moderation.reasonScam': 'Scam or fraud',
   'hq.moderation.reasonInappropriate': 'Inappropriate content',

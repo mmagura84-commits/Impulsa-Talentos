@@ -15,6 +15,7 @@ import { sendApplicationNotifications } from '@/lib/notifyApplication'
 import { MarkdownPreview } from '@/components/MarkdownPreview'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/jobs/$id')({
   head: () => ({ meta: [{ title: 'Job — Impulsa (mobile)' }] }),
@@ -90,6 +91,10 @@ function MobileJobDetail() {
       if (typeof window !== 'undefined') window.location.href = '/m/profile?apply=' + id
       return
     }
+    if (profile.role !== 'candidate') {
+      toast.info(t('jobDetail.candidatesOnly'))
+      return
+    }
     setApplying(true)
     try {
       const created = await apply.mutateAsync({
@@ -114,7 +119,14 @@ function MobileJobDetail() {
         coverNote: '',
       })
     } catch (err) {
-      console.warn('apply failed', err)
+      // Show why (already applied, job closed, applicant limit…) instead of failing silently.
+      const msg = err instanceof Error ? err.message : ''
+      if (/duplicate key|already exists/i.test(msg)) {
+        setApplied(true)
+        toast.info(t('jobDetail.alreadyApplied'))
+      } else {
+        toast.error(t('jobDetail.applyError'), { description: friendlyDbError(err, t) })
+      }
     } finally {
       setApplying(false)
     }

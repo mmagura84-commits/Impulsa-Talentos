@@ -18,6 +18,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import type { Job } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /**
  * Employer job-management panel (final P0).
@@ -67,7 +68,7 @@ export function JobManagementPanel({ job }: { job: Job }) {
       navigate({ to: '/employer/edit-job/$id', params: { id: created.id } })
     } catch (err) {
       toast.error(t('jobMgmt.cloneError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     } finally {
       setCloning(false)
@@ -91,7 +92,7 @@ export function JobManagementPanel({ job }: { job: Job }) {
       { id: job.id, data },
       {
         onSuccess: () => toast.success(t('jobMgmt.saved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('jobMgmt.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('jobMgmt.saveError')),
         onSettled: () => setSaving(false),
       },
     )

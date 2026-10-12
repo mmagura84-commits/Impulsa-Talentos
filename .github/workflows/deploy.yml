@@ -10,10 +10,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v1
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
-          bun-version: latest
+          bun-version: 1.4.2
       - name: Build
         env:
           # LIVE consolidated Supabase project values (2026-08-13).
@@ -24,7 +24,7 @@ jobs:
           VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHFseWJzZ2tlZ29scXlkbWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNDYxNzksImV4cCI6MjEwMTcyMjE3OX0.VTalByKsYkNvc7JX9OIkAk--7Ex7UeCZYSvlwDb9Lr4
           SITE_URL: https://impulsatalentos.expert
         run: |
-          bun install
+          bun install --frozen-lockfile
           bun run build
           cp .htaccess dist/.htaccess
       - name: Guard — bundle must target the LIVE Supabase project
@@ -38,12 +38,24 @@ jobs:
             exit 1
           fi
           echo "Bundle Supabase target OK: LIVE cmdqlybsgkegolqydmbh"
-      - name: Deploy
+      - name: Guard — build is complete
         run: |
+          test -f dist/index.html && test -f dist/.htaccess || { echo "::error::dist/index.html or .htaccess missing"; exit 1; }
+      - name: Deploy (upload to staging folder, verify, then swap — never clears the live site first)
+        env:
+          HOST: ${{ secrets.HOSTINGER_HOST }}
+          PORT: ${{ secrets.HOSTINGER_PORT }}
+          USER_: ${{ secrets.HOSTINGER_USER }}
+          LIVE: /home/u774117868/websites/0D7T1hSPl/public_html
+        run: |
+          set -euo pipefail
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" | base64 -d > ~/.ssh/deploy_key
           chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -p ${{ secrets.HOSTINGER_PORT }} -H ${{ secrets.HOSTINGER_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
-          ssh -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -p ${{ secrets.HOSTINGER_PORT }} ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }} "rm -rf /home/u774117868/websites/0D7T1hSPl/public_html/*" 2>&1
-          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=no -o ConnectTimeout=15 -P ${{ secrets.HOSTINGER_PORT }} -r dist/* ${{ secrets.HOSTINGER_USER }}@${{ secrets.HOSTINGER_HOST }}:/home/u774117868/websites/0D7T1hSPl/public_html/ 2>&1
+          ssh-keyscan -p "$PORT" -H "$HOST" >> ~/.ssh/known_hosts 2>/dev/null
+          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -p $PORT"
+          COUNT=$(find dist -type f | wc -l | tr -d ' ')
+          $SSH "$USER_@$HOST" "rm -rf '$LIVE.incoming' && mkdir -p '$LIVE.incoming'"
+          scp -i ~/.ssh/deploy_key -o StrictHostKeyChecking=yes -o ConnectTimeout=15 -P "$PORT" -r dist/. "$USER_@$HOST:$LIVE.incoming/"
+          $SSH "$USER_@$HOST" bash -s -- "$LIVE" "$LIVE.incoming" "$LIVE.prev" "$COUNT" < scripts/remote-swap.sh
           echo "Deploy complete"

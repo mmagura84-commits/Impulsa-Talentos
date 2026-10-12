@@ -33,6 +33,7 @@ import {
 import { CANONICAL_INDUSTRIES, industryLabelKey, matchIndustry } from '@/lib/industries'
 import { useBlocker } from '@tanstack/react-router'
 import { toast } from 'sonner'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/post')({
   head: () => ({ meta: [{ title: 'Post a job — Impulsa (mobile)' }] }),
@@ -278,7 +279,7 @@ function MobilePost() {
               setStep('job')
             } catch (err) {
               toast.error(t('postJob.company.createError'), {
-                description: err instanceof Error ? err.message : '',
+                description: friendlyDbError(err, t),
               })
             }
           }}
@@ -450,7 +451,7 @@ function MobilePost() {
               toast.success(t('postJob.job.success'))
             } catch (err) {
               toast.error(t('postJob.job.error'), {
-                description: err instanceof Error ? err.message : '',
+                description: friendlyDbError(err, t),
               })
             }
           }}
@@ -486,7 +487,7 @@ function MobilePost() {
               navigate({ to: '/m/home' })
             } catch (err) {
               toast.error(t('postJob.job.error'), {
-                description: err instanceof Error ? err.message : '',
+                description: friendlyDbError(err, t),
               })
             }
           }}

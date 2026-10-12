@@ -166,6 +166,12 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
   const [busy, setBusy] = useState(false)
   const [submitError, setSubmitError] = useState('')
   const [submittedRef, setSubmittedRef] = useState('')
+  // Card checkout link submitted by the MD (Wompi hosted page), if any.
+  const [cardLink, setCardLink] = useState<string | null>(null)
+  useEffect(() => {
+    if (!open || !user) return
+    supabase.rpc('public_payment_link').then(({ data }) => setCardLink(typeof data === 'string' && data.startsWith('https://') ? data : null))
+  }, [open, user])
 
   // Reset per-open (so closing then re-opening starts clean).
   useEffect(() => {
@@ -177,15 +183,13 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
   const submit = async () => {
     if (!pkg || !company) return
     const referenceVal = reference.trim()
-    if (!referenceVal) {
-      setSubmitError(t('pricing.manual.referenceRequired'))
-      return
-    }
     setBusy(true)
     setSubmitError('')
     const { data, error } = await supabase.rpc('submit_manual_payment', {
       p_company_id: company.id,
-      p_package_id: pkg.id,
+      // The database prices the order from its own catalog (migration 041);
+      // only the package id is trusted.
+      p_package_id: billing === 'yearly' ? `${pkg.id}_yearly` : pkg.id,
       p_amount_usd: amountUsd,
       p_requested_credits: pkg.credits,
       p_transaction_reference: referenceVal,
@@ -232,6 +236,15 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
                 </div>
               ) : (
                 <div className="grid gap-4">
+                  {cardLink && (
+                    <div className="rounded-md border border-primary/30 bg-primary/5 p-4 grid gap-2 text-sm">
+                      <p className="font-medium text-foreground">{t('pricing.card.title')}</p>
+                      <p className="text-muted-foreground text-xs">{t('pricing.card.desc')}</p>
+                      <Button asChild variant="default" size="sm">
+                        <a href={cardLink} target="_blank" rel="noopener noreferrer">{t('pricing.card.cta')}</a>
+                      </Button>
+                    </div>
+                  )}
                   {/* Method explanation — honest, manual-first. */}
                   <div className="rounded-md border p-4 grid gap-2 text-sm">
                     <div className="flex items-center gap-2 font-medium text-foreground">
@@ -243,7 +256,7 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
                     <p className="text-xs text-muted-foreground">{t('pricing.manual.verifyNote')}</p>
                   </div>
                   <div className="grid gap-1.5">
-                    <Label htmlFor="ref">{t('pricing.manual.reference')}</Label>
+                    <Label htmlFor="ref">{t('pricing.manual.reference')} <span className="text-muted-foreground">({t('pricing.manual.optional')})</span></Label>
                     <Input id="ref" value={reference} onChange={(e) => setReference(e.target.value)} placeholder={t('pricing.manual.referencePlaceholder')} />
                   </div>
                   <div className="grid gap-1.5">
@@ -255,7 +268,7 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
                     {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                     {busy ? t('pricing.manual.submitting') : t('pricing.manual.submit')}
                   </Button>
-                  <p className="text-xs text-muted-foreground">{t('pricing.manual.cardComing')}</p>
+                  {!cardLink && <p className="text-xs text-muted-foreground">{t('pricing.manual.cardComing')}</p>}
                 </div>
               )}
             </AuthGate>
@@ -266,7 +279,7 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
   )
 }
 
-export default function PricingPage() {
+function PricingPage() {
   const { t } = useI18n(); const { user } = useAuth(); const [unlocked, setUnlocked] = useState(false)
   const [selected, setSelected] = useState<JobPostingPackage | null>(null)
   const [billing, setBilling] = useState<Billing>('monthly')

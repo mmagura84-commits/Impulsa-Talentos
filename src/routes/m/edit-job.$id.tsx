@@ -24,6 +24,7 @@ import {
   normalizeLanguageToken,
   type LocationType,
 } from '@/lib/jobEnums'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/edit-job/$id')({ component: MobileEditJob })
 
@@ -161,7 +162,7 @@ function MobileEditJob() {
       toast.success(t('dashboard.jobUpdated'))
       navigate({ to: '/m/home' })
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('mobile.errorTitle'))
+      toast.error(friendlyDbError(err, t) || t('mobile.errorTitle'))
     }
   }
 

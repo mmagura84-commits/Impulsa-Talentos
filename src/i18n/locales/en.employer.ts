@@ -178,6 +178,8 @@ const enEmployer: Dict = {
   'team.roleLabel': 'Role',
   'team.role.owner': 'Owner',
   'team.role.admin': 'Admin',
+  'team.role.md': 'Managing Director (HQ)',
+  'team.role.mdDesc': 'Assigned by HQ · view only',
   'team.role.member': 'Member',
   'team.sendInvite': 'Send Invite',
   'team.inviteFailed': 'Invite failed',

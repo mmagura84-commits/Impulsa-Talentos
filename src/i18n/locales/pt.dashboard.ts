@@ -217,6 +217,8 @@ const ptDashboard: Dict = {
   'timeline.empty': 'Você ainda não tem candidaturas. Comece a se candidatar para acompanhar seu progresso.',
   'timeline.viewAll': 'Ver todas as candidaturas',
   'timeline.statusFilter': 'Filtrar por status',
+  'timeline.viewJob': 'Ver vaga',
+  'timeline.withdrawYes': 'Sim, retirar',
   'timeline.withdraw': 'Retirar',
   'timeline.withdrawConfirm': 'Retirar esta candidatura?',
   'timeline.withdrawConfirmDesc': 'Sua candidatura será retirada e o empregador será notificado.',

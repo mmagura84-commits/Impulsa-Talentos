@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Bell, CheckCheck, Trash2, Inbox, AlertCircle } from 'lucide-react'
 import type { Notification, NotificationType } from '@/types'
 
-const TYPE_KEYS: Record<NotificationType, string> = {
+const TYPE_KEYS: Partial<Record<NotificationType, string>> = {
   application_received: 'notifications.type.application_received',
   status_changed: 'notifications.type.status_changed',
   message_received: 'notifications.type.message_received',
@@ -22,23 +22,71 @@ const TYPE_KEYS: Record<NotificationType, string> = {
   team_invite: 'notifications.type.team_invite',
 }
 
-/** Resolve a notification to a route where the employer can act on it. */
-function notificationLink(n: Notification): string | undefined {
+export type NotificationAudience = 'candidate' | 'employer' | 'md' | 'admin'
+
+/** Resolve a notification to the page where this person can act on it. */
+/** In the phone app (/m) keep people inside the mobile screens. */
+function mobileLink(path: string | undefined): string | undefined {
+  if (!path) return path
+  if (path === '/candidate/applications') return '/m/applications'
+  if (path === '/employer/post-job') return '/m/post'
+  if (path.startsWith('/employer/')) return '/m/home'
+  return path
+}
+
+function notificationLink(n: Notification, audience: NotificationAudience): string | undefined {
   const data = (n.data ?? {}) as Record<string, unknown>
   const jobId = typeof data.job_id === 'string' ? data.job_id : undefined
-  switch (n.type) {
+  const type = n.type as string
+  if (type.startsWith('hq_') || type === 'deletion_requested') return '/hq'
+  if (audience === 'candidate') {
+    return '/candidate/applications'
+  }
+  switch (type) {
     case 'team_invite':
       return '/employer/team'
+    case 'company_verified':
+      return '/employer/post-job'
+    case 'payment_granted':
+    case 'payment_rejected':
+      return '/pricing'
     case 'application_received':
+    case 'application_withdrawn':
     case 'status_changed':
     case 'message_received':
     case 'interview_scheduled':
     case 'feedback_added':
       if (jobId) return `/employer/manage/${jobId}`
       return '/employer/applications'
+    case 'offer_accepted':
+    case 'offer_declined':
+      return '/employer/offers'
     default:
-      return '/employer/jobs'
+      return audience === 'md' ? '/md' : '/employer/jobs'
   }
+}
+
+/** Status changes arrive as a raw status key; show its label. */
+function notificationBody(n: Notification, t: (k: string) => string): string {
+  if ((n.type as string) === 'application_status' && n.body) {
+    const key = `dashboard.status.${n.body}`
+    const label = t(key)
+    return label === key ? n.body : label
+  }
+  return n.body
+}
+
+/**
+ * The database stores the subject (a name or job title) and a detail; the
+ * sentence around them is translated here, so Spanish/Portuguese users don't
+ * see English notifications.
+ */
+function notificationHeading(n: Notification, t: (k: string) => string): { heading: string; detail: string } {
+  const key = `notifications.kind.${n.type as string}`
+  const label = t(key)
+  const body = notificationBody(n, t)
+  if (label === key) return { heading: n.title || t(TYPE_KEYS[n.type] ?? 'notifications.type.application_received'), detail: body }
+  return { heading: label, detail: [n.title, body].filter(s => s && s !== '—').join(' · ') }
 }
 
 /** Compact relative time using the shared time helper keys. */
@@ -55,7 +103,11 @@ function relativeTime(iso: string, t: (k: string, p?: Record<string, string | nu
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-export function NotificationCenter() {
+export function NotificationCenter({
+  audience = 'employer',
+  align = 'left',
+  mobile = false,
+}: { audience?: NotificationAudience; align?: 'left' | 'right'; mobile?: boolean } = {}) {
   const { user } = useAuth()
   const { t } = useI18n()
   const { data: notifications, isLoading, isError, refetch } = useNotifications(user?.id)
@@ -129,7 +181,7 @@ export function NotificationCenter() {
       </Button>
 
       {open && (
-        <div className="absolute left-0 top-full mt-2 w-80 max-w-[calc(100vw-3rem)] rounded-xl border border-border bg-card shadow-lg z-50 overflow-hidden">
+        <div className={`${mobile ? 'fixed left-3 right-3 top-[calc(env(safe-area-inset-top)+3.75rem)]' : `absolute ${align === 'right' ? 'right-0' : 'left-0'} top-full mt-2 w-80 max-w-[calc(100vw-2rem)]`} rounded-xl border border-border bg-card shadow-lg z-50 overflow-hidden`}>
           <div className="flex items-center justify-between gap-2 border-b border-border px-3 py-2">
             <p className="text-sm font-semibold text-foreground flex items-center gap-1.5">
               <Bell className="size-3.5 text-primary" />
@@ -171,7 +223,7 @@ export function NotificationCenter() {
             ) : (
               <ul className="divide-y divide-border">
                 {items.map((n) => {
-                  const link = notificationLink(n)
+                  const link = mobile ? mobileLink(notificationLink(n, audience)) : notificationLink(n, audience)
                   const deleteBtn = (
                     <button
                       type="button"
@@ -187,9 +239,9 @@ export function NotificationCenter() {
                       <span className={`mt-1.5 size-1.5 rounded-full shrink-0 ${n.readAt ? 'bg-transparent' : 'bg-primary'}`} />
                       <span className="min-w-0 flex-1">
                         <span className={`block text-xs ${n.readAt ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
-                          {n.title || t(TYPE_KEYS[n.type] ?? 'notifications.type.application_received')}
+                          {notificationHeading(n, t).heading}
                         </span>
-                        <span className="block text-xs text-muted-foreground truncate">{n.body}</span>
+                        <span className="block text-xs text-muted-foreground truncate">{notificationHeading(n, t).detail}</span>
                         <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
                           {relativeTime(n.createdAt, t)}
                         </span>

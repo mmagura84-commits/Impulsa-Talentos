@@ -14,6 +14,7 @@ import { useProfile } from '@/hooks/useProfile'
 import { useSaveJob, useSavedJobIds } from '@/hooks/useSavedJobs'
 import { cn } from '@/lib/utils'
 import type { Job } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/jobs')({
   head: () => ({ meta: [{ title: 'Jobs — Impulsa (mobile)' }] }),
@@ -87,7 +88,7 @@ function MobileJobsList() {
           </div>
           <p className="text-sm font-semibold text-foreground">{t('mobile.errorTitle')}</p>
           <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button size="sm" variant="outline" className="mt-3" onClick={() => refetch()}>
             {t('mobile.retry')}

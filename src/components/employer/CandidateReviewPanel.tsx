@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { toast } from 'sonner'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { Locale } from '@/i18n/types'
-import { useUpdateApplication } from '@/hooks/useApplications'
+import { useApplicationPrivate, useSaveApplicationPrivate } from '@/hooks/useApplications'
 import { useProfileById } from '@/hooks/useProfile'
 import { useSignedStorageUrl } from '@/hooks/useSignedStorageUrl'
 import { scoreMatch, type MatchScore } from '@/lib/matchScore'
@@ -29,6 +29,7 @@ import {
   CircleAlert,
 } from 'lucide-react'
 import type { Application, Job, Profile } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Helpers ─────────────────────────────────────────── */
 function splitList(s: string | null | undefined): string[] {
@@ -292,30 +293,35 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
 /* ── Shortlist + notes (migration 023 wired) ──────────── */
 function ShortlistAndNotes({ app }: { app: Application }) {
   const { t } = useI18n()
-  const update = useUpdateApplication()
-  const [notes, setNotes] = useState(app.notes ?? '')
+  // Private to the employer team (migration 041): never on the application row.
+  const { data: priv } = useApplicationPrivate(app.id)
+  const save = useSaveApplicationPrivate()
+  const shortlisted = priv?.shortlisted ?? false
+  const savedNotes = priv?.notes ?? ''
+  const [notes, setNotes] = useState(savedNotes)
   // Keep local notes in sync when the drawer opens for a different application.
   useEffect(() => {
-    setNotes(app.notes ?? '')
-  }, [app.id, app.notes])
+    setNotes(savedNotes)
+  }, [app.id, savedNotes])
   const toggleShortlist = () => {
-    update.mutate(
-      { id: app.id, data: { shortlisted: !(app.shortlisted ?? false) } },
+    save.mutate(
+      { applicationId: app.id, shortlisted: !shortlisted },
       {
         onSuccess: () => toast.success(t('review.shortlistSaved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('review.saveError')),
       },
     )
   }
   const saveNotes = () => {
-    update.mutate(
-      { id: app.id, data: { notes } },
+    save.mutate(
+      { applicationId: app.id, notes },
       {
         onSuccess: () => toast.success(t('review.notesSaved')),
-        onError: (err) => toast.error(err instanceof Error ? err.message : t('review.saveError')),
+        onError: (err) => toast.error(friendlyDbError(err, t) || t('review.saveError')),
       },
     )
   }
+  const update = save
   return (
     <div className="space-y-3">
       <div className="flex items-start gap-2">
@@ -323,7 +329,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
           <div className="flex items-center justify-between gap-2">
             <p className="text-xs font-medium text-foreground">{t('review.shortlist')}</p>
             <Switch
-              checked={app.shortlisted ?? false}
+              checked={shortlisted}
               disabled={update.isPending}
               onCheckedChange={toggleShortlist}
               aria-label={t('review.shortlist')}
@@ -348,7 +354,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
             size="sm"
             variant="outline"
             onClick={saveNotes}
-            disabled={update.isPending || notes === (app.notes ?? '')}
+            disabled={update.isPending || notes === savedNotes}
           >
             {t('review.saveNotes')}
           </Button>

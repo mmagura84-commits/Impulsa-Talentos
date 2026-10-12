@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { PublicHeader } from '@/components/PublicHeader'
 import { useI18n } from '@/i18n/I18nProvider'
-import { LegalShell } from '@/routes/terms'
+import { LegalShell } from '@/components/LegalShell'
 import type { Locale } from '@/i18n/types'
 
 export const Route = createFileRoute('/privacy')({
@@ -53,7 +53,7 @@ const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: stri
   },
 }
 
-export default function PrivacyPage() {
+function PrivacyPage() {
   const { locale } = useI18n()
   const c = CONTENT[locale === 'en' ? 'en' : 'es']
   return <LegalShell title={c.title} updated={c.updated} intro={c.intro} sections={c.sections} />

@@ -42,6 +42,22 @@ function isTransientAuthError(err: { status?: number } | null | undefined): bool
   const s = err.status ?? 0
   return s === 0 || s >= 500
 }
+/**
+ * Team invites are rows keyed by the invitee's email (migration 041). Bind any
+ * pending invite to this account once per page session after sign-in.
+ */
+const invitesAccepted = new Set<string>()
+function acceptTeamInvitesOnce(userId: string) {
+  if (typeof window === 'undefined' || invitesAccepted.has(userId)) return
+  invitesAccepted.add(userId)
+  void supabase.rpc('accept_team_invites').then(({ data }) => {
+    if (typeof data === 'number' && data > 0) {
+      // A new seat changes which company and jobs this person sees.
+      window.dispatchEvent(new CustomEvent('impulsa:team-invite-accepted', { detail: data }))
+    }
+  })
+}
+
 async function fetchSessionWithRetry(): Promise<Awaited<ReturnType<typeof supabase.auth.getSession>>> {
   for (let attempt = 0; ; attempt++) {
     const res = await supabase.auth.getSession()
@@ -94,6 +110,7 @@ export function useAuth() {
       if (data.session) {
         loaded = true
         setAuth(toAppUser(data.session.user))
+        acceptTeamInvitesOnce(data.session.user.id)
       }
       // If no session, wait for onAuthStateChange — the URL hash
       // may still be processing.
@@ -107,6 +124,7 @@ export function useAuth() {
         // permanent `resolved` latch dropped these.
         loaded = true
         setAuth(toAppUser(session.user))
+        acceptTeamInvitesOnce(session.user.id)
       } else if (loaded) {
         // SIGNED_OUT / token expiry with no session — clear the user.
         setAuth(null)

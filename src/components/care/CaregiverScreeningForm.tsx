@@ -28,6 +28,7 @@ import {
   useSaveCaregiverUploads,
 } from '@/hooks/useCare'
 import type { CaregiverProfile } from '@/lib/care'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 function toggle<T>(arr: T[], value: T): T[] {
   return arr.includes(value) ? arr.filter(v => v !== value) : [...arr, value]
@@ -99,7 +100,7 @@ export function CaregiverScreeningForm({
       onSaved?.()
     } catch (err) {
       toast.error(t('care.form.saveError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }
@@ -123,7 +124,7 @@ export function CaregiverScreeningForm({
       toast.success(t('care.form.uploaded'))
     } catch (err) {
       toast.error(t('care.form.uploadError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }

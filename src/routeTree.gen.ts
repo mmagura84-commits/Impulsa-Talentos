@@ -9,123 +9,82 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as ProfilesRouteImport } from './routes/profiles'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as MdPreviewRouteImport } from './routes/md-preview'
-import { Route as MRouteImport } from './routes/m'
-import { Route as ForEmployersRouteImport } from './routes/for-employers'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as CaregiversRouteImport } from './routes/caregivers'
-import { Route as ApplicationsRouteImport } from './routes/applications'
-import { Route as AppRouteImport } from './routes/_app'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as MIndexRouteImport } from './routes/m/index'
-import { Route as CompaniesIndexRouteImport } from './routes/companies.index'
-import { Route as MSavedRouteImport } from './routes/m/saved'
-import { Route as MProfileRouteImport } from './routes/m/profile'
-import { Route as MPostRouteImport } from './routes/m/post'
-import { Route as MJobsRouteImport } from './routes/m/jobs'
-import { Route as MHomeRouteImport } from './routes/m/home'
-import { Route as MCompanyRouteImport } from './routes/m/company'
-import { Route as MCompaniesRouteImport } from './routes/m/companies'
-import { Route as MApplicationsRouteImport } from './routes/m/applications'
-import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
-import { Route as AppProfileRouteImport } from './routes/_app/profile'
-import { Route as AppMdRouteImport } from './routes/_app/md'
-import { Route as AppManagingdirectorRouteImport } from './routes/_app/managingdirector'
-import { Route as AppJobsRouteImport } from './routes/_app/jobs'
-import { Route as AppHqRouteImport } from './routes/_app/hq'
-import { Route as AppEmployerRouteImport } from './routes/_app/employer'
-import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppRouteImport } from './routes/_app'
+import { Route as ApplicationsRouteImport } from './routes/applications'
+import { Route as CaregiversRouteImport } from './routes/caregivers'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ForEmployersRouteImport } from './routes/for-employers'
+import { Route as MRouteImport } from './routes/m'
+import { Route as MdPreviewRouteImport } from './routes/md-preview'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ProfilesRouteImport } from './routes/profiles'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AppCandidateRouteImport } from './routes/_app/candidate'
-import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
-import { Route as AppManagingdirectorIndexRouteImport } from './routes/_app/managingdirector/index'
-import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
-import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
-import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
-import { Route as MEditJobIdRouteImport } from './routes/m/edit-job.$id'
-import { Route as MCompaniesIdRouteImport } from './routes/m/companies.$id'
-import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
-import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
-import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
-import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
-import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
-import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
-import { Route as AppManagingdirectorProfileRouteImport } from './routes/_app/managingdirector/profile'
-import { Route as AppManagingdirectorMessagesRouteImport } from './routes/_app/managingdirector/messages'
-import { Route as AppManagingdirectorMeetingsRouteImport } from './routes/_app/managingdirector/meetings'
-import { Route as AppManagingdirectorMarketingRouteImport } from './routes/_app/managingdirector/marketing'
-import { Route as AppManagingdirectorEmployersRouteImport } from './routes/_app/managingdirector/employers'
-import { Route as AppManagingdirectorBankingRouteImport } from './routes/_app/managingdirector/banking'
-import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
-import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
-import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team'
-import { Route as AppEmployerSettingsRouteImport } from './routes/_app/employer/settings'
-import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
-import { Route as AppEmployerOffersRouteImport } from './routes/_app/employer/offers'
-import { Route as AppEmployerMessagesRouteImport } from './routes/_app/employer/messages'
-import { Route as AppEmployerJobsRouteImport } from './routes/_app/employer/jobs'
-import { Route as AppEmployerApplicationsRouteImport } from './routes/_app/employer/applications'
-import { Route as AppEmployerAnalyticsRouteImport } from './routes/_app/employer/analytics'
-import { Route as AppCandidateSavedRouteImport } from './routes/_app/candidate/saved'
-import { Route as AppCandidateCareRouteImport } from './routes/_app/candidate/care'
-import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
+import { Route as AppDashboardRouteImport } from './routes/_app/dashboard'
+import { Route as AppEmployerRouteImport } from './routes/_app/employer'
+import { Route as AppHqRouteImport } from './routes/_app/hq'
+import { Route as AppJobsRouteImport } from './routes/_app/jobs'
+import { Route as AppManagingdirectorRouteImport } from './routes/_app/managingdirector'
+import { Route as AppMdRouteImport } from './routes/_app/md'
+import { Route as AppProfileRouteImport } from './routes/_app/profile'
+import { Route as CompaniesIndexRouteImport } from './routes/companies.index'
+import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
+import { Route as MIndexRouteImport } from './routes/m/index'
+import { Route as MApplicationsRouteImport } from './routes/m/applications'
+import { Route as MCompaniesRouteImport } from './routes/m/companies'
+import { Route as MCompanyRouteImport } from './routes/m/company'
+import { Route as MHomeRouteImport } from './routes/m/home'
+import { Route as MJobsRouteImport } from './routes/m/jobs'
+import { Route as MPostRouteImport } from './routes/m/post'
+import { Route as MProfileRouteImport } from './routes/m/profile'
+import { Route as MSavedRouteImport } from './routes/m/saved'
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
-import { Route as AppEmployerManageIdRouteImport } from './routes/_app/employer/manage.$id'
+import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
+import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
+import { Route as AppCandidateCareRouteImport } from './routes/_app/candidate/care'
+import { Route as AppCandidateSavedRouteImport } from './routes/_app/candidate/saved'
+import { Route as AppEmployerIndexRouteImport } from './routes/_app/employer/index'
+import { Route as AppEmployerAnalyticsRouteImport } from './routes/_app/employer/analytics'
+import { Route as AppEmployerApplicationsRouteImport } from './routes/_app/employer/applications'
+import { Route as AppEmployerJobsRouteImport } from './routes/_app/employer/jobs'
+import { Route as AppEmployerMessagesRouteImport } from './routes/_app/employer/messages'
+import { Route as AppEmployerOffersRouteImport } from './routes/_app/employer/offers'
+import { Route as AppEmployerPostJobRouteImport } from './routes/_app/employer/post-job'
+import { Route as AppEmployerSettingsRouteImport } from './routes/_app/employer/settings'
+import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team'
+import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
+import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
+import { Route as AppManagingdirectorIndexRouteImport } from './routes/_app/managingdirector/index'
+import { Route as AppManagingdirectorBankingRouteImport } from './routes/_app/managingdirector/banking'
+import { Route as AppManagingdirectorEmployersRouteImport } from './routes/_app/managingdirector/employers'
+import { Route as AppManagingdirectorMarketingRouteImport } from './routes/_app/managingdirector/marketing'
+import { Route as AppManagingdirectorMeetingsRouteImport } from './routes/_app/managingdirector/meetings'
+import { Route as AppManagingdirectorMessagesRouteImport } from './routes/_app/managingdirector/messages'
+import { Route as AppManagingdirectorProfileRouteImport } from './routes/_app/managingdirector/profile'
+import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
+import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
+import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
+import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
+import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
+import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
+import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
+import { Route as MCompaniesIdRouteImport } from './routes/m/companies.$id'
+import { Route as MEditJobIdRouteImport } from './routes/m/edit-job.$id'
+import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
+import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id_.confirm'
 import { Route as AppEmployerEditJobIdRouteImport } from './routes/_app/employer/edit-job.$id'
-import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id.confirm'
+import { Route as AppEmployerManageIdRouteImport } from './routes/_app/employer/manage.$id'
 
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ProfilesRoute = ProfilesRouteImport.update({
-  id: '/profiles',
-  path: '/profiles',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MdPreviewRoute = MdPreviewRouteImport.update({
-  id: '/md-preview',
-  path: '/md-preview',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MRoute = MRouteImport.update({
-  id: '/m',
-  path: '/m',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForEmployersRoute = ForEmployersRouteImport.update({
-  id: '/for-employers',
-  path: '/for-employers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CaregiversRoute = CaregiversRouteImport.update({
-  id: '/caregivers',
-  path: '/caregivers',
+const AppRoute = AppRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ApplicationsRoute = ApplicationsRouteImport.update({
@@ -133,98 +92,59 @@ const ApplicationsRoute = ApplicationsRouteImport.update({
   path: '/applications',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppRoute = AppRouteImport.update({
-  id: '/_app',
+const CaregiversRoute = CaregiversRouteImport.update({
+  id: '/caregivers',
+  path: '/caregivers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MIndexRoute = MIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => MRoute,
-} as any)
-const CompaniesIndexRoute = CompaniesIndexRouteImport.update({
-  id: '/companies/',
-  path: '/companies/',
+const ForEmployersRoute = ForEmployersRouteImport.update({
+  id: '/for-employers',
+  path: '/for-employers',
   getParentRoute: () => rootRouteImport,
 } as any)
-const MSavedRoute = MSavedRouteImport.update({
-  id: '/saved',
-  path: '/saved',
-  getParentRoute: () => MRoute,
-} as any)
-const MProfileRoute = MProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => MRoute,
-} as any)
-const MPostRoute = MPostRouteImport.update({
-  id: '/post',
-  path: '/post',
-  getParentRoute: () => MRoute,
-} as any)
-const MJobsRoute = MJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
-  getParentRoute: () => MRoute,
-} as any)
-const MHomeRoute = MHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => MRoute,
-} as any)
-const MCompanyRoute = MCompanyRouteImport.update({
-  id: '/company',
-  path: '/company',
-  getParentRoute: () => MRoute,
-} as any)
-const MCompaniesRoute = MCompaniesRouteImport.update({
-  id: '/companies',
-  path: '/companies',
-  getParentRoute: () => MRoute,
-} as any)
-const MApplicationsRoute = MApplicationsRouteImport.update({
-  id: '/applications',
-  path: '/applications',
-  getParentRoute: () => MRoute,
-} as any)
-const CompaniesIdRoute = CompaniesIdRouteImport.update({
-  id: '/companies/$id',
-  path: '/companies/$id',
+const MRoute = MRouteImport.update({
+  id: '/m',
+  path: '/m',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AppProfileRoute = AppProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppRoute,
+const MdPreviewRoute = MdPreviewRouteImport.update({
+  id: '/md-preview',
+  path: '/md-preview',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppMdRoute = AppMdRouteImport.update({
-  id: '/md',
-  path: '/md',
-  getParentRoute: () => AppRoute,
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppManagingdirectorRoute = AppManagingdirectorRouteImport.update({
-  id: '/managingdirector',
-  path: '/managingdirector',
-  getParentRoute: () => AppRoute,
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppJobsRoute = AppJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
-  getParentRoute: () => AppRoute,
+const ProfilesRoute = ProfilesRouteImport.update({
+  id: '/profiles',
+  path: '/profiles',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppHqRoute = AppHqRouteImport.update({
-  id: '/hq',
-  path: '/hq',
-  getParentRoute: () => AppRoute,
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AppEmployerRoute = AppEmployerRouteImport.update({
-  id: '/employer',
-  path: '/employer',
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AppCandidateRoute = AppCandidateRouteImport.update({
+  id: '/candidate',
+  path: '/candidate',
   getParentRoute: () => AppRoute,
 } as any)
 const AppDashboardRoute = AppDashboardRouteImport.update({
@@ -232,171 +152,99 @@ const AppDashboardRoute = AppDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => AppRoute,
 } as any)
-const AppCandidateRoute = AppCandidateRouteImport.update({
-  id: '/candidate',
-  path: '/candidate',
+const AppEmployerRoute = AppEmployerRouteImport.update({
+  id: '/employer',
+  path: '/employer',
   getParentRoute: () => AppRoute,
 } as any)
-const AppMdIndexRoute = AppMdIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => AppMdRoute,
+const AppHqRoute = AppHqRouteImport.update({
+  id: '/hq',
+  path: '/hq',
+  getParentRoute: () => AppRoute,
 } as any)
-const AppManagingdirectorIndexRoute =
-  AppManagingdirectorIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppEmployerIndexRoute = AppEmployerIndexRouteImport.update({
+const AppJobsRoute = AppJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppManagingdirectorRoute = AppManagingdirectorRouteImport.update({
+  id: '/managingdirector',
+  path: '/managingdirector',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMdRoute = AppMdRouteImport.update({
+  id: '/md',
+  path: '/md',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppProfileRoute = AppProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppRoute,
+} as any)
+const CompaniesIndexRoute = CompaniesIndexRouteImport.update({
+  id: '/companies/',
+  path: '/companies/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CompaniesIdRoute = CompaniesIdRouteImport.update({
+  id: '/companies/$id',
+  path: '/companies/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MIndexRoute = MIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppEmployerRoute,
+  getParentRoute: () => MRoute,
+} as any)
+const MApplicationsRoute = MApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
+  getParentRoute: () => MRoute,
+} as any)
+const MCompaniesRoute = MCompaniesRouteImport.update({
+  id: '/companies',
+  path: '/companies',
+  getParentRoute: () => MRoute,
+} as any)
+const MCompanyRoute = MCompanyRouteImport.update({
+  id: '/company',
+  path: '/company',
+  getParentRoute: () => MRoute,
+} as any)
+const MHomeRoute = MHomeRouteImport.update({
+  id: '/home',
+  path: '/home',
+  getParentRoute: () => MRoute,
+} as any)
+const MJobsRoute = MJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => MRoute,
+} as any)
+const MPostRoute = MPostRouteImport.update({
+  id: '/post',
+  path: '/post',
+  getParentRoute: () => MRoute,
+} as any)
+const MProfileRoute = MProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => MRoute,
+} as any)
+const MSavedRoute = MSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => MRoute,
+} as any)
+const AppApplyIdRoute = AppApplyIdRouteImport.update({
+  id: '/apply/$id',
+  path: '/apply/$id',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppCandidateIndexRoute = AppCandidateIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AppCandidateRoute,
-} as any)
-const MJobsIdRoute = MJobsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MJobsRoute,
-} as any)
-const MEditJobIdRoute = MEditJobIdRouteImport.update({
-  id: '/edit-job/$id',
-  path: '/edit-job/$id',
-  getParentRoute: () => MRoute,
-} as any)
-const MCompaniesIdRoute = MCompaniesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MCompaniesRoute,
-} as any)
-const AppMdProfileRoute = AppMdProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppMdMessagesRoute = AppMdMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppMdMeetingsRoute = AppMdMeetingsRouteImport.update({
-  id: '/meetings',
-  path: '/meetings',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppMdMarketingRoute = AppMdMarketingRouteImport.update({
-  id: '/marketing',
-  path: '/marketing',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppMdEmployersRoute = AppMdEmployersRouteImport.update({
-  id: '/employers',
-  path: '/employers',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppMdBankingRoute = AppMdBankingRouteImport.update({
-  id: '/banking',
-  path: '/banking',
-  getParentRoute: () => AppMdRoute,
-} as any)
-const AppManagingdirectorProfileRoute =
-  AppManagingdirectorProfileRouteImport.update({
-    id: '/profile',
-    path: '/profile',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppManagingdirectorMessagesRoute =
-  AppManagingdirectorMessagesRouteImport.update({
-    id: '/messages',
-    path: '/messages',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppManagingdirectorMeetingsRoute =
-  AppManagingdirectorMeetingsRouteImport.update({
-    id: '/meetings',
-    path: '/meetings',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppManagingdirectorMarketingRoute =
-  AppManagingdirectorMarketingRouteImport.update({
-    id: '/marketing',
-    path: '/marketing',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppManagingdirectorEmployersRoute =
-  AppManagingdirectorEmployersRouteImport.update({
-    id: '/employers',
-    path: '/employers',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppManagingdirectorBankingRoute =
-  AppManagingdirectorBankingRouteImport.update({
-    id: '/banking',
-    path: '/banking',
-    getParentRoute: () => AppManagingdirectorRoute,
-  } as any)
-const AppJobsIdRoute = AppJobsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AppJobsRoute,
-} as any)
-const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
-  id: '/leads',
-  path: '/leads',
-  getParentRoute: () => AppHqRoute,
-} as any)
-const AppEmployerTeamRoute = AppEmployerTeamRouteImport.update({
-  id: '/team',
-  path: '/team',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerSettingsRoute = AppEmployerSettingsRouteImport.update({
-  id: '/settings',
-  path: '/settings',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerPostJobRoute = AppEmployerPostJobRouteImport.update({
-  id: '/post-job',
-  path: '/post-job',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerOffersRoute = AppEmployerOffersRouteImport.update({
-  id: '/offers',
-  path: '/offers',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerMessagesRoute = AppEmployerMessagesRouteImport.update({
-  id: '/messages',
-  path: '/messages',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerJobsRoute = AppEmployerJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerApplicationsRoute = AppEmployerApplicationsRouteImport.update({
-  id: '/applications',
-  path: '/applications',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppEmployerAnalyticsRoute = AppEmployerAnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => AppEmployerRoute,
-} as any)
-const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
-  id: '/saved',
-  path: '/saved',
-  getParentRoute: () => AppCandidateRoute,
-} as any)
-const AppCandidateCareRoute = AppCandidateCareRouteImport.update({
-  id: '/care',
-  path: '/care',
   getParentRoute: () => AppCandidateRoute,
 } as any)
 const AppCandidateApplicationsRoute =
@@ -405,25 +253,177 @@ const AppCandidateApplicationsRoute =
     path: '/applications',
     getParentRoute: () => AppCandidateRoute,
   } as any)
-const AppApplyIdRoute = AppApplyIdRouteImport.update({
-  id: '/apply/$id',
-  path: '/apply/$id',
-  getParentRoute: () => AppRoute,
+const AppCandidateCareRoute = AppCandidateCareRouteImport.update({
+  id: '/care',
+  path: '/care',
+  getParentRoute: () => AppCandidateRoute,
 } as any)
-const AppEmployerManageIdRoute = AppEmployerManageIdRouteImport.update({
-  id: '/manage/$id',
-  path: '/manage/$id',
+const AppCandidateSavedRoute = AppCandidateSavedRouteImport.update({
+  id: '/saved',
+  path: '/saved',
+  getParentRoute: () => AppCandidateRoute,
+} as any)
+const AppEmployerIndexRoute = AppEmployerIndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerAnalyticsRoute = AppEmployerAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerApplicationsRoute = AppEmployerApplicationsRouteImport.update({
+  id: '/applications',
+  path: '/applications',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerJobsRoute = AppEmployerJobsRouteImport.update({
+  id: '/jobs',
+  path: '/jobs',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerMessagesRoute = AppEmployerMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerOffersRoute = AppEmployerOffersRouteImport.update({
+  id: '/offers',
+  path: '/offers',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerPostJobRoute = AppEmployerPostJobRouteImport.update({
+  id: '/post-job',
+  path: '/post-job',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerSettingsRoute = AppEmployerSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppEmployerTeamRoute = AppEmployerTeamRouteImport.update({
+  id: '/team',
+  path: '/team',
+  getParentRoute: () => AppEmployerRoute,
+} as any)
+const AppHqLeadsRoute = AppHqLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
+  getParentRoute: () => AppHqRoute,
+} as any)
+const AppJobsIdRoute = AppJobsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AppJobsRoute,
+} as any)
+const AppManagingdirectorIndexRoute =
+  AppManagingdirectorIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorBankingRoute =
+  AppManagingdirectorBankingRouteImport.update({
+    id: '/banking',
+    path: '/banking',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorEmployersRoute =
+  AppManagingdirectorEmployersRouteImport.update({
+    id: '/employers',
+    path: '/employers',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMarketingRoute =
+  AppManagingdirectorMarketingRouteImport.update({
+    id: '/marketing',
+    path: '/marketing',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMeetingsRoute =
+  AppManagingdirectorMeetingsRouteImport.update({
+    id: '/meetings',
+    path: '/meetings',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorMessagesRoute =
+  AppManagingdirectorMessagesRouteImport.update({
+    id: '/messages',
+    path: '/messages',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorProfileRoute =
+  AppManagingdirectorProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppMdIndexRoute = AppMdIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdBankingRoute = AppMdBankingRouteImport.update({
+  id: '/banking',
+  path: '/banking',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdEmployersRoute = AppMdEmployersRouteImport.update({
+  id: '/employers',
+  path: '/employers',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdMarketingRoute = AppMdMarketingRouteImport.update({
+  id: '/marketing',
+  path: '/marketing',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdMeetingsRoute = AppMdMeetingsRouteImport.update({
+  id: '/meetings',
+  path: '/meetings',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdMessagesRoute = AppMdMessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdProfileRoute = AppMdProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const MCompaniesIdRoute = MCompaniesIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MCompaniesRoute,
+} as any)
+const MEditJobIdRoute = MEditJobIdRouteImport.update({
+  id: '/edit-job/$id',
+  path: '/edit-job/$id',
+  getParentRoute: () => MRoute,
+} as any)
+const MJobsIdRoute = MJobsIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => MJobsRoute,
+} as any)
+const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
+  id: '/apply/$id_/confirm',
+  path: '/apply/$id/confirm',
+  getParentRoute: () => AppRoute,
 } as any)
 const AppEmployerEditJobIdRoute = AppEmployerEditJobIdRouteImport.update({
   id: '/edit-job/$id',
   path: '/edit-job/$id',
   getParentRoute: () => AppEmployerRoute,
 } as any)
-const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
-  id: '/confirm',
-  path: '/confirm',
-  getParentRoute: () => AppApplyIdRoute,
+const AppEmployerManageIdRoute = AppEmployerManageIdRouteImport.update({
+  id: '/manage/$id',
+  path: '/manage/$id',
+  getParentRoute: () => AppEmployerRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
@@ -458,7 +458,7 @@ export interface FileRoutesByFullPath {
   '/m/saved': typeof MSavedRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
-  '/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/apply/$id': typeof AppApplyIdRoute
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
@@ -522,7 +522,7 @@ export interface FileRoutesByTo {
   '/m/saved': typeof MSavedRoute
   '/companies': typeof CompaniesIndexRoute
   '/m': typeof MIndexRoute
-  '/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/apply/$id': typeof AppApplyIdRoute
   '/candidate/applications': typeof AppCandidateApplicationsRoute
   '/candidate/care': typeof AppCandidateCareRoute
   '/candidate/saved': typeof AppCandidateSavedRoute
@@ -593,7 +593,7 @@ export interface FileRoutesById {
   '/m/saved': typeof MSavedRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
-  '/_app/apply/$id': typeof AppApplyIdRouteWithChildren
+  '/_app/apply/$id': typeof AppApplyIdRoute
   '/_app/candidate/applications': typeof AppCandidateApplicationsRoute
   '/_app/candidate/care': typeof AppCandidateCareRoute
   '/_app/candidate/saved': typeof AppCandidateSavedRoute
@@ -626,7 +626,7 @@ export interface FileRoutesById {
   '/_app/employer/': typeof AppEmployerIndexRoute
   '/_app/managingdirector/': typeof AppManagingdirectorIndexRoute
   '/_app/md/': typeof AppMdIndexRoute
-  '/_app/apply/$id/confirm': typeof AppApplyIdConfirmRoute
+  '/_app/apply/$id_/confirm': typeof AppApplyIdConfirmRoute
   '/_app/employer/edit-job/$id': typeof AppEmployerEditJobIdRoute
   '/_app/employer/manage/$id': typeof AppEmployerManageIdRoute
 }
@@ -831,7 +831,7 @@ export interface FileRouteTypes {
     | '/_app/employer/'
     | '/_app/managingdirector/'
     | '/_app/md/'
-    | '/_app/apply/$id/confirm'
+    | '/_app/apply/$id_/confirm'
     | '/_app/employer/edit-job/$id'
     | '/_app/employer/manage/$id'
   fileRoutesById: FileRoutesById
@@ -856,81 +856,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/profiles': {
-      id: '/profiles'
-      path: '/profiles'
-      fullPath: '/profiles'
-      preLoaderRoute: typeof ProfilesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/md-preview': {
-      id: '/md-preview'
-      path: '/md-preview'
-      fullPath: '/md-preview'
-      preLoaderRoute: typeof MdPreviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/m': {
-      id: '/m'
-      path: '/m'
-      fullPath: '/m'
-      preLoaderRoute: typeof MRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/for-employers': {
-      id: '/for-employers'
-      path: '/for-employers'
-      fullPath: '/for-employers'
-      preLoaderRoute: typeof ForEmployersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/caregivers': {
-      id: '/caregivers'
-      path: '/caregivers'
-      fullPath: '/caregivers'
-      preLoaderRoute: typeof CaregiversRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/applications': {
-      id: '/applications'
-      path: '/applications'
-      fullPath: '/applications'
-      preLoaderRoute: typeof ApplicationsRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_app': {
@@ -940,130 +870,88 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/m/': {
-      id: '/m/'
-      path: '/'
-      fullPath: '/m/'
-      preLoaderRoute: typeof MIndexRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/companies/': {
-      id: '/companies/'
-      path: '/companies'
-      fullPath: '/companies/'
-      preLoaderRoute: typeof CompaniesIndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/m/saved': {
-      id: '/m/saved'
-      path: '/saved'
-      fullPath: '/m/saved'
-      preLoaderRoute: typeof MSavedRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/profile': {
-      id: '/m/profile'
-      path: '/profile'
-      fullPath: '/m/profile'
-      preLoaderRoute: typeof MProfileRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/post': {
-      id: '/m/post'
-      path: '/post'
-      fullPath: '/m/post'
-      preLoaderRoute: typeof MPostRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/jobs': {
-      id: '/m/jobs'
-      path: '/jobs'
-      fullPath: '/m/jobs'
-      preLoaderRoute: typeof MJobsRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/home': {
-      id: '/m/home'
-      path: '/home'
-      fullPath: '/m/home'
-      preLoaderRoute: typeof MHomeRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/company': {
-      id: '/m/company'
-      path: '/company'
-      fullPath: '/m/company'
-      preLoaderRoute: typeof MCompanyRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/companies': {
-      id: '/m/companies'
-      path: '/companies'
-      fullPath: '/m/companies'
-      preLoaderRoute: typeof MCompaniesRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/applications': {
-      id: '/m/applications'
+    '/applications': {
+      id: '/applications'
       path: '/applications'
-      fullPath: '/m/applications'
-      preLoaderRoute: typeof MApplicationsRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/companies/$id': {
-      id: '/companies/$id'
-      path: '/companies/$id'
-      fullPath: '/companies/$id'
-      preLoaderRoute: typeof CompaniesIdRouteImport
+      fullPath: '/applications'
+      preLoaderRoute: typeof ApplicationsRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_app/profile': {
-      id: '/_app/profile'
-      path: '/profile'
-      fullPath: '/profile'
-      preLoaderRoute: typeof AppProfileRouteImport
-      parentRoute: typeof AppRoute
+    '/caregivers': {
+      id: '/caregivers'
+      path: '/caregivers'
+      fullPath: '/caregivers'
+      preLoaderRoute: typeof CaregiversRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/md': {
-      id: '/_app/md'
-      path: '/md'
-      fullPath: '/md'
-      preLoaderRoute: typeof AppMdRouteImport
-      parentRoute: typeof AppRoute
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/managingdirector': {
-      id: '/_app/managingdirector'
-      path: '/managingdirector'
-      fullPath: '/managingdirector'
-      preLoaderRoute: typeof AppManagingdirectorRouteImport
-      parentRoute: typeof AppRoute
+    '/for-employers': {
+      id: '/for-employers'
+      path: '/for-employers'
+      fullPath: '/for-employers'
+      preLoaderRoute: typeof ForEmployersRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/jobs': {
-      id: '/_app/jobs'
-      path: '/jobs'
-      fullPath: '/jobs'
-      preLoaderRoute: typeof AppJobsRouteImport
-      parentRoute: typeof AppRoute
+    '/m': {
+      id: '/m'
+      path: '/m'
+      fullPath: '/m'
+      preLoaderRoute: typeof MRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/hq': {
-      id: '/_app/hq'
-      path: '/hq'
-      fullPath: '/hq'
-      preLoaderRoute: typeof AppHqRouteImport
-      parentRoute: typeof AppRoute
+    '/md-preview': {
+      id: '/md-preview'
+      path: '/md-preview'
+      fullPath: '/md-preview'
+      preLoaderRoute: typeof MdPreviewRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/_app/employer': {
-      id: '/_app/employer'
-      path: '/employer'
-      fullPath: '/employer'
-      preLoaderRoute: typeof AppEmployerRouteImport
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profiles': {
+      id: '/profiles'
+      path: '/profiles'
+      fullPath: '/profiles'
+      preLoaderRoute: typeof ProfilesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_app/candidate': {
+      id: '/_app/candidate'
+      path: '/candidate'
+      fullPath: '/candidate'
+      preLoaderRoute: typeof AppCandidateRouteImport
       parentRoute: typeof AppRoute
     }
     '/_app/dashboard': {
@@ -1073,228 +961,137 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppDashboardRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/candidate': {
-      id: '/_app/candidate'
-      path: '/candidate'
-      fullPath: '/candidate'
-      preLoaderRoute: typeof AppCandidateRouteImport
+    '/_app/employer': {
+      id: '/_app/employer'
+      path: '/employer'
+      fullPath: '/employer'
+      preLoaderRoute: typeof AppEmployerRouteImport
       parentRoute: typeof AppRoute
     }
-    '/_app/md/': {
-      id: '/_app/md/'
-      path: '/'
-      fullPath: '/md/'
-      preLoaderRoute: typeof AppMdIndexRouteImport
-      parentRoute: typeof AppMdRoute
+    '/_app/hq': {
+      id: '/_app/hq'
+      path: '/hq'
+      fullPath: '/hq'
+      preLoaderRoute: typeof AppHqRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/managingdirector/': {
-      id: '/_app/managingdirector/'
-      path: '/'
-      fullPath: '/managingdirector/'
-      preLoaderRoute: typeof AppManagingdirectorIndexRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
+    '/_app/jobs': {
+      id: '/_app/jobs'
+      path: '/jobs'
+      fullPath: '/jobs'
+      preLoaderRoute: typeof AppJobsRouteImport
+      parentRoute: typeof AppRoute
     }
-    '/_app/employer/': {
-      id: '/_app/employer/'
+    '/_app/managingdirector': {
+      id: '/_app/managingdirector'
+      path: '/managingdirector'
+      fullPath: '/managingdirector'
+      preLoaderRoute: typeof AppManagingdirectorRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/md': {
+      id: '/_app/md'
+      path: '/md'
+      fullPath: '/md'
+      preLoaderRoute: typeof AppMdRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/profile': {
+      id: '/_app/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof AppProfileRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/companies/': {
+      id: '/companies/'
+      path: '/companies'
+      fullPath: '/companies/'
+      preLoaderRoute: typeof CompaniesIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/companies/$id': {
+      id: '/companies/$id'
+      path: '/companies/$id'
+      fullPath: '/companies/$id'
+      preLoaderRoute: typeof CompaniesIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/m/': {
+      id: '/m/'
       path: '/'
-      fullPath: '/employer/'
-      preLoaderRoute: typeof AppEmployerIndexRouteImport
-      parentRoute: typeof AppEmployerRoute
+      fullPath: '/m/'
+      preLoaderRoute: typeof MIndexRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/applications': {
+      id: '/m/applications'
+      path: '/applications'
+      fullPath: '/m/applications'
+      preLoaderRoute: typeof MApplicationsRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/companies': {
+      id: '/m/companies'
+      path: '/companies'
+      fullPath: '/m/companies'
+      preLoaderRoute: typeof MCompaniesRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/company': {
+      id: '/m/company'
+      path: '/company'
+      fullPath: '/m/company'
+      preLoaderRoute: typeof MCompanyRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/home': {
+      id: '/m/home'
+      path: '/home'
+      fullPath: '/m/home'
+      preLoaderRoute: typeof MHomeRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/jobs': {
+      id: '/m/jobs'
+      path: '/jobs'
+      fullPath: '/m/jobs'
+      preLoaderRoute: typeof MJobsRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/post': {
+      id: '/m/post'
+      path: '/post'
+      fullPath: '/m/post'
+      preLoaderRoute: typeof MPostRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/profile': {
+      id: '/m/profile'
+      path: '/profile'
+      fullPath: '/m/profile'
+      preLoaderRoute: typeof MProfileRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/saved': {
+      id: '/m/saved'
+      path: '/saved'
+      fullPath: '/m/saved'
+      preLoaderRoute: typeof MSavedRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/_app/apply/$id': {
+      id: '/_app/apply/$id'
+      path: '/apply/$id'
+      fullPath: '/apply/$id'
+      preLoaderRoute: typeof AppApplyIdRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/candidate/': {
       id: '/_app/candidate/'
       path: '/'
       fullPath: '/candidate/'
       preLoaderRoute: typeof AppCandidateIndexRouteImport
-      parentRoute: typeof AppCandidateRoute
-    }
-    '/m/jobs/$id': {
-      id: '/m/jobs/$id'
-      path: '/$id'
-      fullPath: '/m/jobs/$id'
-      preLoaderRoute: typeof MJobsIdRouteImport
-      parentRoute: typeof MJobsRoute
-    }
-    '/m/edit-job/$id': {
-      id: '/m/edit-job/$id'
-      path: '/edit-job/$id'
-      fullPath: '/m/edit-job/$id'
-      preLoaderRoute: typeof MEditJobIdRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/companies/$id': {
-      id: '/m/companies/$id'
-      path: '/$id'
-      fullPath: '/m/companies/$id'
-      preLoaderRoute: typeof MCompaniesIdRouteImport
-      parentRoute: typeof MCompaniesRoute
-    }
-    '/_app/md/profile': {
-      id: '/_app/md/profile'
-      path: '/profile'
-      fullPath: '/md/profile'
-      preLoaderRoute: typeof AppMdProfileRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/md/messages': {
-      id: '/_app/md/messages'
-      path: '/messages'
-      fullPath: '/md/messages'
-      preLoaderRoute: typeof AppMdMessagesRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/md/meetings': {
-      id: '/_app/md/meetings'
-      path: '/meetings'
-      fullPath: '/md/meetings'
-      preLoaderRoute: typeof AppMdMeetingsRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/md/marketing': {
-      id: '/_app/md/marketing'
-      path: '/marketing'
-      fullPath: '/md/marketing'
-      preLoaderRoute: typeof AppMdMarketingRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/md/employers': {
-      id: '/_app/md/employers'
-      path: '/employers'
-      fullPath: '/md/employers'
-      preLoaderRoute: typeof AppMdEmployersRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/md/banking': {
-      id: '/_app/md/banking'
-      path: '/banking'
-      fullPath: '/md/banking'
-      preLoaderRoute: typeof AppMdBankingRouteImport
-      parentRoute: typeof AppMdRoute
-    }
-    '/_app/managingdirector/profile': {
-      id: '/_app/managingdirector/profile'
-      path: '/profile'
-      fullPath: '/managingdirector/profile'
-      preLoaderRoute: typeof AppManagingdirectorProfileRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/managingdirector/messages': {
-      id: '/_app/managingdirector/messages'
-      path: '/messages'
-      fullPath: '/managingdirector/messages'
-      preLoaderRoute: typeof AppManagingdirectorMessagesRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/managingdirector/meetings': {
-      id: '/_app/managingdirector/meetings'
-      path: '/meetings'
-      fullPath: '/managingdirector/meetings'
-      preLoaderRoute: typeof AppManagingdirectorMeetingsRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/managingdirector/marketing': {
-      id: '/_app/managingdirector/marketing'
-      path: '/marketing'
-      fullPath: '/managingdirector/marketing'
-      preLoaderRoute: typeof AppManagingdirectorMarketingRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/managingdirector/employers': {
-      id: '/_app/managingdirector/employers'
-      path: '/employers'
-      fullPath: '/managingdirector/employers'
-      preLoaderRoute: typeof AppManagingdirectorEmployersRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/managingdirector/banking': {
-      id: '/_app/managingdirector/banking'
-      path: '/banking'
-      fullPath: '/managingdirector/banking'
-      preLoaderRoute: typeof AppManagingdirectorBankingRouteImport
-      parentRoute: typeof AppManagingdirectorRoute
-    }
-    '/_app/jobs/$id': {
-      id: '/_app/jobs/$id'
-      path: '/$id'
-      fullPath: '/jobs/$id'
-      preLoaderRoute: typeof AppJobsIdRouteImport
-      parentRoute: typeof AppJobsRoute
-    }
-    '/_app/hq/leads': {
-      id: '/_app/hq/leads'
-      path: '/leads'
-      fullPath: '/hq/leads'
-      preLoaderRoute: typeof AppHqLeadsRouteImport
-      parentRoute: typeof AppHqRoute
-    }
-    '/_app/employer/team': {
-      id: '/_app/employer/team'
-      path: '/team'
-      fullPath: '/employer/team'
-      preLoaderRoute: typeof AppEmployerTeamRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/settings': {
-      id: '/_app/employer/settings'
-      path: '/settings'
-      fullPath: '/employer/settings'
-      preLoaderRoute: typeof AppEmployerSettingsRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/post-job': {
-      id: '/_app/employer/post-job'
-      path: '/post-job'
-      fullPath: '/employer/post-job'
-      preLoaderRoute: typeof AppEmployerPostJobRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/offers': {
-      id: '/_app/employer/offers'
-      path: '/offers'
-      fullPath: '/employer/offers'
-      preLoaderRoute: typeof AppEmployerOffersRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/messages': {
-      id: '/_app/employer/messages'
-      path: '/messages'
-      fullPath: '/employer/messages'
-      preLoaderRoute: typeof AppEmployerMessagesRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/jobs': {
-      id: '/_app/employer/jobs'
-      path: '/jobs'
-      fullPath: '/employer/jobs'
-      preLoaderRoute: typeof AppEmployerJobsRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/applications': {
-      id: '/_app/employer/applications'
-      path: '/applications'
-      fullPath: '/employer/applications'
-      preLoaderRoute: typeof AppEmployerApplicationsRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/employer/analytics': {
-      id: '/_app/employer/analytics'
-      path: '/analytics'
-      fullPath: '/employer/analytics'
-      preLoaderRoute: typeof AppEmployerAnalyticsRouteImport
-      parentRoute: typeof AppEmployerRoute
-    }
-    '/_app/candidate/saved': {
-      id: '/_app/candidate/saved'
-      path: '/saved'
-      fullPath: '/candidate/saved'
-      preLoaderRoute: typeof AppCandidateSavedRouteImport
-      parentRoute: typeof AppCandidateRoute
-    }
-    '/_app/candidate/care': {
-      id: '/_app/candidate/care'
-      path: '/care'
-      fullPath: '/candidate/care'
-      preLoaderRoute: typeof AppCandidateCareRouteImport
       parentRoute: typeof AppCandidateRoute
     }
     '/_app/candidate/applications': {
@@ -1304,19 +1101,222 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppCandidateApplicationsRouteImport
       parentRoute: typeof AppCandidateRoute
     }
-    '/_app/apply/$id': {
-      id: '/_app/apply/$id'
-      path: '/apply/$id'
-      fullPath: '/apply/$id'
-      preLoaderRoute: typeof AppApplyIdRouteImport
-      parentRoute: typeof AppRoute
+    '/_app/candidate/care': {
+      id: '/_app/candidate/care'
+      path: '/care'
+      fullPath: '/candidate/care'
+      preLoaderRoute: typeof AppCandidateCareRouteImport
+      parentRoute: typeof AppCandidateRoute
     }
-    '/_app/employer/manage/$id': {
-      id: '/_app/employer/manage/$id'
-      path: '/manage/$id'
-      fullPath: '/employer/manage/$id'
-      preLoaderRoute: typeof AppEmployerManageIdRouteImport
+    '/_app/candidate/saved': {
+      id: '/_app/candidate/saved'
+      path: '/saved'
+      fullPath: '/candidate/saved'
+      preLoaderRoute: typeof AppCandidateSavedRouteImport
+      parentRoute: typeof AppCandidateRoute
+    }
+    '/_app/employer/': {
+      id: '/_app/employer/'
+      path: '/'
+      fullPath: '/employer/'
+      preLoaderRoute: typeof AppEmployerIndexRouteImport
       parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/analytics': {
+      id: '/_app/employer/analytics'
+      path: '/analytics'
+      fullPath: '/employer/analytics'
+      preLoaderRoute: typeof AppEmployerAnalyticsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/applications': {
+      id: '/_app/employer/applications'
+      path: '/applications'
+      fullPath: '/employer/applications'
+      preLoaderRoute: typeof AppEmployerApplicationsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/jobs': {
+      id: '/_app/employer/jobs'
+      path: '/jobs'
+      fullPath: '/employer/jobs'
+      preLoaderRoute: typeof AppEmployerJobsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/messages': {
+      id: '/_app/employer/messages'
+      path: '/messages'
+      fullPath: '/employer/messages'
+      preLoaderRoute: typeof AppEmployerMessagesRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/offers': {
+      id: '/_app/employer/offers'
+      path: '/offers'
+      fullPath: '/employer/offers'
+      preLoaderRoute: typeof AppEmployerOffersRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/post-job': {
+      id: '/_app/employer/post-job'
+      path: '/post-job'
+      fullPath: '/employer/post-job'
+      preLoaderRoute: typeof AppEmployerPostJobRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/settings': {
+      id: '/_app/employer/settings'
+      path: '/settings'
+      fullPath: '/employer/settings'
+      preLoaderRoute: typeof AppEmployerSettingsRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/employer/team': {
+      id: '/_app/employer/team'
+      path: '/team'
+      fullPath: '/employer/team'
+      preLoaderRoute: typeof AppEmployerTeamRouteImport
+      parentRoute: typeof AppEmployerRoute
+    }
+    '/_app/hq/leads': {
+      id: '/_app/hq/leads'
+      path: '/leads'
+      fullPath: '/hq/leads'
+      preLoaderRoute: typeof AppHqLeadsRouteImport
+      parentRoute: typeof AppHqRoute
+    }
+    '/_app/jobs/$id': {
+      id: '/_app/jobs/$id'
+      path: '/$id'
+      fullPath: '/jobs/$id'
+      preLoaderRoute: typeof AppJobsIdRouteImport
+      parentRoute: typeof AppJobsRoute
+    }
+    '/_app/managingdirector/': {
+      id: '/_app/managingdirector/'
+      path: '/'
+      fullPath: '/managingdirector/'
+      preLoaderRoute: typeof AppManagingdirectorIndexRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/banking': {
+      id: '/_app/managingdirector/banking'
+      path: '/banking'
+      fullPath: '/managingdirector/banking'
+      preLoaderRoute: typeof AppManagingdirectorBankingRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/employers': {
+      id: '/_app/managingdirector/employers'
+      path: '/employers'
+      fullPath: '/managingdirector/employers'
+      preLoaderRoute: typeof AppManagingdirectorEmployersRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/marketing': {
+      id: '/_app/managingdirector/marketing'
+      path: '/marketing'
+      fullPath: '/managingdirector/marketing'
+      preLoaderRoute: typeof AppManagingdirectorMarketingRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/meetings': {
+      id: '/_app/managingdirector/meetings'
+      path: '/meetings'
+      fullPath: '/managingdirector/meetings'
+      preLoaderRoute: typeof AppManagingdirectorMeetingsRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/messages': {
+      id: '/_app/managingdirector/messages'
+      path: '/messages'
+      fullPath: '/managingdirector/messages'
+      preLoaderRoute: typeof AppManagingdirectorMessagesRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/profile': {
+      id: '/_app/managingdirector/profile'
+      path: '/profile'
+      fullPath: '/managingdirector/profile'
+      preLoaderRoute: typeof AppManagingdirectorProfileRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/md/': {
+      id: '/_app/md/'
+      path: '/'
+      fullPath: '/md/'
+      preLoaderRoute: typeof AppMdIndexRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/banking': {
+      id: '/_app/md/banking'
+      path: '/banking'
+      fullPath: '/md/banking'
+      preLoaderRoute: typeof AppMdBankingRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/employers': {
+      id: '/_app/md/employers'
+      path: '/employers'
+      fullPath: '/md/employers'
+      preLoaderRoute: typeof AppMdEmployersRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/marketing': {
+      id: '/_app/md/marketing'
+      path: '/marketing'
+      fullPath: '/md/marketing'
+      preLoaderRoute: typeof AppMdMarketingRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/meetings': {
+      id: '/_app/md/meetings'
+      path: '/meetings'
+      fullPath: '/md/meetings'
+      preLoaderRoute: typeof AppMdMeetingsRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/messages': {
+      id: '/_app/md/messages'
+      path: '/messages'
+      fullPath: '/md/messages'
+      preLoaderRoute: typeof AppMdMessagesRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/profile': {
+      id: '/_app/md/profile'
+      path: '/profile'
+      fullPath: '/md/profile'
+      preLoaderRoute: typeof AppMdProfileRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/m/companies/$id': {
+      id: '/m/companies/$id'
+      path: '/$id'
+      fullPath: '/m/companies/$id'
+      preLoaderRoute: typeof MCompaniesIdRouteImport
+      parentRoute: typeof MCompaniesRoute
+    }
+    '/m/edit-job/$id': {
+      id: '/m/edit-job/$id'
+      path: '/edit-job/$id'
+      fullPath: '/m/edit-job/$id'
+      preLoaderRoute: typeof MEditJobIdRouteImport
+      parentRoute: typeof MRoute
+    }
+    '/m/jobs/$id': {
+      id: '/m/jobs/$id'
+      path: '/$id'
+      fullPath: '/m/jobs/$id'
+      preLoaderRoute: typeof MJobsIdRouteImport
+      parentRoute: typeof MJobsRoute
+    }
+    '/_app/apply/$id_/confirm': {
+      id: '/_app/apply/$id_/confirm'
+      path: '/apply/$id/confirm'
+      fullPath: '/apply/$id/confirm'
+      preLoaderRoute: typeof AppApplyIdConfirmRouteImport
+      parentRoute: typeof AppRoute
     }
     '/_app/employer/edit-job/$id': {
       id: '/_app/employer/edit-job/$id'
@@ -1325,12 +1325,12 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppEmployerEditJobIdRouteImport
       parentRoute: typeof AppEmployerRoute
     }
-    '/_app/apply/$id/confirm': {
-      id: '/_app/apply/$id/confirm'
-      path: '/confirm'
-      fullPath: '/apply/$id/confirm'
-      preLoaderRoute: typeof AppApplyIdConfirmRouteImport
-      parentRoute: typeof AppApplyIdRoute
+    '/_app/employer/manage/$id': {
+      id: '/_app/employer/manage/$id'
+      path: '/manage/$id'
+      fullPath: '/employer/manage/$id'
+      preLoaderRoute: typeof AppEmployerManageIdRouteImport
+      parentRoute: typeof AppEmployerRoute
     }
   }
 }
@@ -1451,18 +1451,6 @@ const AppMdRouteChildren: AppMdRouteChildren = {
 
 const AppMdRouteWithChildren = AppMdRoute._addFileChildren(AppMdRouteChildren)
 
-interface AppApplyIdRouteChildren {
-  AppApplyIdConfirmRoute: typeof AppApplyIdConfirmRoute
-}
-
-const AppApplyIdRouteChildren: AppApplyIdRouteChildren = {
-  AppApplyIdConfirmRoute: AppApplyIdConfirmRoute,
-}
-
-const AppApplyIdRouteWithChildren = AppApplyIdRoute._addFileChildren(
-  AppApplyIdRouteChildren,
-)
-
 interface AppRouteChildren {
   AppCandidateRoute: typeof AppCandidateRouteWithChildren
   AppDashboardRoute: typeof AppDashboardRoute
@@ -1472,7 +1460,8 @@ interface AppRouteChildren {
   AppManagingdirectorRoute: typeof AppManagingdirectorRouteWithChildren
   AppMdRoute: typeof AppMdRouteWithChildren
   AppProfileRoute: typeof AppProfileRoute
-  AppApplyIdRoute: typeof AppApplyIdRouteWithChildren
+  AppApplyIdRoute: typeof AppApplyIdRoute
+  AppApplyIdConfirmRoute: typeof AppApplyIdConfirmRoute
 }
 
 const AppRouteChildren: AppRouteChildren = {
@@ -1484,7 +1473,8 @@ const AppRouteChildren: AppRouteChildren = {
   AppManagingdirectorRoute: AppManagingdirectorRouteWithChildren,
   AppMdRoute: AppMdRouteWithChildren,
   AppProfileRoute: AppProfileRoute,
-  AppApplyIdRoute: AppApplyIdRouteWithChildren,
+  AppApplyIdRoute: AppApplyIdRoute,
+  AppApplyIdConfirmRoute: AppApplyIdConfirmRoute,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

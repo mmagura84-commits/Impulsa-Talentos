@@ -36,6 +36,7 @@ import {
 } from 'lucide-react'
 import type { Job } from '@/types'
 import type { Locale } from '@/i18n/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/apply/$id')({
   component: ApplyPage,
@@ -88,7 +89,14 @@ function splitList(s: string | null | undefined): string[] {
   return s.split(/[,;|]/).map(x => x.trim()).filter(Boolean)
 }
 
+/** A CV saved on the candidate's profile is a private-storage pointer
+ *  (`storage:cvs:<path>`); employers open it through a signed URL. */
+function isProfileCvPointer(s: string): boolean {
+  return s.startsWith('storage:')
+}
+
 function isValidUrl(s: string): boolean {
+  if (isProfileCvPointer(s)) return true
   try {
     const u = new URL(s)
     return u.protocol === 'http:' || u.protocol === 'https:'
@@ -286,8 +294,11 @@ function ResumeInput({
                 className="pl-9"
               />
             </div>
+            {link && isProfileCvPointer(link) && (
+              <p className="mt-2 text-xs text-muted-foreground">{t('apply.resume.usingProfileCv')}</p>
+            )}
             {link && !isValidUrl(link) && (
-              <p className="mt-2 text-xs text-destructive">Please enter a valid URL (http:// or https://).</p>
+              <p className="mt-2 text-xs text-destructive">{t('apply.resume.invalidUrl')}</p>
             )}
           </motion.div>
         )}
@@ -378,7 +389,7 @@ function ApplyPage() {
           </div>
           <h2 className="font-serif text-2xl font-bold text-foreground">{t('jobDetail.errorTitle')}</h2>
           <p className="mt-2 text-muted-foreground">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button variant="outline" className="mt-6" onClick={() => refetch()}>
             {t('common.retry')}
@@ -491,7 +502,7 @@ function ApplyPage() {
         search: { appId: created.id },
       })
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
+      const msg = friendlyDbError(err, t)
       // Friendly duplicate-application state: never surface a raw Supabase
       // constraint error. Detect the unique (job_id, candidate_id) violation
       // and route the candidate to their existing application instead.
@@ -591,7 +602,7 @@ function ApplyPage() {
                       className="w-full flex items-center gap-2 rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground hover:bg-accent/50 transition-colors text-left"
                     >
                       <CheckCircle2 className="size-3.5 text-primary" />
-                      {t('apply.resume.currentProfile')}: <span className="font-mono text-foreground truncate flex-1">{profile.cvUrl}</span>
+                      {t('apply.resume.currentProfile')}: <span className="font-mono text-foreground truncate flex-1">{isProfileCvPointer(profile.cvUrl) ? t('apply.resume.profileCvLabel') : profile.cvUrl}</span>
                     </button>
                   )}
                   <ResumeInput
@@ -654,10 +665,10 @@ function ApplyPage() {
                         <button
                           key={tpl.k}
                           type="button"
-                          onClick={() => setMessage(t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName }))}
+                          onClick={() => setMessage(t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName.replace(/\.+$/, "") }))}
                           className="text-left text-xs text-muted-foreground rounded-lg border border-border bg-card hover:bg-accent/30 hover:border-accent/50 transition-colors px-3 py-2 cursor-pointer"
                         >
-                          {t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName })}
+                          {t(`apply.message.tpl.${tpl.k}`, { skill: tpl.skill, n: tpl.n, company: companyName.replace(/\.+$/, "") })}
                         </button>
                       ))}
                     </div>

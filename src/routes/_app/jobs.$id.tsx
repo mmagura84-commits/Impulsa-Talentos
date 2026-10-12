@@ -30,6 +30,8 @@ import {
 } from 'lucide-react'
 import type { Job } from '@/types'
 import type { Locale } from '@/i18n/types'
+import { ClientTimeText } from '@/components/ClientTimeText'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/jobs/$id')({
   loader: async ({ params }) => {
@@ -181,7 +183,7 @@ function JobDetailPage() {
         </div>
         <h2 className="font-serif text-2xl font-bold text-foreground">{t('jobDetail.errorTitle')}</h2>
         <p className="mt-2 text-muted-foreground">
-          {error instanceof Error ? error.message : ''}
+          {friendlyDbError(error, t)}
         </p>
         <Button variant="outline" className="mt-6" onClick={() => refetch()}>
           {t('common.retry')}
@@ -268,7 +270,7 @@ function JobDetailPage() {
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <Clock className="size-4 text-accent" /> {formatPosted(job.createdAt, t)}
+                <Clock className="size-4 text-accent" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
               </span>
             </div>
 

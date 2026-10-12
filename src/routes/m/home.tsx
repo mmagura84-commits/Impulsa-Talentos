@@ -32,6 +32,7 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import type { Job, Application } from '@/types'
 import type { Locale } from '@/i18n/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/home')({
   head: () => ({ meta: [{ title: 'Home — Impulsa (mobile)' }] }),
@@ -361,7 +362,7 @@ function EmployerHome() {
                 toast.success(t('dashboard.jobDeleted'))
               } catch (err) {
                 toast.error(t('dashboard.jobDeleteError'), {
-                  description: err instanceof Error ? err.message : '',
+                  description: friendlyDbError(err, t),
                 })
               }
               setConfirmId(null)

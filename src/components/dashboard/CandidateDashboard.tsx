@@ -10,6 +10,7 @@ import { useJobs, useJob as useJobRaw } from '@/hooks/useJobs'
 import { useMyApplications, useWithdrawApplication, useApplicationStatusHistory } from '@/hooks/useApplications'
 import { useMySavedJobs, useUnsaveJob } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
+import { CandidateOfferCard } from '@/components/candidate/CandidateOfferCard'
 import { FadeIn, StatCard, formatSalary, formatPosted } from './shared'
 import { rankJobs, type MatchScore } from '@/lib/matchScore'
 import { useAiTopMatches } from '@/hooks/useAiMatching'
@@ -43,6 +44,7 @@ import {
 } from 'lucide-react'
 import type { Job, Application } from '@/types'
 import { CandidateMessenger } from '@/components/messaging/CandidateMessenger'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Match score pill ──────────────────────────────────── */
 function MatchBadge({ score }: { score: number }) {
@@ -244,6 +246,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
   const { data: statusHistory } = useApplicationStatusHistory(app.id)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [messengerOpen, setMessengerOpen] = useState(false)
+  const [confirmWithdraw, setConfirmWithdraw] = useState(false)
   const ts = TIMELINE_STATUSES[app.status] ?? { step: 0, color: 'border-muted-foreground text-muted-foreground' }
   const stepLabels: Record<string, string> = {
     draft: t('timeline.step.draft'),
@@ -307,7 +310,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             params={{ id: app.jobId }}
             className="text-[11px] font-medium text-primary hover:underline"
           >
-            View job <ChevronRight className="size-2.5 inline ml-0.5" />
+            {t('timeline.viewJob')} <ChevronRight className="size-2.5 inline ml-0.5" />
           </Link>
           <button
             type="button"
@@ -317,14 +320,33 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             <MessageSquare className="size-3" />
             {messengerOpen ? t('messenger.close') : t('messenger.open')}
           </button>
-          {isMutable && onWithdraw && (
+          {isMutable && onWithdraw && !confirmWithdraw && (
             <button
               type="button"
-              onClick={(e) => { e.preventDefault(); onWithdraw(app.id) }}
+              onClick={(e) => { e.preventDefault(); setConfirmWithdraw(true) }}
               className="text-[11px] text-muted-foreground hover:text-destructive underline underline-offset-2 cursor-pointer"
             >
               {t('timeline.withdraw')}
             </button>
+          )}
+          {isMutable && onWithdraw && confirmWithdraw && (
+            <span className="flex items-center gap-2 text-[11px]">
+              <span className="text-muted-foreground">{t('timeline.withdrawConfirm')}</span>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setConfirmWithdraw(false); onWithdraw(app.id) }}
+                className="font-medium text-destructive underline underline-offset-2 cursor-pointer"
+              >
+                {t('timeline.withdrawYes')}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => { e.preventDefault(); setConfirmWithdraw(false) }}
+                className="text-muted-foreground underline underline-offset-2 cursor-pointer"
+              >
+                {t('common.cancel')}
+              </button>
+            </span>
           )}
         </div>
 
@@ -344,6 +366,9 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Offers from the employer: accept / decline */}
+        <CandidateOfferCard applicationId={app.id} />
 
         {/* Next Action Required widget */}
         {hasNextAction && (
@@ -454,7 +479,7 @@ export function SavedJobRow({ job, candidateId }: { job: Job; candidateId: strin
       toast.success(t('savedJobs.remove'), { duration: 1500 })
       setConfirming(false)
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('common.retry'))
+      toast.error(friendlyDbError(err, t) || t('common.retry'))
     }
   }
 
@@ -548,15 +573,22 @@ export function CandidateDashboard({ candidateProfileId }: { candidateProfileId:
   const recentSaved = (savedJobs ?? []).slice(0, 3)
   const handleWithdraw = async (appId: string) => {
     try { await withdraw.mutateAsync({ id: appId }); toast.success(t('timeline.withdrawn'), { duration: 1800 }) }
-    catch (err) { toast.error(t('timeline.withdrawError'), { description: err instanceof Error ? err.message : '' }) }
+    catch (err) { toast.error(t('timeline.withdrawError'), { description: friendlyDbError(err, t) }) }
   }
-  const aiJobs = (aiMatches ?? []).map(result => ({ job: jobs?.find(j => j.id === result.jobId), score: result.score })).filter(x => x.job).slice(0, 5) as { job: Job; score: number }[]
+  // AI scores (when the AI service answered) replace the heuristic total but
+  // keep its per-dimension breakdown, so the card renders a real MatchScore.
+  const aiJobs = (aiMatches ?? []).flatMap(result => {
+    const job = jobs?.find(j => j.id === result.jobId)
+    if (!job) return []
+    const base = ranked.find(r => r.job.id === job.id)?.score
+    return [{ job, score: { ...(base ?? { skills: 0, language: 0, seniority: 0, modality: 0, location: 0, title: 0, rationale: [] }), total: Math.round(result.score) } as MatchScore }]
+  }).slice(0, 5)
   const matches = aiJobs.length ? aiJobs : ranked.slice(0, 5)
   return (
     <div className="space-y-6">
       {completion.percent < 100 && <FadeIn delay={0.04}><Card className="border-amber-500/20"><CardContent className="p-4"><div className="flex flex-wrap items-center gap-3"><Target className="size-5 text-amber-500"/><div className="min-w-0 flex-1"><p className="text-sm font-medium">{t('profileCompletion.title')} · {completion.percent}%</p><div className="mt-1.5 h-1.5 rounded-full bg-muted"><div className="h-full rounded-full bg-amber-500" style={{width:`${completion.percent}%`}}/></div><p className="mt-1 text-xs text-muted-foreground">{completion.missingLabels.slice(0,2).join(', ')}</p></div><Button size="sm" variant="outline" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div></CardContent></Card></FadeIn>}
       <div className="grid sm:grid-cols-3 gap-4"><StatCard icon={Briefcase} label={t('dashboard.stat.matches')} value={String((jobs ?? []).filter(j => j.status === 'open').length)} delay={0} accent="gold"/><StatCard icon={FileText} label={t('dashboard.stat.applications')} value={String(applications?.length ?? 0)} delay={0.05} accent="gold"/><StatCard icon={Star} label={t('dashboard.stat.inProgress')} value={String((applications ?? []).filter(a => !['hired','not_selected','position_closed','withdrawn'].includes(a.status)).length)} delay={0.1} accent="gold"/></div>
-      <FadeIn delay={0.08}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Sparkles className="size-4 text-primary"/>{t('dashboard.matches.title')}</CardTitle><CardDescription>{hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.exploreMore')}</Link></Button></CardHeader><CardContent className="space-y-2">{jobsLoading || aiLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !matches.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.matches.weakDesc')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div> : matches.map(({job,score})=><JobCard key={job.id} job={job} score={typeof score === 'number' ? (score as unknown as MatchScore) : undefined}/>)}</CardContent></Card></FadeIn>
+      <FadeIn delay={0.08}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Sparkles className="size-4 text-primary"/>{t('dashboard.matches.title')}</CardTitle><CardDescription>{hasProfileSignal ? t('dashboard.matches.desc') : t('dashboard.matches.weakDesc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.exploreMore')}</Link></Button></CardHeader><CardContent className="space-y-2">{jobsLoading || aiLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !matches.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('dashboard.matches.weakDesc')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/profile">{t('profileCompletion.cta')}</Link></Button></div> : matches.map(({job,score})=><JobCard key={job.id} job={job} score={score}/>)}</CardContent></Card></FadeIn>
       <FadeIn delay={0.12}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Activity className="size-4 text-primary"/>{t('timeline.title')}</CardTitle><CardDescription>{t('dashboard.myApplications.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></CardHeader><CardContent>{appsLoading ? <div className="space-y-3">{[1,2,3].map(i=><div key={i} className="h-12 rounded bg-muted animate-pulse"/>)}</div> : !recentApps.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('timeline.empty')}<br/><Button size="sm" className="mt-3" asChild><Link to="/jobs">{t('dashboard.viewJobs')}</Link></Button></div> : <>{recentApps.map((app,i)=><ApplicationTimelineItem key={app.id} app={app} isLast={i===recentApps.length-1} onWithdraw={handleWithdraw}/>)}{(applications?.length ?? 0)>5 && <Link className="block pt-2 text-center text-xs text-primary hover:underline" to="/candidate/applications">{t('timeline.viewAll')} ({applications?.length})</Link>}</>}</CardContent></Card></FadeIn>
       <FadeIn delay={0.16}><Card><CardHeader className="flex flex-row items-center justify-between"><div><CardTitle className="text-base flex items-center gap-2"><Heart className="size-4 text-pink-600 fill-current"/>{t('savedJobs.title')}</CardTitle><CardDescription>{t('savedJobs.desc')}</CardDescription></div><Button variant="outline" size="sm" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></CardHeader><CardContent className="space-y-2">{savedLoading ? <div className="h-16 rounded bg-muted animate-pulse"/> : !recentSaved.length ? <div className="py-6 text-center text-sm text-muted-foreground">{t('savedJobs.empty')}<br/><Button size="sm" variant="outline" className="mt-3" asChild><Link to="/jobs">{t('savedJobs.browse')}</Link></Button></div> : recentSaved.map(job=><SavedJobRow key={job.id} job={job} candidateId={candidateProfileId}/>)}</CardContent></Card></FadeIn>
     </div>

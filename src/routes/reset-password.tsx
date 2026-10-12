@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useI18n } from '@/i18n/I18nProvider'
+import { PASSWORD_MIN_LENGTH, passwordProblem } from '@/lib/passwordPolicy'
 import { BrandMark } from '@/components/BrandMark'
 import {
   Key,
@@ -111,8 +112,9 @@ function ResetPasswordPage() {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault()
     if (!ready || !password.trim()) return
-    if (password.length < 8) {
-      setErrorMsg('Password must be at least 8 characters')
+    const problem = passwordProblem(password)
+    if (problem) {
+      setErrorMsg(t(problem))
       setStatus('error')
       return
     }
@@ -189,10 +191,8 @@ function ResetPasswordPage() {
           <div className="mx-auto mb-4 flex items-center justify-center">
             <BrandMark className="size-12 rounded-lg" title={t('brand.name')} />
           </div>
-          <CardTitle className="font-serif text-xl text-center">Create a new password</CardTitle>
-          <CardDescription className="text-center">
-            Choose a strong password — at least 8 characters with letters and numbers.
-          </CardDescription>
+          <CardTitle className="font-serif text-xl text-center">{t('reset.newTitle')}</CardTitle>
+          <CardDescription className="text-center">{t('auth.passwordRule')}</CardDescription>
         </CardHeader>
         <CardContent>
           {status === 'loading' && (
@@ -223,7 +223,7 @@ function ResetPasswordPage() {
                     required
                     autoFocus
                     autoComplete="new-password"
-                    minLength={8}
+                    minLength={PASSWORD_MIN_LENGTH}
                   />
                   <button
                     type="button"
@@ -236,7 +236,7 @@ function ResetPasswordPage() {
                 </div>
               </div>
 
-              <Button type="submit" disabled={status === 'loading' || password.length < 8} className="w-full gap-2 font-medium">
+              <Button type="submit" disabled={status === 'loading' || password.length < PASSWORD_MIN_LENGTH} className="w-full gap-2 font-medium">
                 {status === 'loading' ? <Loader2 className="size-4 animate-spin" /> : <Key className="size-4" />}
                 {status === 'loading' ? 'Updating...' : 'Reset password'}
               </Button>

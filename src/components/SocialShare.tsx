@@ -9,7 +9,8 @@
  *   - `variant="compact"` — small icon group, used in cards / lists
  *   - `variant="floating"` — fixed bottom-right share pill (with referral copy)
  */
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import { useRouterState } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Share2,
@@ -82,6 +83,21 @@ export interface SocialShareProps {
 }
 
 /* ── URL builders ──────────────────────────────────────── */
+/**
+ * Canonical public origin for shared links. Using a fixed origin (instead of
+ * window.location) keeps the server-rendered and hydrated share hrefs
+ * identical — React never patches mismatched attributes, so a server-only
+ * relative href would otherwise stay broken — and shared links always point
+ * at the live site, even when shared from a preview or localhost.
+ */
+export const SHARE_ORIGIN = 'https://impulsatalentos.expert'
+
+function toAbsoluteShareUrl(urlOrPath: string): string {
+  const v = urlOrPath.trim()
+  if (/^https?:\/\//i.test(v)) return v
+  return `${SHARE_ORIGIN}${v.startsWith('/') ? '' : '/'}${v}`
+}
+
 function buildChannelUrl(channel: 'twitter' | 'facebook' | 'linkedin' | 'whatsapp' | 'email' | 'mailto', text: string, url: string): string {
   const enc = (s: string) => encodeURIComponent(s)
   switch (channel) {
@@ -174,7 +190,15 @@ export function SocialShare({
   const [copied, setCopied] = useState(false)
   const [showReferralInput, setShowReferralInput] = useState(false)
 
-  const shareUrl = (url ?? (typeof window !== 'undefined' ? window.location.href : '')).trim()
+  // Router location is identical during SSR and hydration (unlike window.location).
+  const currentHref = useRouterState({ select: (st) => st.location.href })
+  const shareUrl = toAbsoluteShareUrl(url ?? currentHref)
+  // Web Share API support is only knowable in the browser — detect it after
+  // mount so the first client render matches the server HTML.
+  const [hasNativeShare, setHasNativeShare] = useState(false)
+  useEffect(() => {
+    setHasNativeShare(typeof navigator !== 'undefined' && 'share' in navigator)
+  }, [])
   const baseText = referralMode
     ? t('social.referralMessage', { handle: referralHandle ?? t('social.aFriend'), title })
     : title
@@ -201,8 +225,6 @@ export function SocialShare({
       // user cancelled or share failed
     }
   }
-
-  const hasNativeShare = typeof navigator !== 'undefined' && 'share' in navigator
 
   if (variant === 'compact') {
     return (

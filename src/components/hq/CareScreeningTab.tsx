@@ -23,6 +23,7 @@ import {
   type CareVerificationStatus,
 } from '@/lib/care'
 import { PreScreenedBadge } from '@/components/care/PreScreenedBadge'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 function DocLink({ label, pointer }: { label: string; pointer?: string | null }) {
   const url = useSignedStorageUrl(pointer ?? undefined)
@@ -53,7 +54,7 @@ export function CareScreeningTab() {
       toast.success(to === TERMINAL_REJECTED ? t('care.hq.rejected') : t('care.hq.verified'))
     } catch (err) {
       toast.error(t('care.hq.error'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     } finally {
       setBusyId(null)

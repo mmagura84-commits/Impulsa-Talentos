@@ -30,7 +30,7 @@ import {
 } from 'lucide-react'
 import type { Job } from '@/types'
 
-export const Route = createFileRoute('/_app/apply/$id/confirm')({
+export const Route = createFileRoute('/_app/apply/$id_/confirm')({
   component: ApplyConfirmPage,
   validateSearch: (search: Record<string, unknown>) => ({
     appId: typeof search.appId === 'string' ? search.appId : undefined,
@@ -78,7 +78,7 @@ function localeOf(): 'es' | 'en' {
 
 /* ── Page ──────────────────────────────────────────────── */
 function ApplyConfirmPage() {
-  const { id } = useParams({ from: '/_app/apply/$id/confirm' })
+  const { id } = useParams({ from: '/_app/apply/$id_/confirm' })
   const { appId } = Route.useSearch()
   const { data: app, isLoading: appLoading } = useApplicationById(appId)
   const { data: job, isLoading: jobLoading } = useJob(id)
@@ -99,6 +99,9 @@ function ApplyConfirmPage() {
     }
   }, [profile, navigate, id, t])
   const isLoading = appLoading || jobLoading
+  // Hooks must run on every render — before the loading early-return below.
+  const resumePointer = extractResumeUrl(app?.coverLetter)
+  const resumeUrl = useSignedStorageUrl(resumePointer)
 
   const similarJobs: Job[] = (allJobs ?? [])
     .filter(j => j.id !== id && (job?.level ? j.level === job.level : true))
@@ -118,8 +121,6 @@ function ApplyConfirmPage() {
   }
 
   const companyName = company?.name ?? t('jobDetail.confidential')
-  const resumePointer = extractResumeUrl(app?.coverLetter)
-  const resumeUrl = useSignedStorageUrl(resumePointer)
   const coverNote = extractCoverNote(app?.coverLetter)
 
   return (
@@ -203,11 +204,11 @@ function ApplyConfirmPage() {
                 <div className="grid sm:grid-cols-2 gap-2 text-xs">
                   <div className="rounded-lg border border-border p-3">
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                      {t('dashboard.status.pending')}
+                      {t('application.statusLabel')}
                     </p>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-muted-foreground/30 bg-muted/30 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       <CalendarClock className="size-3" />
-                      {t('dashboard.status.pending')} ·{' '}
+                      {t(`dashboard.status.${app.status}`)} ·{' '}
                       {new Date(app.createdAt).toLocaleDateString(localeOf(), {
                         year: 'numeric', month: 'short', day: 'numeric',
                       })}

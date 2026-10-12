@@ -48,6 +48,8 @@ import {
   PlusCircle,
   BellRing,
 } from 'lucide-react'
+import { friendlyDbError } from '@/lib/dbErrors'
+import { PrivacyCard } from '@/components/profile/PrivacyCard'
 
 export const Route = createFileRoute('/_app/profile')({
   component: ProfilePage,
@@ -229,7 +231,7 @@ function NotificationPrefsCard({
       toast.success(t('profile.notif.saved'))
     } catch (err) {
       toast.error(t('profile.createError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     } finally {
       setSavingKey(null)
@@ -301,7 +303,8 @@ function ProfilePage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [uploadingCv, setUploadingCv] = useState(false)
   const [source, setSource] = useState('')
-  const [consent, setConsent] = useState(false)
+  const [consent, setConsent] = useState(false) // optional marketing emails
+  const [dataConsent, setDataConsent] = useState(false) // Ley 1581 authorization (required)
   const utm = getUTMParams()
   useEffect(() => { captureUTMParams(); trackEvent('profile_complete', { profileId: profile?.id ?? null }) }, [profile?.id])
   const avatarInputRef = useRef<HTMLInputElement | null>(null)
@@ -383,7 +386,7 @@ function ProfilePage() {
         toast.success(t('profile.avatar.ready'), { duration: 1800 })
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('profile.avatar.uploadError'))
+      toast.error(friendlyDbError(err, t) || t('profile.avatar.uploadError'))
     } finally { setUploadingAvatar(false) }
   }
 
@@ -393,7 +396,7 @@ function ProfilePage() {
       await updateProfile.mutateAsync({ id: profile.id, data: { avatarUrl: '' } })
       update('avatarUrl', '')
       toast.success(t('profile.avatar.removed'), { duration: 1800 })
-    } catch (err) { toast.error(err instanceof Error ? err.message : t('common.retry')) }
+    } catch (err) { toast.error(friendlyDbError(err, t) || t('common.retry')) }
   }
 
   const handleCvFile = async (file: File) => {
@@ -411,14 +414,15 @@ function ProfilePage() {
       update('cvUrl', publicUrl)
       toast.success('CV uploaded successfully')
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Upload failed')
+      toast.error(friendlyDbError(err, t) || 'Upload failed')
     } finally { setUploadingCv(false) }
   }
 
   const handleSave = async () => {
     if (!user) return
     if (!form.fullName.trim()) { toast.error(t('profile.nameRequired')); return }
-    if (!consent) { toast.error(t('profile.consentRequired')); return }
+    // Ley 1581: processing personal data needs an explicit authorization; marketing emails stay optional.
+    if (!profile?.dataProcessingConsentAt && !dataConsent) { toast.error(t('privacy.authorizationRequired')); return }
     // Prevent role escalation: lock to existing role for all established profiles
     const saveRole = isRoleLocked ? (effectiveRole as Role) : form.role
     try {
@@ -443,6 +447,7 @@ function ProfilePage() {
             meetingLink: form.meetingLink.trim() || undefined,
             source: source || undefined,
             emailConsent: consent,
+            ...(profile.dataProcessingConsentAt ? {} : { dataProcessingConsentAt: new Date().toISOString() }),
             ...(profile.avatarUrl ? {} : { avatarUrl: form.avatarUrl || undefined }),
           },
         })
@@ -469,16 +474,14 @@ function ProfilePage() {
           meetingLink: form.meetingLink.trim() || undefined,
           source: source || undefined,
           emailConsent: consent,
+          dataProcessingConsentAt: new Date().toISOString(),
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
-        if (saveRole === 'md') {
-          sendEmail({ to: 'info@impulsatalentos.expert', subject: 'New MD signup requires approval', html: `<p>${form.fullName} (${form.email}) signed up as Managing Director and needs approval.</p><p><a href="${window.location.origin}/hq">Review in HQ</a></p>` }).catch(() => {})
-        }
       }
       setSavedFlag(true)
       setTimeout(() => setSavedFlag(false), 3000)
     } catch (err) {
-      toast.error(t('profile.createError'), { description: err instanceof Error ? err.message : '' })
+      toast.error(t('profile.createError'), { description: friendlyDbError(err, t) })
     }
   }
 
@@ -702,7 +705,6 @@ function ProfilePage() {
                     <Label htmlFor="source" className="flex items-center gap-1.5">{t('marketing.sourceLabel')}</Label>
                     <select id="source" value={source} onChange={e => setSource(e.target.value)} className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"><option value="">—</option>{[['marketing.sourceLinkedIn','LinkedIn'],['marketing.sourceReddit','Reddit'],['marketing.sourceUniversity','University'],['marketing.sourceJobBoard','Job board'],['marketing.sourceReferral','Referral'],['marketing.sourceSearch','Search engine'],['marketing.sourceOther','Other']].map(([key, fallback]) => <option key={key} value={fallback}>{t(key)}</option>)}</select>
                   </div>
-                  <div className="flex items-start gap-2 text-sm"><input id="consent" type="checkbox" checked={consent} onChange={e => setConsent(e.target.checked)} required className="mt-1" /><label htmlFor="consent" className="text-muted-foreground">{t('marketing.consent')}</label></div>
                   <div className="space-y-2">
                     <Label htmlFor="languages" className="flex items-center gap-1.5">
                       <Globe className="size-3.5 text-muted-foreground" /> {t('profile.field.languages')}
@@ -921,6 +923,16 @@ function ProfilePage() {
             profile={profile ?? null}
             updateProfile={updateProfile}
             t={t}
+          />
+        </FadeIn>
+        {/* ── Data & privacy (all roles, Ley 1581) ── */}
+        <FadeIn delay={0.13}>
+          <PrivacyCard
+            profile={profile ?? null}
+            dataConsent={dataConsent}
+            setDataConsent={setDataConsent}
+            marketingConsent={consent}
+            setMarketingConsent={setConsent}
           />
         </FadeIn>
         {/* ── Save button row ── */}

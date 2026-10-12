@@ -22,6 +22,13 @@ import { devicePrePaintScript } from '@/lib/device'
 const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`
 
 const queryClient = new QueryClient()
+// A team invite accepted at sign-in changes which company/jobs this person can
+// see: refetch everything (see acceptTeamInvitesOnce in useAuth).
+if (typeof window !== 'undefined') {
+  window.addEventListener('impulsa:team-invite-accepted', () => {
+    void queryClient.invalidateQueries()
+  })
+}
 
 /**
  * Root route — owns the HTML document (SSR), global <head> (SEO-ready),
@@ -49,6 +56,7 @@ export const Route = createRootRoute({
   head: () => ({
   meta: [
     { charSet: 'utf-8' },
+    { name: 'google', content: 'notranslate' },
     { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
     { title: 'Impulsa Talentos — Connecting Bilingual Talent with the World' },
     { name: 'description', content: 'Recruitment platform powered by our proprietary technology, connecting bilingual professionals in Colombia with top local and international employers. Tech, CX, healthcare, and finance roles.' },
@@ -109,7 +117,11 @@ function RootDocument({ children }: { children: ReactNode }) {
   // document scroll, lifting the fixed tab bar on overscroll. Skip it there.
   const isMobileShell = location.pathname.startsWith('/m')
   return (
-    <html lang="en" suppressHydrationWarning>
+    // translate="no" (+ the `google: notranslate` meta): the site ships its own
+    // EN/ES/PT switcher. Browser auto-translate rewrites React-owned text nodes
+    // (wrapping them in <font>), which breaks updates — e.g. the language toggle
+    // stopped responding on a Chrome-translated Spanish page.
+    <html lang="en" translate="no" suppressHydrationWarning>
       <head>
         {/* MUST be first: sets the theme class before paint so there is no
             flash-of-wrong-theme. Do not move below <HeadContent />. */}

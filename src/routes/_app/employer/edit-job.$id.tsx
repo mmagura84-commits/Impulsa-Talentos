@@ -33,6 +33,7 @@ import {
   ArrowLeft,
   Send,
 } from 'lucide-react'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/employer/edit-job/$id')({
   component: EditJobPage,
@@ -168,7 +169,7 @@ function EditJobPage() {
       })
     } catch (err) {
       toast.error(t('dashboard.jobUpdateError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }
@@ -199,7 +200,7 @@ function EditJobPage() {
           </div>
           <h2 className="font-serif text-2xl font-bold text-foreground">{t('jobDetail.errorTitle')}</h2>
           <p className="mt-2 text-muted-foreground">
-            {error instanceof Error ? error.message : ''}
+            {friendlyDbError(error, t)}
           </p>
           <Button variant="outline" className="mt-6" onClick={() => refetch()}>
             {t('common.retry')}

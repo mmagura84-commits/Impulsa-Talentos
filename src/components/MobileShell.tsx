@@ -43,6 +43,7 @@ import { setOptOutOfMobile } from '@/lib/device'
 import { BrandMark } from '@/components/BrandMark'
 import { LOCALE_LABELS, type Locale } from '@/i18n/translations'
 import { cn } from '@/lib/utils'
+import { NotificationCenter } from '@/components/dashboard/NotificationCenter'
 
 interface MobileShellProps {
   children: ReactNode
@@ -108,6 +109,18 @@ export function MobileShell({ children, title }: MobileShellProps) {
             </div>
           </Link>
           <div className="flex items-center gap-1 shrink-0">
+            {user && profile && (
+              <NotificationCenter
+                align="right"
+                mobile
+                audience={
+                  profile.role === 'admin' ? 'admin'
+                    : profile.role === 'md' ? 'md'
+                      : profile.role === 'employer' ? 'employer'
+                        : 'candidate'
+                }
+              />
+            )}
             <button
               type="button"
               onClick={() => setLangOpen(v => !v)}

@@ -121,7 +121,7 @@ const ptHq: Dict = {
   'hq.moderation.approved': 'Vaga aprovada e publicada',
   'hq.moderation.rejected': 'Vaga rejeitada',
   'hq.moderation.reportsTitle': 'Denúncias recentes',
-  'hq.moderation.reportsDesc': 'Marcadas pelos usuários. As vagas denunciadas ficam em espera até você decidir.',
+  'hq.moderation.reportsDesc': 'Sinalizadas por usuários. A vaga continua publicada até você mantê-la ou removê-la.',
   'hq.moderation.noReports': 'Ainda não há denúncias',
   'hq.moderation.reasonScam': 'Golpe ou fraude',
   'hq.moderation.reasonInappropriate': 'Conteúdo impróprio',

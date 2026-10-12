@@ -25,6 +25,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import type { Application, Offer } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/employer/offers')({
   component: EmployerOffersPage,
@@ -183,7 +184,7 @@ function ApplicationOfferRow({
       onCancelCreate()
     } catch (err) {
       toast.error(t('offers.createError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }
@@ -198,7 +199,7 @@ function ApplicationOfferRow({
       onCancelEdit()
     } catch (err) {
       toast.error(t('offers.updateError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }

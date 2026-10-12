@@ -4,9 +4,9 @@ import { toast } from 'sonner'
 import { Flag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/hooks/useAuth'
-import { useCreateReport } from '@/hooks/useJobReports'
-import { useUpdateJob } from '@/hooks/useJobs'
+import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 const REPORT_REASONS = [
   { key: 'scam', labelKey: 'jobDetail.reportReasonScam' },
@@ -30,8 +30,6 @@ export function ReportJobButton({
 }) {
   const { t } = useI18n()
   const { user } = useAuth()
-  const createReport = useCreateReport()
-  const updateJob = useUpdateJob()
   const [open, setOpen] = useState(false)
   const [reason, setReason] = useState<string>('scam')
   const [note, setNote] = useState('')
@@ -40,22 +38,13 @@ export function ReportJobButton({
   const handleSubmit = async () => {
     setSubmitting(true)
     try {
-      await createReport.mutateAsync({
-        jobId,
-        reporterId: user?.id ?? 'anonymous',
-        reason,
-        note: note.trim(),
+      // One database function stores the report and alerts HQ (migration 041).
+      const { error } = await supabase.rpc('report_job', {
+        p_job_id: jobId,
+        p_reason: reason,
+        p_note: note.trim(),
       })
-      // Flag the job for review — best-effort; never blocks the report flow.
-      updateJob.mutate(
-        { id: jobId, data: { moderationStatus: 'pending' } },
-        {
-          onError: err => {
-            // eslint-disable-next-line no-console
-            console.warn('[reportJob] flag-for-review failed', err)
-          },
-        },
-      )
+      if (error) throw new Error(error.message)
       toast.success(t('jobDetail.reportSuccess'), {
         description: t('jobDetail.reportSuccessDesc'),
       })
@@ -64,7 +53,7 @@ export function ReportJobButton({
       setReason('scam')
     } catch (err) {
       toast.error(t('jobDetail.reportError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     } finally {
       setSubmitting(false)
