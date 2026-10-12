@@ -256,3 +256,48 @@ html, body {
 @media (max-width: 767px) {
   body.has-tabbar .apply-bar { bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); padding-bottom: 0.75rem; }
 }
+
+
+/* ── Phone reading rules for public pages (≤767px) ───────────────────────
+   Modeled on remotelatinos.com's mobile stylesheet (measured 2026-10-12):
+   17px body text at ~1.6 line height, 40/32/22px headings with tight
+   leading, 52px pill buttons, 20px side padding and 48–64px section
+   spacing (ours already matched those two). Scoped to pages with the public
+   header, so dashboards keep their dense layout. Content is unchanged. */
+@media (max-width: 767px) {
+  body:has([data-public-header]) main#main {
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    -webkit-text-size-adjust: 100%;
+  }
+  body:has([data-public-header]) main#main h1 {
+    font-size: 2.5rem;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+    text-wrap: balance;
+  }
+  body:has([data-public-header]) main#main h2 {
+    font-size: 2rem;
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    text-wrap: balance;
+  }
+  body:has([data-public-header]) main#main h3 {
+    font-size: 1.375rem;
+    line-height: 1.3;
+  }
+  body:has([data-public-header]) main#main p { text-wrap: pretty; }
+  /* one step up the type scale: no 12px text on phones */
+  body:has([data-public-header]) main#main .text-xs { font-size: 0.8125rem; line-height: 1.25rem; }
+  body:has([data-public-header]) main#main .text-sm { font-size: 0.9375rem; line-height: 1.5rem; }
+  body:has([data-public-header]) main#main .text-base { font-size: 1.0625rem; line-height: 1.7rem; }
+  body:has([data-public-header]) main#main .text-lg { font-size: 1.1875rem; line-height: 1.8rem; }
+  /* pill buttons, 52px tall, easy to tap */
+  body:has([data-public-header]) main#main [data-slot="button"]:not([data-size="icon"]):not([data-size="sm"]) {
+    min-height: 3.25rem;
+    border-radius: 9999px;
+    padding-inline: 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+  }
+}

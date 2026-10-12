@@ -49,6 +49,11 @@ test('sign-up form asks for name, email, password and data consent', async ({ pa
   await expect(page.getByPlaceholder('you@example.com')).toBeVisible()
   await expect(page.getByPlaceholder('Password')).toBeVisible()
   await expect(page.locator('#signup-data-consent')).not.toBeChecked()
+  // Google: offered, but only after the data authorization is accepted
+  const google = page.getByRole('button', { name: /Continue with Google/ })
+  await expect(google).toBeDisabled()
+  await page.locator('#signup-data-consent').check()
+  await expect(google).toBeEnabled()
 })
 
 test('pages are the current build and carry the self-update script', async ({ page, request }) => {

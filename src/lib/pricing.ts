@@ -122,7 +122,7 @@ export const FREE_TRIAL_PLAN: JobPostingPackage = {
 /** Free posting credits granted to every new company so the marketplace is
  *  usable while payments are pending. NOTE: Must match companies.job_credits DB
  *  default in supabase/migrations/001_schema.sql. */
-export const NEW_COMPANY_TRIAL_CREDITS = 2
+export const NEW_COMPANY_TRIAL_CREDITS = 1
 
 /** A posting consumes exactly one credit. */
 export const CREDITS_PER_POSTING = 1

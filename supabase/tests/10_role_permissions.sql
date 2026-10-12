@@ -210,18 +210,18 @@ select t.reset();
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_ok('HQ verifies the company', $$select public.admin_verify_company('20000000-0000-0000-0000-0000000000f3', true)$$);
 select t.reset();
-select t.check('verification publishes the two oldest queued jobs with the two trial credits',
-  (select count(*) = 2 from public.jobs where company_id = '20000000-0000-0000-0000-0000000000f3' and status = 'open'
+select t.check('verification publishes the oldest queued job with the one trial credit',
+  (select count(*) = 1 from public.jobs where company_id = '20000000-0000-0000-0000-0000000000f3' and status = 'open'
       and published_at is not null and expires_at is not null and not publish_when_verified)
   and (select job_credits = 0 from public.companies where id = '20000000-0000-0000-0000-0000000000f3')
   and (select status = 'draft' and publish_when_verified from public.jobs where id = '30000000-0000-0000-0000-0000000000f3'));
 select t.check('employer is told which jobs went live and that one waits for credits',
-  (select count(*) = 2 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'job_published')
+  (select count(*) = 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'job_published')
   and exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'job_needs_credits'));
 update public.companies set job_credits = job_credits + 3 where id = '20000000-0000-0000-0000-0000000000f3';
-select t.check('a confirmed payment publishes the waiting job and charges one credit',
+select t.check('a confirmed payment publishes the waiting jobs and charges one credit each',
   (select status = 'open' from public.jobs where id = '30000000-0000-0000-0000-0000000000f3')
-  and (select job_credits = 2 from public.companies where id = '20000000-0000-0000-0000-0000000000f3'));
+  and (select job_credits = 1 from public.companies where id = '20000000-0000-0000-0000-0000000000f3'));
 -- Keep later public-listing counts independent of this block.
 update public.jobs set status = 'closed' where company_id = '20000000-0000-0000-0000-0000000000f3';
 
@@ -255,7 +255,7 @@ select t.check('a replayed event changes nothing',
   (select public.apply_card_payment((select reference from public.card_payments where status = 'approved' limit 1), 'APPROVED', 'tx2', 39000000, 'COP') = 'already approved'));
 select t.reset();
 select t.check('credits, plan and notice applied once',
-  (select job_credits = 5 and plan = 'pro' and listing_days = 45 and max_applicants_per_job = 100
+  (select job_credits = 4 and plan = 'pro' and listing_days = 45 and max_applicants_per_job = 100
      from public.companies where id = '20000000-0000-0000-0000-0000000000f3')
   and (select count(*) = 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'payment_granted'));
 update public.billing_packages set amount_cop_cents = null where id = 'pro';
@@ -310,8 +310,8 @@ select t.act_as('00000000-0000-0000-0000-0000000000f1');
 select t.expect_ok('new employer creates company (tries verified + 999 credits)',
   $$insert into public.companies (employer_id, name, verified, job_credits) values ('00000000-0000-0000-0000-0000000000f1', 'Newco', true, 999)$$);
 select t.reset();
-select t.check('new company forced to trial: unverified, 2 credits, 14 days, 20 applicants',
-  (select not verified and job_credits = 2 and listing_days = 14 and max_applicants_per_job = 20 from public.companies where name = 'Newco'));
+select t.check('new company forced to trial: unverified, 1 credit, 14 days, 20 applicants',
+  (select not verified and job_credits = 1 and listing_days = 14 and max_applicants_per_job = 20 from public.companies where name = 'Newco'));
 select t.check('owner seat created for new company',
   exists (select 1 from public.team_members tm join public.companies c on c.id = tm.company_id where c.name = 'Newco' and tm.role = 'owner'));
 
