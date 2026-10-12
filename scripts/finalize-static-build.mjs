@@ -193,11 +193,6 @@ console.log('[finalize] ✓ spa-fallback.html generated (neutral shell + TanStac
 //     to take control, then reloads through it.
 // A session flag stops it from ever looping.
 const assetNames = existsSync(join(DEST, 'assets')) ? readdirSync(join(DEST, 'assets')).sort() : []
-const BUILD_ID = createHash('sha1').update(assetNames.join('\n')).digest('hex').slice(0, 12)
-writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + '\n')
-const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){try{return S?S.register("/sw.js"):Promise.reject()}catch(e){return Promise.reject(e)}}var R=reg();if(R.catch)R.catch(function(){});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(!S){hard(nb);return}if(S.controller){location.reload();return}var fin=0;function end(){if(fin)return;fin=1;S.controller?location.reload():hard(nb)}R.then(function(){return S.ready}).then(function(){return new Promise(function(r){if(S.controller)return r();S.addEventListener("controllerchange",r)})}).then(end,end);setTimeout(end,4000)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
-
-
 const htmlFiles = []
 const walk = (dir) => {
   for (const e of readdirSync(dir, { withFileTypes: true })) {
@@ -206,6 +201,16 @@ const walk = (dir) => {
   }
 }
 walk(DEST)
+htmlFiles.sort()
+// Build id covers every script name AND every page's content, so a deploy that
+// only changes pages (new prerendered jobs, copy edits) still gets a new id.
+const idHash = createHash('sha1').update(assetNames.join('\n'))
+for (const f of htmlFiles) idHash.update(f).update(readFileSync(f))
+const BUILD_ID = idHash.digest('hex').slice(0, 12)
+writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + '\n')
+const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){try{return S?S.register("/sw.js"):Promise.reject()}catch(e){return Promise.reject(e)}}var R=reg();if(R.catch)R.catch(function(){});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(!S){hard(nb);return}if(S.controller){location.reload();return}var fin=0;function end(){if(fin)return;fin=1;S.controller?location.reload():hard(nb)}R.then(function(){return S.ready}).then(function(){return new Promise(function(r){if(S.controller)return r();S.addEventListener("controllerchange",r)})}).then(end,end);setTimeout(end,4000)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
+
+
 let injected = 0
 for (const f of htmlFiles) {
   const html = readFileSync(f, 'utf8')
