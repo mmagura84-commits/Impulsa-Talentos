@@ -416,6 +416,10 @@ create or replace trigger trg_job_matches
   after insert or update of title, skills_required, languages_required, level, location_type,
     salary_min, salary_max, currency, status, moderation_status, expires_at, archived_at, paused_at
   on public.jobs for each row execute function public.trg_job_matches();
+-- trigger functions are never called from the API
+revoke all on function public.trg_profile_matches() from public, anon, authenticated;
+revoke all on function public.trg_job_matches() from public, anon, authenticated;
+revoke all on function public.trg_profile_cv_cleared() from public, anon, authenticated;
 
 -- HQ: recompute everything (after changing weights, aliases or many rows).
 create or replace function public.rebuild_all_matches()
