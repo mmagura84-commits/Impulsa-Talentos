@@ -10,9 +10,10 @@ import { AuthGate } from '@/components/AuthGate'
 import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
-import { useCompany, useCreateCompany, useUpdateCompany } from '@/hooks/useCompanies'
+import { useCompany, useCreateCompany } from '@/hooks/useCompanies'
 import { useCreateJob } from '@/hooks/useJobs'
-import { supabase } from '@/lib/supabase'
+import { friendlyDbError, isNoCreditsError } from '@/lib/dbErrors'
+import { useQueryClient } from '@tanstack/react-query'
 import { NEW_COMPANY_TRIAL_CREDITS, CREDITS_PER_POSTING } from '@/lib/pricing'
 import { useI18n } from '@/i18n/I18nProvider'
 import { RichTextEditor } from '@/components/RichTextEditor'
@@ -122,10 +123,10 @@ function PostJobPage() {
   // Role gate is handled by _app/employer.tsx layout — no per-page guard needed.
   const { data: existingCompany, isLoading: companyLoading } = useCompany(user?.id)
   const { t } = useI18n()
+  const queryClient = useQueryClient()
 
   const createCompany = useCreateCompany()
   const createJob = useCreateJob()
-  const saveCompany = useUpdateCompany() // kept for hook order; unused — credits now decremented via RPC
 
   const [step, setStep] = useState<Step>('company')
   const [companyId, setCompanyId] = useState<string | null>(null)
@@ -196,16 +197,15 @@ function PostJobPage() {
         ...companyForm,
         contactEmail,
         logoUrl: '',
-        // Monetization: every new company starts with free trial credits so
-        // the marketplace is usable before Stripe goes live.
-        jobCredits: NEW_COMPANY_TRIAL_CREDITS,
+        // Trial credits, verification and plan limits are set by the database
+        // (migration 041); the client cannot choose them.
       })
       setCompanyId(created.id)
       setStep('job')
       toast.success(t('postJob.company.createSuccess'), { description: created.name })
     } catch (err) {
       toast.error(t('postJob.company.createError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }
@@ -276,16 +276,9 @@ function PostJobPage() {
           : { entityType: 'company' }),
       })
       setDirty(false)
-      // Consume one credit for every OPEN posting (drafts are free).
-      // Uses atomic server-side decrement (migration 013) to avoid the
-      // stale-write race that happens with client-side math.
-      if (status === 'open' && existingCompany) {
-        try {
-          await supabase.rpc('decrement_company_credits', { company_id: existingCompany.id })
-        } catch {
-          /* best-effort: don't block job creation */
-        }
-      }
+      // The database charges one credit on a job's first publish (migration
+      // 041); refresh the balance shown in the form.
+      queryClient.invalidateQueries({ queryKey: ['companies'] })
       setStep(status === 'draft' ? 'company' : 'done')
       if (status === 'draft') {
         toast.success(t('postJob.job.savedAsDraft'), {
@@ -300,7 +293,10 @@ function PostJobPage() {
       }
     } catch (err) {
       toast.error(t('postJob.job.error'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
+        ...(isNoCreditsError(err)
+          ? { action: { label: t('errors.buyPlan'), onClick: () => { window.location.href = '/pricing' } } }
+          : {}),
       })
     }
   }
@@ -523,95 +519,14 @@ function PostJobPage() {
 
   /* ── Step: job posting ─────────────────────────────── */
   if (step === 'job') {
-    // Monetization gate: an open posting consumes one credit. Companies with
-    // no credits see the pricing page instead of the form (drafts stay free
-    // but the gate keeps the flow simple — see handleCreateJob).
+    // Publishing needs a verified company and one credit (both enforced by the
+    // database, migration 041). Drafts are always free, so the form stays
+    // available and the reason publishing is blocked is shown above it.
     const credits = existingCompany?.jobCredits ?? (companyId ? NEW_COMPANY_TRIAL_CREDITS : 0)
-
-    if (credits < CREDITS_PER_POSTING) {
-      return (
-        <AuthGate>
-          <div className="p-6 max-w-3xl mx-auto">
-            <FadeIn>
-              <div className="mb-8">
-                <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('postJob.step2.kicker')}</p>
-                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-                  <PlusCircle className="size-7 text-primary" />
-                  {t('postJob.step2.title')}
-                </h1>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.05}>
-              <Card>
-                <CardContent className="py-10 text-center">
-                  <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-amber-500/10 mb-3">
-                    <AlertCircle className="size-6 text-amber-600" />
-                  </div>
-                  <p className="font-medium text-foreground">{t('postJob.credits.title')}</p>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">{t('postJob.credits.desc')}</p>
-                  <Button asChild className="mt-5">
-                    <Link to="/pricing">{t('postJob.credits.cta')}</Link>
-                  </Button>
-                </CardContent>
-              </Card>
-            </FadeIn>
-          </div>
-        </AuthGate>
-      )
-    }
-
-    // Verification gate: unverified companies cannot publish jobs.
-    // Drafts are still allowed so employers can prepare listings while awaiting approval.
-    if (existingCompany && !existingCompany.verified) {
-      const isRequested = !!existingCompany.verificationRequested
-      return (
-        <AuthGate>
-          <div className="p-6 max-w-3xl mx-auto">
-            <FadeIn>
-              <div className="mb-8">
-                <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('postJob.step2.kicker')}</p>
-                <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
-                  <PlusCircle className="size-7 text-primary" />
-                  {t('postJob.step2.title')}
-                </h1>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.05}>
-              <Card className="border-amber-500/30">
-                <CardContent className="py-10 text-center">
-                  <div className={`mx-auto flex h-12 w-12 items-center justify-center rounded-full mb-3 ${isRequested ? 'bg-amber-500/10' : 'bg-destructive/10'}`}>
-                    {isRequested
-                      ? <Clock className="size-6 text-amber-600" />
-                      : <BadgeCheck className="size-6 text-destructive" />
-                    }
-                  </div>
-                  <p className="font-medium text-foreground">{isRequested ? t('verification.pendingPublishTitle') : t('verification.unverifiedPublishTitle')}</p>
-                  <p className="text-sm text-muted-foreground mt-1 max-w-md mx-auto">{isRequested ? t('verification.pendingPublishDesc') : t('verification.unverifiedPublishDesc')}</p>
-                  <div className="mt-5 flex items-center justify-center gap-3 flex-wrap">
-                    <Button variant="outline" size="sm" asChild className="gap-1.5">
-                      <Link to="/employer">
-                        <BadgeCheck className="size-3.5" />
-                        {isRequested ? t('common.back') : t('verification.request')}
-                      </Link>
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      className="gap-1.5"
-                      disabled={createJob.isPending}
-                      onClick={() => handleCreateJob('draft')}
-                    >
-                      <Save className="size-3.5" />
-                      {createJob.isPending ? t('postJob.job.saving') : t('postJob.job.saveAsDraft')}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </FadeIn>
-          </div>
-        </AuthGate>
-      )
-    }
+    const isUnverified = !!existingCompany && !existingCompany.verified
+    const isRequested = !!existingCompany?.verificationRequested
+    const noCredits = credits < CREDITS_PER_POSTING
+    const publishBlocked = isUnverified || noCredits
 
     return (
       <AuthGate>
@@ -632,6 +547,44 @@ function PostJobPage() {
               </span>
             </div>
           </FadeIn>
+
+          {publishBlocked && (
+            <FadeIn delay={0.03}>
+              <Card className="mb-6 border-amber-500/30" role="status">
+                <CardContent className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex items-start gap-3">
+                    {isUnverified
+                      ? (isRequested ? <Clock className="mt-0.5 size-5 shrink-0 text-amber-600" /> : <BadgeCheck className="mt-0.5 size-5 shrink-0 text-destructive" />)
+                      : <AlertCircle className="mt-0.5 size-5 shrink-0 text-amber-600" />}
+                    <div>
+                      <p className="font-medium text-foreground">
+                        {isUnverified
+                          ? (isRequested ? t('verification.pendingPublishTitle') : t('verification.unverifiedPublishTitle'))
+                          : t('postJob.credits.title')}
+                      </p>
+                      <p className="mt-0.5 text-sm text-muted-foreground">
+                        {isUnverified
+                          ? (isRequested ? t('verification.pendingPublishDesc') : t('verification.unverifiedPublishDesc'))
+                          : t('postJob.credits.desc')}{' '}
+                        {t('postJob.draftsStillFree')}
+                      </p>
+                    </div>
+                  </div>
+                  {isUnverified ? (
+                    !isRequested && (
+                      <Button variant="outline" size="sm" asChild className="shrink-0 gap-1.5">
+                        <Link to="/employer"><BadgeCheck className="size-3.5" />{t('verification.request')}</Link>
+                      </Button>
+                    )
+                  ) : (
+                    <Button size="sm" asChild className="shrink-0">
+                      <Link to="/pricing">{t('postJob.credits.cta')}</Link>
+                    </Button>
+                  )}
+                </CardContent>
+              </Card>
+            </FadeIn>
+          )}
 
           <FadeIn delay={0.05}>
             <Card>
@@ -905,7 +858,7 @@ function PostJobPage() {
               <Button
                 onClick={() => handleCreateJob('open')}
                 size="lg"
-                disabled={createJob.isPending}
+                disabled={createJob.isPending || publishBlocked}
                 className="gap-2 font-medium px-8"
               >
                 <Send className="size-4" />

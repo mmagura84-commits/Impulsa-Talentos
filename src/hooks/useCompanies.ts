@@ -1,6 +1,18 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { listRows, getRow, createRow, updateRow, deleteRow, countRows } from '@/lib/supabase'
+import { listRows, getRow, createRow, updateRow, deleteRow, countRows, supabase } from '@/lib/supabase'
 import type { Company } from '@/types'
+
+/** Columns anonymous visitors may read (migration 041 column grant). */
+export const PUBLIC_COMPANY_COLUMNS =
+  'id,name,industry,size,location,website,description,logo_url,verified,created_at,entity_type,employer_id'
+
+/** Signed-in callers get every column RLS allows; visitors (and the static
+ *  prerender build) get the public column set. */
+async function companyColumns(): Promise<string> {
+  if (typeof window === 'undefined') return PUBLIC_COMPANY_COLUMNS
+  const { data } = await supabase.auth.getSession()
+  return data.session ? '*' : PUBLIC_COMPANY_COLUMNS
+}
 
 
 // ─── Query key factories ───
@@ -22,17 +34,29 @@ async function fetchCompanyByEmployer(
     where: { employerId },
     limit: 1,
   })
-  return results[0] ?? null
+  if (results[0]) return results[0]
+  // Invited team members (owner/admin/member seats) work for a company they
+  // do not own: resolve it through their active membership.
+  const { data: seat } = await supabase
+    .from('team_members')
+    .select('company_id')
+    .eq('user_id', employerId)
+    .eq('status', 'active')
+    .in('role', ['owner', 'admin', 'member'])
+    .limit(1)
+    .maybeSingle()
+  if (!seat?.company_id) return null
+  return getRow<Company>('companies', seat.company_id as string)
 }
 
 /** Fetch a company by id (also used by route loaders for SSR/prerender). */
 export async function fetchCompanyById(id: string): Promise<Company | null> {
-  return getRow<Company>('companies', id)
+  return getRow<Company>('companies', id, await companyColumns())
 }
 
 /** Fetch every company (also used by route loaders for SSR/prerender). */
 export async function fetchAllCompanies(): Promise<Company[]> {
-  return listRows<Company>('companies', { orderBy: { createdAt: 'desc' } })
+  return listRows<Company>('companies', { orderBy: { createdAt: 'desc' }, select: await companyColumns() })
 }
 
 // ─── Hooks ───

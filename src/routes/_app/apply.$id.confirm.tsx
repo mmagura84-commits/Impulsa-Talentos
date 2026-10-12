@@ -203,11 +203,11 @@ function ApplyConfirmPage() {
                 <div className="grid sm:grid-cols-2 gap-2 text-xs">
                   <div className="rounded-lg border border-border p-3">
                     <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
-                      {t('dashboard.status.pending')}
+                      {t('application.statusLabel')}
                     </p>
                     <span className="inline-flex items-center gap-1.5 rounded-full border border-muted-foreground/30 bg-muted/30 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
                       <CalendarClock className="size-3" />
-                      {t('dashboard.status.pending')} ·{' '}
+                      {t(`dashboard.status.${app.status}`)} ·{' '}
                       {new Date(app.createdAt).toLocaleDateString(localeOf(), {
                         year: 'numeric', month: 'short', day: 'numeric',
                       })}

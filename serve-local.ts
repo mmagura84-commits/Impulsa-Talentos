@@ -3,6 +3,21 @@
 // This wraps dist/ in a Bun server on port 3000 and adds two same-origin
 // API proxies (OpenAI AI matching + transactional email) so secret keys
 // (OPENAI_API_KEY, EMAIL_API_URL, EMAIL_API_KEY) stay server-side.
+import { authorizeEmail } from "./src/lib/server/emailGuard";
+import { createClient } from "@supabase/supabase-js";
+
+/** Verify the caller's Supabase session (Authorization: Bearer <token>). */
+async function sessionUserId(req: Request): Promise<string | null> {
+  const token = (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim();
+  const url = process.env.VITE_SUPABASE_URL ?? process.env.SUPABASE_URL;
+  const anon = process.env.VITE_SUPABASE_ANON_KEY ?? process.env.SUPABASE_ANON_KEY;
+  if (!token || !url || !anon) return null;
+  const { data } = await createClient(url, anon, { auth: { persistSession: false } }).auth.getUser(token);
+  return data?.user?.id ?? null;
+}
+const bearer = (req: Request) =>
+  (req.headers.get("authorization") ?? "").replace(/^Bearer\s+/i, "").trim() || null;
+
 const PORT = 3100;
 const HOST = "127.0.0.1";
 const STATIC_DIR = `${import.meta.dir}/dist`;
@@ -76,10 +91,15 @@ async function handleAiMatch(body: Record<string, unknown>) {
   }
 }
 
-async function handleEmail(body: Record<string, unknown>) {
+async function handleEmail(body: Record<string, unknown>, token: string | null) {
   const { to, subject, html, text } = body;
   if (typeof to !== "string" || typeof subject !== "string" || typeof html !== "string") {
     return json({ error: "missing to/subject/html" }, 400);
+  }
+  try {
+    await authorizeEmail({ to, subject, html, text: typeof text === "string" ? text : undefined }, token);
+  } catch (err) {
+    return json({ error: err instanceof Error ? err.message : "not allowed" }, 403);
   }
   const apiUrl = process.env.EMAIL_API_URL;
   if (!apiUrl) {
@@ -116,8 +136,13 @@ for (let attempt = 1; ; attempt++) {
         // Same-origin API proxies (POST only).
         if (req.method === "POST") {
           const body = await readBody(req);
-          if (pathname === "/api/ai-match") return handleAiMatch(body);
-          if (pathname === "/api/email") return handleEmail(body);
+          if (pathname === "/api/ai-match") {
+            // Paid AI calls only for signed-in users (was an open OpenAI proxy).
+            if (!(await sessionUserId(req))) return json({ error: "sign in required" }, 401);
+            if (typeof body.prompt === "string" && body.prompt.length > 20_000) return json({ error: "prompt too long" }, 413);
+            return handleAiMatch(body);
+          }
+          if (pathname === "/api/email") return handleEmail(body, bearer(req));
           return json({ error: "not found" }, 404);
         }
 

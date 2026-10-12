@@ -66,9 +66,6 @@ export function Banking() {
   const [crOpen, setCrOpen] = useState(false)
   const [cr, setCr] = useState({ bankName: '', accountType: '', titularName: '', nitRust: '', swiftCode: '', wompiPublicKey: '', wompiPrivateKey: '', wompiPrivateKeyLast4: '', wompiPaymentLinkUrl: '', reason: '' })
 
-  useEffect(() => {
-    if (!ok) nav({ to: '/dashboard', replace: true })
-  }, [ok, nav])
 
   useEffect(() => {
     if (!user?.id) return

@@ -149,25 +149,10 @@ export function useApply() {
       queryClient.invalidateQueries({
         queryKey: applicationKeys.byJob(variables.jobId),
       })
-
-      notifyJobsOfApplication(variables.jobId, variables.candidateId).catch(e =>
-        console.warn('[useApply] jobs@ notification failed:', e)
-      )
+      // jobs@ and the candidate are emailed by sendApplicationNotifications
+      // (apply page); the employer team gets an in-app notification from the
+      // database (migration 041).
     },
-  })
-}
-
-async function notifyJobsOfApplication(jobId: string, candidateId: string) {
-  const job = await getRow<Job>('jobs', jobId)
-  if (!job) return
-  const candidate = await getRow<Profile>('profiles', candidateId)
-  const candidateName = candidate?.fullName || 'A candidate'
-
-  await sendEmail({
-    to: JOBS_EMAIL,
-    subject: `[New Application] ${candidateName} → ${job.title}`,
-    text: `${candidateName} applied for "${job.title}".`,
-    html: `<p><strong>${candidateName}</strong> applied for <strong>${job.title}</strong>.</p>`,
   })
 }
 
@@ -256,12 +241,15 @@ export function useWithdrawApplication() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, reason }: { id: string; reason?: string }) =>
-      updateRow('applications', id, {
-        status: 'withdrawn' as const,
-        withdrawnReason: reason ?? null,
-        updatedAt: new Date().toISOString(),
-      }),
+    // Candidates have no direct UPDATE right on applications; the database
+    // function checks ownership and state (migration 041).
+    mutationFn: async ({ id, reason }: { id: string; reason?: string }) => {
+      const { error } = await supabase.rpc('withdraw_application', {
+        p_application_id: id,
+        p_reason: reason ?? null,
+      })
+      if (error) throw new Error(error.message)
+    },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: applicationKeys.all })
     },
@@ -285,5 +273,52 @@ export function useApplicationStatusHistory(applicationId: string | undefined) {
     queryKey: ['applicationStatusHistory', applicationId ?? ''],
     queryFn: () => fetchApplicationStatusHistory(applicationId!),
     enabled: !!applicationId,
+  })
+}
+
+// ─── Employer-private review data (migration 041: application_private) ───
+// Notes / shortlist / internal feedback live outside the application row so
+// the candidate can never read them.
+
+export interface ApplicationPrivate {
+  applicationId: string
+  shortlisted: boolean
+  notes: string | null
+  feedback: string | null
+  updatedAt?: string
+}
+
+export function useApplicationPrivate(applicationId: string | undefined) {
+  return useQuery({
+    queryKey: ['application_private', applicationId ?? ''],
+    enabled: !!applicationId,
+    queryFn: async (): Promise<ApplicationPrivate> => {
+      const { data, error } = await supabase
+        .from('application_private')
+        .select('*')
+        .eq('application_id', applicationId!)
+        .maybeSingle()
+      if (error) throw new Error(error.message)
+      return data
+        ? (snakeToCamel<ApplicationPrivate>(data as Record<string, unknown>))
+        : { applicationId: applicationId!, shortlisted: false, notes: null, feedback: null }
+    },
+  })
+}
+
+export function useSaveApplicationPrivate() {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async (v: { applicationId: string; shortlisted?: boolean; notes?: string | null }) => {
+      const row: Record<string, unknown> = { application_id: v.applicationId, updated_at: new Date().toISOString() }
+      if (v.shortlisted !== undefined) row.shortlisted = v.shortlisted
+      if (v.notes !== undefined) row.notes = v.notes
+      const { error } = await supabase.from('application_private').upsert(row, { onConflict: 'application_id' })
+      if (error) throw new Error(error.message)
+    },
+    onSuccess: (_r, v) => {
+      queryClient.invalidateQueries({ queryKey: ['application_private', v.applicationId] })
+      queryClient.invalidateQueries({ queryKey: ['application_private_list'] })
+    },
   })
 }

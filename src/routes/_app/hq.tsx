@@ -9,6 +9,12 @@ import { AuthGate } from '@/components/AuthGate'
 import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { useAuth, useIsAdmin } from '@/hooks/useAuth'
 import { useAllProfiles, useUpdateProfile } from '@/hooks/useProfile'
+import { PaymentsTab } from '@/components/hq/PaymentsTab'
+import { LeadsTab } from '@/components/hq/LeadsTab'
+import { AuditLogTab } from '@/components/hq/AuditLogTab'
+import { supabase } from '@/lib/supabase'
+import { useQueryClient } from '@tanstack/react-query'
+import { CreditCard, Inbox, History } from 'lucide-react'
 import { useAllCompanies, useUpdateCompany } from '@/hooks/useCompanies'
 import { useAllJobs, useUpdateJob, useCreateJob } from '@/hooks/useJobs'
 import { useAllApplications, useUpdateApplicationStatus } from '@/hooks/useApplications'
@@ -671,7 +677,19 @@ function JobsTab({ jobs, companies, applications }: {
 }
 
 /* ── Companies Tab (with inline editing) ────────────────── */
-function CompaniesTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) {
+function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; jobs: Job[]; profiles: Profile[] }) {
+  const queryClient = useQueryClient()
+  const mds = profiles.filter(x => x.role === 'md' && x.profileStatus !== 'rejected')
+  const verifyCompany = async (id: string, verified: boolean) => {
+    const { error } = await supabase.rpc('admin_verify_company', { p_company_id: id, p_verified: verified })
+    if (error) throw new Error(error.message)
+    await queryClient.invalidateQueries({ queryKey: ['companies'] })
+  }
+  const assignMd = async (companyId: string, mdProfileId: string) => {
+    const { error } = await supabase.rpc('admin_assign_md', { p_company_id: companyId, p_md_profile_id: mdProfileId, p_assign: true })
+    if (error) { toast.error(error.message); return }
+    toast.success(t('hq.md.assigned'))
+  }
   const { t } = useI18n()
   const updateCompany = useUpdateCompany()
   const [editing, setEditing] = useState<Company | null>(null)
@@ -739,7 +757,7 @@ function CompaniesTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }
                   <Button variant="ghost" size="sm" className="h-7 text-[11px] text-emerald-600"
                     onClick={async () => {
                       try {
-                        await updateCompany.mutateAsync({ id: c.id, data: { verified: false } })
+                        await verifyCompany(c.id, false)
                         toast.success(t('verification.unverifySuccess'))
                       } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) }
                     }}>
@@ -749,12 +767,23 @@ function CompaniesTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }
                   <Button variant="ghost" size="sm" className="h-7 text-[11px]"
                     onClick={async () => {
                       try {
-                        await updateCompany.mutateAsync({ id: c.id, data: { verified: true, verificationRequested: false } })
+                        await verifyCompany(c.id, true)
                         toast.success(t('verification.verifySuccess'))
                       } catch (err) { toast.error(err instanceof Error ? err.message : String(err)) }
                     }}>
                     {t('verification.verify')}
                   </Button>
+                )}
+                {mds.length > 0 && (
+                  <select
+                    aria-label={t('hq.md.assign')}
+                    defaultValue=""
+                    onChange={e => { if (e.target.value) { void assignMd(c.id, e.target.value); e.target.value = '' } }}
+                    className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
+                  >
+                    <option value="">{t('hq.md.assign')}</option>
+                    {mds.map(m => <option key={m.id} value={m.id}>{m.fullName || m.email}</option>)}
+                  </select>
                 )}
                 <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => { setEditing(c); setEditForm({ name: c.name, industry: c.industry, size: c.size, location: c.location, website: c.website, description: c.description, contactEmail: c.contactEmail ?? '' }) }}>
                   Edit
@@ -1002,33 +1031,61 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
   )
 }
 
-/* ── Users Tab (with delegation / second-tier management) ─ */
+/* ── Users Tab: roles, approval and data-deletion requests ── */
+const ROLE_OPTIONS: Profile['role'][] = ['candidate', 'employer', 'md', 'admin']
+const STATUS_OPTIONS = ['active', 'pending', 'rejected'] as const
+
 function UsersTab({ profiles }: { profiles: Profile[] }) {
   const { t } = useI18n()
-  const updateProfile = useUpdateProfile()
-  const [confirm, setConfirm] = useState<{ id: string; action: 'promote' | 'demote' } | null>(null)
+  const queryClient = useQueryClient()
+  const [confirm, setConfirm] = useState<
+    | { kind: 'role'; profile: Profile; role: Profile['role']; status: (typeof STATUS_OPTIONS)[number] }
+    | { kind: 'erase'; profile: Profile }
+    | null
+  >(null)
+  const [busy, setBusy] = useState(false)
+  const deletionRequests = profiles.filter(p => p.deletionRequestedAt && p.fullName !== 'Deleted user')
 
   const cols = [
     { key: 'name', label: t('hq.table.col.name') },
     { key: 'email', label: t('hq.table.col.email') },
     { key: 'role', label: t('hq.table.col.role') },
+    { key: 'status', label: t('hq.users.col.status') },
     { key: 'location', label: t('hq.table.col.location') },
-    { key: 'languages', label: t('hq.table.col.languages') },
     { key: 'actions', label: t('hq.table.col.actions') },
   ]
 
-  const handleRoleChange = async (id: string, newRole: Profile['role']) => {
-    try {
-      await updateProfile.mutateAsync({ id, data: { role: newRole } })
-      toast.success(`Role changed to ${newRole}`)
-      setConfirm(null)
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : String(err))
-    }
+  const apply = async () => {
+    if (!confirm) return
+    setBusy(true)
+    const { error } = confirm.kind === 'role'
+      ? await supabase.rpc('admin_set_user_role', { p_profile_id: confirm.profile.id, p_role: confirm.role, p_status: confirm.status })
+      : await supabase.rpc('admin_anonymize_profile', { p_profile_id: confirm.profile.id })
+    setBusy(false)
+    if (error) { toast.error(error.message); return }
+    toast.success(confirm.kind === 'role' ? t('hq.users.roleSaved') : t('hq.users.erased'))
+    setConfirm(null)
+    await queryClient.invalidateQueries({ queryKey: ['profiles'] })
   }
 
   return (
     <>
+      {deletionRequests.length > 0 && (
+        <Card className="mb-4 border-amber-500/40">
+          <CardHeader>
+            <CardTitle className="text-base">{t('hq.users.deletionTitle', { n: deletionRequests.length })}</CardTitle>
+            <CardDescription>{t('hq.users.deletionDesc')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {deletionRequests.map(p => (
+              <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border p-2 text-xs">
+                <span><strong>{p.fullName || '—'}</strong> · {p.email} · {t('hq.users.requestedOn')} {new Date(p.deletionRequestedAt!).toLocaleDateString()}</span>
+                <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => setConfirm({ kind: 'erase', profile: p })}>{t('hq.users.erase')}</Button>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
       <DataTable
         title={t('hq.sections.users')}
         rows={profiles}
@@ -1036,7 +1093,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
         searchPlaceholder={t('hq.table.searchPlaceholder')}
         searchFields={['fullName' as keyof Profile, 'email' as keyof Profile, 'role' as keyof Profile]}
         onExport={() => exportCsv(profiles.map(p => ({
-          id: p.id, name: p.fullName, email: p.email, role: p.role,
+          id: p.id, name: p.fullName, email: p.email, role: p.role, status: p.profileStatus,
           location: p.location, languages: p.languages, created: p.createdAt,
         })), 'users')}
         renderRow={(p) => (
@@ -1045,58 +1102,54 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{p.email ?? '—'}</td>
             <td className="py-2.5 px-2">
               <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${ROLE_BADGE_CLASSES[p.role] ?? 'border-border text-muted-foreground'}`}>
-                {p.role}
+                {t(`hq.role.${p.role}`)}
               </span>
             </td>
+            <td className="py-2.5 px-2 text-xs text-muted-foreground">{t(`hq.users.status.${p.profileStatus ?? 'active'}`)}</td>
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{p.location ?? '—'}</td>
-            <td className="py-2.5 px-2 text-xs text-muted-foreground">{p.languages ?? '—'}</td>
-            <td className="py-2.5 px-2 flex items-center gap-1">
-              {p.role !== 'admin' ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-[11px] text-primary"
-                  onClick={() => setConfirm({ id: p.id, action: 'promote' })}
+            <td className="py-2.5 px-2">
+              <div className="flex items-center gap-1">
+                <select
+                  aria-label={t('hq.users.changeRole')}
+                  value={p.role}
+                  onChange={e => setConfirm({ kind: 'role', profile: p, role: e.target.value as Profile['role'], status: (p.profileStatus ?? 'active') as (typeof STATUS_OPTIONS)[number] })}
+                  className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
                 >
-                  <Shield className="size-3 mr-1" />
-                  Make admin
-                </Button>
-              ) : (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-7 text-[11px] text-destructive"
-                  onClick={() => setConfirm({ id: p.id, action: 'demote' })}
+                  {ROLE_OPTIONS.map(r => <option key={r} value={r}>{t(`hq.role.${r}`)}</option>)}
+                </select>
+                <select
+                  aria-label={t('hq.users.changeStatus')}
+                  value={p.profileStatus ?? 'active'}
+                  onChange={e => setConfirm({ kind: 'role', profile: p, role: p.role, status: e.target.value as (typeof STATUS_OPTIONS)[number] })}
+                  className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
                 >
-                  <ShieldOff className="size-3 mr-1" />
-                  Remove admin
-                </Button>
-              )}
+                  {STATUS_OPTIONS.map(st => <option key={st} value={st}>{t(`hq.users.status.${st}`)}</option>)}
+                </select>
+              </div>
             </td>
           </tr>
         )}
       />
 
-      {/* Confirmation dialog for role change */}
       {confirm && (
         <div className="fixed inset-0 z-50 flex items-center justify-center">
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setConfirm(null)} />
-          <div className="relative w-[min(92vw,24rem)] rounded-2xl border border-border bg-card p-6 shadow-2xl z-10">
+          <div className="relative w-[min(92vw,26rem)] rounded-2xl border border-border bg-card p-6 shadow-2xl z-10">
             <h2 className="font-serif text-lg font-bold text-foreground mb-1">
-              {confirm.action === 'promote' ? 'Promote to admin?' : 'Remove admin role?'}
+              {confirm.kind === 'role' ? t('hq.users.confirmRoleTitle') : t('hq.users.confirmEraseTitle')}
             </h2>
             <p className="text-sm text-muted-foreground mb-5">
-              {confirm.action === 'promote'
-                ? 'This user will gain full access to the Headquarters dashboard and can manage all platform data. They will be able to promote or demote other users as admins.'
-                : 'This user will be demoted to candidate. They will lose access to the Headquarters dashboard.'}
+              {confirm.kind === 'role'
+                ? t('hq.users.confirmRoleDesc', { name: confirm.profile.fullName || confirm.profile.email || '', role: t(`hq.role.${confirm.role}`), status: t(`hq.users.status.${confirm.status}`) })
+                : t('hq.users.confirmEraseDesc', { name: confirm.profile.fullName || confirm.profile.email || '' })}
             </p>
+            {confirm.kind === 'role' && (confirm.role === 'admin' || confirm.role === 'md') && (
+              <p className="mb-4 rounded-md border border-amber-500/30 bg-amber-500/5 p-2 text-xs text-amber-800 dark:text-amber-300">{t(confirm.role === 'admin' ? 'hq.users.adminWarning' : 'hq.users.mdWarning')}</p>
+            )}
             <div className="flex justify-end gap-2">
               <Button variant="ghost" onClick={() => setConfirm(null)}>{t('common.cancel')}</Button>
-              <Button
-                variant={confirm.action === 'promote' ? 'default' : 'destructive'}
-                onClick={() => handleRoleChange(confirm.id, confirm.action === 'promote' ? 'admin' : 'candidate')}
-              >
-                {confirm.action === 'promote' ? 'Promote' : 'Remove'}
+              <Button variant={confirm.kind === 'erase' ? 'destructive' : 'default'} disabled={busy} onClick={() => void apply()}>
+                {confirm.kind === 'role' ? t('common.save') : t('hq.users.erase')}
               </Button>
             </div>
           </div>
@@ -1130,10 +1183,12 @@ function NoAccess() {
 }
 
 /* ── Main HQ Shell ───────────────────────────────────────── */
-type HqTab = 'overview' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'mdActivity' | 'careScreening' | 'credentialApprovals' | 'campaigns'
+type HqTab = 'overview' | 'payments' | 'leads' | 'applications' | 'jobs' | 'companies' | 'moderation' | 'users' | 'post' | 'mdApprovals' | 'mdActivity' | 'careScreening' | 'credentialApprovals' | 'campaigns' | 'audit'
 
 const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'overview', labelKey: 'hq.tab.overview', icon: BarChart3 },
+  { id: 'payments', labelKey: 'hq.tab.payments', icon: CreditCard },
+  { id: 'leads', labelKey: 'hq.tab.leads', icon: Inbox },
   { id: 'applications', labelKey: 'hq.tab.applications', icon: FileText },
   { id: 'jobs', labelKey: 'hq.tab.jobs', icon: Briefcase },
   { id: 'companies', labelKey: 'hq.tab.companies', icon: Building2 },
@@ -1145,11 +1200,14 @@ const TABS: { id: HqTab; labelKey: string; icon: React.ElementType }[] = [
   { id: 'careScreening', labelKey: 'hq.careScreening', icon: HeartPulse },
   { id: 'credentialApprovals', labelKey: 'hq.cred.title', icon: ShieldCheck },
   { id: 'campaigns', labelKey: 'hq.campaigns', icon: Megaphone },
+  { id: 'audit', labelKey: 'hq.tab.audit', icon: History },
 ]
 
 function HqShell() {
   const { t } = useI18n()
-  const [tab, setTab] = useState<HqTab>('overview')
+  // /hq/leads (linked from lead emails) opens the Leads tab directly.
+  const initialTab: HqTab = typeof window !== 'undefined' && window.location.pathname.startsWith('/hq/leads') ? 'leads' : 'overview'
+  const [tab, setTab] = useState<HqTab>(initialTab)
 
   const { data: profiles, isLoading: pLoading, isError: pErr } = useAllProfiles()
   const { data: companies, isLoading: cLoading, isError: cErr } = useAllCompanies()
@@ -1225,9 +1283,12 @@ function HqShell() {
       </FadeIn>
 
       {tab === 'overview' && <OverviewTab profiles={p} companies={co} jobs={j} applications={a} />}
+      {tab === 'payments' && <PaymentsTab />}
+      {tab === 'leads' && <LeadsTab />}
+      {tab === 'audit' && <AuditLogTab profiles={p} />}
       {tab === 'applications' && <ApplicationsTab applications={a} jobs={j} profiles={p} />}
       {tab === 'jobs' && <JobsTab jobs={j} companies={co} applications={a} />}
-      {tab === 'companies' && <CompaniesTab companies={co} jobs={j} />}
+      {tab === 'companies' && <CompaniesTab companies={co} jobs={j} profiles={p} />}
       {tab === 'moderation' && <ModerationTab jobs={j} companies={co} />}
       {tab === 'users' && <UsersTab profiles={p} />}
       {tab === 'post' && <PostJobTab companies={co} jobs={j} />}

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
 
 import type { Job, Profile } from '@/types'
+import { supabase } from '@/lib/supabase'
 
 export interface AiMatchDetail {
   /** Overall match score (0-100) */
@@ -57,38 +58,26 @@ Important context:
 - Score is NOT a pass/fail — it's a fit indicator. A 60% match can still be valuable.`
 }
 
-async function scoreSingleMatch(profile: Profile, job: Job): Promise<AiMatchResult> {
+/** Ask the AI service for a match score. Returns null when the service is not
+ *  available (signed out, not configured, static hosting) — callers then fall
+ *  back to the on-device heuristic instead of showing an invented score. */
+async function scoreSingleMatch(profile: Profile, job: Job): Promise<AiMatchResult | null> {
   try {
+    const { data: sess } = await supabase.auth.getSession()
+    const token = sess.session?.access_token
+    if (!token) return null
     const res = await fetch('/api/ai-match', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
       body: JSON.stringify({ prompt: buildMatchPrompt(profile, job) }),
     })
-    if (!res.ok) throw new Error(`AI match failed (${res.status})`)
+    if (!res.ok) return null
     const data = await res.json()
-    const object = data.object as AiMatchDetail
-    return {
-      jobId: job.id,
-      score: (object as AiMatchDetail).score,
-      detail: object as AiMatchDetail,
-    }
+    const object = data?.object as AiMatchDetail | undefined
+    if (!object || typeof object.score !== 'number') return null
+    return { jobId: job.id, score: object.score, detail: object }
   } catch {
-    // Fallback: return a neutral score on AI failure
-    return {
-      jobId: job.id,
-      score: 30,
-      detail: {
-        score: 30,
-        skillsFit: { score: 30, reasoning: 'Could not analyze — try again.' },
-        languageFit: { score: 30, reasoning: 'Could not analyze — try again.' },
-        experienceFit: { score: 30, reasoning: 'Could not analyze — try again.' },
-        locationFit: { score: 30, reasoning: 'Could not analyze — try again.' },
-        cultureFit: { score: 30, reasoning: 'Could not analyze — try again.' },
-        summary: 'Match analysis unavailable. Please try again later.',
-        strengths: [],
-        gaps: ['Analysis could not be completed.'],
-      },
-    }
+    return null
   }
 }
 
@@ -122,7 +111,8 @@ export function useAiTopMatches(profile: Profile | undefined | null, jobs: Job[]
     queryFn: async () => {
       if (!profile || !jobs?.length) return []
       const candidates = jobs.filter(j => j.status === 'open').slice(0, Math.min(limit * 2, 10))
-      const results = await Promise.all(candidates.map(j => scoreSingleMatch(profile, j)))
+      const results = (await Promise.all(candidates.map(j => scoreSingleMatch(profile, j))))
+        .filter((r): r is AiMatchResult => r !== null)
       return results
         .sort((a, b) => b.score - a.score)
         .slice(0, limit)

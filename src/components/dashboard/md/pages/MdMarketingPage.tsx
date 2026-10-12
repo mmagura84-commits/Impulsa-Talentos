@@ -55,9 +55,6 @@ export function Marketing() {
   const [crOpen, setCrOpen] = useState<Record<string, boolean>>({})
   const [crForm, setCrForm] = useState<Record<string, FieldState & { reason: string }>>({})
 
-  useEffect(() => {
-    if (!ok) nav({ to: '/dashboard', replace: true })
-  }, [ok, nav])
 
   useEffect(() => {
     if (!user?.id) return

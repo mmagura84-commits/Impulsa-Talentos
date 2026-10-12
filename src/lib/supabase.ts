@@ -70,8 +70,9 @@ async function buildQuery(table: string, opts?: {
   orderBy?: OrderBy
   limit?: number
   offset?: number
+  select?: string
 }) {
-  let q = supabase.from(table).select('*')
+  let q = supabase.from(table).select(opts?.select ?? '*')
   if (opts?.where) {
     for (const [k, v] of Object.entries(opts.where)) q = q.eq(toSnake(k), v)
   }
@@ -92,22 +93,22 @@ async function buildQuery(table: string, opts?: {
 /** SELECT rows → camelCase app objects. */
 export async function listRows<T>(
   table: string,
-  opts?: { where?: Record<string, unknown>; orderBy?: OrderBy; limit?: number; offset?: number },
+  opts?: { where?: Record<string, unknown>; orderBy?: OrderBy; limit?: number; offset?: number; select?: string },
 ): Promise<T[]> {
   const { data, error } = await buildQuery(table, opts)
   throwIfError(error, table)
-  return (data ?? []).map(r => snakeToCamel<T>(r as Record<string, unknown>))
+  return (data ?? []).map(r => snakeToCamel<T>(r as unknown as Record<string, unknown>))
 }
 
 /** SELECT one row by id, or null. */
-export async function getRow<T>(table: string, id: string): Promise<T | null> {
+export async function getRow<T>(table: string, id: string, select = '*'): Promise<T | null> {
   const { data, error } = await supabase
     .from(table)
-    .select('*')
+    .select(select)
     .eq('id', id)
     .maybeSingle()
   throwIfError(error, table)
-  return data ? snakeToCamel<T>(data as Record<string, unknown>) : null
+  return data ? snakeToCamel<T>(data as unknown as Record<string, unknown>) : null
 }
 
 /** INSERT a camelCase object → returns the created row. */
@@ -130,17 +131,29 @@ export async function updateRow(
   id: string,
   data: Record<string, unknown>,
 ): Promise<void> {
-  const { error } = await supabase
+  const { data: rows, error } = await supabase
     .from(table)
     .update(camelToSnake(data))
     .eq('id', id)
+    .select('id')
   throwIfError(error, table)
+  // Row-level security filters rows silently: an UPDATE the caller is not
+  // allowed to make "succeeds" with 0 rows. Surface it instead of showing a
+  // false success toast (HQ verify, candidate withdraw, … used to do this).
+  if (!rows || rows.length === 0) {
+    throw new Error(`No permission to update this ${table.replace(/_/g, ' ')} (or it no longer exists)`)
+  }
 }
 
 /** DELETE a row by id. */
 export async function deleteRow(table: string, id: string): Promise<void> {
-  const { error } = await supabase.from(table).delete().eq('id', id)
+  const { data, error } = await supabase.from(table).delete().eq('id', id).select('id')
   throwIfError(error, table)
+  // RLS refusals delete 0 rows without an error (e.g. a job that already has
+  // applicants must be closed, not deleted — migration 041).
+  if (!data || data.length === 0) {
+    throw new Error(`No permission to delete this ${table.replace(/_/g, ' ')} (or it no longer exists)`)
+  }
 }
 
 /** COUNT rows (optionally filtered by equality conditions). */

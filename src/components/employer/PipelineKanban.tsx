@@ -369,13 +369,8 @@ export function PipelineKanban({
 
   const handleStatusChange = useCallback(async (id: string, status: Application['status']) => {
     try {
+      // The database records status history for every change (migration 041).
       await updateStatus.mutateAsync({ id, status })
-      // Write to status history
-      await createRow<ApplicationStatusHistory>('application_status_history', {
-        applicationId: id,
-        status,
-        note: `Moved to ${status} via kanban`,
-      }).catch(() => { /* history is best-effort */ })
       toast.success(t('kanban.stageChanged'))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : t('common.retry'))
@@ -386,11 +381,6 @@ export function PipelineKanban({
     try {
       for (const id of selectedIds) {
         await updateStatus.mutateAsync({ id, status })
-        await createRow<ApplicationStatusHistory>('application_status_history', {
-          applicationId: id,
-          status,
-          note: `Bulk moved to ${status} via kanban`,
-        }).catch(() => {})
       }
       toast.success(t('kanban.bulkMoved', { count: selectedIds.size }))
       setSelectedIds(new Set())

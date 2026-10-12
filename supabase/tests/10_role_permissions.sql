@@ -242,12 +242,14 @@ select t.expect_ok('candidate applies to an open job (tries status hired)',
   $$insert into public.applications (id, job_id, candidate_id, status) values ('40000000-0000-0000-0000-000000000002', '30000000-0000-0000-0000-000000000001', '10000000-0000-0000-0000-0000000000c2', 'hired')$$);
 select t.expect_error('candidate cannot apply to a draft job',
   $$insert into public.applications (job_id, candidate_id) values ((select id from public.jobs where title = 'Free draft'), '10000000-0000-0000-0000-0000000000c2')$$);
+select t.expect_ok('candidate applies to the newly published job',
+  $$insert into public.applications (job_id, candidate_id) values ('30000000-0000-0000-0000-000000000002', '10000000-0000-0000-0000-0000000000c2')$$);
 select t.expect_error('candidate cannot withdraw someone else''s application',
   $$select public.withdraw_application('40000000-0000-0000-0000-000000000001')$$);
 select t.reset();
 select t.check('status forced to applied', (select status = 'applied' from public.applications where id = '40000000-0000-0000-0000-000000000002'));
 select t.check('employer and team notified of new applicant',
-  (select count(*) = 2 from public.notifications where type = 'application_received' and title like '%Cand Two'
+  (select count(*) = 4 from public.notifications where type = 'application_received' and title like '%Cand Two'
      and user_id in ('00000000-0000-0000-0000-0000000000e1', '00000000-0000-0000-0000-0000000000b1')));
 select t.act_as('00000000-0000-0000-0000-0000000000c1');
 select t.expect_no_effect('candidate cannot set own status', $$update public.applications set status = 'hired' where id = '40000000-0000-0000-0000-000000000001'$$);
@@ -266,6 +268,15 @@ select t.check('employer notified of withdrawal', exists (select 1 from public.n
 select t.act_as('00000000-0000-0000-0000-0000000000e2');
 select t.expect_rows('other employer cannot see applicants', $$select * from public.applications$$, 0);
 select t.expect_rows('other employer cannot read notes', $$select * from public.application_private$$, 0);
+select t.reset();
+
+\echo '── Closing a job'
+select t.act_as('00000000-0000-0000-0000-0000000000e1');
+select t.expect_ok('employer closes a job with an open applicant', $$update public.jobs set status = 'closed' where id = '30000000-0000-0000-0000-000000000002'$$);
+select t.reset();
+select t.check('open applicants moved to position_closed', not exists (select 1 from public.applications where job_id = '30000000-0000-0000-0000-000000000002' and status = 'applied'));
+select t.act_as('00000000-0000-0000-0000-0000000000e1');
+select t.expect_no_effect('a job with applicants cannot be deleted', $$delete from public.jobs where id = '30000000-0000-0000-0000-000000000001'$$);
 select t.reset();
 
 \echo '── Offers'
@@ -371,6 +382,11 @@ select t.expect_ok('HQ approves the payment', $$select public.grant_company_cred
 select t.reset();
 select t.check('credits and plan applied', (select job_credits = 3 and plan = 'pro' and max_applicants_per_job = 100 from public.companies where id = '20000000-0000-0000-0000-0000000000e1'));
 select t.check('employer notified of payment', exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000e1' and type = 'payment_granted'));
+select t.act_as('00000000-0000-0000-0000-0000000000e1');
+select t.expect_ok('payment without a reference is accepted',
+  $$select public.submit_manual_payment('20000000-0000-0000-0000-0000000000e1', 'premium', 0, 0, null, '')$$);
+select t.reset();
+select t.check('HQ notified without a dangling ref', exists (select 1 from public.notifications where type = 'hq_payment_submitted' and body like 'premium%' and body not like '%ref%'));
 
 \echo '── Team'
 select t.act_as('00000000-0000-0000-0000-0000000000e1');
@@ -382,7 +398,7 @@ select t.check('invite starts pending', exists (select 1 from public.team_member
 select t.act_as('00000000-0000-0000-0000-0000000000b2');
 select t.expect_rows('invitee sees no applicants before accepting', $$select * from public.applications$$, 0);
 select t.expect_ok('invitee accepts on sign-in', $$select public.accept_team_invites()$$);
-select t.expect_rows('invitee now sees company applicants', $$select * from public.applications$$, 2);
+select t.expect_rows('invitee now sees company applicants', $$select * from public.applications$$, 3);
 select t.reset();
 
 \echo '── Managing Director'

@@ -1,3 +1,4 @@
+import { NotificationCenter } from '@/components/dashboard/NotificationCenter'
 import { AppSidebarShell, type NavItemDef } from '@/components/AppSidebarShell'
 import { LayoutDashboard, Megaphone, MessageSquare, Landmark, Users, CalendarClock, User } from 'lucide-react'
 const MD_NAV: NavItemDef[] = [
@@ -9,4 +10,4 @@ const MD_NAV: NavItemDef[] = [
   { to: '/md/meetings', icon: <CalendarClock className="size-4" />, labelKey: 'md.nav.meetings' },
   { to: '/md/profile', icon: <User className="size-4" />, labelKey: 'md.nav.profile' },
 ]
-export function MdSidebar() { return <AppSidebarShell navItems={MD_NAV} accent="ink" /> }
+export function MdSidebar() { return <AppSidebarShell navItems={MD_NAV} accent="ink" headerActions={<NotificationCenter audience="md" />} /> }

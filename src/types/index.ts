@@ -8,6 +8,12 @@ export interface Profile {
   role: 'candidate' | 'employer' | 'admin' | 'md'
   /** Approval status for managing director accounts. */
   profileStatus?: 'active' | 'pending' | 'rejected'
+  /** Ley 1581: when the person accepted data processing (required to use the platform). */
+  dataProcessingConsentAt?: string | null
+  /** Optional marketing email consent (separate from data processing). */
+  marketingConsent?: boolean
+  /** Set when the person asked HQ to erase their data. */
+  deletionRequestedAt?: string | null
   fullName: string
   email: string
   phone: string
@@ -174,12 +180,8 @@ export interface Application {
   nextAction?: string
   /** Due date for next action */
   nextActionDue?: string
-  /** Feedback for candidate */
-  feedback?: string
-  /** Candidate shortlisted by the employer (candidate review, migration 023). */
-  shortlisted?: boolean
-  /** Private employer notes on the application (candidate review, migration 023). */
-  notes?: string
+  // Shortlist, private notes and internal feedback moved to the employer-only
+  // `application_private` table (migration 041) — see useApplicationPrivate.
   /** Reason if withdrawn */
   withdrawnReason?: string
 }
@@ -244,6 +246,9 @@ export interface JobReport {
   reason: string
   /** Free-form detail the reporter wrote. */
   note: string
+  /** HQ review state (migration 041). */
+  status?: 'open' | 'dismissed' | 'actioned'
+  reviewedAt?: string | null
   createdAt: string
 }
 
@@ -316,6 +321,24 @@ export type NotificationType =
   | 'interview_scheduled'
   | 'feedback_added'
   | 'team_invite'
+  // Produced by database triggers (migration 041):
+  | 'application_status'
+  | 'application_withdrawn'
+  | 'offer_received'
+  | 'offer_accepted'
+  | 'offer_declined'
+  | 'interview_scheduled'
+  | 'interview_completed'
+  | 'interview_cancelled'
+  | 'interview_no_show'
+  | 'company_verified'
+  | 'payment_granted'
+  | 'payment_rejected'
+  | 'deletion_requested'
+  | 'hq_payment_submitted'
+  | 'hq_new_lead'
+  | 'hq_verification_requested'
+  | 'hq_job_reported'
 
 /** In-app notification shown in the action center. */
 export interface Notification {

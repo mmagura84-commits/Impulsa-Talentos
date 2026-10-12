@@ -512,6 +512,25 @@ create trigger trg_log_application_status
   after insert or update of status on public.applications
   for each row execute function public.log_application_status();
 
+-- Closing or archiving a job closes its open applications, which notifies each
+-- candidate (instead of leaving them waiting on a dead posting).
+create or replace function public.close_applications_for_job()
+returns trigger language plpgsql security definer set search_path = public as $$
+begin
+  if (new.status = 'closed' and old.status is distinct from 'closed')
+     or (new.archived_at is not null and old.archived_at is null) then
+    update public.applications
+       set status = 'position_closed'
+     where job_id = new.id
+       and status not in ('hired', 'not_selected', 'position_closed', 'withdrawn', 'offer');
+  end if;
+  return null;
+end $$;
+drop trigger if exists trg_close_applications_for_job on public.jobs;
+create trigger trg_close_applications_for_job
+  after update of status, archived_at on public.jobs
+  for each row execute function public.close_applications_for_job();
+
 -- ═════════════════════════════════════════════════════════════════════════════
 -- 7. Offers: candidates answer; acceptance marks the application hired
 -- ═════════════════════════════════════════════════════════════════════════════
@@ -902,13 +921,12 @@ begin
   end if;
   select * into v_pkg from public.billing_packages where id = p_package_id and active;
   if v_pkg.id is null then raise exception 'unknown package %', p_package_id; end if;
-  if length(trim(coalesce(p_transaction_reference, ''))) < 3 then
-    raise exception 'transaction reference required';
-  end if;
+  -- The reference is optional: an order may be placed first (HQ then sends the
+  -- bank details) and the transfer reference added in the note or by HQ.
   insert into public.manual_payments
     (company_id, package_id, amount_usd, requested_credits, transaction_reference, proof_note, submitter_id, status)
   values (p_company_id, v_pkg.id, v_pkg.amount_usd, v_pkg.credits,
-          left(trim(p_transaction_reference), 120), left(coalesce(p_proof_note, ''), 1000), v_uid, 'pending_verification')
+          left(trim(coalesce(p_transaction_reference, '')), 120), left(coalesce(p_proof_note, ''), 1000), v_uid, 'pending_verification')
   returning id into v_id;
   return v_id;
 end $$;
@@ -985,7 +1003,10 @@ begin
   if p_user_id is null or p_user_id = '' then return; end if;
   if not exists (select 1 from public.profiles where user_id = p_user_id) then return; end if;
   insert into public.notifications (user_id, type, title, body, data)
-  values (p_user_id, p_type, p_title, p_body, coalesce(p_data, '{}'::jsonb));
+  -- title/body are NOT NULL: a null piece (e.g. an interview without a time
+  -- yet) must not make the triggering write fail.
+  values (p_user_id, p_type, coalesce(nullif(p_title, ''), p_type), coalesce(p_body, ''),
+          coalesce(p_data, '{}'::jsonb));
 end $$;
 revoke all on function public.push_notification(text, text, text, text, jsonb) from public, anon, authenticated;
 
@@ -1135,7 +1156,8 @@ begin
   if tg_table_name = 'manual_payments' and tg_op = 'INSERT' then
     v_type := 'hq_payment_submitted';
     v_title := 'Payment to verify: ' || coalesce((select name from public.companies where id = new.company_id), '');
-    v_body := new.package_id || ' · $' || new.amount_usd || ' · ref ' || new.transaction_reference;
+    v_body := new.package_id || ' · $' || new.amount_usd
+              || coalesce(' · ref ' || nullif(new.transaction_reference, ''), '');
     v_data := jsonb_build_object('payment_id', new.id);
   elsif tg_table_name = 'leads' and tg_op = 'INSERT' then
     v_type := 'hq_new_lead';

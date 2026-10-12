@@ -30,6 +30,7 @@ import {
   BadgeCheck,
 } from 'lucide-react'
 import type { Job, Application } from '@/types'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 /* ── Employer job row ──────────────────────────────────── */
 function EmployerJobRow({ job, appCount }: { job: Job; appCount: number }) {
@@ -110,7 +111,7 @@ function DeleteJobButton({ jobId, jobTitle }: { jobId: string; jobTitle: string 
       toast.success(t('dashboard.jobDeleted'), { description: jobTitle })
       setConfirming(false)
     } catch (err) {
-      toast.error(t('dashboard.jobDeleteError'), { description: err instanceof Error ? err.message : '' })
+      toast.error(t('dashboard.jobDeleteError'), { description: friendlyDbError(err, t) })
     }
   }
 

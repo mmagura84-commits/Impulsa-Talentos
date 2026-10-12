@@ -25,7 +25,6 @@ export function Messages() {
   const { user } = useAuth()
   const ok = useIsMd()
   const nav = useNavigate()
-  useEffect(() => { if (!ok) nav({ to: '/dashboard', replace: true }) }, [ok, nav])
   const [tab, setTab] = useState<'inbox' | 'compose'>('inbox')
   const [rows, setRows] = useState<MdMessage[]>([])
   const [to, setTo] = useState('')

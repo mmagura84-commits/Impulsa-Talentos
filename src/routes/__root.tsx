@@ -22,6 +22,13 @@ import { devicePrePaintScript } from '@/lib/device'
 const themeInitScript = `(function(){try{var t=localStorage.getItem('theme');var d=t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme:dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`
 
 const queryClient = new QueryClient()
+// A team invite accepted at sign-in changes which company/jobs this person can
+// see: refetch everything (see acceptTeamInvitesOnce in useAuth).
+if (typeof window !== 'undefined') {
+  window.addEventListener('impulsa:team-invite-accepted', () => {
+    void queryClient.invalidateQueries()
+  })
+}
 
 /**
  * Root route — owns the HTML document (SSR), global <head> (SEO-ready),

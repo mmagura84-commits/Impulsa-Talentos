@@ -15,6 +15,8 @@ import { useUpdateJob } from '@/hooks/useJobs'
 import { useAllReports } from '@/hooks/useJobReports'
 import { useI18n } from '@/i18n/I18nProvider'
 import type { Company, Job, JobReport } from '@/types'
+import { useQueryClient } from '@tanstack/react-query'
+import { updateRow } from '@/lib/supabase'
 
 const REASON_LABELS: Record<string, string> = {
   scam: 'hq.moderation.reasonScam',
@@ -176,13 +178,17 @@ function ReportRow({
   const { locale, t } = useI18n()
   const updateJob = useUpdateJob()
   const job = report.jobId
+  const queryClient = useQueryClient()
+  const closeReport = async (status: 'dismissed' | 'actioned') => {
+    await updateRow('reports', report.id, { status, reviewedAt: new Date().toISOString() })
+    await queryClient.invalidateQueries({ queryKey: ['reports'] })
+    await queryClient.invalidateQueries({ queryKey: ['jobReports'] })
+  }
   const approve = async () => {
     try {
-      await updateJob.mutateAsync({
-        id: job,
-        data: { moderationStatus: 'approved', moderationReason: '' },
-      })
-      toast.success(t('hq.moderation.approved'))
+      // Keep the job live and close the report.
+      await closeReport('dismissed')
+      toast.success(t('hq.moderation.reportDismissed'))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err))
     }
@@ -198,6 +204,7 @@ function ReportRow({
           }),
         },
       })
+      await closeReport('actioned')
       toast.success(t('hq.moderation.rejected'))
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err))
@@ -227,7 +234,7 @@ function ReportRow({
           onClick={approve}
         >
           <CheckCircle2 className="mr-1 size-3.5" />
-          {t('hq.moderation.approve')}
+          {t('hq.moderation.keepJob')}
         </Button>
         <Button
           variant="ghost"
@@ -236,7 +243,7 @@ function ReportRow({
           onClick={reject}
         >
           <XCircle className="mr-1 size-3.5" />
-          {t('hq.moderation.reject')}
+          {t('hq.moderation.removeJob')}
         </Button>
       </div>
     </div>
@@ -255,7 +262,7 @@ export function ModerationTab({
 }) {
   const { t } = useI18n()
   const { data: reportsData } = useAllReports()
-  const reports = reportsData ?? []
+  const reports = (reportsData ?? []).filter(r => (r.status ?? 'open') === 'open')
 
   const pending = jobs.filter(j => j.moderationStatus === 'pending')
   const rejected = jobs.filter(j => j.moderationStatus === 'rejected')

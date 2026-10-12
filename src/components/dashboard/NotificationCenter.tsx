@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/button'
 import { Bell, CheckCheck, Trash2, Inbox, AlertCircle } from 'lucide-react'
 import type { Notification, NotificationType } from '@/types'
 
-const TYPE_KEYS: Record<NotificationType, string> = {
+const TYPE_KEYS: Partial<Record<NotificationType, string>> = {
   application_received: 'notifications.type.application_received',
   status_changed: 'notifications.type.status_changed',
   message_received: 'notifications.type.message_received',
@@ -22,23 +22,49 @@ const TYPE_KEYS: Record<NotificationType, string> = {
   team_invite: 'notifications.type.team_invite',
 }
 
-/** Resolve a notification to a route where the employer can act on it. */
-function notificationLink(n: Notification): string | undefined {
+export type NotificationAudience = 'candidate' | 'employer' | 'md' | 'admin'
+
+/** Resolve a notification to the page where this person can act on it. */
+function notificationLink(n: Notification, audience: NotificationAudience): string | undefined {
   const data = (n.data ?? {}) as Record<string, unknown>
   const jobId = typeof data.job_id === 'string' ? data.job_id : undefined
-  switch (n.type) {
+  const type = n.type as string
+  if (type.startsWith('hq_') || type === 'deletion_requested') return '/hq'
+  if (audience === 'candidate') {
+    return '/candidate/applications'
+  }
+  switch (type) {
     case 'team_invite':
       return '/employer/team'
+    case 'company_verified':
+      return '/employer/post-job'
+    case 'payment_granted':
+    case 'payment_rejected':
+      return '/pricing'
     case 'application_received':
+    case 'application_withdrawn':
     case 'status_changed':
     case 'message_received':
     case 'interview_scheduled':
     case 'feedback_added':
       if (jobId) return `/employer/manage/${jobId}`
       return '/employer/applications'
+    case 'offer_accepted':
+    case 'offer_declined':
+      return '/employer/offers'
     default:
-      return '/employer/jobs'
+      return audience === 'md' ? '/md' : '/employer/jobs'
   }
+}
+
+/** Status changes arrive as a raw status key; show its label. */
+function notificationBody(n: Notification, t: (k: string) => string): string {
+  if ((n.type as string) === 'application_status' && n.body) {
+    const key = `dashboard.status.${n.body}`
+    const label = t(key)
+    return label === key ? n.body : label
+  }
+  return n.body
 }
 
 /** Compact relative time using the shared time helper keys. */
@@ -55,7 +81,7 @@ function relativeTime(iso: string, t: (k: string, p?: Record<string, string | nu
   return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
 }
 
-export function NotificationCenter() {
+export function NotificationCenter({ audience = 'employer' }: { audience?: NotificationAudience } = {}) {
   const { user } = useAuth()
   const { t } = useI18n()
   const { data: notifications, isLoading, isError, refetch } = useNotifications(user?.id)
@@ -171,7 +197,7 @@ export function NotificationCenter() {
             ) : (
               <ul className="divide-y divide-border">
                 {items.map((n) => {
-                  const link = notificationLink(n)
+                  const link = notificationLink(n, audience)
                   const deleteBtn = (
                     <button
                       type="button"
@@ -189,7 +215,7 @@ export function NotificationCenter() {
                         <span className={`block text-xs ${n.readAt ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>
                           {n.title || t(TYPE_KEYS[n.type] ?? 'notifications.type.application_received')}
                         </span>
-                        <span className="block text-xs text-muted-foreground truncate">{n.body}</span>
+                        <span className="block text-xs text-muted-foreground truncate">{notificationBody(n, t)}</span>
                         <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
                           {relativeTime(n.createdAt, t)}
                         </span>

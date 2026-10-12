@@ -33,6 +33,7 @@ import {
   ArrowLeft,
   Send,
 } from 'lucide-react'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/_app/employer/edit-job/$id')({
   component: EditJobPage,
@@ -168,7 +169,7 @@ function EditJobPage() {
       })
     } catch (err) {
       toast.error(t('dashboard.jobUpdateError'), {
-        description: err instanceof Error ? err.message : '',
+        description: friendlyDbError(err, t),
       })
     }
   }

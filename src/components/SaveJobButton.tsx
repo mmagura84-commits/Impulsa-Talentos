@@ -22,6 +22,7 @@ import {
 } from '@/hooks/useSavedJobs'
 import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 interface SaveJobButtonProps {
   jobId: string
@@ -59,7 +60,7 @@ export function SaveJobButton({ jobId, variant = 'icon', className }: SaveJobBut
         toast.success(t('savedJobs.saved'), { duration: 1800 })
       }
     } catch (err) {
-      const msg = err instanceof Error ? err.message : ''
+      const msg = friendlyDbError(err, t)
       // Only silently ignore genuine unique-constraint violations.
       if (/unique constraint|UNIQUE constraint/i.test(msg)) {
         // Already saved — treat as success without an extra toast.

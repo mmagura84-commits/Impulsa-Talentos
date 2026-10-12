@@ -7,7 +7,7 @@ import type { Dict } from '../types'
 const esDashboard: Dict = {
   // Dashboard
   'dashboard.greeting': 'Hola, {name}',
-  'dashboard.candidate.subtitle': 'Encuentra tu proxima oportunidad bilingüe.',
+  'dashboard.candidate.subtitle': 'Encuentra tu próxima oportunidad bilingüe.',
   'dashboard.employer.subtitle': 'Gestiona tus vacantes y revisa candidatos.',
   'dashboard.stat.applications': 'Postulaciones',
   'dashboard.stat.matches': 'Matches inteligentes',
@@ -55,7 +55,7 @@ const esDashboard: Dict = {
   'dashboard.needProfile.desc': 'Necesitamos algunos datos basicos antes de mostrarte postulaciones o matches personalizados.',
   'dashboard.needProfile.cta': 'Crear mi perfil',
   'dashboard.status.pending': 'Enviada',
-  'dashboard.status.reviewed': 'En revision',
+  'dashboard.status.reviewed': 'En revisión',
   'dashboard.status.interview': 'Entrevista',
   'dashboard.status.offered': 'Oferta',
   'dashboard.status.hired': 'Contratado',
@@ -84,7 +84,7 @@ const esDashboard: Dict = {
   'dashboard.manage': 'Gestionar',
   'dashboard.actions': 'Acciones',
   'dashboard.confirmDelete': '¿Eliminar esta vacante?',
-  'dashboard.confirmDeleteDesc': 'Esto eliminara la publicacion y todas sus postulaciones de forma permanente. No se puede deshacer.',
+  'dashboard.confirmDeleteDesc': 'Esto eliminara la publicación y todas sus postulaciones de forma permanente. No se puede deshacer.',
   'dashboard.confirmDeleteYes': 'Si, eliminar',
   'dashboard.confirmDeleteNo': 'Cancelar',
   'dashboard.jobUpdated': 'Vacante actualizada',
@@ -145,11 +145,11 @@ const esDashboard: Dict = {
   'savedJobs.browse': 'Ver vacantes',
   'savedJobs.remove': 'Quitar',
   'savedJobs.removeConfirm': '¿Quitar esta vacante guardada?',
-  'savedJobs.removeConfirmDesc': 'Puedes volver a guardarla cuando quieras desde la pagina de la vacante.',
+  'savedJobs.removeConfirmDesc': 'Puedes volver a guardarla cuando quieras desde la página de la vacante.',
 
   // Edit job page
   'editJob.title': 'Editar vacante',
-  'editJob.subtitle': 'Actualiza los detalles de la publicacion. Los cambios se aplican de inmediato.',
+  'editJob.subtitle': 'Actualiza los detalles de la publicación. Los cambios se aplican de inmediato.',
   'editJob.save': 'Guardar cambios',
   'editJob.saving': 'Guardando...',
   'editJob.notFound': 'Vacante no encontrada',
@@ -271,9 +271,9 @@ const esDashboard: Dict = {
 
   // ── AI matching ────────────────────────────────────────────────────
   'dashboard.aiMatches.title': 'Mejores coincidencias con IA',
-  'dashboard.aiMatches.desc': 'Analisis profundo de tu perfil contra vacantes activas — puntuado en habilidades, idioma, experiencia, ubicacion y ajuste cultural.',
+  'dashboard.aiMatches.desc': 'Analisis profundo de tu perfil contra vacantes activas — puntuado en habilidades, idioma, experiencia, ubicación y ajuste cultural.',
   'dashboard.aiMatches.empty': 'No se encontraron coincidencias. Agrega mas detalles a tu perfil para mejores resultados.',
-  'dashboard.aiMatches.poweredBy': 'Impulsado por nuestra tecnologia propietaria',
+  'dashboard.aiMatches.poweredBy': 'Impulsado por nuestra tecnología propietaria',
   'application.interview.title': 'Entrevista agendada',
   'application.interview.date': 'Fecha',
   'application.interview.link': 'Unirse a la entrevista',

@@ -28,6 +28,7 @@ import { storagePointer, useSignedStorageUrl } from '@/hooks/useSignedStorageUrl
 import { useProfile, useCreateProfile, useUpdateProfile } from '@/hooks/useProfile'
 import { useI18n } from '@/i18n/I18nProvider'
 import { toast } from 'sonner'
+import { friendlyDbError } from '@/lib/dbErrors'
 
 export const Route = createFileRoute('/m/profile')({
   head: () => ({ meta: [{ title: 'Profile — Impulsa (mobile)' }] }),
@@ -167,7 +168,7 @@ function MobileProfile() {
             bio: form.bio,
             languages: form.languages,
             cvUrl: form.cvUrl,
-            role: form.role,
+            // Account type is fixed after sign-up (only HQ can change it).
           },
         })
         toast.success(t('profile.saved'))
@@ -187,6 +188,9 @@ function MobileProfile() {
           cvUrl: form.cvUrl,
           avatarUrl: form.avatarUrl || '',
           role: form.role,
+          // Creating the profile from the phone app accepts the data-processing
+          // authorization shown under the save button (Ley 1581).
+          dataProcessingConsentAt: new Date().toISOString(),
         })
         toast.success(t('profile.createSuccess'), { description: t('profile.createSuccessDesc') })
         if (search.apply) {
@@ -194,7 +198,7 @@ function MobileProfile() {
         }
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : t('profile.createError'))
+      toast.error(err instanceof Error ? friendlyDbError(err, t) : t('profile.createError'))
     }
   }
 
@@ -263,7 +267,9 @@ function MobileProfile() {
               <button
                 key={r}
                 type="button"
-                onClick={() => update('role', r)}
+                disabled={!!profile && form.role !== r}
+                aria-disabled={!!profile && form.role !== r}
+                onClick={() => { if (!profile) update('role', r) }}
                 className={`text-left rounded-lg border p-3 transition-all ${
                   form.role === r
                     ? 'border-primary bg-primary/5 ring-1 ring-primary'
@@ -329,6 +335,12 @@ function MobileProfile() {
           <Save className="size-4" />
           {profile ? t('profile.save') : t('profile.create')}
         </Button>
+        {!profile && (
+          <p className="mt-2 text-center text-[11px] leading-snug text-muted-foreground">
+            {t('privacy.authorizationOnCreate')}{' '}
+            <a href="/privacy" className="text-primary underline">{t('privacy.policyLink')}</a>
+          </p>
+        )}
       </FadeIn>
     </div>
   )
