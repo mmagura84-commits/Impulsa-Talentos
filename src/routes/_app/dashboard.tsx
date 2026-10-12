@@ -58,6 +58,9 @@ function DashboardRedirect() {
       return
     }
 
+    // Signed-out visitors get the sign-in / create-account form (AuthGate
+    // below), which already asks whether they are hiring or looking for work.
+    if (!user) return
     // No profile yet — check for stored onboarding intent
     const intent = getOnboardingIntent()
     if (intent) {
@@ -69,7 +72,7 @@ function DashboardRedirect() {
 
     // No profile and no intent — show the chooser
     setChoosing(true)
-  }, [authLoading, profileLoading, profile?.role, navigate])
+  }, [authLoading, profileLoading, profile?.role, navigate, user])
 
   if (!choosing) {
     const loadingView = (

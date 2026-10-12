@@ -11,7 +11,6 @@ import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider, useI18n } from '@/i18n/I18nProvider'
 import type { ReactNode } from 'react'
 import indexCss from '../index.css?url'
-import { devicePrePaintScript } from '@/lib/device'
 
 /**
  * Pre-paint theme script. Runs synchronously in <head> BEFORE first paint, so
@@ -98,13 +97,6 @@ export const Route = createRootRoute({
         // it's loaded so the browser never blocks first paint on it.
         children: `(function(){var l=document.querySelector('link[rel=stylesheet][href*="fonts.googleapis.com"]');if(!l||!l.media||l.media.indexOf('print')===-1)return;l.addEventListener('load',function(){l.media='all'});l.addEventListener('error',function(){l.media='all'})})();`,
       },
-      {
-        // Pre-paint device-class redirect. Runs before React hydrates
-        // and rewrites the URL to the mobile app (/m/...) when the UA
-        // + viewport width say so. The opt-out cookie (it_no_mobile)
-        // suppresses it for users who explicitly want the desktop.
-        children: devicePrePaintScript,
-      },
     ],
   }),
   shellComponent: RootDocument,
@@ -112,10 +104,6 @@ export const Route = createRootRoute({
 
 function RootDocument({ children }: { children: ReactNode }) {
   const { location } = useRouterState()
-  // The mobile app shell (/m/*) is a viewport-locked app with its own bottom
-  // tab bar; the global legal footer would append ~125px after it and let the
-  // document scroll, lifting the fixed tab bar on overscroll. Skip it there.
-  const isMobileShell = location.pathname.startsWith('/m')
   return (
     // translate="no" (+ the `google: notranslate` meta): the site ships its own
     // EN/ES/PT switcher. Browser auto-translate rewrites React-owned text nodes
@@ -163,7 +151,7 @@ function RootDocument({ children }: { children: ReactNode }) {
                 route (landing, dashboard, legal pages, mobile). Hidden on the
                 /m app shell (viewport-locked; footer would add doc scroll).
               */}
-              {!isMobileShell && <GlobalFooter />}
+              <GlobalFooter />
             </TooltipProvider>
           </I18nProvider>
         </QueryClientProvider>

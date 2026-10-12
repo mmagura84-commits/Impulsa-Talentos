@@ -1,4 +1,6 @@
 import { createFileRoute, Outlet, useMatchRoute } from '@tanstack/react-router'
+import { MobileTabBar } from '@/components/MobileTabBar'
+import { NotificationCenter } from '@/components/dashboard/NotificationCenter'
 import { BlinkClientBoundary } from '@/components/BlinkClientBoundary'
 import { SharedAppLayout } from '@/layouts/shared-app-layout'
 import { useAuth } from '@/hooks/useAuth'
@@ -73,7 +75,7 @@ function AppLayout() {
       ) : !user ? (
         <><PublicHeader transparentOnTop={false} /><main id="main" className="min-h-dvh"><Outlet /></main></>
       ) : (
-        <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar}>
+        <SharedAppLayout appName="Impulsa Talentos" sidebar={sidebar} bottomBar={<MobileTabBar role={role} />} mobileActions={<NotificationCenter audience={role === 'md' ? 'md' : role === 'admin' ? 'admin' : role === 'employer' ? 'employer' : 'candidate'} mobile />}>
           <Outlet />
         </SharedAppLayout>
       )}

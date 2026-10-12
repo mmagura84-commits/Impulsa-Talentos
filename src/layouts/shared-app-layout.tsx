@@ -30,12 +30,18 @@ export type SharedAppLayoutProps = {
   appName?: string
   /** Override default sidebar; keep same flex structure as AppSidebarShell */
   sidebar?: React.ReactNode
+  /** Phone-only bottom navigation. */
+  bottomBar?: React.ReactNode
+  /** Phone-only top-bar actions. */
+  mobileActions?: React.ReactNode
   children: React.ReactNode
 }
 
 export function SharedAppLayout({
   appName = 'App',
   sidebar = <AppSidebarShell />,
+  bottomBar,
+  mobileActions,
   children,
 }: SharedAppLayoutProps) {
   const value = React.useMemo(() => ({ appName }), [appName])
@@ -43,7 +49,7 @@ export function SharedAppLayout({
   return (
     <SharedLayoutContext.Provider value={value}>
       <div className="flex min-h-dvh w-full flex-1 flex-col">
-        <Shell appName={appName} sidebar={sidebar}>
+        <Shell appName={appName} sidebar={sidebar} bottomBar={bottomBar} mobileActions={mobileActions}>
           {children}
         </Shell>
       </div>

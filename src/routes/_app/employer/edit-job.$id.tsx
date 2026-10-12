@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { AuthGate } from '@/components/AuthGate'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
-import { useCompany } from '@/hooks/useCompanies'
+import { useCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useJob, useUpdateJob } from '@/hooks/useJobs'
 import { JobManagementPanel } from '@/components/employer/JobManagementPanel'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -83,6 +83,7 @@ function EditJobPage() {
   const { user } = useAuth()
   const { data: profile } = useProfile(user?.id)
   const { data: company } = useCompany(user?.id)
+  const requestVerification = useUpdateCompany()
   const { data: job, isLoading, isError, error, refetch } = useJob(id)
   const updateJob = useUpdateJob()
   const { t } = useI18n()
@@ -125,21 +126,9 @@ function EditJobPage() {
       toast.error(t('postJob.job.requiredFields'))
       return
     }
-    // Verification gate: unverified companies cannot publish jobs.
-    if (nextStatus === 'open' && company && !company.verified) {
-      toast.error(
-        company.verificationRequested
-          ? t('verification.pendingPublishTitle')
-          : t('verification.unverifiedPublishTitle'),
-        {
-          description: company.verificationRequested
-            ? t('verification.pendingPublishDesc')
-            : t('verification.unverifiedPublishDesc'),
-        },
-      )
-      return
-    }
-
+    // Unverified companies can press Publish: the job stays a draft marked to
+    // go live once HQ verifies the company (migration 044).
+    const queue = nextStatus === 'open' && !!company && !company.verified
     try {
       const salaryMin = form.salaryMin ? Number(form.salaryMin) : 0
       const salaryMax = form.salaryMax ? Number(form.salaryMax) : 0
@@ -160,13 +149,21 @@ function EditJobPage() {
           currency: form.currency,
           skillsRequired: form.skillsRequired,
           languagesRequired: form.languagesRequired,
-          status: nextStatus,
+          status: queue ? 'draft' : nextStatus,
+          publishWhenVerified: queue,
         },
       })
-      setForm(prev => ({ ...prev, status: nextStatus }))
-      toast.success(t('dashboard.jobUpdated'), {
-        description: form.title,
-      })
+      setForm(prev => ({ ...prev, status: queue ? 'draft' : nextStatus }))
+      if (queue) {
+        if (company && !company.verificationRequested) {
+          await requestVerification.mutateAsync({ id: company.id, data: { verificationRequested: true } }).catch(() => {})
+        }
+        toast.success(t('postJob.queue.toast'), { description: t('postJob.queue.toastDesc') })
+      } else {
+        toast.success(t('dashboard.jobUpdated'), {
+          description: form.title,
+        })
+      }
     } catch (err) {
       toast.error(t('dashboard.jobUpdateError'), {
         description: friendlyDbError(err, t),

@@ -40,28 +40,46 @@ export function pickLang(value: unknown): Lang {
   return value === 'en' || value === 'pt' ? value : 'es'
 }
 
-const STATUS: Record<Lang, Record<string, string>> = {
+/** Candidates see five plain stages (same mapping as src/lib/applicationStatus.ts). */
+const STAGE_OF: Record<string, string> = {
+  draft: 'applied', applied: 'applied',
+  under_review: 'review', recruiter_screening: 'review', submitted_to_client: 'review',
+  interview_scheduled: 'interviewing', assessment_required: 'interviewing', assessment_submitted: 'interviewing',
+  client_interview: 'interviewing', final_interview: 'interviewing',
+  offer: 'offer', hired: 'hired', not_selected: 'closed', position_closed: 'closed', withdrawn: 'withdrawn',
+}
+const STAGE: Record<Lang, Record<string, string>> = {
+  en: { applied: 'Applied', review: 'In review', interviewing: 'Interviewing', offer: 'Offer', hired: 'Hired', closed: 'Not moving forward', withdrawn: 'Withdrawn' },
+  es: { applied: 'Postulado', review: 'En revisión', interviewing: 'Entrevistas', offer: 'Oferta', hired: 'Contratado', closed: 'No continúa', withdrawn: 'Retirada' },
+  pt: { applied: 'Enviada', review: 'Em análise', interviewing: 'Entrevistas', offer: 'Oferta', hired: 'Contratado', closed: 'Não segue', withdrawn: 'Retirada' },
+}
+const NEXT: Record<Lang, Record<string, string>> = {
   en: {
-    applied: 'Applied', under_review: 'Under review', recruiter_screening: 'Recruiter screening',
-    interview_scheduled: 'Interview scheduled', assessment_required: 'Assessment required',
-    assessment_submitted: 'Assessment submitted', submitted_to_client: 'Submitted to client',
-    client_interview: 'Client interview', final_interview: 'Final interview', offer: 'Offer',
-    hired: 'Hired', not_selected: 'Not selected', position_closed: 'Position closed', withdrawn: 'Withdrawn',
+    applied: 'The company has your application.', review: 'The company is reviewing your profile. Nothing to do for now.',
+    interviewing: 'Check your messages and interviews for times and details.', assessment: 'The company asked for an assessment. Check your messages to complete it.',
+    offer: 'Review the offer and accept or decline it from your applications.', hired: 'Congratulations, you got the job. The company will contact you about next steps.',
+    closed: 'Keep applying: new jobs are posted every week.', withdrawn: 'You withdrew this application.',
   },
   es: {
-    applied: 'Postulada', under_review: 'En revisión', recruiter_screening: 'Evaluación de reclutador',
-    interview_scheduled: 'Entrevista programada', assessment_required: 'Evaluación requerida',
-    assessment_submitted: 'Evaluación enviada', submitted_to_client: 'Enviada al cliente',
-    client_interview: 'Entrevista con cliente', final_interview: 'Entrevista final', offer: 'Oferta',
-    hired: 'Contratado', not_selected: 'No seleccionada', position_closed: 'Vacante cerrada', withdrawn: 'Retirada',
+    applied: 'La empresa tiene tu postulación.', review: 'La empresa está revisando tu perfil. Por ahora no tienes que hacer nada.',
+    interviewing: 'Revisa tus mensajes y entrevistas para ver horarios y detalles.', assessment: 'La empresa te pidió una evaluación. Revisa tus mensajes para completarla.',
+    offer: 'Revisa la oferta y acéptala o recházala desde tus postulaciones.', hired: '¡Felicitaciones, conseguiste el empleo! La empresa te contactará con los siguientes pasos.',
+    closed: 'Sigue postulándote: cada semana hay vacantes nuevas.', withdrawn: 'Retiraste esta postulación.',
   },
   pt: {
-    applied: 'Candidatura enviada', under_review: 'Em análise', recruiter_screening: 'Triagem do recrutador',
-    interview_scheduled: 'Entrevista agendada', assessment_required: 'Avaliação necessária',
-    assessment_submitted: 'Avaliação enviada', submitted_to_client: 'Enviada ao cliente',
-    client_interview: 'Entrevista com cliente', final_interview: 'Entrevista final', offer: 'Oferta',
-    hired: 'Contratado', not_selected: 'Não selecionado', position_closed: 'Vaga encerrada', withdrawn: 'Retirada',
+    applied: 'A empresa recebeu sua candidatura.', review: 'A empresa está analisando seu perfil. Nada a fazer por enquanto.',
+    interviewing: 'Veja suas mensagens e entrevistas para horários e detalhes.', assessment: 'A empresa pediu uma avaliação. Veja suas mensagens para concluí-la.',
+    offer: 'Analise a oferta e aceite ou recuse nas suas candidaturas.', hired: 'Parabéns, você conseguiu a vaga! A empresa entrará em contato com os próximos passos.',
+    closed: 'Continue se candidatando: há vagas novas toda semana.', withdrawn: 'Você retirou esta candidatura.',
   },
+}
+
+/** "Interviewing — Check your messages…" for a raw pipeline status. */
+export function candidateStatusLine(status: string, lang: Lang): string {
+  const stage = STAGE_OF[status]
+  if (!stage) return status
+  const next = NEXT[lang][status === 'assessment_required' ? 'assessment' : stage]
+  return `${STAGE[lang][stage]} — ${next}`
 }
 
 /** [subject, intro] per type. `{t}` is the notification's subject (a person's
@@ -84,6 +102,8 @@ const COPY: Record<Lang, Record<string, [string, string]>> = {
     payment_rejected: ['Payment not confirmed', 'We could not confirm your transfer. Reply to this email and we will help.'],
     job_removed: ['Job removed: {t}', 'HQ removed this job from the public listings. Reply to this email if you want to appeal.'],
     job_approved: ['Job approved: {t}', 'HQ approved this job and it is visible again.'],
+    job_published: ['Your job is live: {t}', 'Your company was verified, so the job you queued is now public and taking applications.'],
+    job_needs_credits: ['Verified: add credits to publish your queued jobs', 'Your company is verified, but some queued jobs are waiting for credits. They go live as soon as credits are added.'],
     team_invite: ['Team invite: {t}', 'You were invited to join a company team.'],
     hq_payment_submitted: ['[HQ] Payment to verify: {t}', 'Check the transfer arrived, then approve it in HQ → Payments.'],
     hq_new_lead: ['[HQ] New lead: {t}', 'A new employer lead is waiting in HQ → Leads.'],
@@ -110,6 +130,8 @@ const COPY: Record<Lang, Record<string, [string, string]>> = {
     payment_rejected: ['Pago no confirmado', 'No pudimos confirmar tu transferencia. Responde este correo y te ayudamos.'],
     job_removed: ['Vacante retirada: {t}', 'HQ retiró esta vacante de las publicaciones. Responde este correo si quieres apelar.'],
     job_approved: ['Vacante aprobada: {t}', 'HQ aprobó esta vacante y vuelve a estar visible.'],
+    job_published: ['Tu vacante ya está publicada: {t}', 'Tu empresa fue verificada, así que la vacante que dejaste en espera ya es pública y recibe postulaciones.'],
+    job_needs_credits: ['Verificada: agrega créditos para publicar tus vacantes en espera', 'Tu empresa está verificada, pero algunas vacantes en espera necesitan créditos. Se publican apenas los agregues.'],
     team_invite: ['Invitación al equipo: {t}', 'Te invitaron a unirte al equipo de una empresa.'],
     hq_payment_submitted: ['[HQ] Pago por verificar: {t}', 'Verifica que llegó la transferencia y apruébala en HQ → Pagos.'],
     hq_new_lead: ['[HQ] Nuevo prospecto: {t}', 'Hay un nuevo prospecto de empresa en HQ → Prospectos.'],
@@ -136,6 +158,8 @@ const COPY: Record<Lang, Record<string, [string, string]>> = {
     payment_rejected: ['Pagamento não confirmado', 'Não conseguimos confirmar sua transferência. Responda este e-mail e ajudaremos.'],
     job_removed: ['Vaga removida: {t}', 'O HQ removeu esta vaga das publicações. Responda este e-mail se quiser recorrer.'],
     job_approved: ['Vaga aprovada: {t}', 'O HQ aprovou esta vaga e ela está visível novamente.'],
+    job_published: ['Sua vaga está no ar: {t}', 'Sua empresa foi verificada, então a vaga que ficou na fila já está pública e recebendo candidaturas.'],
+    job_needs_credits: ['Verificada: adicione créditos para publicar as vagas na fila', 'Sua empresa está verificada, mas algumas vagas na fila precisam de créditos. Elas entram no ar assim que os créditos forem adicionados.'],
     team_invite: ['Convite para a equipe: {t}', 'Você foi convidado para a equipe de uma empresa.'],
     hq_payment_submitted: ['[HQ] Pagamento a verificar: {t}', 'Confira se a transferência chegou e aprove em HQ → Pagamentos.'],
     hq_new_lead: ['[HQ] Novo lead: {t}', 'Há um novo lead de empresa em HQ → Leads.'],
@@ -164,6 +188,8 @@ export function linkPath(n: NotificationRow, role: Role): string {
   switch (t) {
     case 'team_invite': return '/employer/team'
     case 'company_verified': return '/employer/post-job'
+    case 'job_published': return jobId ? `/employer/manage/${jobId}` : '/employer/jobs'
+    case 'job_needs_credits': return '/pricing'
     case 'payment_granted':
     case 'payment_rejected': return '/pricing'
     case 'offer_accepted':
@@ -183,8 +209,9 @@ export function buildEmail(n: NotificationRow, lang: Lang, role: Role, siteUrl: 
   const [subjectTpl, intro] = copy[n.type] ?? (n.type.startsWith('hq_') ? copy._hq : copy._default)
   const title = (n.title || '').trim().replace(/^—$/, '')
   const subject = subjectTpl.replace('{t}', title).replace(/[:\s]+$/, '').trim().slice(0, 180) || 'Impulsa Talentos'
-  // Status changes carry the raw status key as body: show its label.
-  const detail = n.type === 'application_status' ? (STATUS[lang][n.body] ?? n.body) : (n.body || '')
+  // Status changes carry the raw status key as body: candidates get the plain
+  // stage plus what happens next.
+  const detail = n.type === 'application_status' ? candidateStatusLine(n.body, lang) : (n.body || '')
   const heading = subject
   const url = siteUrl.replace(/\/+$/, '') + linkPath(n, role)
   const cta = CTA[lang]

@@ -106,28 +106,46 @@ export function useOnboarding(opts: {
       ]
     }
 
-    // employer
+    // employer — the whole path from sign-up to first applicant, so the next
+    // step is always visible (including the wait for HQ verification).
     const myJobs = opts.jobs ?? []
+    const company = opts.company
+    const live = myJobs.some((j) => j.status === 'open' || !!j.publishedAt)
+    const queued = myJobs.some((j) => j.status === 'draft' && j.publishWhenVerified)
     return [
+      {
+        id: 'employer-account',
+        titleKey: 'onboarding.employer.account.title',
+        descKey: 'onboarding.employer.account.desc',
+        href: '/profile',
+        done: !!opts.profile,
+      },
       {
         id: 'employer-company',
         titleKey: 'onboarding.employer.company.title',
         descKey: 'onboarding.employer.company.desc',
-        href: '/post-job',
-        done: !!opts.company,
+        href: '/employer/post-job',
+        done: !!company,
+      },
+      {
+        id: 'employer-verify',
+        titleKey: 'onboarding.employer.verify.title',
+        descKey: company?.verified ? 'onboarding.employer.verify.doneDesc' : company?.verificationRequested ? 'onboarding.employer.verify.requestedDesc' : 'onboarding.employer.verify.desc',
+        href: '/employer',
+        done: !!company?.verified,
       },
       {
         id: 'employer-job',
         titleKey: 'onboarding.employer.job.title',
-        descKey: 'onboarding.employer.job.desc',
-        href: '/post-job',
-        done: myJobs.length > 0,
+        descKey: queued && !live ? 'onboarding.employer.job.queuedDesc' : 'onboarding.employer.job.desc',
+        href: '/employer/post-job',
+        done: live,
       },
       {
         id: 'employer-apps',
         titleKey: 'onboarding.employer.apps.title',
         descKey: 'onboarding.employer.apps.desc',
-        href: myJobs[0] ? '/manage/$id' : '/dashboard',
+        href: myJobs[0] ? '/employer/manage/$id' : '/employer/applications',
         params: myJobs[0] ? { id: myJobs[0].id } : undefined,
         done: state.visitedManage,
       },

@@ -105,3 +105,62 @@ export function isActiveApplicationStatus(s: ApplicationStatus): boolean {
 export function isTerminalApplicationStatus(s: ApplicationStatus): boolean {
   return TERMINAL_STATUSES.has(s)
 }
+
+/* ── Candidate view: five plain stages ─────────────────────────────────────
+ * Employers work the full 15-status pipeline; candidates only need to know
+ * where they stand and what happens next. Every status maps to one of five
+ * stages, plus a one-line next step. (The email function keeps the same
+ * mapping in supabase/functions/notification-email/templates.ts.) */
+export const CANDIDATE_STAGES = ['applied', 'review', 'interviewing', 'offer', 'decision'] as const
+export type CandidateStage = (typeof CANDIDATE_STAGES)[number]
+
+const STAGE_OF: Record<string, CandidateStage> = {
+  draft: 'applied',
+  applied: 'applied',
+  under_review: 'review',
+  recruiter_screening: 'review',
+  submitted_to_client: 'review',
+  interview_scheduled: 'interviewing',
+  assessment_required: 'interviewing',
+  assessment_submitted: 'interviewing',
+  client_interview: 'interviewing',
+  final_interview: 'interviewing',
+  offer: 'offer',
+  hired: 'decision',
+  not_selected: 'decision',
+  position_closed: 'decision',
+  withdrawn: 'decision',
+}
+
+export function candidateStage(status: string): CandidateStage {
+  return STAGE_OF[status] ?? 'applied'
+}
+
+/** 0-based position of the stage, for a 5-step tracker. */
+export function candidateStageIndex(status: string): number {
+  return CANDIDATE_STAGES.indexOf(candidateStage(status))
+}
+
+/** Translation key of the stage's label, e.g. `candidateStage.review`. */
+export function candidateStageLabelKey(status: string): string {
+  const stage = candidateStage(status)
+  if (stage !== 'decision') return `candidateStage.${stage}`
+  return status === 'hired' ? 'candidateStage.hired' : status === 'withdrawn' ? 'candidateStage.withdrawn' : 'candidateStage.closed'
+}
+
+/** Translation key of the one-line "what happens next" for this status. */
+export function candidateNextStepKey(status: string): string {
+  if (status === 'assessment_required') return 'candidateNext.assessment'
+  if (status === 'hired') return 'candidateNext.hired'
+  if (status === 'not_selected') return 'candidateNext.notSelected'
+  if (status === 'position_closed') return 'candidateNext.closed'
+  if (status === 'withdrawn') return 'candidateNext.withdrawn'
+  return `candidateNext.${candidateStage(status)}`
+}
+
+/** Good, neutral or ended — drives the colour of the candidate's stage pill. */
+export function candidateStageTone(status: string): 'active' | 'good' | 'ended' {
+  if (status === 'hired') return 'good'
+  if (TERMINAL_STATUSES.has(status as ApplicationStatus)) return 'ended'
+  return 'active'
+}

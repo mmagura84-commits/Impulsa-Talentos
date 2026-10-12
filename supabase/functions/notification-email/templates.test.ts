@@ -4,8 +4,11 @@ import { buildEmail, isApplicationUpdate, linkPath, pickLang, type NotificationR
 const base: NotificationRow = { id: 'n1', user_id: 'u1', type: 'application_status', title: 'Bilingual CSR', body: 'interview_scheduled', data: { job_id: 'j1' } }
 
 describe('notification-email templates', () => {
-  test('status body becomes a localized label', () => {
-    expect(buildEmail(base, 'es', 'candidate', 'https://x.test').detail).toBe('Entrevista programada')
+  test('status body becomes a plain stage and next step', () => {
+    expect(buildEmail(base, 'es', 'candidate', 'https://x.test').detail).toBe('Entrevistas — Revisa tus mensajes y entrevistas para ver horarios y detalles.')
+    expect(buildEmail({ ...base, body: 'submitted_to_client' }, 'en', 'candidate', 'https://x.test').detail).toBe('In review — The company is reviewing your profile. Nothing to do for now.')
+    expect(buildEmail({ ...base, body: 'assessment_required' }, 'en', 'candidate', 'https://x.test').detail).toContain('assessment')
+    expect(buildEmail({ ...base, body: 'not_selected' }, 'pt', 'candidate', 'https://x.test').detail).toBe('Não segue — Continue se candidatando: há vagas novas toda semana.')
     expect(buildEmail(base, 'en', 'candidate', 'https://x.test').subject).toBe('Update on your application: Bilingual CSR')
   })
   test('links follow the role', () => {
@@ -26,6 +29,11 @@ describe('notification-email templates', () => {
     expect(isApplicationUpdate('hq_new_lead')).toBe(false)
     expect(pickLang('pt')).toBe('pt')
     expect(pickLang(null)).toBe('es')
+  })
+  test('queued-job emails link to the job and to pricing', () => {
+    expect(linkPath({ ...base, type: 'job_published' }, 'employer')).toBe('/employer/manage/j1')
+    expect(linkPath({ ...base, type: 'job_needs_credits', data: {} }, 'employer')).toBe('/pricing')
+    expect(buildEmail({ ...base, type: 'job_published', title: 'QA Lead' }, 'en', 'employer', 'https://x.test').subject).toBe('Your job is live: QA Lead')
   })
   test('unknown hq type uses the HQ subject', () => {
     expect(buildEmail({ ...base, type: 'hq_job_reported', title: 'X' }, 'en', 'admin', 'https://x.test').subject).toBe('[HQ] Job reported: X')

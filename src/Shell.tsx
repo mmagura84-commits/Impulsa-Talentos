@@ -10,7 +10,8 @@
  * the rest. Mobile: the sidebar is hidden and opens in a Sheet drawer via the
  * hamburger button in the mobile header. Customize freely — this is your code.
  */
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import { useLocation } from '@tanstack/react-router'
 import type { ReactNode } from 'react'
 import { Menu } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -22,12 +23,19 @@ interface ShellProps {
   sidebar: ReactNode
   /** App name shown in the mobile header */
   appName?: string
+  /** Phone-only bottom navigation (e.g. <MobileTabBar />). */
+  bottomBar?: ReactNode
+  /** Phone-only actions at the right of the top bar (e.g. notifications). */
+  mobileActions?: ReactNode
   children: ReactNode
 }
 
-export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
+export function Shell({ sidebar, appName = 'App', bottomBar, mobileActions, children }: ShellProps) {
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
+  // Close the phone menu after navigating, so the new page isn't hidden under it.
+  const { pathname } = useLocation()
+  useEffect(() => { setOpen(false) }, [pathname])
 
   return (
     <div className="flex min-h-dvh">
@@ -44,7 +52,10 @@ export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
       </Sheet>
 
       {/* Main content column */}
-      <main id="main" className="flex flex-1 min-w-0 flex-col">
+      {/* [&>*]:w-full — page wrappers use `mx-auto`, which in a flex column
+          sizes them to their content; pin them to the column so phones never
+          get a page wider than the screen. */}
+      <main id="main" className="flex flex-1 min-w-0 flex-col [&>*]:w-full">
         {/* Mobile header — hamburger + app name, only shown below md. */}
         <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-background sticky top-0 z-30">
           <Button
@@ -57,10 +68,12 @@ export function Shell({ sidebar, appName = 'App', children }: ShellProps) {
             <Menu className="size-5" />
           </Button>
           <span className="font-semibold text-sm">{appName}</span>
+          {mobileActions && <div className="ml-auto flex items-center">{mobileActions}</div>}
         </div>
 
         {children}
       </main>
+      {bottomBar}
     </div>
   )
 }

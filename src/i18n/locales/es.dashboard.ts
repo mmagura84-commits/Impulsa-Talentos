@@ -77,6 +77,7 @@ const esDashboard: Dict = {
   'dashboard.jobStatus.open': 'Activa',
   'dashboard.jobStatus.closed': 'Cerrada',
   'dashboard.jobStatus.draft': 'Borrador',
+  'dashboard.jobStatus.queued': 'Se publica al verificar',
   'dashboard.jobStatus.status': 'Estado',
   'dashboard.view': 'Ver',
   'dashboard.edit': 'Editar',

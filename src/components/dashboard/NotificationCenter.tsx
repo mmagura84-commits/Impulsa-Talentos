@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { candidateStageLabelKey } from '@/lib/applicationStatus'
 import { Link } from '@tanstack/react-router'
 import { useAuth } from '@/hooks/useAuth'
 import { useI18n } from '@/i18n/I18nProvider'
@@ -25,14 +26,6 @@ const TYPE_KEYS: Partial<Record<NotificationType, string>> = {
 export type NotificationAudience = 'candidate' | 'employer' | 'md' | 'admin'
 
 /** Resolve a notification to the page where this person can act on it. */
-/** In the phone app (/m) keep people inside the mobile screens. */
-function mobileLink(path: string | undefined): string | undefined {
-  if (!path) return path
-  if (path === '/candidate/applications') return '/m/applications'
-  if (path === '/employer/post-job') return '/m/post'
-  if (path.startsWith('/employer/')) return '/m/home'
-  return path
-}
 
 function notificationLink(n: Notification, audience: NotificationAudience): string | undefined {
   const data = (n.data ?? {}) as Record<string, unknown>
@@ -47,6 +40,10 @@ function notificationLink(n: Notification, audience: NotificationAudience): stri
       return '/employer/team'
     case 'company_verified':
       return '/employer/post-job'
+    case 'job_published':
+      return jobId ? `/employer/manage/${jobId}` : '/employer/jobs'
+    case 'job_needs_credits':
+      return '/pricing'
     case 'payment_granted':
     case 'payment_rejected':
       return '/pricing'
@@ -68,10 +65,9 @@ function notificationLink(n: Notification, audience: NotificationAudience): stri
 
 /** Status changes arrive as a raw status key; show its label. */
 function notificationBody(n: Notification, t: (k: string) => string): string {
+  // Status updates only go to candidates: show the plain stage they reached.
   if ((n.type as string) === 'application_status' && n.body) {
-    const key = `dashboard.status.${n.body}`
-    const label = t(key)
-    return label === key ? n.body : label
+    return t(candidateStageLabelKey(n.body))
   }
   return n.body
 }
@@ -223,7 +219,7 @@ export function NotificationCenter({
             ) : (
               <ul className="divide-y divide-border">
                 {items.map((n) => {
-                  const link = mobile ? mobileLink(notificationLink(n, audience)) : notificationLink(n, audience)
+                  const link = notificationLink(n, audience)
                   const deleteBtn = (
                     <button
                       type="button"

@@ -6,7 +6,7 @@ set client_min_messages = notice;
 
 -- ── Test helpers (run as the role currently set, i.e. SECURITY INVOKER) ──────
 create schema if not exists t;
-grant usage on schema t to anon, authenticated;
+grant usage on schema t to anon, authenticated, service_role;
 
 create or replace function t.act_as(p_uid text, p_role text default 'authenticated') returns void
 language plpgsql as $$
@@ -170,6 +170,95 @@ select t.expect_error('only es/en/pt are accepted',
 select t.reset();
 select t.check('language switch saved',
   (select preferred_language = 'pt' from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f2'));
+
+\echo '── One front door (profile created at sign-up)'
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000f3', 'hire@test.co', '{"role":"employer","full_name":"Ana Hiring","data_consent":true,"marketing_consent":true,"locale":"en"}'),
+  ('00000000-0000-0000-0000-0000000000f4', 'work@test.co', '{"role":"candidate","full_name":"Luis Work","data_consent":true}'),
+  ('00000000-0000-0000-0000-0000000000f5', 'noconsent@test.co', '{"role":"candidate","full_name":"No Consent","data_consent":false}'),
+  ('00000000-0000-0000-0000-0000000000f6', 'sneaky@test.co', '{"role":"admin","full_name":"Sneaky","data_consent":true}'),
+  ('00000000-0000-0000-0000-0000000000f7', 'old@test.co', '{}');
+select t.check('employer sign-up creates an active employer profile with consent and language',
+  (select role = 'employer' and full_name = 'Ana Hiring' and profile_status = 'active'
+          and data_processing_consent_at is not null and marketing_consent and preferred_language = 'en'
+     from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f3'));
+select t.check('candidate sign-up creates a candidate profile, Spanish by default, no marketing',
+  (select role = 'candidate' and not marketing_consent and preferred_language = 'es'
+     from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f4'));
+select t.check('no consent, no profile',
+  not exists (select 1 from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f5'));
+select t.check('sign-up can never create an admin',
+  not exists (select 1 from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f6'));
+select t.check('old-style sign-up (no details) still works without a profile',
+  exists (select 1 from auth.users where id = '00000000-0000-0000-0000-0000000000f7')
+  and not exists (select 1 from public.profiles where user_id = '00000000-0000-0000-0000-0000000000f7'));
+
+\echo '── Publish before verification'
+select t.act_as('00000000-0000-0000-0000-0000000000f3');
+select t.expect_ok('new employer registers a company',
+  $$insert into public.companies (id, employer_id, name, contact_email) values ('20000000-0000-0000-0000-0000000000f3', '00000000-0000-0000-0000-0000000000f3', 'Queue Co', 'hr@queue.co')$$);
+select t.expect_error('unverified company still cannot publish directly',
+  $$insert into public.jobs (company_id, title, status) values ('20000000-0000-0000-0000-0000000000f3', 'Direct', 'open')$$);
+select t.expect_ok('unverified company queues three jobs to go live when verified',
+  $$insert into public.jobs (id, company_id, title, status, publish_when_verified, created_at) values
+    ('30000000-0000-0000-0000-0000000000f1', '20000000-0000-0000-0000-0000000000f3', 'Queued one', 'draft', true, now() - interval '3 min'),
+    ('30000000-0000-0000-0000-0000000000f2', '20000000-0000-0000-0000-0000000000f3', 'Queued two', 'draft', true, now() - interval '2 min'),
+    ('30000000-0000-0000-0000-0000000000f3', '20000000-0000-0000-0000-0000000000f3', 'Queued three', 'draft', true, now() - interval '1 min')$$);
+select t.expect_error('employer cannot run the publisher themselves',
+  $$select public.publish_queued_jobs('20000000-0000-0000-0000-0000000000f3')$$);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_ok('HQ verifies the company', $$select public.admin_verify_company('20000000-0000-0000-0000-0000000000f3', true)$$);
+select t.reset();
+select t.check('verification publishes the two oldest queued jobs with the two trial credits',
+  (select count(*) = 2 from public.jobs where company_id = '20000000-0000-0000-0000-0000000000f3' and status = 'open'
+      and published_at is not null and expires_at is not null and not publish_when_verified)
+  and (select job_credits = 0 from public.companies where id = '20000000-0000-0000-0000-0000000000f3')
+  and (select status = 'draft' and publish_when_verified from public.jobs where id = '30000000-0000-0000-0000-0000000000f3'));
+select t.check('employer is told which jobs went live and that one waits for credits',
+  (select count(*) = 2 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'job_published')
+  and exists (select 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'job_needs_credits'));
+update public.companies set job_credits = job_credits + 3 where id = '20000000-0000-0000-0000-0000000000f3';
+select t.check('a confirmed payment publishes the waiting job and charges one credit',
+  (select status = 'open' from public.jobs where id = '30000000-0000-0000-0000-0000000000f3')
+  and (select job_credits = 2 from public.companies where id = '20000000-0000-0000-0000-0000000000f3'));
+-- Keep later public-listing counts independent of this block.
+update public.jobs set status = 'closed' where company_id = '20000000-0000-0000-0000-0000000000f3';
+
+\echo '── Card payments (Wompi)'
+select t.act_as('00000000-0000-0000-0000-0000000000f3');
+select t.expect_error('no peso price, no card checkout',
+  $$select * from public.start_card_payment('20000000-0000-0000-0000-0000000000f3', 'pro')$$);
+select t.reset();
+update public.billing_packages set amount_cop_cents = 39000000 where id = 'pro';
+select t.act_as('00000000-0000-0000-0000-0000000000f3');
+select t.expect_rows('employer starts a card payment for their company',
+  $$select * from public.start_card_payment('20000000-0000-0000-0000-0000000000f3', 'pro')$$, 1);
+select t.expect_error('employer cannot pay for another company',
+  $$select * from public.start_card_payment('20000000-0000-0000-0000-0000000000e1', 'pro')$$);
+select t.expect_error('employer cannot mark their own payment approved',
+  $$select public.apply_card_payment((select reference from public.card_payments limit 1), 'APPROVED', 'tx', 39000000, 'COP')$$);
+select t.expect_rows('employer sees their own order', $$select * from public.card_payments$$, 1);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000c1');
+select t.expect_rows('others cannot see it', $$select * from public.card_payments$$, 0);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000f3');
+select t.expect_rows('second order', $$select * from public.start_card_payment('20000000-0000-0000-0000-0000000000f3', 'pro')$$, 1);
+select t.reset();
+select t.act_as(null, 'service_role');
+select t.check('a wrong amount is never granted',
+  (select public.apply_card_payment((select reference from public.card_payments order by created_at limit 1), 'APPROVED', 'tx1', 100, 'COP') = 'error'));
+select t.check('a verified approval adds the plan credits',
+  (select public.apply_card_payment((select reference from public.card_payments where status = 'pending' limit 1), 'APPROVED', 'tx2', 39000000, 'COP') = 'approved'));
+select t.check('a replayed event changes nothing',
+  (select public.apply_card_payment((select reference from public.card_payments where status = 'approved' limit 1), 'APPROVED', 'tx2', 39000000, 'COP') = 'already approved'));
+select t.reset();
+select t.check('credits, plan and notice applied once',
+  (select job_credits = 5 and plan = 'pro' and listing_days = 45 and max_applicants_per_job = 100
+     from public.companies where id = '20000000-0000-0000-0000-0000000000f3')
+  and (select count(*) = 1 from public.notifications where user_id = '00000000-0000-0000-0000-0000000000f3' and type = 'payment_granted'));
+update public.billing_packages set amount_cop_cents = null where id = 'pro';
 
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_ok('admin assigns md role', $$select public.admin_set_user_role('10000000-0000-0000-0000-0000000000b2', 'md', 'pending')$$);

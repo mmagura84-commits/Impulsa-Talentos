@@ -135,6 +135,8 @@ export interface Job {
   archivedAt?: string | null
   /** When the job went live (migration 024). */
   publishedAt?: string | null
+  /** Saved by an unverified company: goes live when HQ verifies it (migration 044). */
+  publishWhenVerified?: boolean
   /** When the listing expires (migration 024). */
   expiresAt?: string | null
   /** Assigned team member (team_members.id, migration 024). */
@@ -333,6 +335,8 @@ export type NotificationType =
   | 'interview_cancelled'
   | 'interview_no_show'
   | 'company_verified'
+  | 'job_published'
+  | 'job_needs_credits'
   | 'payment_granted'
   | 'payment_rejected'
   | 'deletion_requested'

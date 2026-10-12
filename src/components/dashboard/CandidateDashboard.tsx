@@ -1,4 +1,6 @@
 import { useMemo, useState } from 'react'
+import { CandidateStageTracker } from '@/components/candidate/CandidateStageTracker'
+import { candidateStage, candidateStageLabelKey, candidateStageTone } from '@/lib/applicationStatus'
 import { Link } from '@tanstack/react-router'
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from 'sonner'
@@ -248,27 +250,15 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
   const [messengerOpen, setMessengerOpen] = useState(false)
   const [confirmWithdraw, setConfirmWithdraw] = useState(false)
   const ts = TIMELINE_STATUSES[app.status] ?? { step: 0, color: 'border-muted-foreground text-muted-foreground' }
-  const stepLabels: Record<string, string> = {
-    draft: t('timeline.step.draft'),
-    applied: t('timeline.step.applied'),
-    under_review: t('timeline.step.underReview'),
-    recruiter_screening: t('timeline.step.recruiterScreening'),
-    interview_scheduled: t('timeline.step.interviewScheduled'),
-    assessment_required: t('timeline.step.assessmentRequired'),
-    assessment_submitted: t('timeline.step.assessmentSubmitted'),
-    submitted_to_client: t('timeline.step.submittedToClient'),
-    client_interview: t('timeline.step.clientInterview'),
-    final_interview: t('timeline.step.finalInterview'),
-    offer: t('timeline.step.offered'),
-    hired: t('timeline.step.hired'),
-    not_selected: t('timeline.step.notSelected'),
-    position_closed: t('timeline.step.positionClosed'),
-    withdrawn: t('timeline.step.withdrawn'),
-  }
   const mutableStatuses = new Set(['draft', 'applied', 'under_review', 'recruiter_screening'])
   const isMutable = mutableStatuses.has(app.status)
   const hasNextAction = !!(app.nextAction?.trim())
-  const historyStatusLabel = (s: string) => stepLabels[s] ?? s
+  // Candidates see five plain stages; the detailed step stays in history.
+  const historyStatusLabel = (s: string) => t(candidateStageLabelKey(s))
+  const tone = candidateStageTone(app.status)
+  const stagePill = tone === 'good' ? 'border-emerald-500 text-emerald-700' : tone === 'ended' ? 'border-muted-foreground text-muted-foreground' : 'border-primary text-primary'
+  // One history row per stage change (several pipeline steps share a stage).
+  const stageHistory = (statusHistory ?? []).filter((entry, i, all) => i === 0 || candidateStage(entry.status) !== candidateStage(all[i - 1].status) || entry.status === 'hired')
 
   return (
     <div className="flex gap-3">
@@ -291,10 +281,11 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
               {formatPosted(app.createdAt, t)}
             </p>
           </div>
-          <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium bg-card ${ts.color}`}>
-            {stepLabels[app.status] ?? app.status}
+          <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium bg-card ${stagePill}`}>
+            {t(candidateStageLabelKey(app.status))}
           </span>
         </div>
+        {app.status !== 'draft' && <CandidateStageTracker status={app.status} className="mt-2.5" />}
 
         {/* Recruiter info */}
         {recruiter && (
@@ -421,7 +412,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
         )}
 
         {/* Expandable status history */}
-        {statusHistory && statusHistory.length > 0 && (
+        {stageHistory.length > 0 && (
           <div className="mt-3">
             <button
               type="button"
@@ -429,7 +420,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
               className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <History className="size-3" />
-              {t('timeline.statusHistory')} ({statusHistory.length})
+              {t('timeline.statusHistory')} ({stageHistory.length})
               {historyOpen ? <ChevronUp className="size-3" /> : <ChevronDown className="size-3" />}
             </button>
             <AnimatePresence>
@@ -442,7 +433,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
                   className="overflow-hidden"
                 >
                   <div className="mt-2 space-y-1.5 pl-1 border-l-2 border-muted">
-                    {statusHistory.map((entry) => (
+                    {stageHistory.map((entry) => (
                       <div key={entry.id} className="flex items-start gap-2 text-xs pl-3">
                         <span className={`shrink-0 mt-0.5 h-1.5 w-1.5 rounded-full ${TIMELINE_STATUSES[entry.status]?.color?.replace(/border-|text-/g, 'bg-').replace(/\s.*$/, '') || 'bg-muted-foreground'}`} />
                         <div className="min-w-0">

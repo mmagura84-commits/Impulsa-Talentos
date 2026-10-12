@@ -147,17 +147,19 @@ export function useAuth() {
     signInWithPassword: (email: string, password: string) =>
       supabase.auth.signInWithPassword({ email, password }),
     /**
-     * Create an account with email + password. `locale` is the language the
-     * site is showing; the database copies it onto the profile when the
-     * profile is created, so emails arrive in that language.
+     * Create an account with email + password. `details` travel as auth
+     * metadata: `locale` (site language → email language, migration 042) and
+     * the sign-up choices `role`, `full_name`, `data_consent`,
+     * `marketing_consent`, from which the database creates the profile at once
+     * (migration 043).
      */
-    signUpWithPassword: (email: string, password: string, redirectTo?: string, locale?: string) =>
+    signUpWithPassword: (email: string, password: string, redirectTo?: string, details?: Record<string, string | boolean>) =>
       supabase.auth.signUp({
         email,
         password,
         options: {
           ...(redirectTo ? { emailRedirectTo: redirectTo } : {}),
-          ...(locale ? { data: { locale } } : {}),
+          ...(details ? { data: details } : {}),
         },
       }),
     /** Sign in with Google OAuth. Requires Google provider configured in Supabase dashboard. */

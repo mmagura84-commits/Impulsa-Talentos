@@ -77,6 +77,7 @@ const ptDashboard: Dict = {
   'dashboard.jobStatus.open': 'Ativa',
   'dashboard.jobStatus.closed': 'Fechada',
   'dashboard.jobStatus.draft': 'Rascunho',
+  'dashboard.jobStatus.queued': 'Publica ao verificar',
   'dashboard.jobStatus.status': 'Status',
   'dashboard.view': 'Ver',
   'dashboard.edit': 'Editar',

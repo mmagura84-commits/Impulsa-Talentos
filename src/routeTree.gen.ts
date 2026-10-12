@@ -15,7 +15,6 @@ import { Route as ApplicationsRouteImport } from './routes/applications'
 import { Route as CaregiversRouteImport } from './routes/caregivers'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ForEmployersRouteImport } from './routes/for-employers'
-import { Route as MRouteImport } from './routes/m'
 import { Route as MdPreviewRouteImport } from './routes/md-preview'
 import { Route as PricingRouteImport } from './routes/pricing'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -32,15 +31,8 @@ import { Route as AppMdRouteImport } from './routes/_app/md'
 import { Route as AppProfileRouteImport } from './routes/_app/profile'
 import { Route as CompaniesIndexRouteImport } from './routes/companies.index'
 import { Route as CompaniesIdRouteImport } from './routes/companies.$id'
-import { Route as MIndexRouteImport } from './routes/m/index'
-import { Route as MApplicationsRouteImport } from './routes/m/applications'
-import { Route as MCompaniesRouteImport } from './routes/m/companies'
-import { Route as MCompanyRouteImport } from './routes/m/company'
-import { Route as MHomeRouteImport } from './routes/m/home'
-import { Route as MJobsRouteImport } from './routes/m/jobs'
-import { Route as MPostRouteImport } from './routes/m/post'
-import { Route as MProfileRouteImport } from './routes/m/profile'
-import { Route as MSavedRouteImport } from './routes/m/saved'
+import { Route as MIndexRouteImport } from './routes/m.index'
+import { Route as MSplatRouteImport } from './routes/m.$'
 import { Route as AppApplyIdRouteImport } from './routes/_app/apply.$id'
 import { Route as AppCandidateIndexRouteImport } from './routes/_app/candidate/index'
 import { Route as AppCandidateApplicationsRouteImport } from './routes/_app/candidate/applications'
@@ -71,9 +63,6 @@ import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
 import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
 import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
 import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
-import { Route as MCompaniesIdRouteImport } from './routes/m/companies.$id'
-import { Route as MEditJobIdRouteImport } from './routes/m/edit-job.$id'
-import { Route as MJobsIdRouteImport } from './routes/m/jobs.$id'
 import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id_.confirm'
 import { Route as AppEmployerEditJobIdRouteImport } from './routes/_app/employer/edit-job.$id'
 import { Route as AppEmployerManageIdRouteImport } from './routes/_app/employer/manage.$id'
@@ -105,11 +94,6 @@ const ContactRoute = ContactRouteImport.update({
 const ForEmployersRoute = ForEmployersRouteImport.update({
   id: '/for-employers',
   path: '/for-employers',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MRoute = MRouteImport.update({
-  id: '/m',
-  path: '/m',
   getParentRoute: () => rootRouteImport,
 } as any)
 const MdPreviewRoute = MdPreviewRouteImport.update({
@@ -193,49 +177,14 @@ const CompaniesIdRoute = CompaniesIdRouteImport.update({
   getParentRoute: () => rootRouteImport,
 } as any)
 const MIndexRoute = MIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => MRoute,
+  id: '/m/',
+  path: '/m/',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const MApplicationsRoute = MApplicationsRouteImport.update({
-  id: '/applications',
-  path: '/applications',
-  getParentRoute: () => MRoute,
-} as any)
-const MCompaniesRoute = MCompaniesRouteImport.update({
-  id: '/companies',
-  path: '/companies',
-  getParentRoute: () => MRoute,
-} as any)
-const MCompanyRoute = MCompanyRouteImport.update({
-  id: '/company',
-  path: '/company',
-  getParentRoute: () => MRoute,
-} as any)
-const MHomeRoute = MHomeRouteImport.update({
-  id: '/home',
-  path: '/home',
-  getParentRoute: () => MRoute,
-} as any)
-const MJobsRoute = MJobsRouteImport.update({
-  id: '/jobs',
-  path: '/jobs',
-  getParentRoute: () => MRoute,
-} as any)
-const MPostRoute = MPostRouteImport.update({
-  id: '/post',
-  path: '/post',
-  getParentRoute: () => MRoute,
-} as any)
-const MProfileRoute = MProfileRouteImport.update({
-  id: '/profile',
-  path: '/profile',
-  getParentRoute: () => MRoute,
-} as any)
-const MSavedRoute = MSavedRouteImport.update({
-  id: '/saved',
-  path: '/saved',
-  getParentRoute: () => MRoute,
+const MSplatRoute = MSplatRouteImport.update({
+  id: '/m/$',
+  path: '/m/$',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const AppApplyIdRoute = AppApplyIdRouteImport.update({
   id: '/apply/$id',
@@ -395,21 +344,6 @@ const AppMdProfileRoute = AppMdProfileRouteImport.update({
   path: '/profile',
   getParentRoute: () => AppMdRoute,
 } as any)
-const MCompaniesIdRoute = MCompaniesIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MCompaniesRoute,
-} as any)
-const MEditJobIdRoute = MEditJobIdRouteImport.update({
-  id: '/edit-job/$id',
-  path: '/edit-job/$id',
-  getParentRoute: () => MRoute,
-} as any)
-const MJobsIdRoute = MJobsIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => MJobsRoute,
-} as any)
 const AppApplyIdConfirmRoute = AppApplyIdConfirmRouteImport.update({
   id: '/apply/$id_/confirm',
   path: '/apply/$id/confirm',
@@ -432,7 +366,6 @@ export interface FileRoutesByFullPath {
   '/caregivers': typeof CaregiversRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
-  '/m': typeof MRouteWithChildren
   '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -448,14 +381,7 @@ export interface FileRoutesByFullPath {
   '/md': typeof AppMdRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
-  '/m/applications': typeof MApplicationsRoute
-  '/m/companies': typeof MCompaniesRouteWithChildren
-  '/m/company': typeof MCompanyRoute
-  '/m/home': typeof MHomeRoute
-  '/m/jobs': typeof MJobsRouteWithChildren
-  '/m/post': typeof MPostRoute
-  '/m/profile': typeof MProfileRoute
-  '/m/saved': typeof MSavedRoute
+  '/m/$': typeof MSplatRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
   '/apply/$id': typeof AppApplyIdRoute
@@ -484,9 +410,6 @@ export interface FileRoutesByFullPath {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
-  '/m/companies/$id': typeof MCompaniesIdRoute
-  '/m/edit-job/$id': typeof MEditJobIdRoute
-  '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate/': typeof AppCandidateIndexRoute
   '/employer/': typeof AppEmployerIndexRoute
   '/managingdirector/': typeof AppManagingdirectorIndexRoute
@@ -512,14 +435,7 @@ export interface FileRoutesByTo {
   '/jobs': typeof AppJobsRouteWithChildren
   '/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
-  '/m/applications': typeof MApplicationsRoute
-  '/m/companies': typeof MCompaniesRouteWithChildren
-  '/m/company': typeof MCompanyRoute
-  '/m/home': typeof MHomeRoute
-  '/m/jobs': typeof MJobsRouteWithChildren
-  '/m/post': typeof MPostRoute
-  '/m/profile': typeof MProfileRoute
-  '/m/saved': typeof MSavedRoute
+  '/m/$': typeof MSplatRoute
   '/companies': typeof CompaniesIndexRoute
   '/m': typeof MIndexRoute
   '/apply/$id': typeof AppApplyIdRoute
@@ -548,9 +464,6 @@ export interface FileRoutesByTo {
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
   '/md/profile': typeof AppMdProfileRoute
-  '/m/companies/$id': typeof MCompaniesIdRoute
-  '/m/edit-job/$id': typeof MEditJobIdRoute
-  '/m/jobs/$id': typeof MJobsIdRoute
   '/candidate': typeof AppCandidateIndexRoute
   '/employer': typeof AppEmployerIndexRoute
   '/managingdirector': typeof AppManagingdirectorIndexRoute
@@ -567,7 +480,6 @@ export interface FileRoutesById {
   '/caregivers': typeof CaregiversRoute
   '/contact': typeof ContactRoute
   '/for-employers': typeof ForEmployersRoute
-  '/m': typeof MRouteWithChildren
   '/md-preview': typeof MdPreviewRoute
   '/pricing': typeof PricingRoute
   '/privacy': typeof PrivacyRoute
@@ -583,14 +495,7 @@ export interface FileRoutesById {
   '/_app/md': typeof AppMdRouteWithChildren
   '/_app/profile': typeof AppProfileRoute
   '/companies/$id': typeof CompaniesIdRoute
-  '/m/applications': typeof MApplicationsRoute
-  '/m/companies': typeof MCompaniesRouteWithChildren
-  '/m/company': typeof MCompanyRoute
-  '/m/home': typeof MHomeRoute
-  '/m/jobs': typeof MJobsRouteWithChildren
-  '/m/post': typeof MPostRoute
-  '/m/profile': typeof MProfileRoute
-  '/m/saved': typeof MSavedRoute
+  '/m/$': typeof MSplatRoute
   '/companies/': typeof CompaniesIndexRoute
   '/m/': typeof MIndexRoute
   '/_app/apply/$id': typeof AppApplyIdRoute
@@ -619,9 +524,6 @@ export interface FileRoutesById {
   '/_app/md/meetings': typeof AppMdMeetingsRoute
   '/_app/md/messages': typeof AppMdMessagesRoute
   '/_app/md/profile': typeof AppMdProfileRoute
-  '/m/companies/$id': typeof MCompaniesIdRoute
-  '/m/edit-job/$id': typeof MEditJobIdRoute
-  '/m/jobs/$id': typeof MJobsIdRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
   '/_app/employer/': typeof AppEmployerIndexRoute
   '/_app/managingdirector/': typeof AppManagingdirectorIndexRoute
@@ -638,7 +540,6 @@ export interface FileRouteTypes {
     | '/caregivers'
     | '/contact'
     | '/for-employers'
-    | '/m'
     | '/md-preview'
     | '/pricing'
     | '/privacy'
@@ -654,14 +555,7 @@ export interface FileRouteTypes {
     | '/md'
     | '/profile'
     | '/companies/$id'
-    | '/m/applications'
-    | '/m/companies'
-    | '/m/company'
-    | '/m/home'
-    | '/m/jobs'
-    | '/m/post'
-    | '/m/profile'
-    | '/m/saved'
+    | '/m/$'
     | '/companies/'
     | '/m/'
     | '/apply/$id'
@@ -690,9 +584,6 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
-    | '/m/companies/$id'
-    | '/m/edit-job/$id'
-    | '/m/jobs/$id'
     | '/candidate/'
     | '/employer/'
     | '/managingdirector/'
@@ -718,14 +609,7 @@ export interface FileRouteTypes {
     | '/jobs'
     | '/profile'
     | '/companies/$id'
-    | '/m/applications'
-    | '/m/companies'
-    | '/m/company'
-    | '/m/home'
-    | '/m/jobs'
-    | '/m/post'
-    | '/m/profile'
-    | '/m/saved'
+    | '/m/$'
     | '/companies'
     | '/m'
     | '/apply/$id'
@@ -754,9 +638,6 @@ export interface FileRouteTypes {
     | '/md/meetings'
     | '/md/messages'
     | '/md/profile'
-    | '/m/companies/$id'
-    | '/m/edit-job/$id'
-    | '/m/jobs/$id'
     | '/candidate'
     | '/employer'
     | '/managingdirector'
@@ -772,7 +653,6 @@ export interface FileRouteTypes {
     | '/caregivers'
     | '/contact'
     | '/for-employers'
-    | '/m'
     | '/md-preview'
     | '/pricing'
     | '/privacy'
@@ -788,14 +668,7 @@ export interface FileRouteTypes {
     | '/_app/md'
     | '/_app/profile'
     | '/companies/$id'
-    | '/m/applications'
-    | '/m/companies'
-    | '/m/company'
-    | '/m/home'
-    | '/m/jobs'
-    | '/m/post'
-    | '/m/profile'
-    | '/m/saved'
+    | '/m/$'
     | '/companies/'
     | '/m/'
     | '/_app/apply/$id'
@@ -824,9 +697,6 @@ export interface FileRouteTypes {
     | '/_app/md/meetings'
     | '/_app/md/messages'
     | '/_app/md/profile'
-    | '/m/companies/$id'
-    | '/m/edit-job/$id'
-    | '/m/jobs/$id'
     | '/_app/candidate/'
     | '/_app/employer/'
     | '/_app/managingdirector/'
@@ -843,7 +713,6 @@ export interface RootRouteChildren {
   CaregiversRoute: typeof CaregiversRoute
   ContactRoute: typeof ContactRoute
   ForEmployersRoute: typeof ForEmployersRoute
-  MRoute: typeof MRouteWithChildren
   MdPreviewRoute: typeof MdPreviewRoute
   PricingRoute: typeof PricingRoute
   PrivacyRoute: typeof PrivacyRoute
@@ -851,7 +720,9 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TermsRoute: typeof TermsRoute
   CompaniesIdRoute: typeof CompaniesIdRoute
+  MSplatRoute: typeof MSplatRoute
   CompaniesIndexRoute: typeof CompaniesIndexRoute
+  MIndexRoute: typeof MIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -896,13 +767,6 @@ declare module '@tanstack/react-router' {
       path: '/for-employers'
       fullPath: '/for-employers'
       preLoaderRoute: typeof ForEmployersRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/m': {
-      id: '/m'
-      path: '/m'
-      fullPath: '/m'
-      preLoaderRoute: typeof MRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/md-preview': {
@@ -1019,66 +883,17 @@ declare module '@tanstack/react-router' {
     }
     '/m/': {
       id: '/m/'
-      path: '/'
+      path: '/m'
       fullPath: '/m/'
       preLoaderRoute: typeof MIndexRouteImport
-      parentRoute: typeof MRoute
+      parentRoute: typeof rootRouteImport
     }
-    '/m/applications': {
-      id: '/m/applications'
-      path: '/applications'
-      fullPath: '/m/applications'
-      preLoaderRoute: typeof MApplicationsRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/companies': {
-      id: '/m/companies'
-      path: '/companies'
-      fullPath: '/m/companies'
-      preLoaderRoute: typeof MCompaniesRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/company': {
-      id: '/m/company'
-      path: '/company'
-      fullPath: '/m/company'
-      preLoaderRoute: typeof MCompanyRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/home': {
-      id: '/m/home'
-      path: '/home'
-      fullPath: '/m/home'
-      preLoaderRoute: typeof MHomeRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/jobs': {
-      id: '/m/jobs'
-      path: '/jobs'
-      fullPath: '/m/jobs'
-      preLoaderRoute: typeof MJobsRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/post': {
-      id: '/m/post'
-      path: '/post'
-      fullPath: '/m/post'
-      preLoaderRoute: typeof MPostRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/profile': {
-      id: '/m/profile'
-      path: '/profile'
-      fullPath: '/m/profile'
-      preLoaderRoute: typeof MProfileRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/saved': {
-      id: '/m/saved'
-      path: '/saved'
-      fullPath: '/m/saved'
-      preLoaderRoute: typeof MSavedRouteImport
-      parentRoute: typeof MRoute
+    '/m/$': {
+      id: '/m/$'
+      path: '/m/$'
+      fullPath: '/m/$'
+      preLoaderRoute: typeof MSplatRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_app/apply/$id': {
       id: '/_app/apply/$id'
@@ -1290,27 +1105,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMdProfileRouteImport
       parentRoute: typeof AppMdRoute
     }
-    '/m/companies/$id': {
-      id: '/m/companies/$id'
-      path: '/$id'
-      fullPath: '/m/companies/$id'
-      preLoaderRoute: typeof MCompaniesIdRouteImport
-      parentRoute: typeof MCompaniesRoute
-    }
-    '/m/edit-job/$id': {
-      id: '/m/edit-job/$id'
-      path: '/edit-job/$id'
-      fullPath: '/m/edit-job/$id'
-      preLoaderRoute: typeof MEditJobIdRouteImport
-      parentRoute: typeof MRoute
-    }
-    '/m/jobs/$id': {
-      id: '/m/jobs/$id'
-      path: '/$id'
-      fullPath: '/m/jobs/$id'
-      preLoaderRoute: typeof MJobsIdRouteImport
-      parentRoute: typeof MJobsRoute
-    }
     '/_app/apply/$id_/confirm': {
       id: '/_app/apply/$id_/confirm'
       path: '/apply/$id/confirm'
@@ -1479,56 +1273,6 @@ const AppRouteChildren: AppRouteChildren = {
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
-interface MCompaniesRouteChildren {
-  MCompaniesIdRoute: typeof MCompaniesIdRoute
-}
-
-const MCompaniesRouteChildren: MCompaniesRouteChildren = {
-  MCompaniesIdRoute: MCompaniesIdRoute,
-}
-
-const MCompaniesRouteWithChildren = MCompaniesRoute._addFileChildren(
-  MCompaniesRouteChildren,
-)
-
-interface MJobsRouteChildren {
-  MJobsIdRoute: typeof MJobsIdRoute
-}
-
-const MJobsRouteChildren: MJobsRouteChildren = {
-  MJobsIdRoute: MJobsIdRoute,
-}
-
-const MJobsRouteWithChildren = MJobsRoute._addFileChildren(MJobsRouteChildren)
-
-interface MRouteChildren {
-  MApplicationsRoute: typeof MApplicationsRoute
-  MCompaniesRoute: typeof MCompaniesRouteWithChildren
-  MCompanyRoute: typeof MCompanyRoute
-  MHomeRoute: typeof MHomeRoute
-  MJobsRoute: typeof MJobsRouteWithChildren
-  MPostRoute: typeof MPostRoute
-  MProfileRoute: typeof MProfileRoute
-  MSavedRoute: typeof MSavedRoute
-  MIndexRoute: typeof MIndexRoute
-  MEditJobIdRoute: typeof MEditJobIdRoute
-}
-
-const MRouteChildren: MRouteChildren = {
-  MApplicationsRoute: MApplicationsRoute,
-  MCompaniesRoute: MCompaniesRouteWithChildren,
-  MCompanyRoute: MCompanyRoute,
-  MHomeRoute: MHomeRoute,
-  MJobsRoute: MJobsRouteWithChildren,
-  MPostRoute: MPostRoute,
-  MProfileRoute: MProfileRoute,
-  MSavedRoute: MSavedRoute,
-  MIndexRoute: MIndexRoute,
-  MEditJobIdRoute: MEditJobIdRoute,
-}
-
-const MRouteWithChildren = MRoute._addFileChildren(MRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AppRoute: AppRouteWithChildren,
@@ -1536,7 +1280,6 @@ const rootRouteChildren: RootRouteChildren = {
   CaregiversRoute: CaregiversRoute,
   ContactRoute: ContactRoute,
   ForEmployersRoute: ForEmployersRoute,
-  MRoute: MRouteWithChildren,
   MdPreviewRoute: MdPreviewRoute,
   PricingRoute: PricingRoute,
   PrivacyRoute: PrivacyRoute,
@@ -1544,7 +1287,9 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TermsRoute: TermsRoute,
   CompaniesIdRoute: CompaniesIdRoute,
+  MSplatRoute: MSplatRoute,
   CompaniesIndexRoute: CompaniesIndexRoute,
+  MIndexRoute: MIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

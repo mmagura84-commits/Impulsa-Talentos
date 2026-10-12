@@ -147,7 +147,7 @@ function LandingCTAs() {
       </Button>
     )
   }
-  const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer' }) }
+  const goEmployer = () => { setOnboardingIntent('employer'); navigate({ to: '/employer', search: { signup: '1' } as never }) }
   return (
     <div className="flex flex-wrap items-center justify-center gap-3 md:justify-start">
       <Button asChild size="lg" className="h-12 gap-2 bg-white px-7 text-base font-semibold text-slate-900 shadow-lg hover:bg-white/90">
@@ -553,7 +553,7 @@ function LandingPage() {
       <section className="border-t border-border bg-primary/[.04]">
         <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
           <div><p className="text-sm font-semibold uppercase tracking-wider text-primary">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-bold tracking-tight sm:text-3xl">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-muted-foreground">{t('landing.employerCtaDesc')}</p></div>
-          <Button size="lg" className="shrink-0" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
+          <Button size="lg" className="shrink-0" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start'); window.location.href = '/employer?signup=1' }}>{t('landing.employerCtaAction')} <ArrowRight className="ml-2 size-4" /></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}

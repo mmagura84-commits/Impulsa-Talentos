@@ -10,7 +10,7 @@ import { AuthGate } from '@/components/AuthGate'
 import { UnsavedChangesDialog } from '@/components/UnsavedChangesDialog'
 import { useAuth } from '@/hooks/useAuth'
 import { useProfile } from '@/hooks/useProfile'
-import { useCompany, useCreateCompany } from '@/hooks/useCompanies'
+import { useCompany, useCreateCompany, useUpdateCompany } from '@/hooks/useCompanies'
 import { useCreateJob } from '@/hooks/useJobs'
 import { friendlyDbError, isNoCreditsError } from '@/lib/dbErrors'
 import { useQueryClient } from '@tanstack/react-query'
@@ -129,6 +129,9 @@ function PostJobPage() {
   const createJob = useCreateJob()
 
   const [step, setStep] = useState<Step>('company')
+  // True when the last Publish was queued until HQ verifies the company.
+  const [queuedPublish, setQueuedPublish] = useState(false)
+  const requestVerification = useUpdateCompany()
   const [companyId, setCompanyId] = useState<string | null>(null)
   const [companyForm, setCompanyForm] = useState(EMPTY_COMPANY)
   const [form, setForm] = useState(EMPTY_FORM)
@@ -247,6 +250,10 @@ function PostJobPage() {
         toast.error(t('postJob.job.salaryRangeError'))
         return
       }
+      // Unverified companies can press Publish: the job is saved as a draft
+      // marked to go live automatically once HQ verifies the company
+      // (migration 044), and verification is requested if it wasn't yet.
+      const queue = status === 'open' && !existingCompany?.verified
       await createJob.mutateAsync({
         companyId,
         title: form.title || 'Untitled draft',
@@ -258,7 +265,8 @@ function PostJobPage() {
         currency: form.currency,
         skillsRequired: form.skillsRequired,
         languagesRequired: form.languagesRequired,
-        status,
+        status: queue ? 'draft' : status,
+        publishWhenVerified: queue,
         ...(postType === 'care'
           ? {
               entityType: 'household',
@@ -276,6 +284,10 @@ function PostJobPage() {
           : { entityType: 'company' }),
       })
       setDirty(false)
+      setQueuedPublish(queue)
+      if (queue && !existingCompany?.verificationRequested) {
+        await requestVerification.mutateAsync({ id: companyId, data: { verificationRequested: true } }).catch(() => {})
+      }
       // The database charges one credit on a job's first publish (migration
       // 041); refresh the balance shown in the form.
       queryClient.invalidateQueries({ queryKey: ['companies'] })
@@ -286,6 +298,8 @@ function PostJobPage() {
         })
         // Reset only the job fields; keep the company context.
         setForm({ ...EMPTY_FORM, currency: form.currency })
+      } else if (queue) {
+        toast.success(t('postJob.queue.toast'), { description: t('postJob.queue.toastDesc') })
       } else {
         toast.success(t('postJob.job.success'), {
           description: t('postJob.job.successDesc'),
@@ -523,10 +537,13 @@ function PostJobPage() {
     // database, migration 041). Drafts are always free, so the form stays
     // available and the reason publishing is blocked is shown above it.
     const credits = existingCompany?.jobCredits ?? (companyId ? NEW_COMPANY_TRIAL_CREDITS : 0)
-    const isUnverified = !!existingCompany && !existingCompany.verified
+    const isUnverified = !existingCompany?.verified
     const isRequested = !!existingCompany?.verificationRequested
     const noCredits = credits < CREDITS_PER_POSTING
-    const publishBlocked = isUnverified || noCredits
+    // Unverified companies may still press Publish (the job is queued), so only
+    // a verified company without credits is blocked.
+    const publishBlocked = !isUnverified && noCredits
+    const showNotice = isUnverified || noCredits
 
     return (
       <AuthGate>
@@ -548,7 +565,7 @@ function PostJobPage() {
             </div>
           </FadeIn>
 
-          {publishBlocked && (
+          {showNotice && (
             <FadeIn delay={0.03}>
               <Card className="mb-6 border-amber-500/30" role="status">
                 <CardContent className="flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between">
@@ -559,14 +576,13 @@ function PostJobPage() {
                     <div>
                       <p className="font-medium text-foreground">
                         {isUnverified
-                          ? (isRequested ? t('verification.pendingPublishTitle') : t('verification.unverifiedPublishTitle'))
+                          ? t('postJob.queue.noticeTitle')
                           : t('postJob.credits.title')}
                       </p>
                       <p className="mt-0.5 text-sm text-muted-foreground">
                         {isUnverified
-                          ? (isRequested ? t('verification.pendingPublishDesc') : t('verification.unverifiedPublishDesc'))
-                          : t('postJob.credits.desc')}{' '}
-                        {t('postJob.draftsStillFree')}
+                          ? t(isRequested ? 'postJob.queue.noticeDescRequested' : 'postJob.queue.noticeDesc')
+                          : <>{t('postJob.credits.desc')} {t('postJob.draftsStillFree')}</>}
                       </p>
                     </div>
                   </div>
@@ -862,7 +878,7 @@ function PostJobPage() {
                 className="gap-2 font-medium px-8"
               >
                 <Send className="size-4" />
-                {createJob.isPending ? t('postJob.job.publishing') : t('postJob.job.publish')}
+                {createJob.isPending ? t('postJob.job.publishing') : isUnverified ? t('postJob.queue.button') : t('postJob.job.publish')}
               </Button>
               <Button
                 variant="outline"
@@ -907,9 +923,9 @@ function PostJobPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-6">
             <CheckCircle2 className="size-8 text-primary" />
           </div>
-          <h2 className="font-serif text-2xl font-bold text-foreground mb-2">{t('postJob.success.title')}</h2>
+          <h2 className="font-serif text-2xl font-bold text-foreground mb-2">{t(queuedPublish ? 'postJob.queue.successTitle' : 'postJob.success.title')}</h2>
           <p className="text-muted-foreground mb-6 max-w-md mx-auto">
-            {t('postJob.success.desc')}
+            {t(queuedPublish ? 'postJob.queue.successDesc' : 'postJob.success.desc')}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Button onClick={reset} variant="outline" size="lg">

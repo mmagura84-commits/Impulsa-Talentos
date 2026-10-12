@@ -172,6 +172,36 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
     if (!open || !user) return
     supabase.rpc('public_payment_link').then(({ data }) => setCardLink(typeof data === 'string' && data.startsWith('https://') ? data : null))
   }, [open, user])
+  // Instant card checkout (migration 045): shown only when Wompi is configured
+  // and this plan has a peso price. Credits arrive as soon as Wompi confirms.
+  const packageId = pkg ? (billing === 'yearly' ? `${pkg.id}_yearly` : pkg.id) : ''
+  const [copCents, setCopCents] = useState<number | null>(null)
+  const [cardEnabled, setCardEnabled] = useState(false)
+  const [cardBusy, setCardBusy] = useState(false)
+  useEffect(() => {
+    if (!open || !user || !packageId) return
+    let active = true
+    supabase.from('billing_packages').select('amount_cop_cents').eq('id', packageId).maybeSingle()
+      .then(({ data }) => { if (active) setCopCents(Number((data as { amount_cop_cents?: number } | null)?.amount_cop_cents) || null) })
+    supabase.functions.invoke('wompi-payments', { body: { action: 'config' } })
+      .then(({ data }) => { if (active) setCardEnabled(!!(data as { enabled?: boolean } | null)?.enabled) })
+      .catch(() => { if (active) setCardEnabled(false) })
+    return () => { active = false }
+  }, [open, user, packageId])
+  const cardReady = cardEnabled && !!copCents
+  const payByCard = async () => {
+    if (!company || !packageId) return
+    setCardBusy(true)
+    setSubmitError('')
+    const { data, error } = await supabase.functions.invoke('wompi-payments', { body: { action: 'checkout', companyId: company.id, packageId } })
+    const url = (data as { url?: string } | null)?.url
+    if (error || !url) {
+      setCardBusy(false)
+      setSubmitError(t('pricing.card.startError'))
+      return
+    }
+    window.location.href = url
+  }
 
   // Reset per-open (so closing then re-opening starts clean).
   useEffect(() => {
@@ -236,7 +266,17 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
                 </div>
               ) : (
                 <div className="grid gap-4">
-                  {cardLink && (
+                  {cardReady && (
+                    <div className="rounded-md border border-primary/30 bg-primary/5 p-4 grid gap-2 text-sm">
+                      <p className="font-medium text-foreground">{t('pricing.card.instantTitle')}</p>
+                      <p className="text-muted-foreground text-xs">{t('pricing.card.instantDesc', { amount: new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format((copCents ?? 0) / 100) })}</p>
+                      <Button size="sm" disabled={cardBusy} onClick={payByCard}>
+                        {cardBusy ? <Loader2 className="size-4 animate-spin" /> : null}
+                        {t('pricing.card.payNow')}
+                      </Button>
+                    </div>
+                  )}
+                  {!cardReady && cardLink && (
                     <div className="rounded-md border border-primary/30 bg-primary/5 p-4 grid gap-2 text-sm">
                       <p className="font-medium text-foreground">{t('pricing.card.title')}</p>
                       <p className="text-muted-foreground text-xs">{t('pricing.card.desc')}</p>
@@ -268,7 +308,7 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
                     {busy ? <Loader2 className="size-4 animate-spin" /> : null}
                     {busy ? t('pricing.manual.submitting') : t('pricing.manual.submit')}
                   </Button>
-                  {!cardLink && <p className="text-xs text-muted-foreground">{t('pricing.manual.cardComing')}</p>}
+                  {!cardReady && !cardLink && <p className="text-xs text-muted-foreground">{t('pricing.manual.cardComing')}</p>}
                 </div>
               )}
             </AuthGate>
@@ -276,6 +316,46 @@ function CheckoutSheet({ pkg, billing, open, onClose }: { pkg: JobPostingPackage
         </div>
       </SheetContent>
     </Sheet>
+  )
+}
+
+/** After Wompi sends the employer back (?payment=IT-...), show what happened. */
+function CardPaymentStatus() {
+  const { t } = useI18n()
+  const { user } = useAuth()
+  const [ref, setRef] = useState<string | null>(null)
+  const [status, setStatus] = useState<'pending' | 'approved' | 'declined' | 'voided' | 'error' | 'unknown'>('pending')
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const r = new URLSearchParams(window.location.search).get('payment')
+    if (r && /^IT-[a-f0-9]{32}$/.test(r)) setRef(r)
+  }, [])
+  useEffect(() => {
+    if (!ref || !user) return
+    let tries = 0
+    let timer: number | undefined
+    const check = async () => {
+      const { data } = await supabase.from('card_payments').select('status').eq('reference', ref).maybeSingle()
+      const st = (data as { status?: string } | null)?.status
+      if (st && st !== 'pending') { setStatus(st as typeof status); return }
+      if (!data && tries > 2) { setStatus('unknown'); return }
+      if (++tries < 40) timer = window.setTimeout(check, 3000)
+    }
+    void check()
+    return () => { if (timer) window.clearTimeout(timer) }
+  }, [ref, user])
+  if (!ref) return null
+  const tone = status === 'approved' ? 'border-emerald-500/40 bg-emerald-500/5' : status === 'pending' ? 'border-primary/30 bg-primary/5' : 'border-destructive/30 bg-destructive/5'
+  return (
+    <div className="mx-auto mb-8 max-w-3xl" role="status">
+      <div className={`rounded-lg border p-4 text-sm ${tone}`}>
+        <p className="font-medium text-foreground">{t(`pricing.card.result.${status}`)}</p>
+        <p className="mt-1 text-muted-foreground">{t(`pricing.card.result.${status}Desc`)}</p>
+        {status === 'approved' && (
+          <Button asChild size="sm" className="mt-3"><Link to="/employer/post-job">{t('pricing.card.result.postJob')}</Link></Button>
+        )}
+      </div>
+    </div>
   )
 }
 
@@ -290,6 +370,7 @@ function PricingPage() {
     <div className="min-h-screen bg-background text-foreground">
       <PublicHeader transparentOnTop={false} />
       <main id="main" className="max-w-5xl mx-auto px-5 py-12">
+        <CardPaymentStatus />
         <div className="text-center mb-8">
           <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('pricing.kicker')}</p>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold">{t('pricing.title')}</h1>

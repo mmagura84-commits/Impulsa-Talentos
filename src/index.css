@@ -244,3 +244,8 @@ html, body {
   from { transform: translateX(0); }
   to   { transform: translateX(-50%); }
 }
+
+/* Phone tab bar (MobileTabBar): keep page content and footer clear of it. */
+@media (max-width: 767px) {
+  body.has-tabbar { padding-bottom: calc(3.5rem + env(safe-area-inset-bottom, 0px)); }
+}
