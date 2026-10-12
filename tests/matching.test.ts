@@ -55,3 +55,15 @@ describe('CV suggestions', () => {
     expect(cvSuggestions(x, { skills: 'SQL, Power BI, customer service', languages: 'English C1, French', years: '5', role: 'Analyst' })).toEqual({})
   })
 })
+
+import { SOCIAL_ACCOUNTS } from '../src/lib/socialAccounts'
+describe('social accounts to create', () => {
+  test('unique channel codes, bios within each platform limit, tracked https links', () => {
+    expect(new Set(SOCIAL_ACCOUNTS.map(a => a.code)).size).toBe(SOCIAL_ACCOUNTS.length)
+    for (const a of SOCIAL_ACCOUNTS) {
+      expect([...a.bio].length).toBeLessThanOrEqual(a.bioLimit)
+      expect(a.link).toMatch(/^https:\/\/impulsatalentos\.expert\/\?utm_source=[a-z]+&utm_medium=[a-z]+&utm_campaign=[a-z0-9-]+$/)
+      expect(a.createUrl).toMatch(/^https:\/\//)
+    }
+  })
+})

@@ -655,3 +655,25 @@ update public.profiles set cv_extracted = '{"skills":["SQL"]}', cv_extracted_at 
 update public.profiles set cv_url = '', parsed_cv_text = '' where id = '10000000-0000-0000-0000-0000000000a6';
 select t.check('removing the CV also removes what was extracted from it',
   (select cv_extracted is null and cv_extracted_at is null from public.profiles where id = '10000000-0000-0000-0000-0000000000a6'));
+
+-- ── Social accounts (049) ──
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_ok('HQ saves a social account with an encrypted password',
+  $$select public.hq_save_social_account('instagram', 'Impulsa Talentos', '@impulsatalentos', 'https://www.instagram.com/impulsatalentos', 'social@impulsatalentos.expert', 'not-a-real-password')$$);
+select t.expect_ok('HQ updates it without retyping the password',
+  $$select public.hq_save_social_account('instagram', 'Impulsa Talentos', '@impulsa.talentos', 'https://www.instagram.com/impulsa.talentos', 'social@impulsatalentos.expert', null)$$);
+select t.expect_error('a profile link must be https', $$select public.hq_save_social_account('tiktok', '', '@x', 'javascript:alert(1)', '', null)$$);
+select t.reset();
+select t.check('one row per channel, handle updated, password kept encrypted only',
+  (select count(*) = 1 and bool_and(account_handle = '@impulsa.talentos' and secret_id is not null and secret_last4 = '')
+     from public.marketing_credentials where channel_code = 'instagram'));
+select t.check('the password is not stored in the table', not exists (
+  select 1 from public.marketing_credentials where row_to_json(marketing_credentials)::text like '%not-a-real-password%'));
+select t.check('campaign channels are switched on',
+  (select count(*) = 5 from public.marketing_channels where active and code in ('meta_ads','youtube','telegram_jobs','whatsapp_channel','tiktok_ads')));
+select t.act_as('00000000-0000-0000-0000-0000000000d1');
+select t.expect_error('the MD cannot use the HQ save', $$select public.hq_save_social_account('facebook', '', '', '', '', null)$$);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a5');
+select t.expect_error('a candidate cannot either', $$select public.hq_save_social_account('facebook', '', '', '', '', null)$$);
+select t.reset();

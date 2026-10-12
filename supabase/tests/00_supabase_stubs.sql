@@ -53,7 +53,7 @@ create table if not exists vault.secrets (
 );
 create or replace view vault.decrypted_secrets as
   select id, name, description, secret, secret as decrypted_secret, created_at from vault.secrets;
-create or replace function vault.create_secret(new_secret text, new_name text default null, new_description text default '')
+create or replace function vault.create_secret(new_secret text, new_name text default null, new_description text default '', new_key_id uuid default null)
 returns uuid language plpgsql security definer as $$
 declare v uuid; begin
   insert into vault.secrets(secret, name, description) values (new_secret, new_name, new_description) returning id into v;

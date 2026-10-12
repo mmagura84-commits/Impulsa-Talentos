@@ -9,6 +9,7 @@ import { supabase } from '@/lib/supabase'
 import { useI18n } from '@/i18n/I18nProvider'
 import { Megaphone, CheckCircle2, Rocket, Loader2 } from 'lucide-react'
 import { CandidateFunnelCard } from '@/components/hq/CandidateFunnelCard'
+import { SocialAccountsCard } from '@/components/hq/SocialAccountsCard'
 
 type Channel = {
   code: string
@@ -108,6 +109,7 @@ export function CampaignsTab() {
   return (
     <div className="space-y-6">
       <FadeIn><CandidateFunnelCard /></FadeIn>
+      <FadeIn><SocialAccountsCard /></FadeIn>
       <FadeIn>
         <Card>
           <CardHeader>
