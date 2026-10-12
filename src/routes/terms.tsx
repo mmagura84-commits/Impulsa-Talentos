@@ -30,7 +30,7 @@ const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: stri
       { title: '8. Limitation of Liability', body: 'To the maximum extent permitted by law, Impulsa Talentos is not liable for indirect, incidental, or consequential damages arising from your use of the Platform, hiring outcomes, or reliance on listings. Nothing in these Terms limits rights granted by Colombian mandatory law.' },
       { title: '9. Governing Law and Jurisdiction', body: 'These Terms are governed by the laws of the Republic of Colombia. Any dispute arising out of or relating to these Terms shall be submitted to the courts of Medellín, Antioquia, Colombia, unless otherwise required by mandatory consumer protection provisions.' },
       { title: '10. Changes to These Terms', body: 'We may update these Terms from time to time. Material changes will be notified through the Platform. Continued use after changes take effect constitutes acceptance of the revised Terms.' },
-      { title: '11. Contact', body: 'Questions about these Terms may be sent to legal@impulsatalentos.co. Impulsa Talentos S.A.S., Medellín, Colombia.' },
+      { title: '11. Contact', body: 'Questions about these Terms may be sent to info@impulsatalentos.expert. Impulsa Talentos S.A.S., Medellín, Colombia.' },
     ],
   },
   es: {
@@ -48,7 +48,7 @@ const CONTENT: Record<'en' | 'es', { title: string; updated: string; intro: stri
       { title: '8. Limitacion de Responsabilidad', body: 'En la maxima medida permitida por la ley, Impulsa Talentos no sera responsable por danos indirectos, incidentales o consecuentes derivados del uso de la Plataforma, de resultados de contratacion o de la confianza en las publicaciones. Nada en estos Terminos limita derechos conferidos por normas colombianas de orden publico.' },
       { title: '9. Ley Aplicable y Jurisdiccion', body: 'Estos Terminos se rigen por las leyes de la Republica de Colombia. Toda controversia se sometera a los juzgados de Medellin, Antioquia, Colombia, salvo disposicion imperativa en materia de proteccion al consumidor.' },
       { title: '10. Cambios a Estos Terminos', body: 'Podemos actualizar estos Terminos periodicamente. Los cambios materiales se notificaran a traves de la Plataforma. El uso continuado tras la entrada en vigor constituye aceptacion.' },
-      { title: '11. Contacto', body: 'Dudas sobre estos Terminos: legal@impulsatalentos.co. Impulsa Talentos S.A.S., Medellin, Colombia.' },
+      { title: '11. Contacto', body: 'Dudas sobre estos Terminos: info@impulsatalentos.expert. Impulsa Talentos S.A.S., Medellin, Colombia.' },
     ],
   },
 }
