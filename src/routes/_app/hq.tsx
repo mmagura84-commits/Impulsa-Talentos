@@ -103,7 +103,7 @@ function statusBadge(status: string) {
     open: 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5',
     closed: 'border-destructive/30 text-destructive bg-destructive/5',
   }
-  return `inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${map[status] ?? STATUS_PILL_CLASSES[status as keyof typeof STATUS_PILL_CLASSES] ?? 'border-border text-muted-foreground'}` as string
+  return `inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${map[status] ?? STATUS_PILL_CLASSES[status as keyof typeof STATUS_PILL_CLASSES] ?? 'border-border text-muted-foreground'}` as string
 }
 
 function copyToClipboard(text: string, label: string) {
@@ -144,14 +144,14 @@ function KpiCard({ icon: Icon, label, value, hint, delay }: {
         <CardContent className="pt-5 pb-4">
           <div className="flex items-start justify-between">
             <div className="space-y-1">
-              <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
+              <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider">{label}</p>
               <p className="text-2xl font-bold text-foreground font-serif">{value}</p>
             </div>
             <div className="flex items-center justify-center h-9 w-9 rounded-lg bg-primary/10 text-primary">
               <Icon className="size-4" />
             </div>
           </div>
-          {hint && <p className="mt-2 text-[10px] text-muted-foreground">{hint}</p>}
+          {hint && <p className="mt-2 text-xs sm:text-[10px] text-muted-foreground">{hint}</p>}
         </CardContent>
       </Card>
     </FadeIn>
@@ -329,17 +329,17 @@ function OverviewTab({
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {/* Users by role */}
               <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.usersByRole')}</p>
+                <p className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.usersByRole')}</p>
                 <MiniBar data={roleData} />
               </div>
               {/* Jobs by status */}
               <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.jobsByStatus')}</p>
+                <p className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.jobsByStatus')}</p>
                 <MiniBar data={jobStatusData} />
               </div>
               {/* Applications funnel */}
               <div>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.applicationsByStatus')}</p>
+                <p className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider mb-2">{t('hq.chart.applicationsByStatus')}</p>
                 <MiniBar data={funnelData} />
               </div>
             </div>
@@ -477,7 +477,7 @@ function DataTable<T extends { id: string }>({
                   <thead>
                     <tr className="border-b border-border">
                       {columns.map(c => (
-                        <th key={c.key} className="text-left py-2 px-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
+                        <th key={c.key} className="text-left py-2 px-2 text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider whitespace-nowrap">
                           {c.label}
                         </th>
                       ))}
@@ -574,7 +574,7 @@ function ApplicationsTab({ applications, jobs, profiles }: {
               <select
                 value={app.status}
                 onChange={e => handleStatusChange(app.id, e.target.value as Application['status'])}
-                className="h-7 rounded border border-border bg-background px-2 text-[11px] text-foreground outline-none focus-visible:border-ring"
+                className="h-7 rounded border border-border bg-background px-2 text-xs sm:text-[11px] text-foreground outline-none focus-visible:border-ring"
               >
                 {APPLICATION_STATUS_FLOW.map(s => (
                   <option key={s} value={s}>{t(`dashboard.status.${s}`)}</option>
@@ -583,7 +583,7 @@ function ApplicationsTab({ applications, jobs, profiles }: {
             </td>
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{timeAgo(app.createdAt)}</td>
             <td className="py-2.5 px-2">
-              <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => copyToClipboard(app.id, t('hq.action.copied'))}>
+              <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" onClick={() => copyToClipboard(app.id, t('hq.action.copied'))}>
                 <Copy className="size-3 mr-1" /> {t('hq.action.copyId')}
               </Button>
             </td>
@@ -650,12 +650,12 @@ function JobsTab({ jobs, companies, applications }: {
             <td className="py-2.5 px-2">
               <span className={statusBadge(job.status)}>{job.status}</span>
               {job.moderationStatus === 'pending' && (
-                <span className="ml-1.5 inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+                <span className="ml-1.5 inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-amber-700">
                   <Clock className="mr-1 size-3" />{t('job.moderation.pending')}
                 </span>
               )}
               {job.moderationStatus === 'rejected' && (
-                <span className="ml-1.5 inline-flex items-center rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+                <span className="ml-1.5 inline-flex items-center rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-destructive">
                   {t('job.moderation.rejected')}
                 </span>
               )}
@@ -663,10 +663,10 @@ function JobsTab({ jobs, companies, applications }: {
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{appCount}</td>
             <td className="py-2.5 px-2 text-xs font-mono text-muted-foreground">{job.currency ?? 'COP'} {job.salaryMin ?? '?'}</td>
             <td className="py-2.5 px-2 flex items-center gap-1">
-              <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => toggleStatus(job)} disabled={job.status === 'draft'}>
+              <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" onClick={() => toggleStatus(job)} disabled={job.status === 'draft'}>
                 {job.status === 'open' ? t('hq.action.closeJob') : t('hq.action.reopenJob')}
               </Button>
-              <Button variant="ghost" size="sm" className="h-7 text-[11px]" asChild>
+              <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" asChild>
                 <Link to="/jobs/$id" params={{ id: job.id }}>{t('hq.action.view')}</Link>
               </Button>
             </td>
@@ -737,7 +737,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
               <td className="py-2.5 px-2">
                 <span className="font-medium text-xs text-foreground">{c.name}</span>
                 {(c as any).verificationRequested && !c.verified && (
-                  <span className="ml-1.5 inline-flex rounded-full border border-amber-500/30 bg-amber-500/5 px-1.5 py-px text-[9px] font-medium text-amber-600">
+                  <span className="ml-1.5 inline-flex rounded-full border border-amber-500/30 bg-amber-500/5 px-1.5 py-px text-xs sm:text-[9px] font-medium text-amber-600">
                     {t('verification.requested')}
                   </span>
                 )}
@@ -755,7 +755,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
               <td className="py-2.5 px-2 text-xs text-muted-foreground">{jobCount}</td>
               <td className="py-2.5 px-2 flex items-center gap-1">
                 {c.verified ? (
-                  <Button variant="ghost" size="sm" className="h-7 text-[11px] text-emerald-600"
+                  <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px] text-emerald-600"
                     onClick={async () => {
                       try {
                         await verifyCompany(c.id, false)
@@ -765,7 +765,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
                     {t('verification.unverify')}
                   </Button>
                 ) : (
-                  <Button variant="ghost" size="sm" className="h-7 text-[11px]"
+                  <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]"
                     onClick={async () => {
                       try {
                         await verifyCompany(c.id, true)
@@ -780,16 +780,16 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
                     aria-label={t('hq.md.assign')}
                     defaultValue=""
                     onChange={e => { if (e.target.value) { void assignMd(c.id, e.target.value); e.target.value = '' } }}
-                    className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
+                    className="h-7 rounded-md border border-input bg-background px-1.5 text-xs sm:text-[11px]"
                   >
                     <option value="">{t('hq.md.assign')}</option>
                     {mds.map(m => <option key={m.id} value={m.id}>{m.fullName || m.email}</option>)}
                   </select>
                 )}
-                <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => { setEditing(c); setEditForm({ name: c.name, industry: c.industry, size: c.size, location: c.location, website: c.website, description: c.description, contactEmail: c.contactEmail ?? '' }) }}>
+                <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" onClick={() => { setEditing(c); setEditForm({ name: c.name, industry: c.industry, size: c.size, location: c.location, website: c.website, description: c.description, contactEmail: c.contactEmail ?? '' }) }}>
                   Edit
                 </Button>
-                <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => c.website ? window.open(c.website, '_blank') : copyToClipboard(c.id, t('hq.action.copied'))}>
+                <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" onClick={() => c.website ? window.open(c.website, '_blank') : copyToClipboard(c.id, t('hq.action.copied'))}>
                   {c.website ? <><Eye className="size-3 mr-1" /> {t('hq.action.view')}</> : <><Copy className="size-3 mr-1" /> {t('hq.action.copyId')}</>}
                 </Button>
               </td>
@@ -807,7 +807,7 @@ function CompaniesTab({ companies, jobs, profiles }: { companies: Company[]; job
             <div className="space-y-3">
               {(['name', 'industry', 'size', 'location', 'website', 'contactEmail', 'description'] as (keyof Company)[]).map(field => (
                 <div key={field} className="space-y-1">
-                  <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{field}</label>
+                  <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">{field}</label>
                   {field === 'description' ? (
                     <textarea
                       value={String(editForm[field] ?? '')}
@@ -911,7 +911,7 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
           <CardContent className="space-y-4">
             <div className="grid sm:grid-cols-2 gap-3">
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Company *</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Company *</label>
                 <select
                   value={companyId}
                   onChange={e => setCompanyId(e.target.value)}
@@ -924,48 +924,48 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Title *</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Title *</label>
                 <Input value={title} onChange={e => setTitle(e.target.value)} placeholder="e.g. Bilingual Full Stack Developer" className="h-9" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Level</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Level</label>
                 <select value={level} onChange={e => setLevel(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring">
                   <option value="">Any</option>
                   {['Junior', 'Mid-level', 'Senior', 'Lead', 'Manager'].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Location / Modality</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Location / Modality</label>
                 <select value={locationType} onChange={e => setLocationType(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring">
                   <option value="">Select...</option>
                   {['Remote', 'Hybrid', 'On-site', 'Remote · Medellín', 'Hybrid · Bogotá'].map(l => <option key={l} value={l}>{l}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Salary Min</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Salary Min</label>
                 <Input type="number" value={salaryMin} onChange={e => setSalaryMin(e.target.value)} placeholder="0" className="h-9" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Salary Max</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Salary Max</label>
                 <Input type="number" value={salaryMax} onChange={e => setSalaryMax(e.target.value)} placeholder="0" className="h-9" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Currency</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Currency</label>
                 <select value={currency} onChange={e => setCurrency(e.target.value)} className="w-full h-9 rounded-md border border-border bg-background px-3 text-sm text-foreground outline-none focus-visible:border-ring">
                   {['COP', 'USD', 'EUR'].map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Skills (comma-separated)</label>
                 <Input value={skills} onChange={e => setSkills(e.target.value)} placeholder="React, Node.js, AWS" className="h-9" />
               </div>
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Languages</label>
+                <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Languages</label>
                 <Input value={languages} onChange={e => setLanguages(e.target.value)} placeholder="English B2, Spanish Native" className="h-9" />
               </div>
             </div>
             <div className="space-y-1.5">
-              <label className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Description</label>
+              <label className="text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Description</label>
               <textarea
                 value={description}
                 onChange={e => setDescription(e.target.value)}
@@ -999,9 +999,9 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-border">
-                      <th className="text-left py-2 px-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Title</th>
-                      <th className="text-left py-2 px-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Company</th>
-                      <th className="text-left py-2 px-2 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Created</th>
+                      <th className="text-left py-2 px-2 text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Title</th>
+                      <th className="text-left py-2 px-2 text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Company</th>
+                      <th className="text-left py-2 px-2 text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">Created</th>
                       <th className="w-10" />
                     </tr>
                   </thead>
@@ -1014,7 +1014,7 @@ function PostJobTab({ companies, jobs }: { companies: Company[]; jobs: Job[] }) 
                           <td className="py-2.5 px-2 text-xs text-muted-foreground">{c?.name ?? '—'}</td>
                           <td className="py-2.5 px-2 text-xs text-muted-foreground">{timeAgo(d.createdAt)}</td>
                           <td className="py-2.5 px-2">
-                            <Button variant="ghost" size="sm" className="h-7 text-[11px]" onClick={() => handlePublishDraft(d.id)}>
+                            <Button variant="ghost" size="sm" className="h-7 text-xs sm:text-[11px]" onClick={() => handlePublishDraft(d.id)}>
                               Publish
                             </Button>
                           </td>
@@ -1081,7 +1081,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
             {deletionRequests.map(p => (
               <div key={p.id} className="flex flex-wrap items-center justify-between gap-2 rounded-md border border-border p-2 text-xs">
                 <span><strong>{p.fullName || '—'}</strong> · {p.email} · {t('hq.users.requestedOn')} {new Date(p.deletionRequestedAt!).toLocaleDateString()}</span>
-                <Button size="sm" variant="destructive" className="h-7 text-[11px]" onClick={() => setConfirm({ kind: 'erase', profile: p })}>{t('hq.users.erase')}</Button>
+                <Button size="sm" variant="destructive" className="h-7 text-xs sm:text-[11px]" onClick={() => setConfirm({ kind: 'erase', profile: p })}>{t('hq.users.erase')}</Button>
               </div>
             ))}
           </CardContent>
@@ -1102,7 +1102,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
             <td className="py-2.5 px-2 font-medium text-xs text-foreground">{p.fullName ?? '—'}</td>
             <td className="py-2.5 px-2 text-xs text-muted-foreground">{p.email ?? '—'}</td>
             <td className="py-2.5 px-2">
-              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${ROLE_BADGE_CLASSES[p.role] ?? 'border-border text-muted-foreground'}`}>
+              <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${ROLE_BADGE_CLASSES[p.role] ?? 'border-border text-muted-foreground'}`}>
                 {t(`hq.role.${p.role}`)}
               </span>
             </td>
@@ -1114,7 +1114,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
                   aria-label={t('hq.users.changeRole')}
                   value={p.role}
                   onChange={e => setConfirm({ kind: 'role', profile: p, role: e.target.value as Profile['role'], status: (p.profileStatus ?? 'active') as (typeof STATUS_OPTIONS)[number] })}
-                  className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
+                  className="h-7 rounded-md border border-input bg-background px-1.5 text-xs sm:text-[11px]"
                 >
                   {ROLE_OPTIONS.map(r => <option key={r} value={r}>{t(`hq.role.${r}`)}</option>)}
                 </select>
@@ -1122,7 +1122,7 @@ function UsersTab({ profiles }: { profiles: Profile[] }) {
                   aria-label={t('hq.users.changeStatus')}
                   value={p.profileStatus ?? 'active'}
                   onChange={e => setConfirm({ kind: 'role', profile: p, role: p.role, status: e.target.value as (typeof STATUS_OPTIONS)[number] })}
-                  className="h-7 rounded-md border border-input bg-background px-1.5 text-[11px]"
+                  className="h-7 rounded-md border border-input bg-background px-1.5 text-xs sm:text-[11px]"
                 >
                   {STATUS_OPTIONS.map(st => <option key={st} value={st}>{t(`hq.users.status.${st}`)}</option>)}
                 </select>

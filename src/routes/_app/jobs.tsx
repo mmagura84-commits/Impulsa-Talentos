@@ -155,7 +155,7 @@ function JobListItem({
                 </Link>
               ) : companyName}
               {resolvedCompany?.verified && (
-                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-1.5 py-px text-[10px] font-medium text-emerald-700">
+                <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-1.5 py-px text-xs sm:text-[10px] font-medium text-emerald-700">
                   <BadgeCheck className="size-3" />
                   {t('verification.verified')}
                 </span>
@@ -182,7 +182,7 @@ function JobListItem({
                 {skills.slice(0, 4).map(skill => (
                   <span
                     key={skill}
-                    className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-[11px] font-medium text-muted-foreground bg-muted/50"
+                    className="inline-flex items-center rounded-full border border-border px-2.5 py-0.5 text-xs sm:text-[11px] font-medium text-muted-foreground bg-muted/50"
                   >
                     {skill}
                   </span>

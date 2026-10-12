@@ -99,7 +99,7 @@ export function LeadsTab() {
                     <td className="py-2 px-2 min-w-[12rem]">
                       <div className="flex gap-1">
                         <input aria-label={t('hq.leads.colNotes')} className="h-7 w-full rounded-md border border-input bg-background px-2 text-xs" value={drafts[r.id] ?? r.notes ?? ''} onChange={e => setDrafts(d => ({ ...d, [r.id]: e.target.value }))} />
-                        <Button size="sm" variant="outline" className="h-7 text-[11px]" disabled={(drafts[r.id] ?? r.notes ?? '') === (r.notes ?? '')} onClick={() => void save(r.id, { notes: drafts[r.id] ?? '' })}>{t('common.save')}</Button>
+                        <Button size="sm" variant="outline" className="h-7 text-xs sm:text-[11px]" disabled={(drafts[r.id] ?? r.notes ?? '') === (r.notes ?? '')} onClick={() => void save(r.id, { notes: drafts[r.id] ?? '' })}>{t('common.save')}</Button>
                       </div>
                     </td>
                   </tr>

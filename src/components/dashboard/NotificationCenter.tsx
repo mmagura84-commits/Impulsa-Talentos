@@ -170,7 +170,7 @@ export function NotificationCenter({
       >
         <Bell className="size-4" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[16px] h-4 rounded-full bg-destructive text-destructive-foreground text-[10px] font-semibold px-1">
+          <span className="absolute -top-1 -right-1 inline-flex items-center justify-center min-w-[16px] h-4 rounded-full bg-destructive text-destructive-foreground text-xs sm:text-[10px] font-semibold px-1">
             {unreadCount > 99 ? '99+' : unreadCount}
           </span>
         )}
@@ -238,7 +238,7 @@ export function NotificationCenter({
                           {notificationHeading(n, t).heading}
                         </span>
                         <span className="block text-xs text-muted-foreground truncate">{notificationHeading(n, t).detail}</span>
-                        <span className="block text-[10px] text-muted-foreground/70 mt-0.5">
+                        <span className="block text-xs sm:text-[10px] text-muted-foreground/70 mt-0.5">
                           {relativeTime(n.createdAt, t)}
                         </span>
                       </span>

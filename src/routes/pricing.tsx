@@ -395,13 +395,18 @@ function PricingPage() {
             </button>
           </div>
         </div>
-        {!unlocked ? <LeadCaptureForm onSuccess={() => setUnlocked(true)} /> : (
-          <>
-            <div className="grid md:grid-cols-3 gap-6 items-stretch">
-              {JOB_PACKAGES.map(pkg => <PlanCard key={pkg.id} id={pkg.id} billing={billing} onBuy={openCheckout} />)}
-            </div>
-            <CompareTable />
-          </>
+        {/* Prices are public (they're in the search description too); the
+            contact form is an optional "talk to us" below the plans. */}
+        <div className="grid md:grid-cols-3 gap-6 items-stretch">
+          {JOB_PACKAGES.map(pkg => <PlanCard key={pkg.id} id={pkg.id} billing={billing} onBuy={openCheckout} />)}
+        </div>
+        <CompareTable />
+        {!user && (
+          <div className="mt-14">
+            {unlocked
+              ? <p className="text-center text-sm font-medium text-emerald-700">{t('pricing.talkThanks')}</p>
+              : <LeadCaptureForm titleKey="pricing.talkTitle" descKey="pricing.talkDesc" submitKey="pricing.talkSubmit" onSuccess={() => setUnlocked(true)} />}
+          </div>
         )}
         <CheckoutSheet pkg={selected} billing={billing} open={sheetOpen} onClose={() => setSheetOpen(false)} />
         <p className="mt-8 text-center text-xs text-muted-foreground max-w-2xl mx-auto">

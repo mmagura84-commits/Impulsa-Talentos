@@ -62,7 +62,7 @@ export function MobileTabBar({ role }: { role: string | undefined }) {
               <Link
                 to={to as never}
                 aria-current={active ? 'page' : undefined}
-                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-[11px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}
+                className={`flex min-h-14 flex-col items-center justify-center gap-0.5 px-1 text-xs sm:text-[11px] font-medium ${active ? 'text-primary' : 'text-muted-foreground'}`}
               >
                 <Icon className="size-5" />
                 <span className="max-w-full truncate">{t(labelKey)}</span>

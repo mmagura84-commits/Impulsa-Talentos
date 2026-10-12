@@ -192,7 +192,7 @@ function JobFeedPreview() {
       <div className="min-w-0 flex-1 leading-tight">
         <p className="truncate text-sm font-semibold text-white group-hover:text-accent">{job.title}</p>
         <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-white/60"><span className="truncate">{company?.name ?? 'Impulsa Talentos partner'}</span><span aria-hidden className="shrink-0">·</span><MapPin className="size-3 shrink-0" /><span className="truncate">{formatLocationType(job.locationType, t)}</span></p>
-        <p className="mt-1.5 flex min-w-0 items-center gap-2 text-xs"><span className="shrink-0 font-medium text-white/85">{salary}</span><span className="truncate rounded-full bg-accent/15 px-2 py-0.5 text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></p>
+        <p className="mt-1.5 flex min-w-0 items-center gap-2 text-xs"><span className="shrink-0 font-medium text-white/85">{salary}</span><span className="truncate rounded-full bg-accent/15 px-2 py-0.5 text-xs sm:text-[11px] font-semibold text-accent">{formatLanguageList(job.languagesRequired, t)}</span></p>
       </div><ArrowRight className="size-4 shrink-0 text-white/40 opacity-0 transition-opacity group-hover:opacity-100" />
     </Link>
   }
@@ -230,7 +230,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
       <span
         key={keyPrefix + c.id}
         aria-hidden={!link}
-        className="flex items-center gap-4 px-3 text-[11px] font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5 sm:text-[13px]"
+        className="flex items-center gap-4 px-3 text-xs font-semibold uppercase tracking-[0.14em] text-white sm:gap-7 sm:px-5 sm:text-[13px]"
       >
         {link ? (
           <Link to="/companies/$id" params={{ id: c.id }} className="min-h-0 min-w-0 text-white/90 transition-colors hover:text-accent active:text-accent">
@@ -516,7 +516,7 @@ function LandingPage() {
           </div>
         </div>
         <div className="absolute inset-x-0 bottom-5 z-10 hidden items-center justify-center gap-2 sm:flex">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>setSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className={`h-1.5 rounded-full ${i===slide?'w-7 bg-accent':'w-4 bg-white/30'}`} />)}</div>
-        <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
+        <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-xs sm:text-[9px] leading-tight text-white/55 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <CompanyRibbon companies={companies} />
       <StatsBar />
@@ -602,7 +602,7 @@ function LandingPage() {
             <details className="mt-4 text-xs text-muted-foreground/70">
               <summary className="cursor-pointer select-none">{t('landing.photoCreditLabel')}</summary>
               <p className="mt-2">{candidatesPhoto.credit} · {t('landing.talentPhotoLicense')}</p>
-            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground/60" aria-label={t('landing.photoCreditLabel')}>
+            <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-xs sm:text-[11px] text-muted-foreground/60" aria-label={t('landing.photoCreditLabel')}>
               {PHOTO_CREDITS.map(([author, license, file, licenseUrl]) => <span key={author}><a href={file} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{author}</a> (<a href={licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{license}</a>)</span>)}
             </div>
             </details>

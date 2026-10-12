@@ -45,17 +45,17 @@ function EmployerJobRow({ job, appCount }: { job: Job; appCount: number }) {
       </div>
       <div className="flex items-center gap-1.5 shrink-0">
         {job.moderationStatus === 'pending' && (
-          <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700">
+          <span className="inline-flex items-center rounded-full border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-amber-700">
             <Clock className="mr-1 size-3" /> {t('job.moderation.pending')}
           </span>
         )}
         {job.moderationStatus === 'rejected' && (
-          <span className="inline-flex items-center rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[10px] font-medium text-destructive">
+          <span className="inline-flex items-center rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-destructive">
             {t('job.moderation.rejected')}
           </span>
         )}
         <span
-          className={`hidden sm:inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+          className={`hidden sm:inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${
             job.status === 'open'
               ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5'
               : job.status === 'closed'
@@ -192,7 +192,7 @@ function CompanyContactEmailCard({ company }: { company: { id: string; contactEm
           </CardTitle>
           <CardDescription className="mt-1">{t('dashboard.company.contactEmailHelp')}</CardDescription>
         </div>
-        <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-[11px] font-medium ${
+        <span className={`shrink-0 inline-flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs sm:text-[11px] font-medium ${
           hasEmail ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5' : 'border-amber-500/30 text-amber-700 bg-amber-500/5'
         }`}>
           <span className={`inline-block h-1.5 w-1.5 rounded-full ${hasEmail ? 'bg-emerald-500' : 'bg-amber-500'}`} />
@@ -254,7 +254,7 @@ function VerificationCard({ company }: { company: { id: string; name: string; ve
           </CardDescription>
         </div>
         {requested ? (
-          <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/5 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+          <span className="shrink-0 inline-flex items-center gap-1.5 rounded-full border border-amber-500/30 bg-amber-500/5 px-2 py-0.5 text-xs sm:text-[11px] font-medium text-amber-700">
             <span className="inline-block h-1.5 w-1.5 rounded-full bg-amber-500" />
             {t('verification.requested')}
           </span>

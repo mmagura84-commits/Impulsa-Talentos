@@ -612,7 +612,7 @@ function ProfilePage() {
                     <div className="flex items-center justify-center h-8 w-8 rounded-full bg-primary/10 text-primary">
                       <BadgeCheck className="size-4" />
                     </div>
-                    <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-[11px] font-semibold text-primary uppercase tracking-wide">
+                    <span className="inline-flex items-center rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-xs sm:text-[11px] font-semibold text-primary uppercase tracking-wide">
                       {t('profile.admin.badge')}
                     </span>
                   </div>

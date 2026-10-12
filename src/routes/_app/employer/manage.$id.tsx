@@ -137,7 +137,7 @@ function ApplicationRow({ app, jobId, companyId, job }: { app: Application; jobI
         </button>
         <div className="flex items-center gap-1.5 shrink-0">
           <span
-            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
           >
             {t(`dashboard.status.${app.status}`)}
           </span>
@@ -384,7 +384,7 @@ function ApplicationDrawer({
                   minute: '2-digit',
                 })}
                 <span
-                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
+                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${STATUS_PILL_CLASSES[app.status]}`}
                 >
                   {t(`dashboard.status.${app.status}`)}
                 </span>
@@ -393,7 +393,7 @@ function ApplicationDrawer({
               {/* Cover note */}
               {coverNote ? (
                 <div className="rounded-lg border border-border bg-muted/30 p-3">
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+                  <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
                     <FileText className="size-3" /> {t('manage.coverNote')}
                   </p>
                   <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">

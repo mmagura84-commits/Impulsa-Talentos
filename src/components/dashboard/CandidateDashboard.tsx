@@ -59,7 +59,7 @@ function MatchBadge({ score }: { score: number }) {
         : 'border-muted-foreground/30 text-muted-foreground bg-muted/30'
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${color}`}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${color}`}
       title={t('dashboard.matches.matchScore')}
     >
       <Sparkles className="size-3" />
@@ -79,7 +79,7 @@ function AiMatchBadge({ score }: { score: number }) {
         : 'border-muted-foreground/30 text-muted-foreground bg-muted/30'
   return (
     <span
-      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${color}`}
+      className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${color}`}
       title={t('dashboard.matches.matchScore')}
     >
       <Brain className="size-3" />
@@ -102,7 +102,7 @@ function JobCard({ job, score }: { job: Job; score?: MatchScore }) {
         <p className="text-xs text-muted-foreground">{formatSalary(job, locale)}</p>
       </div>
       <div className="flex items-center gap-2 shrink-0 ml-3">
-        <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+        <span className="text-xs sm:text-[11px] text-muted-foreground flex items-center gap-1">
           <Clock className="size-3" /> {formatPosted(job.createdAt, t)}
         </span>
         <Button variant="ghost" size="sm" className="h-8 opacity-0 group-hover:opacity-100 transition-opacity" asChild>
@@ -160,7 +160,7 @@ function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typ
                   { label: 'Culture', ...d.cultureFit },
                 ].map(dim => (
                   <div key={dim.label} className="flex items-center gap-2">
-                    <span className="text-[10px] text-muted-foreground w-16 shrink-0">{dim.label}</span>
+                    <span className="text-xs sm:text-[10px] text-muted-foreground w-16 shrink-0">{dim.label}</span>
                     <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
                       <div
                         className={`h-full rounded-full transition-all duration-500 ${
@@ -169,7 +169,7 @@ function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typ
                         style={{ width: `${dim.score}%` }}
                       />
                     </div>
-                    <span className="text-[10px] font-medium text-foreground w-7 text-right">{dim.score}</span>
+                    <span className="text-xs sm:text-[10px] font-medium text-foreground w-7 text-right">{dim.score}</span>
                   </div>
                 ))}
               </div>
@@ -178,12 +178,12 @@ function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typ
               <div className="mt-3 grid sm:grid-cols-2 gap-3">
                 {d.strengths.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <p className="text-xs sm:text-[10px] font-semibold text-emerald-700 uppercase tracking-wider mb-1 flex items-center gap-1">
                       <CheckCircle2 className="size-3" /> Strengths
                     </p>
                     <ul className="space-y-0.5">
                       {d.strengths.map((s, i) => (
-                        <li key={i} className="text-[11px] text-muted-foreground flex items-start gap-1">
+                        <li key={i} className="text-xs sm:text-[11px] text-muted-foreground flex items-start gap-1">
                           <span className="mt-1 h-1 w-1 rounded-full bg-emerald-500 shrink-0" />{s}
                         </li>
                       ))}
@@ -192,12 +192,12 @@ function AiMatchDetailCard({ result, job }: { result: NonNullable<ReturnType<typ
                 )}
                 {d.gaps.length > 0 && (
                   <div>
-                    <p className="text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1 flex items-center gap-1">
+                    <p className="text-xs sm:text-[10px] font-semibold text-amber-700 uppercase tracking-wider mb-1 flex items-center gap-1">
                       <AlertCircle className="size-3" /> Gaps
                     </p>
                     <ul className="space-y-0.5">
                       {d.gaps.map((g, i) => (
-                        <li key={i} className="text-[11px] text-muted-foreground flex items-start gap-1">
+                        <li key={i} className="text-xs sm:text-[11px] text-muted-foreground flex items-start gap-1">
                           <span className="mt-1 h-1 w-1 rounded-full bg-amber-500 shrink-0" />{g}
                         </li>
                       ))}
@@ -281,7 +281,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
               {formatPosted(app.createdAt, t)}
             </p>
           </div>
-          <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium bg-card ${stagePill}`}>
+          <span className={`shrink-0 inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium bg-card ${stagePill}`}>
             {t(candidateStageLabelKey(app.status))}
           </span>
         </div>
@@ -299,14 +299,14 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
           <Link
             to="/jobs/$id"
             params={{ id: app.jobId }}
-            className="text-[11px] font-medium text-primary hover:underline"
+            className="text-xs sm:text-[11px] font-medium text-primary hover:underline"
           >
             {t('timeline.viewJob')} <ChevronRight className="size-2.5 inline ml-0.5" />
           </Link>
           <button
             type="button"
             onClick={() => setMessengerOpen(!messengerOpen)}
-            className="text-[11px] font-medium text-primary hover:underline flex items-center gap-1 cursor-pointer"
+            className="text-xs sm:text-[11px] font-medium text-primary hover:underline flex items-center gap-1 cursor-pointer"
           >
             <MessageSquare className="size-3" />
             {messengerOpen ? t('messenger.close') : t('messenger.open')}
@@ -315,13 +315,13 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             <button
               type="button"
               onClick={(e) => { e.preventDefault(); setConfirmWithdraw(true) }}
-              className="text-[11px] text-muted-foreground hover:text-destructive underline underline-offset-2 cursor-pointer"
+              className="text-xs sm:text-[11px] text-muted-foreground hover:text-destructive underline underline-offset-2 cursor-pointer"
             >
               {t('timeline.withdraw')}
             </button>
           )}
           {isMutable && onWithdraw && confirmWithdraw && (
-            <span className="flex items-center gap-2 text-[11px]">
+            <span className="flex items-center gap-2 text-xs sm:text-[11px]">
               <span className="text-muted-foreground">{t('timeline.withdrawConfirm')}</span>
               <button
                 type="button"
@@ -370,12 +370,12 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             </p>
             <p className="mt-1 text-xs text-muted-foreground">{app.nextAction}</p>
             {app.nextActionDue && (
-              <p className="mt-1 text-[11px] text-amber-600">
+              <p className="mt-1 text-xs sm:text-[11px] text-amber-600">
                 {t('timeline.dueDate')}: {new Date(app.nextActionDue).toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
               </p>
             )}
             <div className="mt-2">
-              <Button variant="outline" size="sm" className="h-7 text-[11px] gap-1 border-amber-500/30 text-amber-700 hover:bg-amber-500/10">
+              <Button variant="outline" size="sm" className="h-7 text-xs sm:text-[11px] gap-1 border-amber-500/30 text-amber-700 hover:bg-amber-500/10">
                 {t('timeline.takeAction')} <ExternalLink className="size-3" />
               </Button>
             </div>
@@ -417,7 +417,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
             <button
               type="button"
               onClick={() => setHistoryOpen(!historyOpen)}
-              className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 text-xs sm:text-[11px] text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
             >
               <History className="size-3" />
               {t('timeline.statusHistory')} ({stageHistory.length})
@@ -439,7 +439,7 @@ export function ApplicationTimelineItem({ app, isLast, onWithdraw }: { app: Appl
                         <div className="min-w-0">
                           <span className="font-medium text-foreground">{historyStatusLabel(entry.status)}</span>
                           {entry.note && <span className="text-muted-foreground"> — {entry.note}</span>}
-                          <span className="block text-[10px] text-muted-foreground/70">
+                          <span className="block text-xs sm:text-[10px] text-muted-foreground/70">
                             {new Date(entry.createdAt).toLocaleDateString(locale === 'pt' ? 'pt-BR' : locale === 'es' ? 'es-CO' : 'en-US', { dateStyle: 'medium' })}
                             {entry.changedBy && ` · ${entry.changedBy}`}
                           </span>
@@ -491,7 +491,7 @@ export function SavedJobRow({ job, candidateId }: { job: Job; candidateId: strin
         </div>
       </Link>
       <div className="flex items-center gap-1.5 shrink-0">
-        <span className="hidden sm:inline-flex items-center text-[11px] text-muted-foreground gap-1">
+        <span className="hidden sm:inline-flex items-center text-xs sm:text-[11px] text-muted-foreground gap-1">
           <Clock className="size-3" /> {formatPosted(job.createdAt, t)}
         </span>
         <Button variant="outline" size="sm" className="h-8 gap-1 text-xs" asChild>
@@ -610,7 +610,7 @@ function CompanyMatchRow({ job, score }: { job: Job; score: number }) {
             {[company.industry, company.location].filter(Boolean).join(' · ')}
           </p>
           <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-            <span className="inline-flex items-center gap-1 rounded-full border border-border px-1.5 py-0.5 text-[10px] font-medium">
+            <span className="inline-flex items-center gap-1 rounded-full border border-border px-1.5 py-0.5 text-xs sm:text-[10px] font-medium">
               <Sparkles className="size-2.5" /> {score}% match
             </span>
             {' '}via {job.title}

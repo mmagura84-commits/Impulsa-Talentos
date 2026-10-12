@@ -103,17 +103,17 @@ export function PaymentsTab() {
                       {r.proof_note && <span className="block text-muted-foreground">{r.proof_note}</span>}
                     </td>
                     <td className="py-2.5 px-2">
-                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-[10px] font-medium ${STATUS_CLASS[r.status]}`}>
+                      <span className={`inline-flex rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${STATUS_CLASS[r.status]}`}>
                         {t(`hq.payments.status.${r.status}`)}
                       </span>
                     </td>
                     <td className="py-2.5 px-2 whitespace-nowrap">
                       {r.status === 'pending_verification' && (
                         <div className="flex gap-1">
-                          <Button size="sm" className="h-7 gap-1 text-[11px]" disabled={busy === r.id} onClick={() => setConfirm({ row: r, approve: true })}>
+                          <Button size="sm" className="h-7 gap-1 text-xs sm:text-[11px]" disabled={busy === r.id} onClick={() => setConfirm({ row: r, approve: true })}>
                             <CheckCircle2 className="size-3" />{t('hq.payments.approve')}
                           </Button>
-                          <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={busy === r.id} onClick={() => setConfirm({ row: r, approve: false })}>
+                          <Button size="sm" variant="outline" className="h-7 gap-1 text-xs sm:text-[11px]" disabled={busy === r.id} onClick={() => setConfirm({ row: r, approve: false })}>
                             <XCircle className="size-3" />{t('hq.payments.reject')}
                           </Button>
                         </div>

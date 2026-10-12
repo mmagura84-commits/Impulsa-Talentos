@@ -155,7 +155,7 @@ function CompanyProfilePage() {
               <div className="flex items-center gap-2 flex-wrap">
                 <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground">{company.name}</h1>
                 {company.verified && (
-                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-500/5 px-2 py-0.5 text-xs sm:text-[11px] font-medium text-emerald-700">
                     <BadgeCheck className="size-3.5" />
                     {t('verification.verified')}
                   </span>
@@ -204,7 +204,7 @@ function CompanyProfilePage() {
                   </div>
                   <div>
                     <p className="text-2xl font-bold text-foreground font-serif">{openJobs.length}</p>
-                    <p className="text-[11px] text-muted-foreground">Open positions</p>
+                    <p className="text-xs sm:text-[11px] text-muted-foreground">Open positions</p>
                   </div>
                 </div>
               </CardContent>
@@ -290,7 +290,7 @@ function StatPill({ value, label, color }: { value: number; label: string; color
     <Card>
       <CardContent className="pt-5 pb-4">
         <p className="text-2xl font-bold text-foreground font-serif">{value}</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">{label}</p>
+        <p className="text-xs sm:text-[11px] text-muted-foreground mt-0.5">{label}</p>
       </CardContent>
     </Card>
   )
@@ -467,7 +467,7 @@ function ReviewsSection({ companyId, reviews, isLoading }: { companyId: string; 
                   </div>
                   <div>
                     <p className="text-sm font-medium text-foreground truncate">{review.title}</p>
-                    <p className="text-[11px] text-muted-foreground"><ClientTimeText compute={() => timeAgo(review.createdAt)} /></p>
+                    <p className="text-xs sm:text-[11px] text-muted-foreground"><ClientTimeText compute={() => timeAgo(review.createdAt)} /></p>
                   </div>
                 </div>
                 <div className="flex items-center gap-0.5 shrink-0">
@@ -517,7 +517,7 @@ function JobRow({ job, companyName }: { job: Job; companyName: string }) {
           {skills.slice(0, 4).map(skill => (
             <span
               key={skill}
-              className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-[10px] font-medium text-muted-foreground bg-muted/40"
+              className="inline-flex items-center rounded-full border border-border px-2 py-0.5 text-xs sm:text-[10px] font-medium text-muted-foreground bg-muted/40"
             >
               {skill}
             </span>

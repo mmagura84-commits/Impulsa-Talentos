@@ -68,7 +68,7 @@ export function OnboardingPanel({
                   <p className="text-sm font-medium text-foreground">{t(step.titleKey)}</p>
                   <p className="text-xs text-muted-foreground">{t(step.descKey)}</p>
                 </div>
-                <span className="shrink-0 text-[11px] font-medium text-emerald-600 uppercase tracking-wide">{t('onboarding.done')}</span>
+                <span className="shrink-0 text-xs sm:text-[11px] font-medium text-emerald-600 uppercase tracking-wide">{t('onboarding.done')}</span>
               </div>
             ) : (
               <Link

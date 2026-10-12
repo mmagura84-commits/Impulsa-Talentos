@@ -127,13 +127,13 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
         {/* Metric row */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
           <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
               <Users className="size-3" /> {t('manage.total')}
             </p>
             <p className="text-2xl font-bold font-serif text-foreground mt-1">{total}</p>
           </div>
           <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
               <Gauge className="size-3" /> {t('manage.analytics.avgScore')}
             </p>
             <p className="text-2xl font-bold font-serif text-foreground mt-1">
@@ -141,7 +141,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
             </p>
           </div>
           <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
               <Clock className="size-3" /> {t('manage.analytics.timeToFirst')}
             </p>
             <p className="text-2xl font-bold font-serif text-foreground mt-1">
@@ -153,7 +153,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
             </p>
           </div>
           <div className="rounded-xl border border-border bg-muted/30 p-3">
-            <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+            <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
               <Clock className="size-3" /> {t('manage.analytics.interviews')}
             </p>
             <p className="text-2xl font-bold font-serif text-foreground mt-1">
@@ -224,7 +224,7 @@ export function JobAnalytics({ job, applications }: { job: Job; applications: Ap
               <div className="space-y-2">
                 {funnel.map(f => (
                   <div key={f.status} className="flex items-center gap-3">
-                    <span className="w-24 shrink-0 text-[11px] text-muted-foreground">{f.label}</span>
+                    <span className="w-24 shrink-0 text-xs sm:text-[11px] text-muted-foreground">{f.label}</span>
                     <div className="flex-1 h-5 rounded-md bg-muted/40 overflow-hidden">
                       <div
                         className="h-full rounded-md transition-all"

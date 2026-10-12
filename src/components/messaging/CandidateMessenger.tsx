@@ -36,7 +36,7 @@ function AntiScamBanner({ t }: { t: (key: string, vars?: Record<string, string |
   if (dismissed) return null
 
   return (
-    <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-700">
+    <div className="flex items-start gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 px-3 py-2 text-xs sm:text-[11px] text-amber-700">
       <ShieldAlert className="size-3.5 shrink-0 mt-0.5" />
       <p className="flex-1 leading-relaxed">{t('messenger.antiScam')}</p>
       <button
@@ -71,11 +71,11 @@ function MessageBubble({
         }`}
       >
         {!isOwn && (
-          <p className="text-[10px] font-semibold opacity-70 mb-0.5">{senderName}</p>
+          <p className="text-xs sm:text-[10px] font-semibold opacity-70 mb-0.5">{senderName}</p>
         )}
         <p className="text-sm whitespace-pre-wrap break-words">{message.body}</p>
         <p
-          className={`text-[10px] mt-1 ${
+          className={`text-xs sm:text-[10px] mt-1 ${
             isOwn ? 'text-primary-foreground/60' : 'text-muted-foreground'
           }`}
         >

@@ -30,7 +30,7 @@ export function LanguageToggle({ className, compact = false, asList = false }: L
   if (asList) {
     return (
       <div className={cn('w-full', className)} role="menu">
-        <p className="px-2 pt-1 pb-1.5 text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
+        <p className="px-2 pt-1 pb-1.5 text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">
           {t('common.language')}
         </p>
         <div className="space-y-0.5">
@@ -51,7 +51,7 @@ export function LanguageToggle({ className, compact = false, asList = false }: L
                 aria-checked={active}
               >
                 <span className="flex items-center gap-2">
-                  <span className="inline-flex items-center justify-center h-5 w-7 rounded-sm border border-border bg-card text-[10px] font-semibold text-foreground/80">
+                  <span className="inline-flex items-center justify-center h-5 w-7 rounded-sm border border-border bg-card text-xs sm:text-[10px] font-semibold text-foreground/80">
                     {l.toUpperCase()}
                   </span>
                   {LOCALE_LABELS[l]}
@@ -80,7 +80,7 @@ export function LanguageToggle({ className, compact = false, asList = false }: L
             aria-label={t('common.language')}
           >
             <Languages className="size-4" />
-            <span className="text-[11px] font-semibold tracking-wider">
+            <span className="text-xs sm:text-[11px] font-semibold tracking-wider">
               {other.toUpperCase()}
             </span>
           </Button>

@@ -217,7 +217,7 @@ function ApplicationOfferRow({
             </p>
             {latestOffer && (
               <div className="flex items-center gap-2 mt-1">
-                <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[latestOffer.status]}`}>
+                <span className={`text-xs sm:text-[11px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLORS[latestOffer.status]}`}>
                   {t(`offers.status.${latestOffer.status}`)}
                 </span>
                 <span className="text-xs text-muted-foreground">

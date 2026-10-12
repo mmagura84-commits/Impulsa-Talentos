@@ -22,7 +22,7 @@ export function CandidateStageTracker({ status, className = '' }: { status: stri
         {CANDIDATE_STAGES.map((stage, i) => (
           <li key={stage} className="min-w-0" aria-current={i === current ? 'step' : undefined}>
             <div className={`h-1.5 rounded-full ${i <= current ? fill : 'bg-muted'}`} />
-            <span className={`mt-1 block truncate text-[10px] ${i === current ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
+            <span className={`mt-1 block truncate text-xs sm:text-[10px] ${i === current ? 'font-semibold text-foreground' : 'text-muted-foreground'}`}>
               {t(`candidateStage.${stage}`)}
             </span>
           </li>

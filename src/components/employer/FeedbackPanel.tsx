@@ -144,7 +144,7 @@ export function FeedbackPanel({ applicationId, companyId }: FeedbackPanelProps) 
   return (
     <div className="rounded-lg border border-border bg-muted/30 p-3">
       <div className="flex items-center justify-between mb-1.5">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
           <MessageSquareText className="size-3" /> {t('feedback.title')}
         </p>
         {canModify && !adding && (
@@ -272,12 +272,12 @@ export function FeedbackPanel({ applicationId, companyId }: FeedbackPanelProps) 
                   <div className="flex items-center gap-2 flex-wrap">
                     {f.rating != null && <RatingStars value={f.rating} />}
                     {f.stage && (
-                      <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-medium text-primary">
+                      <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-primary">
                         {f.stage}
                       </span>
                     )}
                     <span
-                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${
+                      className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${
                         f.visibility === 'candidate_visible'
                           ? 'border-emerald-500/30 text-emerald-700 bg-emerald-500/5'
                           : 'border-border text-muted-foreground bg-muted/40'
@@ -315,23 +315,23 @@ export function FeedbackPanel({ applicationId, companyId }: FeedbackPanelProps) 
                 </div>
                 {f.strengths && (
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.strengths')}</p>
+                    <p className="text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.strengths')}</p>
                     <p className="text-xs text-foreground whitespace-pre-line">{f.strengths}</p>
                   </div>
                 )}
                 {f.concerns && (
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.concerns')}</p>
+                    <p className="text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.concerns')}</p>
                     <p className="text-xs text-foreground whitespace-pre-line">{f.concerns}</p>
                   </div>
                 )}
                 {f.nextSteps && (
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.nextSteps')}</p>
+                    <p className="text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('feedback.nextSteps')}</p>
                     <p className="text-xs text-foreground whitespace-pre-line">{f.nextSteps}</p>
                   </div>
                 )}
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-xs sm:text-[10px] text-muted-foreground">
                   {new Date(f.updatedAt).toLocaleString(undefined, {
                     month: 'short',
                     day: 'numeric',

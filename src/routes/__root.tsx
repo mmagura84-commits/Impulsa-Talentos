@@ -167,7 +167,7 @@ function GlobalFooter() {
   const { t } = useI18n()
   return (
     <footer className="border-t border-border/60 py-4 px-5 text-center">
-      <nav aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'} className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-[11px] text-muted-foreground">
+      <nav aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'} className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-[11px] text-muted-foreground">
         <span>© {new Date().getFullYear()} Impulsa Talentos</span>
         <a href="/jobs" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.jobs')}</a>
         <a href="/companies" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.companies')}</a>

@@ -196,7 +196,7 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
           {/* Role badge — shows which workspace you're in */}
           {!collapsed && (
             <div className="px-2 pt-3">
-              <span className="inline-flex items-center rounded-full bg-primary/10 text-primary text-[11px] font-medium px-2.5 py-1">
+              <span className="inline-flex items-center rounded-full bg-primary/10 text-primary text-xs sm:text-[11px] font-medium px-2.5 py-1">
                 {role === 'employer' ? t('nav.roleEmployer') : role === 'admin' ? t('nav.roleAdmin') : t('nav.roleCandidate')}
               </span>
             </div>
@@ -227,7 +227,7 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
                 <button className="flex items-center justify-center h-8 w-8 rounded-md hover:bg-sidebar-accent transition-colors cursor-pointer">
                   <Avatar className="h-6 w-6 shrink-0">
                     {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
-                    <AvatarFallback className="text-[10px] bg-sidebar-accent text-sidebar-accent-foreground">
+                    <AvatarFallback className="text-xs sm:text-[10px] bg-sidebar-accent text-sidebar-accent-foreground">
                       {avatarInitial}
                     </AvatarFallback>
                   </Avatar>
@@ -241,13 +241,13 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
             <div className="flex items-center gap-2 rounded-md px-2 py-1.5">
               <Avatar className="h-6 w-6 shrink-0">
                 {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} /> : null}
-                <AvatarFallback className="text-[10px] bg-sidebar-accent text-sidebar-accent-foreground">
+                <AvatarFallback className="text-xs sm:text-[10px] bg-sidebar-accent text-sidebar-accent-foreground">
                   {avatarInitial}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 min-w-0 text-left">
                 <p className="text-xs font-medium leading-tight truncate">{displayName}</p>
-                <p className="text-[10px] text-muted-foreground leading-tight truncate">
+                <p className="text-xs sm:text-[10px] text-muted-foreground leading-tight truncate">
                   {userEmail}
                 </p>
               </div>

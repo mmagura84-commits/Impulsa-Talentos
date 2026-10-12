@@ -31,7 +31,7 @@ function MemberIdentity({ userId, inviteEmail }: { userId: string; inviteEmail?:
   return (
     <span className="flex flex-col">
       <span>{profile.fullName || profile.email}</span>
-      {profile.fullName && profile.email && <span className="text-[10px] font-normal text-muted-foreground">{profile.email}</span>}
+      {profile.fullName && profile.email && <span className="text-xs sm:text-[10px] font-normal text-muted-foreground">{profile.email}</span>}
     </span>
   )
 }
@@ -160,7 +160,7 @@ function EmployerTeam() {
                   <div className="overflow-x-auto">
                     <table className="w-full text-sm">
                       <thead>
-                        <tr className="border-b border-border text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-left">
+                        <tr className="border-b border-border text-xs sm:text-[11px] font-semibold text-muted-foreground uppercase tracking-wider text-left">
                           <th className="py-2 px-2">{t('team.emailLabel')}</th>
                           <th className="py-2 px-2">{t('team.roleLabel')}</th>
                           <th className="py-2 px-2">{t('team.statusLabel')}</th>
@@ -173,7 +173,7 @@ function EmployerTeam() {
                             <td className="py-2.5 px-2 font-medium">
                               <MemberIdentity userId={m.userId} inviteEmail={m.status === 'pending' ? m.inviteEmail : null} />
                               {m.status === 'pending' && (
-                                <span className="text-[10px] text-amber-500 ml-1.5">
+                                <span className="text-xs sm:text-[10px] text-amber-500 ml-1.5">
                                   ({t('team.pendingLabel')})
                                 </span>
                               )}

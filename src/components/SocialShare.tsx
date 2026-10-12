@@ -297,7 +297,7 @@ export function SocialShare({
                 </div>
                 <div>
                   <p className="text-sm font-semibold text-foreground">{t('social.referralTitle')}</p>
-                  <p className="text-[11px] text-muted-foreground">{t('social.referralSubtitle')}</p>
+                  <p className="text-xs sm:text-[11px] text-muted-foreground">{t('social.referralSubtitle')}</p>
                 </div>
               </div>
               <button

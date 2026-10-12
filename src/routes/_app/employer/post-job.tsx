@@ -558,7 +558,7 @@ function PostJobPage() {
               <p className="mt-1 text-muted-foreground">
                 {t('postJob.step2.subtitle')}
               </p>
-              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-[11px] font-medium text-primary">
+              <span className="mt-3 inline-flex items-center gap-1.5 rounded-full border border-primary/30 bg-primary/5 px-2.5 py-0.5 text-xs sm:text-[11px] font-medium text-primary">
                 <Sparkles className="size-3" />
                 {t('postJob.creditsRemaining', { n: String(credits) })}
               </span>

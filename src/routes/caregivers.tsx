@@ -17,7 +17,7 @@ import {
   CARE_CERTIFICATION_KEYS,
   CARE_LANGUAGE_KEYS,
 } from '@/lib/care'
-import { MapPin, Languages, Award, Clock, Users } from 'lucide-react'
+import { MapPin, Languages, Award, Clock, Users, UserRound } from 'lucide-react'
 
 export const Route = createFileRoute('/caregivers')({
   component: CaregiversDirectoryPage,
@@ -28,15 +28,6 @@ export const Route = createFileRoute('/caregivers')({
     ],
   }),
 })
-
-function initialsOf(name: string): string {
-  return name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map(p => p[0]?.toUpperCase() ?? '')
-    .join('')
-}
 
 function CaregiversDirectoryPage() {
   const { t } = useI18n()
@@ -146,8 +137,8 @@ function CaregiversDirectoryPage() {
             {caregivers.map(c => (
               <article key={c.id} className="flex flex-col rounded-2xl border border-border bg-card p-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 font-bold text-emerald-700">
-                    {initialsOf(c.userId)}
+                  <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700" aria-hidden="true">
+                    <UserRound className="size-6" />
                   </div>
                   <div className="min-w-0">
                     <PreScreenedBadge />

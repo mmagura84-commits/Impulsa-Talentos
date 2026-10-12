@@ -222,7 +222,7 @@ function ReportRow({
           {t(REASON_LABELS[report.reason] ?? REASON_LABELS.other)}
           {report.note ? ` — ${report.note}` : ''}
         </p>
-        <p className="text-[11px] text-muted-foreground/70 mt-1">
+        <p className="text-xs sm:text-[11px] text-muted-foreground/70 mt-1">
           {companyName} · {t('hq.moderation.by')} {report.reporterId.slice(0, 8)} ·{' '}
           {formatDate(report.createdAt, locale)}
         </p>
@@ -231,7 +231,7 @@ function ReportRow({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 text-[11px] text-emerald-700 hover:bg-emerald-500/5"
+          className="h-7 text-xs sm:text-[11px] text-emerald-700 hover:bg-emerald-500/5"
           onClick={approve}
         >
           <CheckCircle2 className="mr-1 size-3.5" />
@@ -240,7 +240,7 @@ function ReportRow({
         <Button
           variant="ghost"
           size="sm"
-          className="h-7 text-[11px] text-destructive hover:bg-destructive/5"
+          className="h-7 text-xs sm:text-[11px] text-destructive hover:bg-destructive/5"
           onClick={reject}
         >
           <XCircle className="mr-1 size-3.5" />
@@ -279,7 +279,7 @@ export function ModerationTab({
           <h3 className="font-serif text-lg font-bold text-foreground">
             {t('hq.moderation.pendingTitle')}
           </h3>
-          <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-[11px] font-semibold text-amber-700">
+          <span className="rounded-full bg-amber-500/10 border border-amber-500/30 px-2 py-0.5 text-xs sm:text-[11px] font-semibold text-amber-700">
             {pending.length}
           </span>
         </div>
@@ -313,7 +313,7 @@ export function ModerationTab({
           <h3 className="font-serif text-lg font-bold text-foreground">
             {t('hq.moderation.reportsTitle')}
           </h3>
-          <span className="rounded-full bg-destructive/10 border border-destructive/30 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+          <span className="rounded-full bg-destructive/10 border border-destructive/30 px-2 py-0.5 text-xs sm:text-[11px] font-semibold text-destructive">
             {reports.length}
           </span>
         </div>
@@ -347,7 +347,7 @@ export function ModerationTab({
           <h3 className="font-serif text-lg font-bold text-foreground">
             {t('hq.moderation.rejectedTitle')}
           </h3>
-          <span className="rounded-full bg-destructive/10 border border-destructive/30 px-2 py-0.5 text-[11px] font-semibold text-destructive">
+          <span className="rounded-full bg-destructive/10 border border-destructive/30 px-2 py-0.5 text-xs sm:text-[11px] font-semibold text-destructive">
             {rejected.length}
           </span>
         </div>

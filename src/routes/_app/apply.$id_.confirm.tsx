@@ -203,10 +203,10 @@ function ApplyConfirmPage() {
               {app && (
                 <div className="grid sm:grid-cols-2 gap-2 text-xs">
                   <div className="rounded-lg border border-border p-3">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
                       {t('application.statusLabel')}
                     </p>
-                    <span className="inline-flex items-center gap-1.5 rounded-full border border-muted-foreground/30 bg-muted/30 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                    <span className="inline-flex items-center gap-1.5 rounded-full border border-muted-foreground/30 bg-muted/30 px-2 py-0.5 text-xs sm:text-[11px] font-medium text-muted-foreground">
                       <CalendarClock className="size-3" />
                       {t(`dashboard.status.${app.status}`)} ·{' '}
                       {new Date(app.createdAt).toLocaleDateString(localeOf(), {
@@ -215,7 +215,7 @@ function ApplyConfirmPage() {
                     </span>
                   </div>
                   <div className="rounded-lg border border-border p-3">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
                       {t('apply.review.resume')}
                     </p>
                     {resumeUrl ? (
@@ -239,7 +239,7 @@ function ApplyConfirmPage() {
 
               {coverNote && (
                 <div className="rounded-lg border border-border p-3">
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
+                  <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
                     {t('apply.review.message')}
                   </p>
                   <p className="text-sm text-foreground whitespace-pre-line leading-relaxed">
@@ -319,7 +319,7 @@ function ApplyConfirmPage() {
                           {skills.map(s => (
                             <span
                               key={s}
-                              className="inline-flex items-center rounded-full border border-border px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
+                              className="inline-flex items-center rounded-full border border-border px-1.5 py-0.5 text-xs sm:text-[10px] font-medium text-muted-foreground"
                             >
                               {s}
                             </span>

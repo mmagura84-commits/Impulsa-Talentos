@@ -54,7 +54,7 @@ export function CandidateOfferCard({ applicationId }: { applicationId: string })
             <p className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400">
               <Gift className="size-3.5" />
               {t('offer.candidate.title')}
-              <span className="ml-auto rounded-full border border-emerald-500/30 px-2 py-0.5 text-[10px] font-medium">
+              <span className="ml-auto rounded-full border border-emerald-500/30 px-2 py-0.5 text-xs sm:text-[10px] font-medium">
                 {t(`offers.status.${offer.status}`)}
               </span>
             </p>
@@ -65,10 +65,10 @@ export function CandidateOfferCard({ applicationId }: { applicationId: string })
             {offer.notes && <p className="mt-1 whitespace-pre-line text-xs text-muted-foreground">{offer.notes}</p>}
             {open && (
               <div className="mt-2 flex gap-2">
-                <Button size="sm" className="h-7 gap-1 text-[11px]" disabled={busy === offer.id} onClick={() => respond(offer, true)}>
+                <Button size="sm" className="h-7 gap-1 text-xs sm:text-[11px]" disabled={busy === offer.id} onClick={() => respond(offer, true)}>
                   <Check className="size-3" /> {t('offer.candidate.accept')}
                 </Button>
-                <Button size="sm" variant="outline" className="h-7 gap-1 text-[11px]" disabled={busy === offer.id} onClick={() => respond(offer, false)}>
+                <Button size="sm" variant="outline" className="h-7 gap-1 text-xs sm:text-[11px]" disabled={busy === offer.id} onClick={() => respond(offer, false)}>
                   <X className="size-3" /> {t('offer.candidate.decline')}
                 </Button>
               </div>

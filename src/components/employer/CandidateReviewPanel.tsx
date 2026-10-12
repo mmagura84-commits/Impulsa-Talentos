@@ -143,14 +143,14 @@ function ProfileSnapshot({ profile, loading }: { profile: Profile | null; loadin
       )}
       {skills.length > 0 && (
         <div>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
+          <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
             {t('review.skills')}
           </p>
           <div className="flex flex-wrap gap-1">
             {skills.map(s => (
               <span
                 key={s}
-                className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-[10px] text-foreground"
+                className="inline-flex items-center rounded-full border border-border bg-card px-2 py-0.5 text-xs sm:text-[10px] text-foreground"
               >
                 {s}
               </span>
@@ -160,7 +160,7 @@ function ProfileSnapshot({ profile, loading }: { profile: Profile | null; loadin
       )}
       {languages.length > 0 && (
         <div>
-          <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
+          <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5">
             {t('review.languages')}
           </p>
           <p className="text-xs text-foreground">{languages.join(' · ')}</p>
@@ -173,7 +173,7 @@ function ProfileSnapshot({ profile, loading }: { profile: Profile | null; loadin
             const isLink = r.label === t('review.portfolio') && r.value?.startsWith('http')
             return (
               <div key={r.label} className="contents">
-                <dt className="flex items-center gap-1.5 text-[11px] text-muted-foreground">
+                <dt className="flex items-center gap-1.5 text-xs sm:text-[11px] text-muted-foreground">
                   <Icon className="size-3 shrink-0" />
                   {r.label}
                 </dt>
@@ -244,13 +244,13 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
   return (
     <div>
       <div className="flex items-center justify-between gap-2 mb-1.5">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
           <Sparkles className="size-3" />
           {t('review.matchTitle')}
         </p>
         {score && (
           <span
-            className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-medium ${scoreColor(score.total)}`}
+            className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${scoreColor(score.total)}`}
           >
             <Sparkles className="size-3" />
             {score.total}%
@@ -261,14 +261,14 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
         <p className="text-xs text-muted-foreground">{t('review.matchNone')}</p>
       ) : (
         <>
-          <p className="text-[11px] text-muted-foreground mb-2">{t('review.matchDesc')}</p>
+          <p className="text-xs sm:text-[11px] text-muted-foreground mb-2">{t('review.matchDesc')}</p>
           <div className="space-y-1.5">
             {SCORE_DIMS.map(dim => {
               const raw = score[dim.key] as number
               const pct = Math.min(100, Math.round((raw / dim.max) * 100))
               return (
                 <div key={dim.key} className="flex items-center gap-2">
-                  <span className="text-[10px] text-muted-foreground w-20 shrink-0">
+                  <span className="text-xs sm:text-[10px] text-muted-foreground w-20 shrink-0">
                     {t(`review.matchDim.${dim.key}`)}
                   </span>
                   <div className="flex-1 h-1.5 rounded-full bg-muted overflow-hidden">
@@ -277,7 +277,7 @@ function MatchScoreSection({ profile, job }: { profile: Profile | null; job: Job
                       style={{ width: `${pct}%` }}
                     />
                   </div>
-                  <span className="text-[10px] font-medium text-foreground w-12 text-right tabular-nums">
+                  <span className="text-xs sm:text-[10px] font-medium text-foreground w-12 text-right tabular-nums">
                     {raw}/{dim.max}
                   </span>
                 </div>
@@ -335,7 +335,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
               aria-label={t('review.shortlist')}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-0.5">{t('review.shortlistHint')}</p>
+          <p className="text-xs sm:text-[11px] text-muted-foreground mt-0.5">{t('review.shortlistHint')}</p>
         </div>
       </div>
       <div className="space-y-1.5">
@@ -348,7 +348,7 @@ function ShortlistAndNotes({ app }: { app: Application }) {
           aria-label={t('review.notes')}
         />
         <div className="flex items-center justify-between gap-2">
-          <p className="text-[11px] text-muted-foreground">{t('review.notesHint')}</p>
+          <p className="text-xs sm:text-[11px] text-muted-foreground">{t('review.notesHint')}</p>
           <Button
             type="button"
             size="sm"
@@ -369,18 +369,18 @@ export function CandidateReviewPanel({ app, job }: { app: Application; job: Job 
   return (
     <div className="space-y-4">
       <div className="rounded-lg border border-border bg-muted/30 p-3">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-2 flex items-center gap-1">
           <User className="size-3" />
           {t('review.profile')}
         </p>
         <ProfileSnapshot profile={profile ?? null} loading={isLoading} />
       </div>
       <div className="rounded-lg border border-border bg-muted/30 p-3">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1.5 flex items-center gap-1">
           <FileText className="size-3" />
           {t('review.cv')}
         </p>
-        <p className="text-[11px] text-muted-foreground mb-2">{t('review.cvDesc')}</p>
+        <p className="text-xs sm:text-[11px] text-muted-foreground mb-2">{t('review.cvDesc')}</p>
         <CvPreview app={app} profile={profile ?? null} />
       </div>
       <div className="rounded-lg border border-border bg-muted/30 p-3">

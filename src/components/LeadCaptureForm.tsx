@@ -39,7 +39,7 @@ function buildLeadEmail(form: { email: string; phone: string; name: string; comp
   }
 }
 
-export function LeadCaptureForm({ onSuccess }: { onSuccess: () => void }) {
+export function LeadCaptureForm({ onSuccess, titleKey = 'pricing.leadTitle', descKey, submitKey = 'pricing.leadSubmit' }: { onSuccess: () => void; titleKey?: string; descKey?: string; submitKey?: string }) {
   const { t } = useI18n()
   const [form, setForm] = useState({ email: '', phone: '', name: '', company: '' })
   const [busy, setBusy] = useState(false)
@@ -83,7 +83,8 @@ export function LeadCaptureForm({ onSuccess }: { onSuccess: () => void }) {
   return (
     <Card className="mx-auto max-w-xl border-primary/20 shadow-lg">
       <CardHeader>
-        <CardTitle className="text-center text-2xl">{t('pricing.leadTitle')}</CardTitle>
+        <CardTitle className="text-center text-2xl">{t(titleKey)}</CardTitle>
+        {descKey ? <p className="text-center text-sm text-muted-foreground">{t(descKey)}</p> : null}
       </CardHeader>
       <CardContent>
         <form onSubmit={submit} className="space-y-4">
@@ -107,7 +108,7 @@ export function LeadCaptureForm({ onSuccess }: { onSuccess: () => void }) {
           </div>
           {error && <p role="alert" className="text-sm text-destructive">{error}</p>}
           <Button type="submit" disabled={busy} className="w-full">
-            {busy ? t('pricing.leadSubmitting') : t('pricing.leadSubmit')}
+            {busy ? t('pricing.leadSubmitting') : t(submitKey)}
           </Button>
         </form>
       </CardContent>

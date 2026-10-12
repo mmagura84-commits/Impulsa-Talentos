@@ -242,7 +242,7 @@ function MessageBubble({ message, isOwn, t }: { message: Message; isOwn: boolean
         }`}
       >
         <p className="whitespace-pre-wrap break-words">{message.body}</p>
-        <p className={`text-[10px] mt-1 ${isOwn ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
+        <p className={`text-xs sm:text-[10px] mt-1 ${isOwn ? 'text-primary-foreground/60' : 'text-muted-foreground'}`}>
           {new Date(message.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
         </p>
       </div>

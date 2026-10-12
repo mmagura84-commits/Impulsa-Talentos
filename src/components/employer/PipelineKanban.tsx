@@ -116,7 +116,7 @@ function ApplicantCard({
         </div>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-medium text-foreground truncate">{candidateName}</p>
-          <p className="text-[10px] text-muted-foreground">{t('kanban.inStage', { time: timeInStageLabel(app.createdAt, t) })}</p>
+          <p className="text-xs sm:text-[10px] text-muted-foreground">{t('kanban.inStage', { time: timeInStageLabel(app.createdAt, t) })}</p>
         </div>
       </div>
 
@@ -124,7 +124,7 @@ function ApplicantCard({
       <div className="mt-2 relative">
         <button
           type="button"
-          className="w-full flex items-center justify-between rounded border border-border px-2 py-1 text-[10px] text-muted-foreground hover:bg-accent cursor-pointer"
+          className="w-full flex items-center justify-between rounded border border-border px-2 py-1 text-xs sm:text-[10px] text-muted-foreground hover:bg-accent cursor-pointer"
           onClick={(e) => { e.stopPropagation(); setStatusOpen(!statusOpen) }}
         >
           <span>{t(`kanban.column.${column.key}`)}</span>
@@ -191,7 +191,7 @@ function KanbanColumnView({
               {label}
             </h3>
           </div>
-          <Badge variant="secondary" className="text-[10px] h-5 px-1.5">
+          <Badge variant="secondary" className="text-xs sm:text-[10px] h-5 px-1.5">
             {apps.length}
           </Badge>
         </div>
@@ -201,7 +201,7 @@ function KanbanColumnView({
       <div className="flex-1 overflow-y-auto p-2 space-y-2 min-h-[120px]">
         {apps.length === 0 ? (
           <div className="flex items-center justify-center h-full py-8">
-            <p className="text-[11px] text-muted-foreground italic">{t('kanban.emptyColumn')}</p>
+            <p className="text-xs sm:text-[11px] text-muted-foreground italic">{t('kanban.emptyColumn')}</p>
           </div>
         ) : (
           apps.map(app => (

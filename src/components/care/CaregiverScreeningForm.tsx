@@ -263,7 +263,7 @@ export function CaregiverScreeningForm({
           <Label className="flex items-center gap-1.5">
             {t('care.form.certifications')}
             {needsNursingCert && (
-              <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-[11px] font-semibold text-amber-700">
+              <span className="rounded bg-amber-500/10 px-1.5 py-0.5 text-xs sm:text-[11px] font-semibold text-amber-700">
                 {t('care.form.nursingCertRequired')}
               </span>
             )}
@@ -317,7 +317,7 @@ export function CaregiverScreeningForm({
             <div key={kind} className="flex items-center justify-between gap-3">
               <Label htmlFor={`doc-${kind}`} className="text-sm font-medium">
                 {label}
-                <span className="block text-[11px] font-normal text-muted-foreground">
+                <span className="block text-xs sm:text-[11px] font-normal text-muted-foreground">
                   {t('care.form.docs.private')}
                 </span>
               </Label>

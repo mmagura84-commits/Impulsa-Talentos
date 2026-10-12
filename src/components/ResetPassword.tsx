@@ -42,7 +42,6 @@ export function ResetPassword({ onBack }: ResetPasswordProps) {
       setStatus('error')
       const msg = err instanceof Error ? err.message : 'Something went wrong'
       setErrorMsg(msg)
-      // eslint-disable-next-line no-console
       console.warn('[reset-password]', err)
     }
   }

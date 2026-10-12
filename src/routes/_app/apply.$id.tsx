@@ -637,7 +637,7 @@ function ApplyPage() {
                   <div className="space-y-2">
                     <div className="flex items-center justify-between">
                       <Label htmlFor="message">{t('apply.message.label')}</Label>
-                      <span className={`text-[11px] ${message.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
+                      <span className={`text-xs sm:text-[11px] ${message.length > 1000 ? 'text-destructive' : 'text-muted-foreground'}`}>
                         {t('apply.message.charCount', { n: message.length })}
                       </span>
                     </div>
@@ -697,7 +697,7 @@ function ApplyPage() {
                 <CardContent className="space-y-4">
                   {/* Job summary */}
                   <div className="rounded-lg border border-border p-4">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
                       {t('apply.review.job')}
                     </p>
                     <p className="font-semibold text-foreground">{job.title}</p>
@@ -706,7 +706,7 @@ function ApplyPage() {
 
                   {/* Resume summary */}
                   <div className="rounded-lg border border-border p-4">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
                       {t('apply.review.resume')}
                     </p>
                     {file ? (
@@ -731,7 +731,7 @@ function ApplyPage() {
 
                   {/* Message summary */}
                   <div className="rounded-lg border border-border p-4">
-                    <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
+                    <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider mb-1">
                       {t('apply.review.message')}
                     </p>
                     {message.trim() ? (

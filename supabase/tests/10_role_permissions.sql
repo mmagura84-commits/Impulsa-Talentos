@@ -563,3 +563,18 @@ select t.check('erased team member lost the seat and employer role',
 select t.act_as('00000000-0000-0000-0000-0000000000e1');
 select t.expect_rows('employers cannot read the admin audit log', $$select * from public.admin_audit_log$$, 0);
 select t.reset();
+
+\echo '── Database hardening (046)'
+select t.check('no row-level policy calls auth.*() once per row',
+  not exists (select 1 from pg_policies where schemaname = 'public'
+    and (coalesce(qual, '') ~ '(?<!SELECT )auth\.(uid|jwt|role)\(\)' or coalesce(with_check, '') ~ '(?<!SELECT )auth\.(uid|jwt|role)\(\)')));
+select t.check('flagged functions pin their search_path',
+  not exists (select 1 from pg_proc p where p.pronamespace = 'public'::regnamespace
+    and p.proname in ('guard_notification_update', 'job_is_public', 'request_jwt_role')
+    and not exists (select 1 from unnest(coalesce(p.proconfig, '{}')) c where c like 'search_path=%')));
+select t.check('public caregiver directory does not return account ids',
+  not exists (select 1 from pg_proc p, unnest(p.proargnames) a
+    where p.oid = 'public.search_vetted_caregivers'::regproc and a = 'user_id'));
+select t.act_as(null, 'anon');
+select t.expect_ok('visitors can still browse the caregiver directory', $$select * from public.search_vetted_caregivers()$$);
+select t.reset();

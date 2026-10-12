@@ -42,7 +42,6 @@ export async function sendInterviewNotification(ctx: {
     })
     return { ok: true }
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.warn('[notifyInterview] email failed', err)
     return { ok: false, error: err instanceof Error ? err.message : String(err) }
   }

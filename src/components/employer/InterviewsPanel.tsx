@@ -94,7 +94,7 @@ function StatusBadge({ status }: { status: InterviewStatus }) {
   }
   return (
     <span
-      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-medium ${map[status]}`}
+      className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs sm:text-[10px] font-medium ${map[status]}`}
     >
       {t(`interviews.status.${status}`)}
     </span>
@@ -145,7 +145,7 @@ function ScorecardSection({ interview }: { interview: Interview }) {
   return (
     <div className="mt-3 rounded-lg border border-border bg-muted/30 p-3">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
+        <p className="text-xs sm:text-[11px] font-medium text-muted-foreground uppercase tracking-wider flex items-center gap-1">
           <MessageSquareText className="size-3" /> {t('interviews.scorecard.title')}
         </p>
         {!showForm && (
@@ -248,24 +248,24 @@ function ScorecardSection({ interview }: { interview: Interview }) {
                     />
                   ))}
                 </span>
-                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-[10px] font-medium text-primary">
+                <span className="inline-flex items-center rounded-full border border-primary/20 bg-primary/5 px-2 py-0.5 text-xs sm:text-[10px] font-medium text-primary">
                   {t(`interviews.scorecard.rec.${sc.recommendation}`)}
                 </span>
               </div>
               {sc.strengths && (
                 <div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('interviews.scorecard.strengths')}</p>
+                  <p className="text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('interviews.scorecard.strengths')}</p>
                   <p className="text-xs text-foreground whitespace-pre-line">{sc.strengths}</p>
                 </div>
               )}
               {sc.concerns && (
                 <div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('interviews.scorecard.concerns')}</p>
+                  <p className="text-xs sm:text-[10px] font-medium text-muted-foreground uppercase tracking-wider">{t('interviews.scorecard.concerns')}</p>
                   <p className="text-xs text-foreground whitespace-pre-line">{sc.concerns}</p>
                 </div>
               )}
               {sc.submittedAt && (
-                <p className="text-[10px] text-muted-foreground">
+                <p className="text-xs sm:text-[10px] text-muted-foreground">
                   {new Date(sc.submittedAt).toLocaleString(undefined, {
                     month: 'short',
                     day: 'numeric',
@@ -356,7 +356,7 @@ function InterviewCard({
             {t('interviews.duration', { minutes: interview.durationMinutes })}
           </p>
           <p className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-            <span className="inline-flex items-center rounded-full border border-border bg-muted/40 px-2 py-0.5 text-[10px] font-medium">
+            <span className="inline-flex items-center rounded-full border border-border bg-muted/40 px-2 py-0.5 text-xs sm:text-[10px] font-medium">
               {t(`interviews.type.${interview.type}`)}
             </span>
             {interview.locationOrLink && (
