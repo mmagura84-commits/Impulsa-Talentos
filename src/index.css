@@ -64,7 +64,7 @@ html, body {
      to DM Sans's measurements ("DM Sans Fallback ..." below), so nothing moves
      when DM Sans arrives. */
   --font-sans: 'DM Sans Variable', 'DM Sans Fallback Arial', 'DM Sans Fallback Roboto', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Lora Variable', ui-serif, Georgia, serif;
+  --font-serif: 'Lora Variable', 'Lora Fallback Georgia', 'Lora Fallback Tinos', ui-serif, Georgia, serif;
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --font-script: 'Dancing Script', 'Brush Script MT', 'Snell Roundhand', 'Apple Chancery', cursive;
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);

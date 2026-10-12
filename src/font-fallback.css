@@ -77,3 +77,25 @@
   descent-override: 28.56%;
   line-gap-override: 0%;
 }
+
+/* Size-matched stand-ins for Lora (the serif headings) while it loads: same
+   idea as DM Sans above. Without these, headings repaint wider when Lora
+   arrives, which also made Lighthouse record the main content late on /jobs/.
+   Sizes from the fonts' own metrics (@capsizecss/metrics, 2026-10-12):
+   Lora's average character width divided by the local font's. */
+@font-face {
+  font-family: 'Lora Fallback Georgia';
+  src: local('Georgia'), local('Georgia Regular');
+  size-adjust: 104.98%;
+  ascent-override: 95.83%;
+  descent-override: 26.10%;
+  line-gap-override: 0%;
+}
+@font-face {
+  font-family: 'Lora Fallback Tinos';
+  src: local('Tinos'), local('Liberation Serif'), local('Times New Roman'), local('TimesNewRomanPSMT');
+  size-adjust: 115.20%;
+  ascent-override: 87.33%;
+  descent-override: 23.78%;
+  line-gap-override: 0%;
+}

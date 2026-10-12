@@ -1,6 +1,6 @@
 import { createFileRoute, Link, Outlet, useMatchRoute, useNavigate } from '@tanstack/react-router'
-import { useRef, useState, useMemo, useEffect, type ReactNode } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { Reveal as FadeIn } from '@/components/Reveal'
+import { useState, useMemo, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -57,21 +57,6 @@ export const Route = createFileRoute('/_app/jobs')({
 })
 
 /* ── Animation helper ──────────────────────────────────── */
-function FadeIn({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-40px' })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 20 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1], delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
 
 /* ── Helpers ───────────────────────────────────────────── */
 function formatSalary(job: Job, locale: Locale): string {

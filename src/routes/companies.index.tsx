@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Reveal as FadeIn } from '@/components/Reveal'
 import { PublicHeader } from '@/components/PublicHeader'
-import { motion, useInView } from 'framer-motion'
-import { useRef, type ReactNode } from 'react'
 import { ArrowLeft, ArrowRight, BadgeCheck, Briefcase, Building2, MapPin } from 'lucide-react'
 import { useAllCompanies, fetchAllCompanies } from '@/hooks/useCompanies'
 import { useAllJobs, fetchAllJobs } from '@/hooks/useJobs'
@@ -27,21 +26,6 @@ export const Route = createFileRoute('/companies/')({
   component: CompaniesIndexPage,
 })
 
-function FadeIn({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-20px' })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 12 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1], delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
 
 function CompanyCard({ company, openCount }: { company: Company; openCount: number }) {
   const { t } = useI18n()

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { Reveal as FadeIn } from '@/components/Reveal'
 import { PublicHeader } from '@/components/PublicHeader'
-import { useRef, useState, type ReactNode } from 'react'
-import { motion, useInView } from 'framer-motion'
+import { useState } from 'react'
 import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -65,21 +65,6 @@ export const Route = createFileRoute('/companies/$id')({
   component: CompanyProfilePage,
 })
 
-function FadeIn({ children, className, delay = 0 }: { children: ReactNode; className?: string; delay?: number }) {
-  const ref = useRef(null)
-  const inView = useInView(ref, { once: true, margin: '-20px' })
-  return (
-    <motion.div
-      ref={ref}
-      initial={{ opacity: 0, y: 12 }}
-      animate={inView ? { opacity: 1, y: 0 } : {}}
-      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1], delay }}
-      className={className}
-    >
-      {children}
-    </motion.div>
-  )
-}
 
 function CompanyProfilePage() {
   const params = Route.useParams()

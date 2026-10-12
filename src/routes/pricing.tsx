@@ -2,7 +2,6 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState } from 'react'
 import { Link } from '@tanstack/react-router'
 import { toast } from 'sonner'
-import { motion } from 'framer-motion'
 import { Check, Sparkles, Loader2, CircleCheck, Landmark, Phone } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
@@ -41,12 +40,7 @@ function PlanCard({ id, billing, onBuy }: { id: string; billing: Billing; onBuy:
   const isTalent = pkg.kind === 'talent'
   const price = billing === 'yearly' ? pkg.priceYearlyUsd : pkg.priceUsd
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-      className={isPremium ? 'md:-mt-3 md:mb-3' : ''}
-    >
+    <div className={isPremium ? 'md:-mt-3 md:mb-3' : ''}>
       <Card className={`h-full flex flex-col hover:shadow-lg transition-shadow ${isPremium ? 'border-primary/40 bg-gradient-to-b from-primary/5 to-card' : ''}`}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
@@ -94,7 +88,7 @@ function PlanCard({ id, billing, onBuy }: { id: string; billing: Billing; onBuy:
           )}
         </CardContent>
       </Card>
-    </motion.div>
+    </div>
   )
 }
 
