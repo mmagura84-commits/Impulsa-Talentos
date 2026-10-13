@@ -185,3 +185,29 @@ test('the CV reader is deployed, refuses strangers and keeps its key', async ({ 
   expect(anon.status()).toBe(401)
   expect(await anon.json()).toEqual({ error: 'sign in required' })
 })
+
+test('the footer sits on two tidy rows on a phone, one line on a desktop', async ({ page, isMobile }) => {
+  await page.goto('/')
+  // Every visible item of the footer strip (the row-break spacer is aria-hidden).
+  const items = await page.locator('[data-site-footer] > :not([aria-hidden])').evaluateAll((els) =>
+    els.map((el) => {
+      const r = el.getBoundingClientRect()
+      return { top: Math.round(r.top), left: Math.round(r.left), right: Math.round(r.right) }
+    }),
+  )
+  expect(items.length, 'four section links, two legal links and the copyright').toBe(7)
+
+  // One shared top per row proves the items of a row share a baseline: the 44px
+  // tap targets phones give links used to push their text above the copyright.
+  const rows = [...new Set(items.map((i) => i.top))].sort((a, b) => a - b)
+  expect(rows.length, isMobile ? 'phones: exactly two rows' : 'desktop: a single line').toBe(isMobile ? 2 : 1)
+
+  if (!isMobile) return
+  // Symmetry: the two rows are of similar width and both centred in the strip.
+  const widths = rows.map((top) => {
+    const row = items.filter((i) => i.top === top)
+    return { w: Math.max(...row.map((i) => i.right)) - Math.min(...row.map((i) => i.left)), mid: (Math.max(...row.map((i) => i.right)) + Math.min(...row.map((i) => i.left))) / 2 }
+  })
+  expect(Math.abs(widths[0].w - widths[1].w), 'rows should be of similar length').toBeLessThan(80)
+  expect(Math.abs(widths[0].mid - widths[1].mid), 'both rows should be centred').toBeLessThan(8)
+})

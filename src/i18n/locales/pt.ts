@@ -260,6 +260,8 @@ const pt: Dict = {
   'footer.pricing': 'Preços',
   'footer.terms': 'Termos de Serviço',
   'footer.privacy': 'Política de Privacidade',
+  'footer.termsShort': 'Termos',
+  'footer.privacyShort': 'Privacidade',
   // Industry labels (canonical → slug → i18n)
   'industry.technology': 'Tecnologia',
   'industry.telecommunications': 'Telecomunicações',

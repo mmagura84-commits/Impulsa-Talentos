@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { TooltipProvider } from '@/components/ui/tooltip'
 import { Toaster } from '@/components/ui/sonner'
 import { I18nProvider, useI18n } from '@/i18n/I18nProvider'
-import { useEffect, useLayoutEffect, type ReactNode } from 'react'
+import { Fragment, useEffect, useLayoutEffect, type ReactNode } from 'react'
 
 const useLayoutEffectSafe = typeof window === 'undefined' ? useEffect : useLayoutEffect
 import { captureUTMParams } from '@/lib/marketing'
@@ -173,19 +173,44 @@ function AttributionCapture() {
   return null
 }
 
-/** Global legal footer strip — localized (EN/ES) on every route. */
+/** Global legal footer strip — localized (EN/ES/PT) on every route.
+ *
+ * Phones: exactly two centred rows of similar width — the four section links,
+ * then the two legal links with the copyright — instead of the ragged wrap it
+ * used to produce. The legal links use their short labels there, because
+ * "Política de Privacidad" alone is almost a full row.
+ * Tablet and up: one centred line, copyright first, as before. */
 function GlobalFooter() {
   const { t } = useI18n()
+  const links = [
+    { href: '/jobs', label: t('footer.jobs') },
+    { href: '/companies', label: t('footer.companies') },
+    { href: '/dashboard', label: t('footer.forEmployers') },
+    { href: '/pricing', label: t('footer.pricing') },
+    { href: '/terms', label: t('footer.terms'), short: t('footer.termsShort') },
+    { href: '/privacy', label: t('footer.privacy'), short: t('footer.privacyShort') },
+  ]
   return (
-    <footer className="border-t border-border/60 py-4 px-5 text-center">
-      <nav aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'} className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs sm:text-[11px] text-muted-foreground">
-        <span>© {new Date().getFullYear()} Impulsa Talentos</span>
-        <a href="/jobs" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.jobs')}</a>
-        <a href="/companies" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.companies')}</a>
-        <a href="/dashboard" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.forEmployers')}</a>
-        <a href="/pricing" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.pricing')}</a>
-        <a href="/terms" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.terms')}</a>
-        <a href="/privacy" className="hover:text-foreground hover:underline underline-offset-4">{t('footer.privacy')}</a>
+    <footer className="border-t border-border/60 px-5 py-4 text-center">
+      <nav
+        aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'}
+        data-site-footer
+        className="mx-auto flex max-w-sm flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-xs leading-tight text-muted-foreground sm:max-w-none sm:gap-x-4 sm:gap-y-1 sm:text-[11px]"
+      >
+        {/* Last on phones (it closes the second row), first on wider screens.
+            min-h-11 matches the 44px tap target the links get on phones (see
+            index.css), and every item centres its text inside that box, so a
+            row reads as one line. */}
+        <span className="order-last inline-flex min-h-11 items-center sm:order-none sm:min-h-0">© {new Date().getFullYear()} Impulsa Talentos</span>
+        {links.map((l, i) => (
+          <Fragment key={l.href}>
+            <a href={l.href} className="inline-flex items-center justify-center hover:text-foreground hover:underline underline-offset-4">
+              {l.short ? (<><span className="sm:hidden">{l.short}</span><span className="hidden sm:inline">{l.label}</span></>) : l.label}
+            </a>
+            {/* Row break after the fourth link, so phones get 4 + 3 rather than a ragged wrap. */}
+            {i === 3 && <span aria-hidden className="-mt-2 basis-full sm:hidden" />}
+          </Fragment>
+        ))}
       </nav>
     </footer>
   )
