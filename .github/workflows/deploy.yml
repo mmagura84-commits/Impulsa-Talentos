@@ -86,7 +86,7 @@ jobs:
           # Hostinger API: Clear website cache (same as hPanel > Dashboard > Flush cache).
           # Token: hPanel > Account > API (add it as the repo secret HOSTINGER_API_TOKEN).
           if [ -z "$HOSTINGER_API_TOKEN" ]; then
-            echo "HOSTINGER_API_TOKEN not set: skipping the optional cache flush (pages refresh themselves through /sw.js)."
+            echo "HOSTINGER_API_TOKEN not set: skipping the optional cache flush (each page's index.php gives the CDN a 60s lifetime, so it re-asks by itself)."
             exit 0
           fi
           code=$(curl -sS -o /tmp/flush.json -w '%{http_code}' -X DELETE \
@@ -96,9 +96,9 @@ jobs:
           if [ "$code" -ge 300 ]; then head -c 400 /tmp/flush.json; echo; echo "::error::Cache flush failed (HTTP $code)"; exit 1; fi
       - name: Wait until visitors get this build
         run: |
-          # Pages load through /sw.js as /path?_b=<build> (a URL the CDN has
-          # never cached), so the new build is what visitors get even if the
-          # CDN still holds old copies of the plain URLs.
+          # ?_b=<build> is a URL no cache has ever seen, so this proves the
+          # new build is really on the server even while the CDN still holds
+          # older copies of the plain URLs (checked straight after).
           BUILD=$(node -p "require('./dist/version.json').build")
           ASSET=$(grep -aoE '/assets/[^"]+\.js' dist/index.html | head -1)
           [ -n "$BUILD" ] && [ -n "$ASSET" ] || { echo "::error::dist is missing version.json or a script"; exit 1; }
@@ -125,7 +125,7 @@ jobs:
             sleep 15
           done
           if [ "$ok" = 1 ]; then echo "CDN serves build $BUILD on plain URLs"
-          else echo "::warning::The CDN still holds older copies of the plain URLs after 2.5 minutes (visitors are still refreshed to the new build by /sw.js; a flush in hPanel clears it)"; fi
+          else echo "::warning::The CDN still holds older copies of the plain URLs after 2.5 minutes (the build check inlined in each page still moves visitors onto the new build; a flush in hPanel clears it sooner)"; fi
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: Smoke-test the live site (read-only)

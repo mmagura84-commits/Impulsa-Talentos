@@ -80,15 +80,31 @@ test('pages are the current build and carry the self-update script', async ({ pa
   }
 })
 
-test('service worker takes over page loads (keeps pages fresh despite the host caching them)', async ({ page }) => {
+test('a phone may reuse a page it already has, and nothing sits in front of the navigation', async ({ page, request }) => {
+  // The header that decides it. With max-age=0 every tap around the site paid
+  // a full round trip before anything could be drawn — the thing that made the
+  // site feel slow on a phone — while s-maxage keeps the CDN re-asking so a
+  // deploy still reaches people.
+  const cc = (await request.get('/privacy/')).headers()['cache-control'] ?? ''
+  expect(Number(/(?:^|[\s,])max-age=(\d+)/.exec(cc)?.[1] ?? 0), `the browser must be allowed to keep a page (got "${cc}")`).toBeGreaterThan(0)
+  expect(cc, 'the CDN must still re-ask after a deploy').toMatch(/s-maxage=\d+/)
+
+  // No service worker in front of page loads: one used to add ~1 s to every
+  // navigation (1087 ms to first byte through it, 152 ms without).
   await page.goto('/privacy/')
-  // An old copy may reload itself once; evaluate calls retry across that navigation.
-  await expect.poll(() => page.evaluate(() => navigator.serviceWorker.ready.then(() => true)).catch(() => false), { timeout: 20_000 }).toBe(true)
-  await page.reload()
-  await expect.poll(() => page.evaluate(() => !!navigator.serviceWorker.controller).catch(() => false), { timeout: 20_000 }).toBe(true)
-  const script = await page.evaluate(() => navigator.serviceWorker.controller?.scriptURL ?? '')
-  expect(script).toMatch(/\/sw\.js\?v=[0-9a-f]{12}$/)
   await expect(page.locator('h1').first()).toBeVisible()
+  await page.reload()
+  await page.waitForTimeout(1000)
+  expect(await page.evaluate(() => !!navigator.serviceWorker.controller), 'no worker should control the page').toBe(false)
+  expect(await page.evaluate(() => navigator.serviceWorker.getRegistrations().then((r) => r.length)), 'pages should not register one').toBe(0)
+
+  // /sw.js has to stay reachable, and be the file that removes the worker a
+  // returning visitor still carries — deleting it would leave theirs running.
+  const sw = await request.get('/sw.js')
+  expect(sw.status()).toBe(200)
+  const src = await sw.text()
+  expect(src, 'sw.js must unregister itself').toContain('registration.unregister()')
+  expect(src, 'sw.js must not handle fetches any more').not.toMatch(/addEventListener\(\s*['"]fetch['"]/)
 })
 
 test('favicons are real brand images, not HTML', async ({ page, request }) => {

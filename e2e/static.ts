@@ -13,7 +13,12 @@ Bun.serve({
     if (existsSync(f) && statSync(f).isDirectory()) f = join(f, 'index.html')
     // HOSTINGER=1 mimics the live host: unknown paths get the home page.
     if (!existsSync(f) || !statSync(f).isFile()) f = join(DIST, process.env.HOSTINGER === '1' ? 'index.html' : 'spa-fallback.html')
-    return new Response(Bun.file(f))
+    // Pages carry the same cache headers the live index.php sends, so the
+    // checks that pin them down mean the same thing here as in production.
+    const headers = f.endsWith('.html')
+      ? { 'Cache-Control': 'public, max-age=300, s-maxage=60, stale-while-revalidate=86400', 'X-Impulsa-Page': 'php' }
+      : undefined
+    return new Response(Bun.file(f), headers ? { headers } : undefined)
   },
 })
 console.log('static dist on :' + (process.env.PORT ?? 3100))

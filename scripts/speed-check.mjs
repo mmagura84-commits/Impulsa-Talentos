@@ -7,7 +7,7 @@
  *
  * Each page is measured RUNS times and judged on the median, because single
  * Lighthouse runs vary. With a build id, pages are requested as /path?_b=<build>
- * (the URL visitors get through the service worker), so a CDN copy of an older
+ * (a URL no cache has ever seen), so a CDN copy of an older
  * build can't skew the result. Uses the Chromium that Playwright installed.
  */
 import { execFileSync } from 'node:child_process'

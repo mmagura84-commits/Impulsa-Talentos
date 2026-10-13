@@ -177,21 +177,21 @@ writeFileSync(
 )
 console.log('[finalize] ✓ spa-fallback.html generated (neutral shell + TanStack bootstrap — no hydration mismatch)')
 
-// ── Self-updating pages (Hostinger caches every file for a year) ──
-// The host sends `Cache-Control: max-age=31536000` on HTML too and ignores
-// .htaccess headers, so a browser (or the CDN, until flushed) can keep an old
-// page that names scripts from an earlier build. Every page gets a tiny inline
-// script that runs before the app:
-//   · compares its build id with /version.json (fetched past every cache);
-//     if the site has moved on, it re-downloads this page (cache: 'reload',
-//     which also replaces the browser's saved copy) and reloads once;
+// ── Self-updating pages ──
+// Pages used to be kept fresh by a service worker, because the host sent
+// `Cache-Control: max-age=31536000` on HTML and ignored .htaccess headers.
+// The index.php below fixes that at the source (PHP headers ARE honoured), so
+// the worker became a tax rather than a cure: it put itself in front of every
+// navigation and spent ~1 s there (measured live: TTFB 1087 ms through the
+// worker vs 152 ms without) asking /version.json and re-fetching the page with
+// `no-store`, which also stopped the browser from ever reusing a page.
+// What is left is a small inline script that runs before the app:
+//   · unregisters that worker, so visitors who still carry one shed it;
 //   · if one of its own /assets/ files fails to load (deleted old build), or
-//     Vite reports a failed lazy chunk, it does the same;
-//   · registers /sw.js?v=<build> (the worker file is cached for a year too,
-//     so each build asks for a URL the CDN has never seen), which loads every page as /path?_b=<live build>, so
-//     neither the browser's year-long saved copy nor the CDN's copy can serve
-//     an old build (no cache flush needed); a stale page waits for the worker
-//     to take control, then reloads through it.
+//     Vite reports a failed lazy chunk, it reloads past every cache;
+//   · once the page is up and the browser is idle, compares its build id with
+//     /version.json and reloads once if the site has moved on. Deferring this
+//     keeps it off the critical path — it used to race the first paint.
 // A session flag stops it from ever looping.
 const assetNames = existsSync(join(DEST, 'assets')) ? readdirSync(join(DEST, 'assets')).sort() : []
 const htmlFiles = []
@@ -240,14 +240,13 @@ const BUILD_ID = idHash.digest('hex').slice(0, 12)
 writeFileSync(join(DEST, 'version.json'), JSON.stringify({ build: BUILD_ID }) + '\n')
 // Self-update script, first thing in every page's <head>:
 //  - strips the ?_b= cache-buster from the address bar;
-//  - registers the service worker AFTER the page has loaded, so installing it
-//    never competes with the first paint;
-//  - asks /version.json which build is live; if this page is older (a CDN copy),
-//    it switches at once: through the worker when one controls the page,
-//    otherwise straight to /path?_b=<build> (a URL no cache has) — no waiting
-//    for the worker to install first, which used to double the first visit;
-//  - same when a script/style of an old build is gone (404 after cleanup).
-const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh",S=navigator.serviceWorker,R;try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}function reg(){if(R)return R;try{R=S?S.register("/sw.js?v="+B):Promise.reject()}catch(e){R=Promise.reject(e)}if(R.catch)R.catch(function(){});return R}if(document.readyState==="complete")reg();else addEventListener("load",function(){setTimeout(reg,0)});function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}if(S&&S.controller){location.reload();return}hard(nb)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})})();</script>`
+//  - sheds the retired service worker and the caches it kept;
+//  - reloads past every cache when a script/style of an old build is gone
+//    (404 after cleanup) or a lazy chunk fails;
+//  - when the page is up and the browser is idle, asks /version.json which
+//    build is live and switches to /path?_b=<build> (a URL no cache has) if
+//    this page is older.
+const FRESH_SCRIPT = `<script data-build="${BUILD_ID}">(function(){var B="${BUILD_ID}",K="it-refresh";try{if(/[?&]_b=/.test(location.search)){var c=new URL(location.href);c.searchParams.delete("_b");history.replaceState(history.state,"",c.pathname+c.search+c.hash)}}catch(e){}try{var S=navigator.serviceWorker;if(S&&S.getRegistrations)S.getRegistrations().then(function(rs){for(var i=0;i<rs.length;i++)rs[i].unregister()}).catch(function(){});if(window.caches&&caches.keys)caches.keys().then(function(ks){for(var i=0;i<ks.length;i++)if(/^it-/.test(ks[i]))caches.delete(ks[i])}).catch(function(){})}catch(e){}function hard(nb){var u=new URL(location.href);u.searchParams.set("_b",nb||Date.now().toString(16));location.replace(u.toString())}function go(nb){try{var k=K+":"+location.pathname,o=(sessionStorage.getItem(k)||"").split("|");if(o[0]===(nb||"err")&&Date.now()-(+o[1]||0)<60000)return;sessionStorage.setItem(k,(nb||"err")+"|"+Date.now())}catch(e){return}hard(nb)}addEventListener("error",function(e){var t=e.target,u=t&&(t.src||t.href);if(u&&/\\/assets\\//.test(u)&&(t.tagName==="SCRIPT"||t.tagName==="LINK"))go()},true);addEventListener("vite:preloadError",function(e){e.preventDefault();go()});function check(){if(navigator.onLine===false)return;fetch("/version.json?b="+Date.now(),{cache:"no-store"}).then(function(r){return r.ok?r.json():null}).then(function(v){if(v&&v.build&&v.build!==B)go(v.build)}).catch(function(){})}function later(){(window.requestIdleCallback||function(f){setTimeout(f,1200)})(check,{timeout:3000})}document.readyState==="complete"?later():addEventListener("load",later)})();</script>`
 
 // Taps before the app's scripts have run (they load after the first paint):
 // the phone menu opens/closes at once, a language pick is saved (the app
@@ -302,13 +301,30 @@ console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script
 // ones it honours. Pages stay prerendered; nothing else changes.
 const PAGE_PHP = `<?php
 // Written by scripts/finalize-static-build.mjs. Serves the prerendered
-// index.html in this folder with a one-minute CDN lifetime (the host ignores
-// .htaccess cache headers, so this is what keeps pages fresh after a deploy).
+// index.html in this folder with the cache headers this host actually honours
+// (it ignores the ones in .htaccess):
+//   max-age=300             the visitor's OWN browser may reuse the page for
+//                           five minutes. This is the one that matters on a
+//                           phone: without it every tap around the site pays
+//                           a full network round trip before anything can be
+//                           drawn, which is what made the site feel slow.
+//   s-maxage=60             the CDN still re-asks this server within a minute,
+//                           so a deploy reaches visitors without a flush.
+//   stale-while-revalidate  a cache may serve its saved copy at once and
+//                           refresh it in the background rather than making
+//                           the visitor wait for the check.
+// A page that is out of date anyway is caught by the build check inlined in
+// the page itself, which reloads it once.
 header('Content-Type: text/html; charset=utf-8');
-header('Cache-Control: public, max-age=0, s-maxage=60');
+header('Cache-Control: public, max-age=300, s-maxage=60, stale-while-revalidate=86400');
 header('X-Impulsa-Page: php');
 $file = __DIR__ . '/index.html';
 if (!is_file($file)) { http_response_code(404); exit; }
+// A revalidation then costs ~200 bytes instead of the whole page.
+$etag = '"' . dechex(filemtime($file)) . '-' . dechex(filesize($file)) . '"';
+header('ETag: ' . $etag);
+$sent = $_SERVER['HTTP_IF_NONE_MATCH'] ?? '';
+if ($sent !== '' && strpos($sent, $etag) !== false) { http_response_code(304); exit; }
 if (($_SERVER['REQUEST_METHOD'] ?? 'GET') === 'HEAD') { header('Content-Length: ' . (string) filesize($file)); exit; }
 readfile($file);
 `
