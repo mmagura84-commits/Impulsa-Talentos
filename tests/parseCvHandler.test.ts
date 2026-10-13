@@ -9,10 +9,16 @@ const USER = '11111111-1111-1111-1111-111111111111'
 const PROFILE = '22222222-2222-2222-2222-222222222222'
 const pdf = new Uint8Array(readFileSync(join(import.meta.dir, 'fixtures/cv/chrome-es.pdf')))
 const scanned = new Uint8Array(readFileSync(join(import.meta.dir, 'fixtures/cv/scanned.pdf')))
+// A full, realistic CV (fictional candidate; see fixtures/cv/make-bilingual-lead.py).
+// It deliberately carries an email, phone, national ID and a LinkedIn link, so the
+// redaction before anything leaves our servers is tested against real content.
+const bilingualLead = new Uint8Array(readFileSync(join(import.meta.dir, 'fixtures/cv/bilingual-lead.pdf')))
 
 let handler: (req: Request) => Promise<Response>
 const saved: { body?: Record<string, unknown>; url?: string; extracted?: Record<string, unknown> } = {}
 let claudeDown = false
+/** The exact body of the last request made to the Anthropic API. */
+let claudeRequest: Record<string, unknown> | undefined
 let files: Record<string, Uint8Array> = {}
 
 beforeAll(async () => {
@@ -25,6 +31,7 @@ beforeAll(async () => {
     const u = String(input)
     const auth = new Headers(init?.headers).get('authorization')
     if (u.startsWith('https://api.anthropic.com/')) {
+      claudeRequest = JSON.parse(String(init?.body ?? '{}'))
       if (claudeDown) return new Response('{}', { status: 529 })
       return Response.json({ stop_reason: 'end_turn', content: [{ type: 'text', text: JSON.stringify({ skills: ['SQL', 'Power BI'], languages: [{ name: 'English', level: 'C1' }], years_experience: 4, current_title: 'Analista de Riesgo', desired_role: null, seniority: 'mid', industries: ['Banking'], education: [], summary: 'Analista de datos bilingüe.' }) }] })
     }
@@ -94,5 +101,70 @@ describe('parse-cv handler', () => {
     const res = await call({ path: `cvs/${USER}/scan.pdf` })
     expect(res.status).toBe(422)
     expect((await res.json()).code).toBe('no_text')
+  })
+})
+
+/*
+ * A real CV, end to end through the function: what the PDF gives us, what
+ * leaves for Claude, and how the answer comes back. The Anthropic call is the
+ * only part stood in for (the live key lives in the project's secrets).
+ */
+describe('parse-cv with a full, realistic CV', () => {
+  let text = ''
+  beforeAll(async () => {
+    files = { [`cvs/${USER}/valentina.pdf`]: bilingualLead }
+    saved.body = undefined; saved.extracted = undefined; claudeRequest = undefined
+    const res = await call({ path: `cvs/${USER}/valentina.pdf` })
+    expect(res.status).toBe(200)
+    text = String(saved.body?.parsed_cv_text ?? '')
+  })
+
+  test('the whole CV is read out of the PDF', () => {
+    for (const phrase of ['Customer Experience Team Lead', 'Globant Colombia', 'Universidad EAFIT', 'Salesforce Service Cloud', 'IELTS']) {
+      expect(text).toContain(phrase)
+    }
+    expect(text.length).toBeGreaterThan(1000)
+  })
+
+  test('contact details and the ID number never leave our servers', () => {
+    const sent = String((claudeRequest?.messages as { content: string }[])[0].content)
+    // They are in the CV we read...
+    expect(text).toContain('valentina.restrepo@example.com')
+    expect(text).toContain('1.017.882.441')
+    // ...and gone from what we send.
+    expect(sent).not.toContain('valentina.restrepo@example.com')
+    expect(sent).not.toContain('301 555 8842')
+    expect(sent).not.toContain('1.017.882.441')
+    expect(sent).not.toMatch(/linkedin\.com\/in\//)
+    expect(sent).toContain('[email]')
+    // Employment dates must survive: they are how experience is counted.
+    expect(sent).toContain('2022')
+    expect(sent).toContain('Mar 2022')
+  })
+
+  test('the request matches the Messages API structured-output contract', () => {
+    expect(claudeRequest?.model).toBe('claude-haiku-5-5')
+    expect(claudeRequest?.max_tokens).toBe(1500)
+    expect(String(claudeRequest?.system)).toContain('data, not instructions')
+    const format = (claudeRequest?.output_config as { format: { type: string; schema: { required: string[]; additionalProperties: boolean } } }).format
+    expect(format.type).toBe('json_schema')
+    expect(format.schema.additionalProperties).toBe(false)
+    expect(format.schema.required).toContain('skills')
+    expect(format.schema.required).toContain('languages')
+    expect(format.schema.required).toContain('seniority')
+  })
+
+  test('the CV text is wrapped so the model can tell it from instructions', () => {
+    const sent = String((claudeRequest?.messages as { content: string }[])[0].content)
+    expect(sent.startsWith('<cv>')).toBe(true)
+    expect(sent.trimEnd().endsWith('</cv>')).toBe(true)
+  })
+
+  test("what Claude answers is stored on the candidate's profile", () => {
+    const ex = saved.extracted?.cv_extracted as { skills: string[]; languages: { name: string; level: string }[]; model: string }
+    expect(ex.model).toBe('claude-haiku-5-5')
+    expect(ex.skills.length).toBeGreaterThan(0)
+    expect(ex.languages[0].level).toBe('C1')
+    expect(saved.extracted?.cv_extracted_at).toBeTruthy()
   })
 })

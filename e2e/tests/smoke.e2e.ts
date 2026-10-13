@@ -157,3 +157,31 @@ test('real-visitor load times are reported (anonymously)', async ({ page }) => {
   expect(typeof body!.p_fcp_ms).toBe('number')
   expect(Object.keys(body!).sort()).toEqual(['p_build', 'p_cls', 'p_connection', 'p_device', 'p_fcp_ms', 'p_inp_ms', 'p_lcp_ms', 'p_nav_type', 'p_page', 'p_ttfb_ms'])
 })
+
+test('the CV reader is deployed, refuses strangers and keeps its key', async ({ page, request }) => {
+  // Take the project and key from the app's own first database call, rather
+  // than from the bundle (the scripts are injected after the first paint).
+  const seen = page.waitForRequest(r => r.url().includes('/rest/v1/'), { timeout: 20_000 })
+  await page.goto('/')
+  const req = await seen
+  const url = new URL(req.url()).origin
+  const key = req.headers()['apikey'] ?? ''
+  expect(key, 'the app should send its publishable key').toMatch(/^eyJ/)
+
+  // The local e2e stack has no Edge Functions (see e2e/README.md), so the rest
+  // only applies to a real deployment.
+  test.skip(!url.startsWith('https://'), 'Edge Functions are not part of the local stack')
+  const fn = `${url}/functions/v1/parse-cv`
+
+  // Reachable from a browser (the upload calls it right after a CV is saved).
+  expect((await request.fetch(fn, { method: 'OPTIONS' })).status()).toBe(200)
+
+  // A caller who is not signed in gets nothing — and the wording proves the
+  // function booted and ran its own code rather than erroring at the gateway.
+  const anon = await request.post(fn, {
+    headers: { apikey: key, Authorization: `Bearer ${key}`, 'Content-Type': 'application/json' },
+    data: { path: 'cvs/11111111-1111-1111-1111-111111111111/x.pdf' },
+  })
+  expect(anon.status()).toBe(401)
+  expect(await anon.json()).toEqual({ error: 'sign in required' })
+})

@@ -17,6 +17,9 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL') ?? ''
 const ANON = Deno.env.get('SUPABASE_ANON_KEY') ?? ''
 const ANTHROPIC_KEY = Deno.env.get('ANTHROPIC_API_KEY') ?? ''
 const MAX_BYTES = 10 * 1024 * 1024
+// One line per cold start, so the logs show whether the Claude step is wired
+// up without anyone having to upload a CV to find out. Never logs the key.
+console.info(`parse-cv ready · claude ${ANTHROPIC_KEY ? 'on' : 'OFF (set ANTHROPIC_API_KEY)'}`)
 const PATH_RE = /^(cvs|resumes)\/([0-9a-f-]{36})\/[^/]{1,200}$/i
 
 const cors = {
