@@ -64,6 +64,11 @@ jobs:
           # its own sensible ones (short max-age + ETag).
           find dist -name index.php -delete
           rm -f dist/.htaccess dist/_redirects
+          # The custom domain. With GitHub Actions as the Pages source this
+          # file is what binds the deployment to impulsatalentos.expert, so it
+          # has to be in the artifact on every build — losing it would drop the
+          # site back to the github.io address.
+          echo 'impulsatalentos.expert' > dist/CNAME
           test -f dist/index.html && test -f dist/404.html || { echo "::error::dist is incomplete"; exit 1; }
           echo "Pages build ready: $(find dist -type f | wc -l | tr -d ' ') files"
       - uses: actions/configure-pages@v5
