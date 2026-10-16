@@ -316,8 +316,19 @@ const PAGE_PHP = `<?php
 // A page that is out of date anyway is caught by the build check inlined in
 // the page itself, which reloads it once.
 header('Content-Type: text/html; charset=utf-8');
-header('Cache-Control: public, max-age=300, s-maxage=60, stale-while-revalidate=86400');
+// stale-if-error: if the origin is down, a cache may keep serving the copy it
+// already has rather than showing the visitor nothing. The host went down on
+// 2026-10-14 and again on 2026-10-16; this is what stops that reaching people.
+header('Cache-Control: public, max-age=300, s-maxage=60, stale-while-revalidate=86400, stale-if-error=604800');
 header('X-Impulsa-Page: php');
+// The CDN advertises HTTP/3 on every response ("alt-svc: h3=:443; ma=86400").
+// HTTP/3 runs over UDP, and consumer VPNs routinely mangle it: the tunnel
+// shrinks the MTU and QUIC's path discovery fails inside it, so Chrome reports
+// ERR_CONNECTION_CLOSED and — because it remembers the advertisement for 24h —
+// keeps retrying the broken transport instead of falling back to TCP.
+// "clear" tells the browser to forget that advertisement, so pages load over
+// HTTP/2 like any other site. Harmless where HTTP/3 was working.
+header('Alt-Svc: clear');
 $file = __DIR__ . '/index.html';
 if (!is_file($file)) { http_response_code(404); exit; }
 // A revalidation then costs ~200 bytes instead of the whole page.
