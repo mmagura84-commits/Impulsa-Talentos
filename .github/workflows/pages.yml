@@ -1,0 +1,84 @@
+name: Deploy to GitHub Pages
+# A second home for the site, on infrastructure that does not fall over.
+#
+# The shared host behind deploy.yml went down three times between 2026-10-14
+# and 2026-10-16, and its CDN refuses to cache these pages (it answers
+# "x-hcdn-cache-status: DYNAMIC"), so every page view depends on that one
+# server being alive. This site is a folder of static files — it does not need
+# PHP, a database, or anything else that host provides. The Supabase backend
+# is separate and unaffected either way.
+#
+# deploy.yml is left exactly as it is, so the two can run side by side and DNS
+# decides which one visitors actually reach.
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+# Never let two Pages deploys overlap, and never cancel one half-done.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
+        with:
+          bun-version: 1.4.2
+      - name: Build
+        env:
+          # Same LIVE Supabase project as deploy.yml. The anon key is public by
+          # design (it ships in the client bundle).
+          VITE_SUPABASE_URL: https://cmdqlybsgkegolqydmbh.supabase.co
+          VITE_SUPABASE_ANON_KEY: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHFseWJzZ2tlZ29scXlkbWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNDYxNzksImV4cCI6MjEwMTcyMjE3OX0.VTalByKsYkNvc7JX9OIkAk--7Ex7UeCZYSvlwDb9Lr4
+          SITE_URL: https://impulsatalentos.expert
+        run: |
+          bun install --frozen-lockfile
+          bun run build
+      - name: Guard — bundle must target the LIVE Supabase project
+        run: |
+          if grep -rq --include='*.js' 'wpnkeryyhsdsislqaegb' dist/assets/; then
+            echo "::error::dist bundle references the LEGACY Supabase project — refusing to deploy"
+            exit 1
+          fi
+          grep -rq --include='*.js' 'cmdqlybsgkegolqydmbh' dist/assets/ \
+            || { echo "::error::dist bundle does not reference the LIVE Supabase project"; exit 1; }
+      - name: Shape the build for GitHub Pages
+        run: |
+          set -euo pipefail
+          # Pages serves 404.html for any path it has no file for. The SPA-only
+          # routes (/candidate, /employer, /hq, /dashboard …) are exactly those
+          # paths, so this is what _redirects did on the other host. It must be
+          # spa-fallback.html, NOT index.html: index.html is the prerendered
+          # HOME page, and hydrating that DOM against another route throws
+          # React error #418 on every text-node divergence.
+          cp dist/spa-fallback.html dist/404.html
+          # Without this, Pages runs the files through Jekyll, which silently
+          # drops anything whose name starts with an underscore.
+          touch dist/.nojekyll
+          # Host-specific leftovers that mean nothing here: the index.php files
+          # exist only to set cache headers on the other host, and Pages sets
+          # its own sensible ones (short max-age + ETag).
+          find dist -name index.php -delete
+          rm -f dist/.htaccess dist/_redirects
+          test -f dist/index.html && test -f dist/404.html || { echo "::error::dist is incomplete"; exit 1; }
+          echo "Pages build ready: $(find dist -type f | wc -l | tr -d ' ') files"
+      - uses: actions/configure-pages@v5
+      # GitHub's own Pages actions are referenced by tag rather than SHA: this
+      # session could not resolve their commit SHAs to pin them. Worth pinning
+      # the next time someone touches this file.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
