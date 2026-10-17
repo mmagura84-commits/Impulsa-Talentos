@@ -225,14 +225,11 @@ function jobPhoto(industry: string | undefined, id: string): string {
   for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0
   return pool[h % pool.length]
 }
-/** Whole photo (object-contain) over a blurred copy of itself, so nothing is cropped and there are no bars. */
+/** Edge-to-edge landscape (3:2) photo: no padding, no bars. Text always sits below it, never over faces. */
 function Photo({ src, alt = '', className = '', srcSet, sizes, zoom = true, cover = false }: { src: string; alt?: string; className?: string; srcSet?: string; sizes?: string; zoom?: boolean; cover?: boolean }) {
-  const motion = zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.03]' : ''
   return (
-    <div className={`flex items-center overflow-hidden bg-[#171a20] ${className}`}>
-      <img src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-2xl" />
-      {/* Full width of the section; height follows the photo so the whole picture shows (cover only for a background band). */}
-      <img src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading="lazy" decoding="async" className={cover ? `absolute inset-0 size-full object-cover ${motion}` : `relative h-auto w-full ${motion}`} />
+    <div className={`${className.includes('absolute') ? '' : 'relative'} overflow-hidden bg-[#171a20] ${cover ? '' : 'aspect-[3/2]'} ${className}`}>
+      <img src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading="lazy" decoding="async" className={`absolute inset-0 size-full object-cover object-center ${zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.03]' : ''}`} />
     </div>
   )
 }
@@ -267,9 +264,8 @@ function JobFeedPreview() {
     return (
       <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
         <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
-          <div className="relative aspect-[3/2] overflow-hidden bg-[#171a20]">
-            <Photo src={jobPhoto(job.industry, job.id)} className="absolute inset-0" />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
+          <div className="relative">
+            <Photo src={jobPhoto(job.industry, job.id)} />
             {age !== null && age <= 7 && <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white">{t('landing.feedNew')}</span>}
             {age !== null && <span className="absolute right-3 top-3 rounded-full bg-black/45 px-2.5 py-0.5 text-xs text-white backdrop-blur">{age === 0 ? t('landing.feedPostedToday') : t('landing.feedPostedDays', { n: age })}</span>}
           </div>
@@ -501,10 +497,9 @@ function CityShowcase() {
           const name = t(`landing.city${capitalize(city.key)}`)
           return (
             <div key={city.key} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0" aria-roledescription="slide" aria-label={`${i + 1} / ${CITIES.length}: ${name}`}>
-              <div className="group relative aspect-[3/2] overflow-hidden rounded-xl">
-                <Photo src={CITY_PHOTOS[city.key]} alt={t(CITY_IMAGE_ALT_KEY[city.key])} className="absolute inset-0" />
-                <div className="absolute inset-0 bg-black/40" />
-                <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4 xl:p-5">
+              <div className="group overflow-hidden rounded-xl bg-[#171a20]">
+                <Photo src={CITY_PHOTOS[city.key]} alt={t(CITY_IMAGE_ALT_KEY[city.key])} />
+                <div className="p-5 lg:p-4 xl:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2 lg:flex-col lg:items-start lg:gap-1.5">
                     <h3 className="text-lg font-medium text-white xl:text-xl">{name}</h3>
                     <span className={`rounded-md px-2 py-0.5 text-xs font-medium ${count > 0 ? 'bg-white/20 text-white' : 'bg-black/40 text-white'}`}>
@@ -601,13 +596,14 @@ function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
   const subjects = family.members.filter(m => (counts.get(m) ?? 0) > 0)
   /* Fixed-height, full-bleed photo panel: every card is the same size, the photo
      always fills it, and the title + subjects sit on a bottom gradient. */
-  return <div className="group relative h-[26rem] overflow-hidden rounded-2xl bg-[#171a20] sm:h-[34rem]">
-    <Photo src={FAMILY_PHOTOS[family.slug] ?? ux('1573167507387-6b4b98cb7c13')} className="absolute inset-0" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10" />
-    {total > 0 && <span className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#171a20] backdrop-blur">{t('industries.open', { n: total })}</span>}
-    <div className="absolute inset-x-0 bottom-0 flex flex-col p-6 sm:p-7">
+  return <div className="group overflow-hidden rounded-2xl bg-[#171a20]">
+    <div className="relative">
+      <Photo src={FAMILY_PHOTOS[family.slug] ?? ux('1573167507387-6b4b98cb7c13')} />
+      {total > 0 && <span className="absolute left-4 top-4 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#171a20] backdrop-blur">{t('industries.open', { n: total })}</span>}
+    </div>
+    <div className="flex flex-col p-5 sm:p-6">
       <h3 className="text-2xl font-medium leading-tight text-white sm:text-[1.75rem]">{t(`industries.family.${family.slug}`)}</h3>
-      <div className="mt-4 flex min-h-[7rem] flex-wrap content-start gap-2 sm:min-h-[8.75rem]">
+      <div className="mt-4 flex min-h-[6.5rem] flex-wrap content-start gap-2 sm:min-h-[7.5rem]">
         {subjects.map(m => { const slug = INDUSTRIES.find(x => x.canonical === m)?.slug; return <Link key={m} to="/jobs" search={{ industry: slug }} className="inline-flex min-h-0 min-w-0 items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white hover:text-[#171a20]">{t(`industries.${slug}`)} <b className="font-medium opacity-80">{counts.get(m)}</b></Link> })}
         {total === 0 && <p className="text-sm text-white/80">{t('industries.comingSoon')}</p>}
       </div>
@@ -675,21 +671,21 @@ function LandingPage() {
           single headline and at most two buttons, circle dots to switch photos.
           -mt-16: the hero extends up behind the transparent sticky header (h-16). */}
       <section className="relative isolate -mt-16 flex flex-col overflow-hidden bg-[#171a20] sm:min-h-[84svh]" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
-        {/* Phones: the whole 3:2 photo sits in a 3:2 frame below the nav and the text follows on solid dark. Tablet and up: full-bleed hero. */}
+        {/* Phones: the whole 3:2 photo sits in a 3:2 frame below the nav and the text follows on solid dark. Tablet and up: full-bleed, edge-to-edge hero. */}
         <div className="absolute inset-x-0 top-0 z-0 h-[calc(66.667vw+4rem)] sm:inset-0 sm:h-auto" aria-hidden="true">
           {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => (
             <div key={i} className={`absolute inset-0 ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`}>
-              {/* Soft fill behind the photo so the whole picture can be shown (object-contain) with no bars. */}
-              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-x-0 bottom-0 top-16 size-full scale-110 object-cover object-center opacity-70 blur-2xl sm:inset-0" />
-              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className="absolute inset-x-0 bottom-0 top-16 h-[calc(100%-4rem)] w-full object-contain object-center sm:inset-0 sm:h-full" />
+              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className="absolute inset-x-0 bottom-0 top-16 h-[calc(100%-4rem)] w-full object-cover object-center sm:inset-0 sm:h-full" />
             </div>
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/20 sm:from-black/55 sm:via-black/25 sm:to-black/65" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/20 sm:from-black/65 sm:via-transparent sm:to-black/55" />
         </div>
-        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-center px-5 pb-16 pt-[calc(66.667vw+5.5rem)] text-center sm:px-6 sm:pb-24 sm:pt-32 lg:px-10">
+        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-start px-5 pb-16 pt-[calc(66.667vw+5.5rem)] text-center sm:px-6 sm:justify-between sm:pb-24 sm:pt-32 lg:px-10">
+          <div className="flex flex-col items-center">
           <h1 className="max-w-5xl text-[2.25rem] font-medium leading-[1.05] tracking-tight text-white sm:text-[3.75rem] lg:text-[4.5rem]">{t('landing.heroTitle1')}<span className="block">{t('landing.heroTitle2')}</span></h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">{t('landing.heroSub')}</p>
-          <div className="mt-8 w-full sm:w-auto"><LandingCTAs /></div>
+          </div>
+          <div className="mt-8 w-full sm:mt-0 sm:w-auto"><LandingCTAs /></div>
         </div>
         <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[10px] leading-tight text-white/70 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
@@ -714,15 +710,11 @@ function LandingPage() {
             { step: '03', img: ux('1622675363311-3e1904dc1885', 800), pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
-              {/* Phones: photo strip on top, text below on solid dark (always readable).
-                  Tablet and up: the full-bleed photo card with the text over it. */}
-              <div className="group relative overflow-hidden rounded-2xl bg-[#171a20] sm:h-[30rem]">
-                <Photo src={s.img} alt={s.alt} className="relative aspect-[3/2] w-full sm:absolute sm:inset-0 sm:aspect-auto sm:h-full" />
-                <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/40 to-black/5 sm:block" />
-                <span className="absolute left-6 top-5 hidden text-6xl font-medium tracking-tight text-white/90 sm:block">{s.step}</span>
-                <div className="relative p-5 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-7">
-                  <span className="text-sm font-medium tracking-wide text-white/70 sm:hidden">{s.step}</span>
-                  <h3 className="mt-1 text-2xl font-medium leading-tight text-white sm:mt-0">{s.title}</h3>
+              <div className="group overflow-hidden rounded-2xl bg-[#171a20]">
+                <Photo src={s.img} alt={s.alt} />
+                <div className="p-5 sm:p-6">
+                  <span className="text-sm font-medium tracking-wide text-white/70">{s.step}</span>
+                  <h3 className="mt-1 text-2xl font-medium leading-tight text-white">{s.title}</h3>
                   <p className="mt-2 text-base leading-relaxed text-white/85">{s.desc}</p>
                 </div>
               </div>
@@ -731,7 +723,7 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[26rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><Photo src={ux('1742112125567-3e8967bad60f')} className="absolute inset-0" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group block overflow-hidden rounded-2xl bg-[#171a20] text-white"><Photo src={ux('1742112125567-3e8967bad60f')} /><div className="p-5 sm:p-6"><h3 className="text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="mt-3 inline-block text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></div></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
@@ -753,15 +745,11 @@ function LandingPage() {
               { img: ux('1742440711276-679934f5b988', 800), title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
-                {/* Phones: a compact row (thumbnail + text); tablet and up: the full photo card. */}
-                <div className="group relative flex overflow-hidden rounded-2xl bg-[#171a20] sm:block sm:h-[26rem]">
-                  <div className="relative w-24 shrink-0 sm:absolute sm:inset-0 sm:w-auto">
-                    <Photo src={feat.img} className="absolute inset-0" />
-                  </div>
-                  <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/40 to-black/5 sm:block" />
-                  <div className="relative p-4 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-6">
+                <div className="group overflow-hidden rounded-2xl bg-[#171a20]">
+                  <Photo src={feat.img} />
+                  <div className="p-5">
                     <h3 className="text-lg font-medium leading-tight text-white sm:text-xl">{feat.title}</h3>
-                    <p className="mt-1.5 text-base leading-relaxed text-white/85 sm:mt-2 sm:text-sm">{feat.desc}</p>
+                    <p className="mt-2 text-base leading-relaxed text-white/85 sm:text-sm">{feat.desc}</p>
                   </div>
                 </div>
               </SectionReveal>
@@ -775,7 +763,7 @@ function LandingPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:gap-14 sm:py-28 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl bg-secondary">
-              <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} className="relative aspect-[4/3] w-full sm:aspect-auto sm:h-[32rem]" />
+              <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
