@@ -1,8 +1,11 @@
 import { NotificationCenter } from '@/components/dashboard/NotificationCenter'
 import { AppSidebarShell, type NavItemDef } from '@/components/AppSidebarShell'
-import { LayoutDashboard, Megaphone, MessageSquare, Landmark, Users, CalendarClock, User } from 'lucide-react'
+import { LayoutDashboard, Megaphone, MessageSquare, Landmark, Users, CalendarClock, User, ClipboardCheck, Inbox, CreditCard } from 'lucide-react'
 const MD_NAV: NavItemDef[] = [
   { to: '/md', icon: <LayoutDashboard className="size-4" />, labelKey: 'md.nav.dashboard' },
+  { to: '/md/approvals', icon: <ClipboardCheck className="size-4" />, labelKey: 'md.nav.approvals' },
+  { to: '/md/leads', icon: <Inbox className="size-4" />, labelKey: 'md.nav.leads' },
+  { to: '/md/payments', icon: <CreditCard className="size-4" />, labelKey: 'md.nav.payments' },
   { to: '/md/marketing', icon: <Megaphone className="size-4" />, labelKey: 'md.nav.marketing' },
   { to: '/md/messages', icon: <MessageSquare className="size-4" />, labelKey: 'md.nav.messages' },
   { to: '/md/banking', icon: <Landmark className="size-4" />, labelKey: 'md.nav.banking' },

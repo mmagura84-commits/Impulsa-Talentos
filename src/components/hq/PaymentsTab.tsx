@@ -3,7 +3,7 @@
  * claims wait here until HQ checks the money arrived, then approve (credits +
  * plan limits applied, employer notified) or reject.
  */
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { toast } from 'sonner'
 import { CheckCircle2, XCircle, RefreshCw, CreditCard } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -32,21 +32,21 @@ const STATUS_CLASS: Record<PaymentRow['status'], string> = {
   rejected: 'border-destructive/40 text-destructive bg-destructive/10',
 }
 
-export function PaymentsTab() {
+export function PaymentsTab({ readOnly = false }: { readOnly?: boolean } = {}) {
   const { t } = useI18n()
   const [rows, setRows] = useState<PaymentRow[]>([])
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [confirm, setConfirm] = useState<{ row: PaymentRow; approve: boolean } | null>(null)
 
-  const load = async () => {
+  const load = useCallback(async () => {
     setLoading(true)
-    const { data, error } = await supabase.rpc('admin_list_payments')
+    const { data, error } = await supabase.rpc(readOnly ? 'md_list_payments' : 'admin_list_payments')
     if (error) toast.error(error.message)
     setRows((data ?? []) as PaymentRow[])
     setLoading(false)
-  }
-  useEffect(() => { void load() }, [])
+  }, [readOnly])
+  useEffect(() => { void load() }, [load])
 
   const decide = async (row: PaymentRow, approve: boolean) => {
     setBusy(row.id)
@@ -64,8 +64,8 @@ export function PaymentsTab() {
     <Card>
       <CardHeader className="flex flex-row items-start justify-between gap-3">
         <div>
-          <CardTitle className="flex items-center gap-2 text-lg"><CreditCard className="size-4" />{t('hq.payments.title')}</CardTitle>
-          <CardDescription>{t('hq.payments.desc')} {pending > 0 && <strong className="text-amber-700">{t('hq.payments.pendingCount', { n: pending })}</strong>}</CardDescription>
+          <CardTitle className="flex items-center gap-2 text-lg"><CreditCard className="size-4" />{readOnly ? t('md.payments.title') : t('hq.payments.title')}</CardTitle>
+          <CardDescription>{readOnly ? t('md.payments.desc') : t('hq.payments.desc')} {pending > 0 && <strong className="text-amber-700">{t('hq.payments.pendingCount', { n: pending })}</strong>}</CardDescription>
         </div>
         <Button variant="outline" size="sm" onClick={() => void load()} className="gap-1.5"><RefreshCw className="size-3.5" />{t('hq.refresh')}</Button>
       </CardHeader>
@@ -108,7 +108,7 @@ export function PaymentsTab() {
                       </span>
                     </td>
                     <td className="py-2.5 px-2 whitespace-nowrap">
-                      {r.status === 'pending_verification' && (
+                      {!readOnly && r.status === 'pending_verification' && (
                         <div className="flex gap-1">
                           <Button size="sm" className="h-7 gap-1 text-xs sm:text-[11px]" disabled={busy === r.id} onClick={() => setConfirm({ row: r, approve: true })}>
                             <CheckCircle2 className="size-3" />{t('hq.payments.approve')}

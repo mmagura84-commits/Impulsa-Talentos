@@ -737,3 +737,34 @@ select t.act_as_anon();
 select t.expect_error('a visitor cannot claim a CV parse', $$select public.claim_cv_parse()$$);
 select t.reset();
 delete from public.cv_parse_log;
+
+-- ── Managing Director operations (migration 053) ─────────────────────────────
+select t.reset();
+insert into public.jobs (id, company_id, title, status, moderation_status, published_at)
+  values ('30000000-0000-0000-0000-0000000000d1', '20000000-0000-0000-0000-0000000000e1', 'MD review me', 'open', 'pending', now());
+select t.act_as('00000000-0000-0000-0000-0000000000d1');
+select t.check('MD can read pending jobs', exists (select 1 from public.jobs where id = '30000000-0000-0000-0000-0000000000d1'));
+select t.expect_ok('MD approves a job', $$select public.md_moderate_job('30000000-0000-0000-0000-0000000000d1', 'approved', null)$$);
+select t.check('the job is now approved', (select moderation_status = 'approved' from public.jobs where id = '30000000-0000-0000-0000-0000000000d1'));
+select t.expect_ok('MD rejects a job with a reason', $$select public.md_moderate_job('30000000-0000-0000-0000-0000000000d1', 'rejected', 'Not a real vacancy')$$);
+select t.check('the rejection reason is stored', (select moderation_reason = 'Not a real vacancy' from public.jobs where id = '30000000-0000-0000-0000-0000000000d1'));
+select t.expect_error('MD cannot set a made-up status', $$select public.md_moderate_job('30000000-0000-0000-0000-0000000000d1', 'banana', null)$$);
+select t.expect_no_effect('MD cannot edit a job directly', $$update public.jobs set title = 'hacked' where id = '30000000-0000-0000-0000-0000000000d1'$$);
+select t.expect_ok('MD verifies a business', $$select public.md_set_company_verified('20000000-0000-0000-0000-0000000000e2', true)$$);
+select t.check('the business is verified', (select verified from public.companies where id = '20000000-0000-0000-0000-0000000000e2'));
+select t.expect_no_effect('MD cannot grant credits directly', $$update public.companies set job_credits = 999 where id = '20000000-0000-0000-0000-0000000000e2'$$);
+select t.check('credits did not change', (select job_credits = 2 from public.companies where id = '20000000-0000-0000-0000-0000000000e2'));
+select t.expect_ok('MD can see the payments list', $$select * from public.md_list_payments()$$);
+select t.expect_error('MD cannot approve a payment', $$select public.grant_company_credits((select id from public.manual_payments limit 1))$$);
+select t.expect_error('MD cannot reject a payment', $$select public.reject_manual_payment((select id from public.manual_payments limit 1))$$);
+select t.expect_error('MD cannot change user roles', $$select public.admin_set_user_role('10000000-0000-0000-0000-0000000000c1', 'admin', 'active')$$);
+select t.expect_error('MD cannot promote their own profile', $$update public.profiles set role = 'admin' where user_id = '00000000-0000-0000-0000-0000000000d1'$$);
+select t.expect_ok('MD still works leads', $$update public.leads set status = 'contacted' where email = 'lead@prospect.co'$$);
+select t.reset();
+select t.check('MD actions are in the audit log', exists (select 1 from public.admin_audit_log where actor_role = 'md' and action = 'job.moderation'));
+select t.act_as('00000000-0000-0000-0000-0000000000e1');
+select t.expect_error('an employer cannot use the MD job tool', $$select public.md_moderate_job('30000000-0000-0000-0000-0000000000d1', 'approved', null)$$);
+select t.expect_error('an employer cannot read the MD payments list', $$select * from public.md_list_payments()$$);
+select t.act_as('00000000-0000-0000-0000-0000000000d2');
+select t.expect_error('a pending (unapproved) MD cannot moderate', $$select public.md_moderate_job('30000000-0000-0000-0000-0000000000d1', 'approved', null)$$);
+select t.reset();

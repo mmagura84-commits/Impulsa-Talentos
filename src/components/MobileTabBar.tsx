@@ -1,7 +1,7 @@
 import { Link, useLocation } from '@tanstack/react-router'
 import { useEffect, type ComponentType } from 'react'
 import {
-  LayoutDashboard, Briefcase, FileText, User, PlusCircle, Inbox, Shield, Users, CalendarClock, MessageSquare,
+  LayoutDashboard, Briefcase, FileText, User, PlusCircle, Inbox, Shield, Users, ClipboardCheck,
 } from 'lucide-react'
 import { useI18n } from '@/i18n/I18nProvider'
 
@@ -29,9 +29,9 @@ const TABS: Record<string, Tab[]> = {
   ],
   md: [
     { to: '/md', icon: LayoutDashboard, labelKey: 'tabs.home', exact: true },
+    { to: '/md/approvals', icon: ClipboardCheck, labelKey: 'tabs.approvals' },
+    { to: '/md/leads', icon: Inbox, labelKey: 'tabs.leads' },
     { to: '/md/employers', icon: Users, labelKey: 'tabs.employers' },
-    { to: '/md/meetings', icon: CalendarClock, labelKey: 'tabs.meetings' },
-    { to: '/md/messages', icon: MessageSquare, labelKey: 'tabs.messages' },
   ],
 }
 

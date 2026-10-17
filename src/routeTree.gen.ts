@@ -50,18 +50,24 @@ import { Route as AppEmployerTeamRouteImport } from './routes/_app/employer/team
 import { Route as AppHqLeadsRouteImport } from './routes/_app/hq/leads'
 import { Route as AppJobsIdRouteImport } from './routes/_app/jobs.$id'
 import { Route as AppManagingdirectorIndexRouteImport } from './routes/_app/managingdirector/index'
+import { Route as AppManagingdirectorApprovalsRouteImport } from './routes/_app/managingdirector/approvals'
 import { Route as AppManagingdirectorBankingRouteImport } from './routes/_app/managingdirector/banking'
 import { Route as AppManagingdirectorEmployersRouteImport } from './routes/_app/managingdirector/employers'
+import { Route as AppManagingdirectorLeadsRouteImport } from './routes/_app/managingdirector/leads'
 import { Route as AppManagingdirectorMarketingRouteImport } from './routes/_app/managingdirector/marketing'
 import { Route as AppManagingdirectorMeetingsRouteImport } from './routes/_app/managingdirector/meetings'
 import { Route as AppManagingdirectorMessagesRouteImport } from './routes/_app/managingdirector/messages'
+import { Route as AppManagingdirectorPaymentsRouteImport } from './routes/_app/managingdirector/payments'
 import { Route as AppManagingdirectorProfileRouteImport } from './routes/_app/managingdirector/profile'
 import { Route as AppMdIndexRouteImport } from './routes/_app/md/index'
+import { Route as AppMdApprovalsRouteImport } from './routes/_app/md/approvals'
 import { Route as AppMdBankingRouteImport } from './routes/_app/md/banking'
 import { Route as AppMdEmployersRouteImport } from './routes/_app/md/employers'
+import { Route as AppMdLeadsRouteImport } from './routes/_app/md/leads'
 import { Route as AppMdMarketingRouteImport } from './routes/_app/md/marketing'
 import { Route as AppMdMeetingsRouteImport } from './routes/_app/md/meetings'
 import { Route as AppMdMessagesRouteImport } from './routes/_app/md/messages'
+import { Route as AppMdPaymentsRouteImport } from './routes/_app/md/payments'
 import { Route as AppMdProfileRouteImport } from './routes/_app/md/profile'
 import { Route as AppApplyIdConfirmRouteImport } from './routes/_app/apply.$id_.confirm'
 import { Route as AppEmployerEditJobIdRouteImport } from './routes/_app/employer/edit-job.$id'
@@ -273,6 +279,12 @@ const AppManagingdirectorIndexRoute =
     path: '/',
     getParentRoute: () => AppManagingdirectorRoute,
   } as any)
+const AppManagingdirectorApprovalsRoute =
+  AppManagingdirectorApprovalsRouteImport.update({
+    id: '/approvals',
+    path: '/approvals',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
 const AppManagingdirectorBankingRoute =
   AppManagingdirectorBankingRouteImport.update({
     id: '/banking',
@@ -283,6 +295,12 @@ const AppManagingdirectorEmployersRoute =
   AppManagingdirectorEmployersRouteImport.update({
     id: '/employers',
     path: '/employers',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
+const AppManagingdirectorLeadsRoute =
+  AppManagingdirectorLeadsRouteImport.update({
+    id: '/leads',
+    path: '/leads',
     getParentRoute: () => AppManagingdirectorRoute,
   } as any)
 const AppManagingdirectorMarketingRoute =
@@ -303,6 +321,12 @@ const AppManagingdirectorMessagesRoute =
     path: '/messages',
     getParentRoute: () => AppManagingdirectorRoute,
   } as any)
+const AppManagingdirectorPaymentsRoute =
+  AppManagingdirectorPaymentsRouteImport.update({
+    id: '/payments',
+    path: '/payments',
+    getParentRoute: () => AppManagingdirectorRoute,
+  } as any)
 const AppManagingdirectorProfileRoute =
   AppManagingdirectorProfileRouteImport.update({
     id: '/profile',
@@ -314,6 +338,11 @@ const AppMdIndexRoute = AppMdIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppMdRoute,
 } as any)
+const AppMdApprovalsRoute = AppMdApprovalsRouteImport.update({
+  id: '/approvals',
+  path: '/approvals',
+  getParentRoute: () => AppMdRoute,
+} as any)
 const AppMdBankingRoute = AppMdBankingRouteImport.update({
   id: '/banking',
   path: '/banking',
@@ -322,6 +351,11 @@ const AppMdBankingRoute = AppMdBankingRouteImport.update({
 const AppMdEmployersRoute = AppMdEmployersRouteImport.update({
   id: '/employers',
   path: '/employers',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdLeadsRoute = AppMdLeadsRouteImport.update({
+  id: '/leads',
+  path: '/leads',
   getParentRoute: () => AppMdRoute,
 } as any)
 const AppMdMarketingRoute = AppMdMarketingRouteImport.update({
@@ -337,6 +371,11 @@ const AppMdMeetingsRoute = AppMdMeetingsRouteImport.update({
 const AppMdMessagesRoute = AppMdMessagesRouteImport.update({
   id: '/messages',
   path: '/messages',
+  getParentRoute: () => AppMdRoute,
+} as any)
+const AppMdPaymentsRoute = AppMdPaymentsRouteImport.update({
+  id: '/payments',
+  path: '/payments',
   getParentRoute: () => AppMdRoute,
 } as any)
 const AppMdProfileRoute = AppMdProfileRouteImport.update({
@@ -398,17 +437,23 @@ export interface FileRoutesByFullPath {
   '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
+  '/managingdirector/approvals': typeof AppManagingdirectorApprovalsRoute
   '/managingdirector/banking': typeof AppManagingdirectorBankingRoute
   '/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/managingdirector/leads': typeof AppManagingdirectorLeadsRoute
   '/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
   '/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
   '/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/managingdirector/payments': typeof AppManagingdirectorPaymentsRoute
   '/managingdirector/profile': typeof AppManagingdirectorProfileRoute
+  '/md/approvals': typeof AppMdApprovalsRoute
   '/md/banking': typeof AppMdBankingRoute
   '/md/employers': typeof AppMdEmployersRoute
+  '/md/leads': typeof AppMdLeadsRoute
   '/md/marketing': typeof AppMdMarketingRoute
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
+  '/md/payments': typeof AppMdPaymentsRoute
   '/md/profile': typeof AppMdProfileRoute
   '/candidate/': typeof AppCandidateIndexRoute
   '/employer/': typeof AppEmployerIndexRoute
@@ -452,17 +497,23 @@ export interface FileRoutesByTo {
   '/employer/team': typeof AppEmployerTeamRoute
   '/hq/leads': typeof AppHqLeadsRoute
   '/jobs/$id': typeof AppJobsIdRoute
+  '/managingdirector/approvals': typeof AppManagingdirectorApprovalsRoute
   '/managingdirector/banking': typeof AppManagingdirectorBankingRoute
   '/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/managingdirector/leads': typeof AppManagingdirectorLeadsRoute
   '/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
   '/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
   '/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/managingdirector/payments': typeof AppManagingdirectorPaymentsRoute
   '/managingdirector/profile': typeof AppManagingdirectorProfileRoute
+  '/md/approvals': typeof AppMdApprovalsRoute
   '/md/banking': typeof AppMdBankingRoute
   '/md/employers': typeof AppMdEmployersRoute
+  '/md/leads': typeof AppMdLeadsRoute
   '/md/marketing': typeof AppMdMarketingRoute
   '/md/meetings': typeof AppMdMeetingsRoute
   '/md/messages': typeof AppMdMessagesRoute
+  '/md/payments': typeof AppMdPaymentsRoute
   '/md/profile': typeof AppMdProfileRoute
   '/candidate': typeof AppCandidateIndexRoute
   '/employer': typeof AppEmployerIndexRoute
@@ -512,17 +563,23 @@ export interface FileRoutesById {
   '/_app/employer/team': typeof AppEmployerTeamRoute
   '/_app/hq/leads': typeof AppHqLeadsRoute
   '/_app/jobs/$id': typeof AppJobsIdRoute
+  '/_app/managingdirector/approvals': typeof AppManagingdirectorApprovalsRoute
   '/_app/managingdirector/banking': typeof AppManagingdirectorBankingRoute
   '/_app/managingdirector/employers': typeof AppManagingdirectorEmployersRoute
+  '/_app/managingdirector/leads': typeof AppManagingdirectorLeadsRoute
   '/_app/managingdirector/marketing': typeof AppManagingdirectorMarketingRoute
   '/_app/managingdirector/meetings': typeof AppManagingdirectorMeetingsRoute
   '/_app/managingdirector/messages': typeof AppManagingdirectorMessagesRoute
+  '/_app/managingdirector/payments': typeof AppManagingdirectorPaymentsRoute
   '/_app/managingdirector/profile': typeof AppManagingdirectorProfileRoute
+  '/_app/md/approvals': typeof AppMdApprovalsRoute
   '/_app/md/banking': typeof AppMdBankingRoute
   '/_app/md/employers': typeof AppMdEmployersRoute
+  '/_app/md/leads': typeof AppMdLeadsRoute
   '/_app/md/marketing': typeof AppMdMarketingRoute
   '/_app/md/meetings': typeof AppMdMeetingsRoute
   '/_app/md/messages': typeof AppMdMessagesRoute
+  '/_app/md/payments': typeof AppMdPaymentsRoute
   '/_app/md/profile': typeof AppMdProfileRoute
   '/_app/candidate/': typeof AppCandidateIndexRoute
   '/_app/employer/': typeof AppEmployerIndexRoute
@@ -572,17 +629,23 @@ export interface FileRouteTypes {
     | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
+    | '/managingdirector/approvals'
     | '/managingdirector/banking'
     | '/managingdirector/employers'
+    | '/managingdirector/leads'
     | '/managingdirector/marketing'
     | '/managingdirector/meetings'
     | '/managingdirector/messages'
+    | '/managingdirector/payments'
     | '/managingdirector/profile'
+    | '/md/approvals'
     | '/md/banking'
     | '/md/employers'
+    | '/md/leads'
     | '/md/marketing'
     | '/md/meetings'
     | '/md/messages'
+    | '/md/payments'
     | '/md/profile'
     | '/candidate/'
     | '/employer/'
@@ -626,17 +689,23 @@ export interface FileRouteTypes {
     | '/employer/team'
     | '/hq/leads'
     | '/jobs/$id'
+    | '/managingdirector/approvals'
     | '/managingdirector/banking'
     | '/managingdirector/employers'
+    | '/managingdirector/leads'
     | '/managingdirector/marketing'
     | '/managingdirector/meetings'
     | '/managingdirector/messages'
+    | '/managingdirector/payments'
     | '/managingdirector/profile'
+    | '/md/approvals'
     | '/md/banking'
     | '/md/employers'
+    | '/md/leads'
     | '/md/marketing'
     | '/md/meetings'
     | '/md/messages'
+    | '/md/payments'
     | '/md/profile'
     | '/candidate'
     | '/employer'
@@ -685,17 +754,23 @@ export interface FileRouteTypes {
     | '/_app/employer/team'
     | '/_app/hq/leads'
     | '/_app/jobs/$id'
+    | '/_app/managingdirector/approvals'
     | '/_app/managingdirector/banking'
     | '/_app/managingdirector/employers'
+    | '/_app/managingdirector/leads'
     | '/_app/managingdirector/marketing'
     | '/_app/managingdirector/meetings'
     | '/_app/managingdirector/messages'
+    | '/_app/managingdirector/payments'
     | '/_app/managingdirector/profile'
+    | '/_app/md/approvals'
     | '/_app/md/banking'
     | '/_app/md/employers'
+    | '/_app/md/leads'
     | '/_app/md/marketing'
     | '/_app/md/meetings'
     | '/_app/md/messages'
+    | '/_app/md/payments'
     | '/_app/md/profile'
     | '/_app/candidate/'
     | '/_app/employer/'
@@ -1014,6 +1089,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppManagingdirectorIndexRouteImport
       parentRoute: typeof AppManagingdirectorRoute
     }
+    '/_app/managingdirector/approvals': {
+      id: '/_app/managingdirector/approvals'
+      path: '/approvals'
+      fullPath: '/managingdirector/approvals'
+      preLoaderRoute: typeof AppManagingdirectorApprovalsRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
     '/_app/managingdirector/banking': {
       id: '/_app/managingdirector/banking'
       path: '/banking'
@@ -1026,6 +1108,13 @@ declare module '@tanstack/react-router' {
       path: '/employers'
       fullPath: '/managingdirector/employers'
       preLoaderRoute: typeof AppManagingdirectorEmployersRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
+    '/_app/managingdirector/leads': {
+      id: '/_app/managingdirector/leads'
+      path: '/leads'
+      fullPath: '/managingdirector/leads'
+      preLoaderRoute: typeof AppManagingdirectorLeadsRouteImport
       parentRoute: typeof AppManagingdirectorRoute
     }
     '/_app/managingdirector/marketing': {
@@ -1049,6 +1138,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppManagingdirectorMessagesRouteImport
       parentRoute: typeof AppManagingdirectorRoute
     }
+    '/_app/managingdirector/payments': {
+      id: '/_app/managingdirector/payments'
+      path: '/payments'
+      fullPath: '/managingdirector/payments'
+      preLoaderRoute: typeof AppManagingdirectorPaymentsRouteImport
+      parentRoute: typeof AppManagingdirectorRoute
+    }
     '/_app/managingdirector/profile': {
       id: '/_app/managingdirector/profile'
       path: '/profile'
@@ -1063,6 +1159,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppMdIndexRouteImport
       parentRoute: typeof AppMdRoute
     }
+    '/_app/md/approvals': {
+      id: '/_app/md/approvals'
+      path: '/approvals'
+      fullPath: '/md/approvals'
+      preLoaderRoute: typeof AppMdApprovalsRouteImport
+      parentRoute: typeof AppMdRoute
+    }
     '/_app/md/banking': {
       id: '/_app/md/banking'
       path: '/banking'
@@ -1075,6 +1178,13 @@ declare module '@tanstack/react-router' {
       path: '/employers'
       fullPath: '/md/employers'
       preLoaderRoute: typeof AppMdEmployersRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/leads': {
+      id: '/_app/md/leads'
+      path: '/leads'
+      fullPath: '/md/leads'
+      preLoaderRoute: typeof AppMdLeadsRouteImport
       parentRoute: typeof AppMdRoute
     }
     '/_app/md/marketing': {
@@ -1096,6 +1206,13 @@ declare module '@tanstack/react-router' {
       path: '/messages'
       fullPath: '/md/messages'
       preLoaderRoute: typeof AppMdMessagesRouteImport
+      parentRoute: typeof AppMdRoute
+    }
+    '/_app/md/payments': {
+      id: '/_app/md/payments'
+      path: '/payments'
+      fullPath: '/md/payments'
+      preLoaderRoute: typeof AppMdPaymentsRouteImport
       parentRoute: typeof AppMdRoute
     }
     '/_app/md/profile': {
@@ -1201,21 +1318,27 @@ const AppJobsRouteWithChildren =
   AppJobsRoute._addFileChildren(AppJobsRouteChildren)
 
 interface AppManagingdirectorRouteChildren {
+  AppManagingdirectorApprovalsRoute: typeof AppManagingdirectorApprovalsRoute
   AppManagingdirectorBankingRoute: typeof AppManagingdirectorBankingRoute
   AppManagingdirectorEmployersRoute: typeof AppManagingdirectorEmployersRoute
+  AppManagingdirectorLeadsRoute: typeof AppManagingdirectorLeadsRoute
   AppManagingdirectorMarketingRoute: typeof AppManagingdirectorMarketingRoute
   AppManagingdirectorMeetingsRoute: typeof AppManagingdirectorMeetingsRoute
   AppManagingdirectorMessagesRoute: typeof AppManagingdirectorMessagesRoute
+  AppManagingdirectorPaymentsRoute: typeof AppManagingdirectorPaymentsRoute
   AppManagingdirectorProfileRoute: typeof AppManagingdirectorProfileRoute
   AppManagingdirectorIndexRoute: typeof AppManagingdirectorIndexRoute
 }
 
 const AppManagingdirectorRouteChildren: AppManagingdirectorRouteChildren = {
+  AppManagingdirectorApprovalsRoute: AppManagingdirectorApprovalsRoute,
   AppManagingdirectorBankingRoute: AppManagingdirectorBankingRoute,
   AppManagingdirectorEmployersRoute: AppManagingdirectorEmployersRoute,
+  AppManagingdirectorLeadsRoute: AppManagingdirectorLeadsRoute,
   AppManagingdirectorMarketingRoute: AppManagingdirectorMarketingRoute,
   AppManagingdirectorMeetingsRoute: AppManagingdirectorMeetingsRoute,
   AppManagingdirectorMessagesRoute: AppManagingdirectorMessagesRoute,
+  AppManagingdirectorPaymentsRoute: AppManagingdirectorPaymentsRoute,
   AppManagingdirectorProfileRoute: AppManagingdirectorProfileRoute,
   AppManagingdirectorIndexRoute: AppManagingdirectorIndexRoute,
 }
@@ -1224,21 +1347,27 @@ const AppManagingdirectorRouteWithChildren =
   AppManagingdirectorRoute._addFileChildren(AppManagingdirectorRouteChildren)
 
 interface AppMdRouteChildren {
+  AppMdApprovalsRoute: typeof AppMdApprovalsRoute
   AppMdBankingRoute: typeof AppMdBankingRoute
   AppMdEmployersRoute: typeof AppMdEmployersRoute
+  AppMdLeadsRoute: typeof AppMdLeadsRoute
   AppMdMarketingRoute: typeof AppMdMarketingRoute
   AppMdMeetingsRoute: typeof AppMdMeetingsRoute
   AppMdMessagesRoute: typeof AppMdMessagesRoute
+  AppMdPaymentsRoute: typeof AppMdPaymentsRoute
   AppMdProfileRoute: typeof AppMdProfileRoute
   AppMdIndexRoute: typeof AppMdIndexRoute
 }
 
 const AppMdRouteChildren: AppMdRouteChildren = {
+  AppMdApprovalsRoute: AppMdApprovalsRoute,
   AppMdBankingRoute: AppMdBankingRoute,
   AppMdEmployersRoute: AppMdEmployersRoute,
+  AppMdLeadsRoute: AppMdLeadsRoute,
   AppMdMarketingRoute: AppMdMarketingRoute,
   AppMdMeetingsRoute: AppMdMeetingsRoute,
   AppMdMessagesRoute: AppMdMessagesRoute,
+  AppMdPaymentsRoute: AppMdPaymentsRoute,
   AppMdProfileRoute: AppMdProfileRoute,
   AppMdIndexRoute: AppMdIndexRoute,
 }
