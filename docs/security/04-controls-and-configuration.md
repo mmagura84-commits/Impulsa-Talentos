@@ -15,7 +15,7 @@ Mark each when checked, with date and who checked.
 
 | Setting | Where | Recommended | Checked |
 |---|---|---|---|
-| Branch protection on `main` (at minimum: block deletion and force-push; PR + passing `security` checks if the owner is willing) | GitHub → Settings → Rules | on | ☐ none exists (creation declined by the automation guard 2026-10-17; owner to create) |
+| Branch protection on `main` (at minimum: block deletion and force-push; PR + passing `security` checks if the owner is willing) | GitHub → Settings → Rules | on | ☐ none exists. Creating a rule needs GitHub "Confirm access" (sudo mode, email verification) which only the owner can complete. Steps: Settings → Branches → Add classic branch protection rule → pattern `main` → leave everything unchecked (force-push and deletion are blocked by default) → Create → confirm by email. |
 | Secret scanning + push protection | GitHub → Settings → Code security | on | ☑ already on (seen 2026-10-17) |
 | Dependabot alerts, dependency graph, private vulnerability reporting | same | on | ☑ enabled 2026-10-17 |
 | Pages → Enforce HTTPS | GitHub → Settings → Pages | on | ☑ on (seen 2026-10-17) |
