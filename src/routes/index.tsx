@@ -411,18 +411,43 @@ function CityShowcase() {
     </section>
   )
 }
-/* Industries: a 4-second slideshow on phones (no indicators), grid from sm up. */
+/* Industries: one row that advances by itself, one card every 3 seconds, and
+   loops back to the start. Pauses on hover, focus and touch; with
+   prefers-reduced-motion it never moves by itself and shows its scrollbar. */
 function IndustrySlides({ children }: { children: ReactNode }) {
   const { t } = useI18n()
-  const { ref, pause } = usePhoneSlideshow(INDUSTRY_FAMILIES.length + 1, 4000)
+  const reduce = usePrefersReducedMotion()
+  const ref = useRef<HTMLDivElement | null>(null)
+  const pausedUntil = useRef(0)
+  const hovering = useRef(false)
+  useEffect(() => {
+    if (reduce) return
+    const id = window.setInterval(() => {
+      const el = ref.current
+      if (!el || hovering.current || Date.now() < pausedUntil.current || document.hidden) return
+      const r = el.getBoundingClientRect()
+      if (!(r.top < window.innerHeight * 0.85 && r.bottom > window.innerHeight * 0.15)) return
+      const first = el.firstElementChild as HTMLElement | null
+      if (!first) return
+      const step = first.offsetWidth
+      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
+      el.scrollTo({ left: atEnd ? 0 : Math.round(el.scrollLeft / step) * step + step, behavior: 'smooth' })
+    }, 3000)
+    return () => window.clearInterval(id)
+  }, [reduce])
+  const pause = () => { pausedUntil.current = Date.now() + 8000 }
   return (
     <div
       ref={ref}
       onTouchStart={pause}
       onPointerDown={pause}
+      onMouseEnter={() => { hovering.current = true }}
+      onMouseLeave={() => { hovering.current = false }}
+      onFocusCapture={() => { hovering.current = true }}
+      onBlurCapture={() => { hovering.current = false }}
       aria-roledescription="carousel"
       aria-label={t('industries.sectionTitle')}
-      className="-mx-5 mt-8 flex snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:mt-10 sm:grid sm:grid-cols-2 sm:gap-4 sm:overflow-visible lg:grid-cols-3"
+      className={`-mx-2 mt-8 flex snap-x snap-mandatory overflow-x-auto sm:mt-10 ${reduce ? 'pb-2' : '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'}`}
     >
       {children}
     </div>
@@ -528,7 +553,7 @@ function LandingPage() {
       <section className="bg-secondary px-5 py-10 sm:py-14"><div className="mx-auto max-w-6xl"><JobFeedPreview /></div></section>
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
-      <section className="section-tint"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
+      <section className="section-tint"><div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10">
         <SectionReveal>
           <div className="mx-auto max-w-xl text-center">
             <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
@@ -557,12 +582,12 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><FamilyCard family={family} /></div>)}<div className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0"><Link to="/dashboard" className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-xl p-5 text-white"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" /><div className="absolute inset-0 bg-black/55" /><h3 className="relative font-medium">{t('industries.ctaTitle')}</h3><p className="relative mt-1.5 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-xl p-5 text-white"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" /><div className="absolute inset-0 bg-black/55" /><h3 className="relative font-medium">{t('industries.ctaTitle')}</h3><p className="relative mt-1.5 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
       <section className="bg-card">
-        <div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
+        <div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10">
           <SectionReveal>
             <div className="mx-auto max-w-2xl text-center">
               <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
