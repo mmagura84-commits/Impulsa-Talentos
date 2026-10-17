@@ -97,6 +97,29 @@ function SectionReveal({ children, delay = 0, className }: { children: ReactNode
    Over the photo the pair is a white filled button (the one primary action) and
    a frosted secondary, at most two per screen, text only. White rather than the
    indigo: indigo on a dark photo has too little edge contrast to read as a button. */
+/** Small-caps chapter label: tells the visitor which conversation (professionals / employers) the next section belongs to. */
+function Eyebrow({ children, tone = 'light', center = false }: { children: React.ReactNode; tone?: 'light' | 'dark'; center?: boolean }) {
+  return <p className={`mb-3 text-xs font-medium uppercase tracking-[0.18em] ${tone === 'dark' ? 'text-white/60' : 'text-primary'} ${center ? 'text-center' : ''}`}>{children}</p>
+}
+
+/** Live numbers under the hero buttons, so the promise is backed by real data the moment the page loads. */
+function HeroStats() {
+  const { t } = useI18n()
+  const { data: jobs } = useHomeJobs()
+  const open = (jobs ?? []).filter(isOpen)
+  if (open.length === 0) return null
+  const items = [
+    { n: open.length, label: t('landing.feedStatRoles') },
+    { n: new Set(open.map((j) => j.companyId)).size, label: t('landing.feedStatCompanies') },
+    { n: CITIES.length, label: t('landing.heroStatCities') },
+  ]
+  return (
+    <dl className="mt-6 flex flex-wrap items-baseline justify-center gap-x-6 gap-y-1 text-white/80 sm:mt-5 sm:gap-x-8">
+      {items.map((x) => <div key={x.label} className="flex items-baseline gap-1.5"><dd className="order-1 text-xl font-medium tracking-tight text-white sm:text-2xl">{x.n}</dd><dt className="order-2 text-xs sm:text-sm">{x.label}</dt></div>)}
+    </dl>
+  )
+}
+
 function LandingCTAs() {
   const { t } = useI18n()
   const { user } = useAuth()
@@ -476,6 +499,7 @@ function CityShowcase() {
     <section className="section-tint py-12 sm:py-20">
       <div className="mx-auto max-w-6xl px-5"><SectionReveal>
         <div className="mx-auto max-w-2xl text-center">
+          <Eyebrow center>{t('landing.laneProfessionals')}</Eyebrow>
           <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
             {t('landing.citiesTitle')}
           </h2>
@@ -685,7 +709,7 @@ function LandingPage() {
           <h1 className="max-w-5xl text-[2.25rem] font-medium leading-[1.05] tracking-tight text-white sm:text-[3.75rem] lg:text-[4.5rem]">{t('landing.heroTitle1')}<span className="block">{t('landing.heroTitle2')}</span></h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">{t('landing.heroSub')}</p>
           </div>
-          <div className="mt-8 w-full sm:mt-0 sm:w-auto"><LandingCTAs /></div>
+          <div className="mt-8 flex w-full flex-col items-center sm:mt-0 sm:w-auto"><div className="w-full sm:w-auto"><LandingCTAs /></div><HeroStats /></div>
         </div>
         <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[10px] leading-tight text-white/70 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
@@ -697,6 +721,7 @@ function LandingPage() {
       <section className="section-tint"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10">
         <SectionReveal>
           <div className="mx-auto max-w-xl text-center">
+            <Eyebrow center>{t('landing.laneProfessionals')}</Eyebrow>
             <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
               {t('landing.howTitle')}
             </h2>
@@ -723,7 +748,7 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group block overflow-hidden rounded-2xl bg-[#171a20] text-white"><Photo src={ux('1742112125567-3e8967bad60f')} /><div className="p-5 sm:p-6"><h3 className="text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="mt-3 inline-block text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></div></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><Eyebrow>{t('landing.laneProfessionals')}</Eyebrow><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group block overflow-hidden rounded-2xl bg-[#171a20] text-white"><Photo src={ux('1742112125567-3e8967bad60f')} /><div className="p-5 sm:p-6"><h3 className="text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="mt-3 inline-block text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></div></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
@@ -731,6 +756,7 @@ function LandingPage() {
         <div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10">
           <SectionReveal>
             <div className="mx-auto max-w-2xl text-center">
+              <Eyebrow center>{t('landing.laneEmployers')}</Eyebrow>
               <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
                 {t('landing.whyTitle')}
               </h2>
@@ -758,33 +784,30 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ── Colombian talent at work ───────────────────────── */}
-      <section className="section-tint">
+      {/* ── Employer pitch: the "for employers" chapter closes with a clear ask ── */}
+      <section className="bg-[#171a20] text-white">
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:gap-14 sm:py-28 lg:grid-cols-2">
           <SectionReveal>
-            <div className="overflow-hidden rounded-2xl bg-secondary">
+            <div className="overflow-hidden rounded-2xl bg-[#0f1115]">
               <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
-            <p className="text-sm font-medium text-primary">{t('landing.talentEyebrow')}</p>
-            <h2 className="mt-3 text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">{t('landing.talentTitle')}</h2>
-            <p className="mt-4 leading-relaxed text-muted-foreground">{t('landing.talentSub')}</p>
-            <details className="mt-4 text-sm text-muted-foreground sm:text-xs sm:text-muted-foreground/70">
+            <Eyebrow tone="dark">{t('landing.laneEmployers')}</Eyebrow>
+            <h2 className="text-3xl font-medium tracking-tight text-white sm:text-[2.5rem] sm:leading-[1.1]">{t('landing.talentTitle')}</h2>
+            <p className="mt-4 leading-relaxed text-white/80">{t('landing.talentSub')}</p>
+            <div className="mt-7 flex flex-wrap gap-3">
+              <Button asChild size="lg" className="w-full bg-white px-7 text-[#171a20] hover:bg-white/90 sm:w-auto"><a href="/employer?signup=1" data-early-intent="employer" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start') }}>{t('landing.employerCtaAction')}</a></Button>
+              <Button asChild variant="outline" size="lg" className="w-full border-white/50 bg-transparent px-7 text-white hover:bg-white hover:text-[#171a20] sm:w-auto"><Link to="/companies">{t('landing.companiesViewAll')}</Link></Button>
+            </div>
+            <details className="mt-6 text-sm text-white/60 sm:text-xs">
               <summary className="inline-flex min-h-11 cursor-pointer select-none items-center sm:min-h-0">{t('landing.photoCreditLabel')}</summary>
               <p className="mt-2">{candidatesPhoto.credit} · {t('landing.talentPhotoLicense')}</p>
-            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground sm:gap-x-3 sm:gap-y-1 sm:text-[11px] sm:text-muted-foreground/60" aria-label={t('landing.photoCreditLabel')}>
+            <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2 text-sm sm:gap-x-3 sm:gap-y-1 sm:text-[11px] text-white/60" aria-label={t('landing.photoCreditLabel')}>
               {PHOTO_CREDITS.map(([author, license, file, licenseUrl]) => <span key={author}><a href={file} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{author}</a> (<a href={licenseUrl} target="_blank" rel="noreferrer" className="underline-offset-2 hover:underline">{license}</a>)</span>)}
             </div>
             </details>
           </SectionReveal>
-        </div>
-      </section>
-      {/* ── Employer acquisition CTA ─────────────────────────── */}
-      <section className="bg-primary text-white">
-        <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-24">
-          <div><p className="text-sm font-medium text-white">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-3xl font-medium tracking-tight text-white sm:text-[2.5rem] sm:leading-[1.1]">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-white/85">{t('landing.employerCtaDesc')}</p></div>
-          <Button asChild size="lg" className="w-full shrink-0 bg-white text-[#171a20] hover:bg-white/90 focus-visible:ring-white focus-visible:ring-offset-primary sm:w-auto"><a href="/employer?signup=1" data-early-intent="employer" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start') }}>{t('landing.employerCtaAction')}</a></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}
@@ -803,7 +826,7 @@ function LandingPage() {
                 <Link to="/dashboard">{t('landing.footerPrimary')}</Link>
               </Button>
               <Button asChild variant="outline" size="lg" className="border-white/60 bg-white/10 px-7 text-white backdrop-blur hover:bg-white hover:text-[#171a20]">
-                <Link to="/jobs">{t('landing.footerSecondary')}</Link>
+                <a href="/employer?signup=1" data-early-intent="employer" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start') }}>{t('landing.footerSecondary')}</a>
               </Button>
               <Link to="/contact" className="w-full text-sm text-white/80 underline-offset-4 hover:text-white hover:underline sm:w-auto">{t('contact.title')}</Link>
             </div>
