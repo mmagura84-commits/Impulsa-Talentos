@@ -226,11 +226,13 @@ function jobPhoto(industry: string | undefined, id: string): string {
   return pool[h % pool.length]
 }
 /** Whole photo (object-contain) over a blurred copy of itself, so nothing is cropped and there are no bars. */
-function Photo({ src, alt = '', className = '', srcSet, sizes, zoom = true }: { src: string; alt?: string; className?: string; srcSet?: string; sizes?: string; zoom?: boolean }) {
+function Photo({ src, alt = '', className = '', srcSet, sizes, zoom = true, cover = false }: { src: string; alt?: string; className?: string; srcSet?: string; sizes?: string; zoom?: boolean; cover?: boolean }) {
+  const motion = zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.03]' : ''
   return (
-    <div className={`overflow-hidden bg-[#171a20] ${className}`}>
+    <div className={`flex items-center overflow-hidden bg-[#171a20] ${className}`}>
       <img src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-2xl" />
-      <img src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading="lazy" decoding="async" className={`absolute inset-0 size-full object-contain object-center ${zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.03]' : ''}`} />
+      {/* Full width of the section; height follows the photo so the whole picture shows (cover only for a background band). */}
+      <img src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading="lazy" decoding="async" className={cover ? `absolute inset-0 size-full object-cover ${motion}` : `relative h-auto w-full ${motion}`} />
     </div>
   )
 }
@@ -265,7 +267,7 @@ function JobFeedPreview() {
     return (
       <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
         <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
-          <div className="relative aspect-[16/10] overflow-hidden bg-[#171a20]">
+          <div className="relative aspect-[3/2] overflow-hidden bg-[#171a20]">
             <Photo src={jobPhoto(job.industry, job.id)} className="absolute inset-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
             {age !== null && age <= 7 && <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white">{t('landing.feedNew')}</span>}
@@ -499,7 +501,7 @@ function CityShowcase() {
           const name = t(`landing.city${capitalize(city.key)}`)
           return (
             <div key={city.key} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0" aria-roledescription="slide" aria-label={`${i + 1} / ${CITIES.length}: ${name}`}>
-              <div className="group relative h-64 overflow-hidden rounded-xl sm:h-56 lg:h-72 xl:h-80">
+              <div className="group relative aspect-[3/2] overflow-hidden rounded-xl">
                 <Photo src={CITY_PHOTOS[city.key]} alt={t(CITY_IMAGE_ALT_KEY[city.key])} className="absolute inset-0" />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4 xl:p-5">
@@ -715,7 +717,7 @@ function LandingPage() {
               {/* Phones: photo strip on top, text below on solid dark (always readable).
                   Tablet and up: the full-bleed photo card with the text over it. */}
               <div className="group relative overflow-hidden rounded-2xl bg-[#171a20] sm:h-[30rem]">
-                <Photo src={s.img} alt={s.alt} className="relative h-40 w-full sm:absolute sm:inset-0 sm:h-full" />
+                <Photo src={s.img} alt={s.alt} className="relative aspect-[3/2] w-full sm:absolute sm:inset-0 sm:aspect-auto sm:h-full" />
                 <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/40 to-black/5 sm:block" />
                 <span className="absolute left-6 top-5 hidden text-6xl font-medium tracking-tight text-white/90 sm:block">{s.step}</span>
                 <div className="relative p-5 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-7">
@@ -773,7 +775,7 @@ function LandingPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:gap-14 sm:py-28 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl bg-secondary">
-              <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} className="relative h-64 w-full sm:h-[32rem]" />
+              <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} className="relative aspect-[4/3] w-full sm:aspect-auto sm:h-[32rem]" />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
@@ -800,7 +802,7 @@ function LandingPage() {
       {/* ── Footer CTA ──────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-[#171a20]">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
-          <Photo src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" zoom={false} className="absolute inset-0" />
+          <Photo src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" zoom={false} cover className="absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/75" />
         </div>
         <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-36">
