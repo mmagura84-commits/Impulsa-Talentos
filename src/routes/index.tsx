@@ -207,17 +207,32 @@ function SlideDots({ count, active, goTo, label }: { count: number; active: numb
 }
 const SLIDE_INTERVAL_MS = 3000
 
-/** Industry family -> the hero photo used as the card header. */
-const FAMILY_PHOTO: Record<string, string> = {
-  'tech-engineering': 'technology',
-  'finance-business': 'finance',
-  'customer-hospitality': 'customer-hospitality',
-  'operations-industrial': 'operations-logistics',
-  'healthcare-public': 'healthcare',
+/** Unsplash CDN photo by id (all vetted for the category they illustrate). */
+const ux = (id: string, w = 1000) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`
+/** Several different photos per industry family; a job's id picks one so cards in a row differ. */
+const JOB_PHOTO_POOLS: Record<string, string[]> = {
+  'tech-engineering': [ux('1603195827187-459ab02554a0'), ux('1629904853716-f0bc54eea481'), ux('1603201667230-bd139210db18')],
+  'finance-business': [ux('1551135049-8a33b5883817'), ux('1573496130141-209d200cebd8'), ux('1460925895917-afdab827c52f')],
+  'customer-hospitality': [ux('1626863905121-3b0c0ed7b94c'), ux('1714079761488-e0c9b9ac4138'), ux('1766066014237-00645c74e9c6')],
+  'operations-industrial': [ux('1586528116022-aeda1613c63d'), ux('1644079446600-219068676743'), ux('1664382953403-fc1ac77073a0')],
+  'healthcare-public': ['/images/industry-healthcare.webp', ux('1758691462743-f9fc9e430d39'), ux('1576267423048-15c0040fec78')],
 }
-function jobPhoto(industry?: string): string {
+const JOB_PHOTO_DEFAULT = [ux('1573167507387-6b4b98cb7c13'), ux('1573164574572-cb89e39749b4')]
+function jobPhoto(industry: string | undefined, id: string): string {
   const family = INDUSTRY_FAMILIES.find((f) => industry && f.members.includes(industry))
-  return INDUSTRY_HERO_PHOTOS[FAMILY_PHOTO[family?.slug ?? ''] ?? 'technology']
+  const pool = JOB_PHOTO_POOLS[family?.slug ?? ''] ?? JOB_PHOTO_DEFAULT
+  let h = 0
+  for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0
+  return pool[h % pool.length]
+}
+/** Whole photo (object-contain) over a blurred copy of itself, so nothing is cropped and there are no bars. */
+function Photo({ src, alt = '', className = '', srcSet, sizes, zoom = true }: { src: string; alt?: string; className?: string; srcSet?: string; sizes?: string; zoom?: boolean }) {
+  return (
+    <div className={`overflow-hidden bg-[#171a20] ${className}`}>
+      <img src={src} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 size-full scale-110 object-cover opacity-70 blur-2xl" />
+      <img src={src} srcSet={srcSet} sizes={sizes} alt={alt} loading="lazy" decoding="async" className={`absolute inset-0 size-full object-contain object-center ${zoom ? 'transition-transform duration-700 ease-out group-hover:scale-[1.03]' : ''}`} />
+    </div>
+  )
 }
 function daysSince(iso?: string): number | null {
   const ms = iso ? Date.now() - new Date(iso).getTime() : NaN
@@ -251,7 +266,7 @@ function JobFeedPreview() {
       <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
         <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
           <div className="relative h-28 overflow-hidden bg-[#171a20]">
-            <img src={jobPhoto(job.industry)} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+            <Photo src={jobPhoto(job.industry, job.id)} className="absolute inset-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
             {age !== null && age <= 7 && <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white">{t('landing.feedNew')}</span>}
             {age !== null && <span className="absolute right-3 top-3 rounded-full bg-black/45 px-2.5 py-0.5 text-xs text-white backdrop-blur">{age === 0 ? t('landing.feedPostedToday') : t('landing.feedPostedDays', { n: age })}</span>}
@@ -354,38 +369,30 @@ const unsplashAt = (w: number) => candidatesPhoto.src.replace(/([?&])w=\d+/, `$1
 const TALENT_WORK_PHOTO = unsplashAt(800)
 const TALENT_WORK_SRCSET = `${unsplashAt(480)} 480w, ${unsplashAt(800)} 800w`
 const CITY_PHOTOS: Record<string, string> = {
-  medellin: '/images/industry-technology.webp',
-  bogota: '/images/industry-finance.webp',
-  cartagena: '/images/industry-customer-hospitality.webp',
-  cali: '/images/industry-sales-marketing.webp',
-  barranquilla: '/images/industry-operations-logistics.webp',
-  cucuta: '/images/industry-education-training.webp',
+  medellin: ux('1715503234314-fbc6e3291264', 1000),
+  bogota: ux('1661641172357-73091e102023', 1000),
+  cartagena: ux('1570197820006-3e46f5ee01bb', 1000),
+  cali: '/images/city-cali.webp',
+  barranquilla: '/images/city-barranquilla.webp',
+  cucuta: ux('1720067392108-89b9485aa090', 1000),
 }
 // Verified downtown Medellín skyline for the hero only; city cards retain professional crops.
 const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
-  technology: '/images/industry-technology.webp',
-  finance: '/images/industry-finance.webp',
-  'customer-hospitality': '/images/industry-customer-hospitality.webp',
-  'operations-logistics': '/images/industry-operations-logistics.webp',
-  healthcare: '/images/industry-healthcare.webp',
-  'sales-marketing': '/images/industry-sales-marketing.webp',
-  'education-training': '/images/industry-education-training.webp',
-  'engineering-construction': '/images/industry-engineering-construction.webp',
-  'creative-media': '/images/industry-creative-media.webp',
-  'legal-public-sector': '/images/industry-legal-public-sector.webp',
+  technology: ux('1603201667230-bd139210db18', 1600),
+  finance: ux('1460925895917-afdab827c52f', 1600),
+  'customer-hospitality': ux('1766066014237-00645c74e9c6', 1600),
+  'operations-logistics': ux('1664382953403-fc1ac77073a0', 1600),
+  healthcare: ux('1758691462743-f9fc9e430d39', 1600),
+  'sales-marketing': ux('1714974528693-f77f6fcc56af', 1600),
+  'education-training': ux('1664382953518-4a664ab8a8c9', 1600),
+  'engineering-construction': ux('1626885930974-4b69aa21bbf9', 1600),
+  'creative-media': ux('1787647561978-df268f9e9ec2', 1600),
+  'legal-public-sector': ux('1676694047732-768cea5b66eb', 1600),
 }
 const INDUSTRY_HERO_ALT_KEYS: Record<string, string> = {
   technology: 'landing.heroIndustryTechnologyAlt', finance: 'landing.heroIndustryFinanceAlt', 'customer-hospitality': 'landing.heroIndustryCustomerAlt', 'operations-logistics': 'landing.heroIndustryOperationsAlt', healthcare: 'landing.heroIndustryHealthcareAlt', 'sales-marketing': 'landing.heroIndustrySalesAlt', 'education-training': 'landing.heroIndustryEducationAlt', 'engineering-construction': 'landing.heroIndustryEngineeringAlt', 'creative-media': 'landing.heroIndustryCreativeAlt', 'legal-public-sector': 'landing.heroIndustryLegalAlt',
 }
 // Focal points preserve the office mass and contextual greenery in the wide 3:2 source crops.
-const CITY_IMAGE_POSITION: Record<string, string> = {
-  medellin: '50% 50%',
-  bogota: '50% 50%',
-  cartagena: '50% 50%',
-  cali: '50% 50%',
-  barranquilla: '50% 50%',
-  cucuta: '50% 50%',
-}
 const CITY_IMAGE_ALT_KEY: Record<string, string> = {
   medellin: 'landing.cityMedellinAlt',
   bogota: 'landing.cityBogotaAlt',
@@ -395,6 +402,7 @@ const CITY_IMAGE_ALT_KEY: Record<string, string> = {
   cucuta: 'landing.cityCucutaAlt',
 }
 const PHOTO_CREDITS = [
+  ['Unsplash contributors', 'Unsplash License', 'https://unsplash.com', 'https://unsplash.com/license'],
   ['I.D. R.J.', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Medell%C3%ADn_skyline02.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
   ['Tijs Zwinkels', 'CC BY-SA 2.0', 'https://commons.wikimedia.org/wiki/File:Skyline_downtown_Bogota.jpg', 'https://creativecommons.org/licenses/by-sa/2.0/'],
   ['Jdmacarenoq', 'CC BY-SA 4.0', 'https://commons.wikimedia.org/wiki/File:Cartagena_-_Colombia.jpg', 'https://creativecommons.org/licenses/by-sa/4.0/'],
@@ -492,14 +500,7 @@ function CityShowcase() {
           return (
             <div key={city.key} className="w-full shrink-0 snap-center px-5 sm:w-auto sm:px-0" aria-roledescription="slide" aria-label={`${i + 1} / ${CITIES.length}: ${name}`}>
               <div className="group relative h-64 overflow-hidden rounded-xl sm:h-56 lg:h-72 xl:h-80">
-                <img
-                  src={CITY_PHOTOS[city.key]}
-                  alt={t(CITY_IMAGE_ALT_KEY[city.key])}
-                  loading="lazy"
-                  decoding="async"
-                  style={{ objectPosition: CITY_IMAGE_POSITION[city.key] }}
-                  className="absolute inset-0 size-full object-cover"
-                />
+                <Photo src={CITY_PHOTOS[city.key]} alt={t(CITY_IMAGE_ALT_KEY[city.key])} className="absolute inset-0" />
                 <div className="absolute inset-0 bg-black/40" />
                 <div className="absolute inset-x-0 bottom-0 p-5 lg:p-4 xl:p-5">
                   <div className="flex flex-wrap items-center justify-between gap-2 lg:flex-col lg:items-start lg:gap-1.5">
@@ -585,10 +586,10 @@ function IndustrySlides({ children }: { children: ReactNode }) {
 }
 /* Photo for each industry family card (images read better than icons). */
 const FAMILY_PHOTOS: Record<string, string> = {
-  'tech-engineering': '/images/industry-technology.webp',
-  'finance-business': '/images/industry-finance.webp',
-  'customer-hospitality': '/images/industry-customer-hospitality.webp',
-  'operations-industrial': '/images/industry-operations-logistics.webp',
+  'tech-engineering': ux('1629904853716-f0bc54eea481', 1000),
+  'finance-business': ux('1551135049-8a33b5883817', 1000),
+  'customer-hospitality': ux('1626863905121-3b0c0ed7b94c', 1000),
+  'operations-industrial': ux('1586528116022-aeda1613c63d', 1000),
   'healthcare-public': '/images/industry-healthcare.webp',
 }
 function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
@@ -599,7 +600,7 @@ function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
   /* Fixed-height, full-bleed photo panel: every card is the same size, the photo
      always fills it, and the title + subjects sit on a bottom gradient. */
   return <div className="group relative h-[26rem] overflow-hidden rounded-2xl bg-[#171a20] sm:h-[34rem]">
-    <img src={FAMILY_PHOTOS[family.slug] ?? '/images/hero-professional-coworking.webp'} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+    <Photo src={FAMILY_PHOTOS[family.slug] ?? ux('1573167507387-6b4b98cb7c13')} className="absolute inset-0" />
     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10" />
     {total > 0 && <span className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#171a20] backdrop-blur">{t('industries.open', { n: total })}</span>}
     <div className="absolute inset-x-0 bottom-0 flex flex-col p-6 sm:p-7">
@@ -705,15 +706,15 @@ function LandingPage() {
         </SectionReveal>
         <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-5">
           {[
-            { step: '01', img: '/images/sm/industry-creative-media.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
-            { step: '02', img: '/images/sm/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
-            { step: '03', img: '/images/sm/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
+            { step: '01', img: ux('1557804506-669a67965ba0', 800), pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '02', img: ux('1573164574572-cb89e39749b4', 800), pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
+            { step: '03', img: ux('1622675363311-3e1904dc1885', 800), pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
               {/* Phones: photo strip on top, text below on solid dark (always readable).
                   Tablet and up: the full-bleed photo card with the text over it. */}
               <div className="group relative overflow-hidden rounded-2xl bg-[#171a20] sm:h-[30rem]">
-                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="h-40 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] sm:absolute sm:inset-0 sm:h-full" />
+                <Photo src={s.img} alt={s.alt} className="relative h-40 w-full sm:absolute sm:inset-0 sm:h-full" />
                 <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/40 to-black/5 sm:block" />
                 <span className="absolute left-6 top-5 hidden text-6xl font-medium tracking-tight text-white/90 sm:block">{s.step}</span>
                 <div className="relative p-5 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-7">
@@ -727,7 +728,7 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[26rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[26rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><Photo src={ux('1742112125567-3e8967bad60f')} className="absolute inset-0" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
@@ -743,16 +744,16 @@ function LandingPage() {
           </SectionReveal>
           <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {[
-              { img: '/images/sm/industry-education-training.webp', title: t('landing.why1Title'), desc: t('landing.why1Desc') },
-              { img: '/images/sm/industry-legal-public-sector.webp', title: t('landing.why2Title'), desc: t('landing.why2Desc') },
+              { img: ux('1664382953481-141e97ad9825', 800), title: t('landing.why1Title'), desc: t('landing.why1Desc') },
+              { img: ux('1573496130141-209d200cebd8', 800), title: t('landing.why2Title'), desc: t('landing.why2Desc') },
               { img: '/images/sm/professional-medellin-v2.webp', title: t('landing.why3Title'), desc: t('landing.why3Desc') },
-              { img: '/images/sm/professional-cucuta-v2.webp', title: t('landing.why4Title'), desc: t('landing.why4Desc') },
+              { img: ux('1742440711276-679934f5b988', 800), title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
                 {/* Phones: a compact row (thumbnail + text); tablet and up: the full photo card. */}
                 <div className="group relative flex overflow-hidden rounded-2xl bg-[#171a20] sm:block sm:h-[26rem]">
                   <div className="relative w-24 shrink-0 sm:absolute sm:inset-0 sm:w-auto">
-                    <img src={feat.img} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                    <Photo src={feat.img} className="absolute inset-0" />
                   </div>
                   <div className="absolute inset-0 hidden bg-gradient-to-t from-black/90 via-black/40 to-black/5 sm:block" />
                   <div className="relative p-4 sm:absolute sm:inset-x-0 sm:bottom-0 sm:p-6">
@@ -771,7 +772,7 @@ function LandingPage() {
         <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-12 sm:gap-14 sm:py-28 lg:grid-cols-2">
           <SectionReveal>
             <div className="overflow-hidden rounded-2xl bg-secondary">
-              <img src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-64 w-full object-cover sm:h-[32rem]" />
+              <Photo src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} zoom={false} className="relative h-64 w-full sm:h-[32rem]" />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
@@ -798,7 +799,7 @@ function LandingPage() {
       {/* ── Footer CTA ──────────────────────────────────────── */}
       <section className="relative isolate overflow-hidden bg-[#171a20]">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
-          <img src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover object-center" />
+          <Photo src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" zoom={false} className="absolute inset-0" />
           <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/75" />
         </div>
         <div className="mx-auto max-w-4xl px-5 py-16 text-center sm:py-36">
