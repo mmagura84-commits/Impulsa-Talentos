@@ -77,7 +77,7 @@ jobs:
           echo 'impulsatalentos.expert' > dist/CNAME
           test -f dist/index.html && test -f dist/404.html || { echo "::error::dist is incomplete"; exit 1; }
           echo "Pages build ready: $(find dist -type f | wc -l | tr -d ' ') files"
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       # GitHub's own Pages actions are referenced by tag rather than SHA: this
       # session could not resolve their commit SHAs to pin them. Worth pinning
       # the next time someone touches this file.
