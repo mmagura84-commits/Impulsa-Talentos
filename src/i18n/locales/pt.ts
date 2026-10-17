@@ -1104,5 +1104,15 @@ const pt: Dict = {
   "md.tasks.steps.wompiProd.1": "Abra Banco.",
   "md.tasks.steps.wompiProd.2": "Use as chaves de produção do Wompi, não as de teste.",
   "md.tasks.steps.wompiProd.3": "Envie para revisão. As chaves de produção são necessárias antes de receber pagamentos reais.",
+  "landing.feedLive": "Ao vivo",
+  "landing.feedStatRoles": "vagas abertas",
+  "landing.feedStatCompanies": "empresas contratando",
+  "landing.feedStatIndustries": "setores",
+  "landing.feedNew": "Nova",
+  "landing.feedPostedToday": "Publicada hoje",
+  "landing.feedPostedDays": "Publicada há {n} d",
+  "landing.feedViewRole": "Ver vaga",
+  "landing.feedBrowse": "Ver todas as vagas",
+  "landing.feedHiring": "Contratando? Publique uma vaga",
 }
 export default pt

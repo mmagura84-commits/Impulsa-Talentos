@@ -23,7 +23,7 @@ import { setOnboardingIntent } from '@/lib/intent'
    ribbon, industry and city counts). Read over the public REST API (see
    lib/publicRest) so supabase-js isn't loaded at start-up; prerendered into the
    HTML by the loader, then refreshed in the browser. Only the columns used. */
-const HOME_JOB_COLUMNS = 'id,title,company_id,status,moderation_status,location_type,salary_min,salary_max,currency,languages_required,industry'
+const HOME_JOB_COLUMNS = 'id,title,company_id,status,moderation_status,location_type,salary_min,salary_max,currency,languages_required,industry,created_at'
 const fetchHomeJobs = () => publicSelect<Job>('jobs', `select=${HOME_JOB_COLUMNS}&status=eq.open&order=created_at.desc&limit=60`).then((rows) => rows.filter(isOpen))
 const fetchHomeCompanies = () => publicSelect<Company>('companies', 'select=id,name,logo_url&order=created_at.desc')
 async function loadHomeData(): Promise<{ jobs?: Job[]; companies?: Company[] }> {
@@ -207,12 +207,35 @@ function SlideDots({ count, active, goTo, label }: { count: number; active: numb
 }
 const SLIDE_INTERVAL_MS = 3000
 
+/** Industry family -> the hero photo used as the card header. */
+const FAMILY_PHOTO: Record<string, string> = {
+  'tech-engineering': 'technology',
+  'finance-business': 'finance',
+  'customer-hospitality': 'customer-hospitality',
+  'operations-industrial': 'operations-logistics',
+  'healthcare-public': 'healthcare',
+}
+function jobPhoto(industry?: string): string {
+  const family = INDUSTRY_FAMILIES.find((f) => industry && f.members.includes(industry))
+  return INDUSTRY_HERO_PHOTOS[FAMILY_PHOTO[family?.slug ?? ''] ?? 'technology']
+}
+function daysSince(iso?: string): number | null {
+  const ms = iso ? Date.now() - new Date(iso).getTime() : NaN
+  return Number.isFinite(ms) ? Math.max(0, Math.floor(ms / 86_400_000)) : null
+}
+
 function JobFeedPreview() {
   const { t, locale } = useI18n()
   const { data: jobs } = useHomeJobs()
   const { data: companies } = useHomeCompanies()
   const companyMap = new Map((companies ?? []).map((c: Company) => [c.id, c]))
-  const featured = (jobs ?? []).filter(isOpen).slice(0, 3)
+  const open = (jobs ?? []).filter(isOpen)
+  const featured = open.slice(0, 3)
+  const stats = [
+    { n: open.length, label: t('landing.feedStatRoles') },
+    { n: new Set(open.map((j) => j.companyId)).size, label: t('landing.feedStatCompanies') },
+    { n: new Set(open.map((j) => j.industry).filter(Boolean)).size, label: t('landing.feedStatIndustries') },
+  ].filter((x) => x.n > 0)
   const slides = useSlideRow<HTMLUListElement>(featured.length, SLIDE_INTERVAL_MS)
   const card = (job: Job) => {
     const company = companyMap.get(job.companyId)
@@ -222,17 +245,29 @@ function JobFeedPreview() {
           ? `$${compactMoney(job.salaryMin, locale)}–$${compactMoney(job.salaryMax, locale)}`
           : `${job.currency} ${compactMoney(job.salaryMin, locale)}–${compactMoney(job.salaryMax, locale)}`
         : t('jobs.salaryTBD')
+    const age = daysSince(job.createdAt)
+    const langs = (job.languagesRequired ?? '').split(',').map((x) => x.trim()).filter(Boolean)
     return (
       <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
-        <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col gap-4 rounded-xl bg-card p-5 transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-sm font-medium text-primary">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
-            <p className="min-w-0 truncate text-sm text-muted-foreground">{company?.name ?? 'Impulsa Talentos partner'}</p>
+        <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
+          <div className="relative h-28 overflow-hidden bg-[#171a20]">
+            <img src={jobPhoto(job.industry)} alt="" loading="lazy" decoding="async" className="size-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
+            {age !== null && age <= 7 && <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white">{t('landing.feedNew')}</span>}
+            {age !== null && <span className="absolute right-3 top-3 rounded-full bg-black/45 px-2.5 py-0.5 text-xs text-white backdrop-blur">{age === 0 ? t('landing.feedPostedToday') : t('landing.feedPostedDays', { n: age })}</span>}
           </div>
-          <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-medium leading-snug text-foreground group-hover:text-primary">{job.title}</h3>
-          <div className="mt-auto flex flex-col gap-1.5 text-sm">
-            <p className="flex min-w-0 items-center gap-1.5 text-muted-foreground"><MapPin className="size-4 shrink-0" /><span className="truncate">{formatLocationType(job.locationType, t)}</span></p>
-            <p className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1"><span className="font-medium text-foreground">{salary}</span><span className="truncate text-muted-foreground">{formatLanguageList(job.languagesRequired, t)}</span></p>
+          <div className="relative flex flex-1 flex-col gap-3 p-5 pt-0">
+            <div className="-mt-5 flex items-end gap-3">
+              <div className="flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-card text-sm font-medium text-primary ring-2 ring-card">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
+              <p className="min-w-0 truncate pb-0.5 text-sm text-muted-foreground">{company?.name ?? 'Impulsa Talentos partner'}</p>
+            </div>
+            <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-medium leading-snug text-foreground group-hover:text-primary">{job.title}</h3>
+            <p className="text-xl font-medium tracking-tight text-foreground">{salary}</p>
+            <div className="flex flex-wrap gap-1.5">
+              <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs text-muted-foreground"><MapPin className="size-3.5 shrink-0" aria-hidden />{formatLocationType(job.locationType, t)}</span>
+              {langs.map((l) => <span key={l} className="inline-flex items-center rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">{formatLanguageList(l, t)}</span>)}
+            </div>
+            <span className="mt-auto pt-1 text-sm font-medium text-primary">{t('landing.feedViewRole')} <span aria-hidden className="inline-block transition-transform group-hover:translate-x-0.5">→</span></span>
           </div>
         </Link>
       </li>
@@ -240,29 +275,35 @@ function JobFeedPreview() {
   }
   return (
     <div data-testid="hero-live-feed" className="w-full" aria-label={t('landing.feedTitle')}>
-      <div className="flex items-center justify-between gap-4">
-        <h2 className="flex items-center gap-2 text-lg font-medium text-foreground sm:text-2xl"><span aria-hidden className="inline-flex size-2 shrink-0 rounded-full bg-primary" />{t('landing.feedLiveLabel')}</h2>
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
+        <div>
+          <p className="inline-flex items-center gap-2 rounded-full bg-card px-3 py-1 text-xs font-medium text-foreground">
+            <span aria-hidden className="relative flex size-2"><span className="absolute inline-flex size-full animate-ping rounded-full bg-emerald-500 opacity-70" /><span className="relative inline-flex size-2 rounded-full bg-emerald-500" /></span>
+            {t('landing.feedLive')}
+          </p>
+          <h2 className="mt-3 text-2xl font-medium tracking-tight text-foreground sm:text-[2rem]">{t('landing.feedLiveLabel')}</h2>
+        </div>
         <Link to="/jobs" className="inline-flex min-h-8 shrink-0 items-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('landing.feedViewAll')} →</Link>
       </div>
+      {stats.length > 0 && (
+        <dl className="mt-5 grid grid-cols-3 gap-3 sm:max-w-xl">
+          {stats.map((x) => <div key={x.label} className="flex flex-col rounded-xl bg-card px-4 py-3"><dt className="order-2 text-xs text-muted-foreground sm:text-sm">{x.label}</dt><dd className="text-2xl font-medium tracking-tight text-primary">{x.n}</dd></div>)}
+        </dl>
+      )}
       {featured.length === 0
-        ? <div className="mt-5 grid gap-4 sm:grid-cols-3"><div className="h-40 rounded-xl bg-card" /><div className="hidden h-40 rounded-xl bg-card sm:block" /><div className="hidden h-40 rounded-xl bg-card sm:block" /></div>
+        ? <div className="mt-5 grid gap-4 sm:grid-cols-3"><div className="h-64 rounded-2xl bg-card" /><div className="hidden h-64 rounded-2xl bg-card sm:block" /><div className="hidden h-64 rounded-2xl bg-card sm:block" /></div>
         : <div {...slides.handlers} role="group" aria-roledescription="carousel" aria-label={t('landing.feedTitle')}>
             <ul ref={slides.ref} className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:overflow-visible">{featured.map(card)}</ul>
             <SlideDots count={featured.length} active={slides.active} goTo={slides.goTo} label={(i) => `${i + 1} / ${featured.length}`} />
           </div>}
-    </div>
-  )
-}
-/* ── Stats bar — LIVE numbers from Supabase ────────────────── */
-function StatsBar() {
-  const { t } = useI18n()
-
-  return (
-    <section className="bg-card">
-      <div className="mx-auto max-w-6xl px-5 py-10 text-center">
-        <p className="text-lg font-medium text-foreground">{t('landing.trustedByLine')}</p>
+      <div className="mt-8 flex flex-col items-center gap-4 text-center">
+        <p className="max-w-2xl text-base text-foreground sm:text-lg">{t('landing.trustedByLine')}</p>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Button asChild size="lg"><Link to="/jobs">{t('landing.feedBrowse')} <ArrowRight className="size-4" aria-hidden /></Link></Button>
+          <Button asChild size="lg" variant="outline"><Link to="/for-employers">{t('landing.feedHiring')}</Link></Button>
+        </div>
       </div>
-    </section>
+    </div>
   )
 }
 
@@ -652,7 +693,6 @@ function LandingPage() {
       <CompanyRibbon companies={companies} />
       {/* The live job feed sits in its own flat band under the ribbon at every width. */}
       <section className="bg-secondary px-5 py-10 sm:py-14"><div className="mx-auto max-w-6xl"><JobFeedPreview /></div></section>
-      <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
       <section className="section-tint"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10">
         <SectionReveal>

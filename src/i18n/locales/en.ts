@@ -1106,5 +1106,15 @@ const en: Dict = {
   "md.tasks.steps.wompiProd.1": "Open Banking.",
   "md.tasks.steps.wompiProd.2": "Use the production keys from Wompi, not the test keys.",
   "md.tasks.steps.wompiProd.3": "Submit for review. Production keys are needed before the site takes real payments.",
+  "landing.feedLive": "Live now",
+  "landing.feedStatRoles": "open roles",
+  "landing.feedStatCompanies": "hiring companies",
+  "landing.feedStatIndustries": "industries",
+  "landing.feedNew": "New",
+  "landing.feedPostedToday": "Posted today",
+  "landing.feedPostedDays": "Posted {n}d ago",
+  "landing.feedViewRole": "View role",
+  "landing.feedBrowse": "Browse all jobs",
+  "landing.feedHiring": "Hiring? Post a job",
 }
 export default en
