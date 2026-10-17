@@ -376,6 +376,11 @@ html, body {
 
 /* Reduced motion: no animation, no smooth scrolling, no timed transitions,
    anywhere — the user's operating-system setting always wins. */
+/* Trusted-by ribbon: a slow, seamless loop (the track holds the list twice). */
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.marquee-track { animation: marquee 60s linear infinite; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
@@ -383,5 +388,5 @@ html, body {
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
-  .hero-fade-in, .feed-in { animation: none !important; }
+  .hero-fade-in, .feed-in, .marquee-track { animation: none !important; }
 }

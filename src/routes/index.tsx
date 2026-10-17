@@ -179,28 +179,30 @@ function StatsBar() {
   )
 }
 
-/* ── Trusted-by row — a calm, static list of partner names ──
-   The design rules forbid looping motion, so the old marquee is now a still row:
-   the companies with the most open jobs, each linking to its page, plus a link
-   to the full directory. */
+/* ── Trusted-by ribbon — company names on a solid indigo band, scrolling slowly ──
+   Brand colors only: Impulsa indigo with white labels. The track holds the list
+   twice for a seamless loop; links render once (first half), the copy is
+   aria-hidden so there are no repeated tab stops. Pauses on hover/focus, and is a
+   still, wrapped row under prefers-reduced-motion. */
 function CompanyRibbon({ companies }: { companies: Company[] }) {
   const { t } = useI18n()
+  const reduce = usePrefersReducedMotion()
   if (companies.length === 0) return null
-  const shown = companies.slice(0, 12)
+  const set = (link: boolean) => companies.map((c) => (
+    <span key={(link ? 'a' : 'b') + c.id} aria-hidden={!link} className="flex shrink-0 items-center gap-6 px-4 text-sm font-medium text-white sm:gap-8 sm:px-5 sm:text-base">
+      {link
+        ? <Link to="/companies/$id" params={{ id: c.id }} className="rounded-md px-1 text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">{c.name}</Link>
+        : <span>{c.name}</span>}
+      <span aria-hidden="true" className="size-1.5 rounded-full bg-white/50" />
+    </span>
+  ))
   return (
-    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="bg-secondary">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-x-2 gap-y-1 px-5 py-6 sm:py-8">
-        {shown.map((c) => (
-          <Link key={c.id} to="/companies/$id" params={{ id: c.id }} className="inline-flex min-h-8 items-center rounded-md px-3 text-sm font-medium text-foreground transition-colors hover:bg-background">
-            {c.name}
-          </Link>
-        ))}
-        {companies.length > shown.length && (
-          <Link to="/companies" className="inline-flex min-h-8 items-center rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-background">
-            {t('landing.feedViewAll')}
-          </Link>
-        )}
-      </div>
+    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="marquee relative overflow-hidden bg-primary py-4 sm:py-5">
+      {reduce ? (
+        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-y-2 px-5">{set(true)}</div>
+      ) : (
+        <div className="marquee-track flex w-max items-center whitespace-nowrap">{set(true)}{set(false)}</div>
+      )}
     </section>
   )
 }
@@ -515,9 +517,9 @@ function LandingPage() {
         <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[10px] leading-tight text-white/70 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
-      {/* The live job feed sits in its own flat band under the hero at every width. */}
-      <section className="bg-secondary px-5 py-8 sm:py-10"><div className="mx-auto max-w-2xl"><JobFeedPreview /></div></section>
       <CompanyRibbon companies={companies} />
+      {/* The live job feed sits in its own flat band under the ribbon at every width. */}
+      <section className="bg-secondary px-5 py-8 sm:py-10"><div className="mx-auto max-w-2xl"><JobFeedPreview /></div></section>
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
       <section className="section-tint"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">

@@ -20,6 +20,6 @@ our brand and where we deliberately differ.
 ## Deliberate differences (usability first)
 - **Typeface**: Universal Sans is proprietary. We use DM Sans (already shipped); serif headings (Lora) now resolve to DM Sans.
 - Form fields keep a visible `#8e8e8e` border and Pewter placeholder (contrast), solid 2px focus rings everywhere, 16px public body copy.
-- Auto-advancing hero photos pause on hover/focus/hidden tab and do not run under `prefers-reduced-motion`; the marquee of companies is now a static row.
+- Auto-advancing hero photos pause on hover/focus/hidden tab and do not run under `prefers-reduced-motion`; the company ribbon (owner request) scrolls slowly in brand indigo/white, pauses on hover/focus, and is a still row under reduced motion.
 - Semantic status colours (success/warning/error badges, Kanban stages, chart series) are kept — they carry meaning.
 - Not added: arrow controls and chat bar from the reference (would need new copy/features).
