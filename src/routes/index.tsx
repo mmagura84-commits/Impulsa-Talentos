@@ -284,7 +284,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
     </span>
   ))
   return (
-    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="marquee relative overflow-hidden bg-primary py-1 sm:py-1.5">
+    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="marquee relative flex min-h-[2.6rem] items-center overflow-hidden bg-primary py-1 sm:py-1.5">
       {reduce ? (
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-y-2 px-5">{set(true)}</div>
       ) : (
@@ -630,7 +630,7 @@ function LandingPage() {
           over the photo, one flat dark overlay keeps the white text readable, a
           single headline and at most two buttons, circle dots to switch photos.
           -mt-16: the hero extends up behind the transparent sticky header (h-16). */}
-      <section className="relative isolate -mt-16 flex min-h-[100svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
+      <section className="relative isolate -mt-16 flex min-h-[70svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
         <div className="absolute inset-0 z-0" aria-hidden="true">
           {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => <img key={i} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className={`absolute inset-0 size-full object-cover object-center ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`} />)}
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
