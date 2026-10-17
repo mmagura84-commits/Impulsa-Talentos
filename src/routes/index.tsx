@@ -195,7 +195,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
   const reduce = usePrefersReducedMotion()
   if (companies.length === 0) return null
   const set = (link: boolean) => companies.map((c) => (
-    <span key={(link ? 'a' : 'b') + c.id} aria-hidden={!link} className="flex shrink-0 items-center gap-6 px-4 text-sm font-medium text-white sm:gap-8 sm:px-5 sm:text-base">
+    <span key={(link ? 'a' : 'b') + c.id} aria-hidden={!link} className="flex shrink-0 items-center gap-6 px-4 text-sm font-medium text-white sm:gap-8 sm:px-5">
       {link
         ? <Link to="/companies/$id" params={{ id: c.id }} className="min-h-0 min-w-0 rounded-md px-1 text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">{c.name}</Link>
         : <span>{c.name}</span>}
@@ -203,7 +203,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
     </span>
   ))
   return (
-    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="marquee relative overflow-hidden bg-primary py-4 sm:py-5">
+    <section aria-label={t('landing.trustedBy', { n: companies.length })} className="marquee relative overflow-hidden bg-primary py-1 sm:py-1.5">
       {reduce ? (
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-y-2 px-5">{set(true)}</div>
       ) : (
