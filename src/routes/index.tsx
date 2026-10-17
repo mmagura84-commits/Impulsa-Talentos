@@ -346,7 +346,7 @@ function CityShowcase() {
     <section className="section-tint py-12 sm:py-20">
       <div className="mx-auto max-w-6xl px-5"><SectionReveal>
         <div className="mx-auto max-w-2xl text-center">
-          <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
+          <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
             {t('landing.citiesTitle')}
           </h2>
           <p className="mt-3 text-muted-foreground">{t('landing.citiesSub')}</p>
@@ -544,11 +544,11 @@ function LandingPage() {
       <section className="relative isolate -mt-16 flex min-h-[100svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
         <div className="absolute inset-0 z-0" aria-hidden="true">
           {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => <img key={i} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className={`absolute inset-0 size-full object-cover object-center ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`} />)}
-          <div className="absolute inset-0 bg-black/45" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
         </div>
         <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-center px-5 pb-24 pt-32 text-center sm:px-6 lg:px-10">
-          <h1 className="max-w-3xl text-[1.75rem] font-medium leading-[1.15] text-white sm:text-[2.5rem]">{t('landing.heroTitle1')}<span className="block">{t('landing.heroTitle2')}</span></h1>
-          <p className="mt-4 max-w-xl text-sm leading-relaxed text-white sm:text-base">{t('landing.heroSub')}</p>
+          <h1 className="max-w-5xl text-[2.25rem] font-medium leading-[1.05] tracking-tight text-white sm:text-[3.75rem] lg:text-[4.5rem]">{t('landing.heroTitle1')}<span className="block">{t('landing.heroTitle2')}</span></h1>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">{t('landing.heroSub')}</p>
           <div className="mt-8 w-full sm:w-auto"><LandingCTAs /></div>
         </div>
         <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
@@ -559,28 +559,29 @@ function LandingPage() {
       <section className="bg-secondary px-5 py-10 sm:py-14"><div className="mx-auto max-w-6xl"><JobFeedPreview /></div></section>
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
-      <section className="section-tint"><div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10">
+      <section className="section-tint"><div className="w-full px-5 py-16 sm:px-6 sm:py-28 lg:px-10">
         <SectionReveal>
           <div className="mx-auto max-w-xl text-center">
-            <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
+            <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
               {t('landing.howTitle')}
             </h2>
             <p className="mt-3 text-muted-foreground">{t('landing.howSub')}</p>
           </div>
         </SectionReveal>
-        <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-3 sm:gap-5">
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-5">
           {[
             { step: '01', img: '/images/sm/industry-creative-media.webp', pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
             { step: '02', img: '/images/sm/employer-hero-office.webp', pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
             { step: '03', img: '/images/sm/hero-professional-coworking.webp', pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
           ].map((s, i) => (
             <SectionReveal key={s.step} delay={i * 0.1}>
-              <div className="card-lift flex h-full flex-col overflow-hidden rounded-xl">
-                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="h-36 w-full object-cover sm:h-32" />
-                <div className="flex-1 p-5 sm:p-6">
-                  <span className="mb-2 block text-sm font-medium text-muted-foreground">{s.step}</span>
-                  <h3 className="font-medium text-foreground">{s.title}</h3>
-                  <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground">{s.desc}</p>
+              <div className="group relative h-[24rem] overflow-hidden rounded-2xl bg-[#171a20] sm:h-[30rem]">
+                <img src={s.img} alt={s.alt} loading="lazy" decoding="async" style={{ objectPosition: s.pos }} className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/5" />
+                <span className="absolute left-6 top-5 text-5xl font-medium tracking-tight text-white/90 sm:text-6xl">{s.step}</span>
+                <div className="absolute inset-x-0 bottom-0 p-6 sm:p-7">
+                  <h3 className="text-2xl font-medium leading-tight text-white">{s.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/85 sm:text-base">{s.desc}</p>
                 </div>
               </div>
             </SectionReveal>
@@ -588,21 +589,21 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[30rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="w-full px-5 py-16 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[30rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
       <section className="bg-card">
-        <div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10">
+        <div className="w-full px-5 py-16 sm:px-6 sm:py-28 lg:px-10">
           <SectionReveal>
             <div className="mx-auto max-w-2xl text-center">
-              <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
+              <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
                 {t('landing.whyTitle')}
               </h2>
               <p className="mt-3 text-muted-foreground">{t('landing.whySub')}</p>
             </div>
           </SectionReveal>
-          <div className="mt-8 grid gap-3 sm:mt-10 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
+          <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 sm:gap-5 lg:grid-cols-4">
             {[
               { img: '/images/sm/industry-education-training.webp', title: t('landing.why1Title'), desc: t('landing.why1Desc') },
               { img: '/images/sm/industry-legal-public-sector.webp', title: t('landing.why2Title'), desc: t('landing.why2Desc') },
@@ -610,11 +611,12 @@ function LandingPage() {
               { img: '/images/sm/professional-cucuta-v2.webp', title: t('landing.why4Title'), desc: t('landing.why4Desc') },
             ].map((feat, i) => (
               <SectionReveal key={feat.title} delay={i * 0.08}>
-                <div className="card-lift flex h-full items-center gap-4 overflow-hidden rounded-xl p-3 sm:block sm:p-0">
-                  <img src={feat.img} alt="" loading="lazy" decoding="async" className="size-24 shrink-0 rounded-lg object-cover sm:h-36 sm:w-full sm:rounded-none" />
-                  <div className="min-w-0 sm:p-5">
-                    <h3 className="font-medium text-foreground">{feat.title}</h3>
-                    <p className="mt-1 text-sm leading-relaxed text-muted-foreground sm:mt-1.5">{feat.desc}</p>
+                <div className="group relative h-72 overflow-hidden rounded-2xl bg-[#171a20] sm:h-[26rem]">
+                  <img src={feat.img} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/5" />
+                  <div className="absolute inset-x-0 bottom-0 p-6">
+                    <h3 className="text-xl font-medium leading-tight text-white">{feat.title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-white/85">{feat.desc}</p>
                   </div>
                 </div>
               </SectionReveal>
@@ -625,15 +627,15 @@ function LandingPage() {
 
       {/* ── Colombian talent at work ───────────────────────── */}
       <section className="section-tint">
-        <div className="mx-auto grid max-w-6xl items-center gap-6 px-5 py-12 sm:gap-8 sm:py-20 lg:grid-cols-2">
+        <div className="mx-auto grid max-w-7xl items-center gap-8 px-5 py-16 sm:gap-14 sm:py-28 lg:grid-cols-2">
           <SectionReveal>
-            <div className="overflow-hidden rounded-xl">
-              <img src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-48 w-full object-cover sm:h-96" />
+            <div className="overflow-hidden rounded-2xl bg-secondary">
+              <img src={TALENT_WORK_PHOTO} srcSet={TALENT_WORK_SRCSET} sizes="(min-width: 1024px) 560px, 100vw" alt={candidatesPhoto.alt} loading="lazy" decoding="async" className="h-64 w-full object-cover sm:h-[32rem]" />
             </div>
           </SectionReveal>
           <SectionReveal delay={0.1}>
             <p className="text-sm font-medium text-primary">{t('landing.talentEyebrow')}</p>
-            <h2 className="mt-3 text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">{t('landing.talentTitle')}</h2>
+            <h2 className="mt-3 text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">{t('landing.talentTitle')}</h2>
             <p className="mt-4 leading-relaxed text-muted-foreground">{t('landing.talentSub')}</p>
             <details className="mt-4 text-xs text-muted-foreground/70">
               <summary className="cursor-pointer select-none">{t('landing.photoCreditLabel')}</summary>
@@ -647,30 +649,30 @@ function LandingPage() {
       </section>
       {/* ── Employer acquisition CTA ─────────────────────────── */}
       <section className="bg-primary text-white">
-        <div className="mx-auto flex max-w-6xl flex-col items-start gap-5 px-5 py-12 sm:flex-row sm:items-center sm:justify-between sm:py-14">
-          <div><p className="text-sm font-medium text-white">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-2xl font-medium text-white sm:text-[2rem] sm:leading-tight">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-white/85">{t('landing.employerCtaDesc')}</p></div>
+        <div className="mx-auto flex max-w-7xl flex-col items-start gap-6 px-5 py-16 sm:flex-row sm:items-center sm:justify-between sm:py-24">
+          <div><p className="text-sm font-medium text-white">{t('landing.employerCtaEyebrow')}</p><h2 className="mt-2 text-3xl font-medium tracking-tight text-white sm:text-[2.5rem] sm:leading-[1.1]">{t('landing.employerCtaTitle')}</h2><p className="mt-2 max-w-xl text-white/85">{t('landing.employerCtaDesc')}</p></div>
           <Button asChild size="lg" className="w-full shrink-0 bg-white text-[#171a20] hover:bg-white/90 focus-visible:ring-white focus-visible:ring-offset-primary sm:w-auto"><a href="/employer?signup=1" data-early-intent="employer" onClick={() => { setOnboardingIntent('employer'); trackEvent('employer_post_start') }}>{t('landing.employerCtaAction')}</a></Button>
         </div>
       </section>
       {/* ── Footer CTA ──────────────────────────────────────── */}
-      <section className="relative overflow-hidden">
+      <section className="relative isolate overflow-hidden bg-[#171a20]">
         <div className="absolute inset-0 -z-10" aria-hidden="true">
           <img src={CTA_BAND_PHOTO} srcSet={CTA_BAND_SRCSET} sizes="100vw" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover object-center" />
-          <div className="absolute inset-0 bg-background/90" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/70 via-black/55 to-black/75" />
         </div>
-        <div className="mx-auto max-w-3xl px-5 py-12 text-center sm:py-20">
+        <div className="mx-auto max-w-4xl px-5 py-24 text-center sm:py-36">
           <SectionReveal>
-            <h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">
+            <h2 className="text-4xl font-medium tracking-tight text-white sm:text-[3.5rem] sm:leading-[1.05]">
               {t('landing.footerTitle')}
             </h2>
             <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-              <Button asChild size="lg" className="px-7">
+              <Button asChild size="lg" className="bg-white px-7 text-[#171a20] hover:bg-white/90">
                 <Link to="/dashboard">{t('landing.footerPrimary')}</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="px-7">
+              <Button asChild variant="outline" size="lg" className="border-white/60 bg-white/10 px-7 text-white backdrop-blur hover:bg-white hover:text-[#171a20]">
                 <Link to="/jobs">{t('landing.footerSecondary')}</Link>
               </Button>
-              <Link to="/contact" className="w-full text-sm text-muted-foreground underline-offset-4 hover:text-primary hover:underline sm:w-auto">{t('contact.title')}</Link>
+              <Link to="/contact" className="w-full text-sm text-white/80 underline-offset-4 hover:text-white hover:underline sm:w-auto">{t('contact.title')}</Link>
             </div>
           </SectionReveal>
         </div>

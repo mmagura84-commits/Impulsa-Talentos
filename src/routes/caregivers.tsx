@@ -65,7 +65,7 @@ function CaregiversDirectoryPage() {
           <p className="text-sm font-medium text-primary">
             {t('care.directory.eyebrow')}
           </p>
-          <h1 className="mt-3 text-[1.75rem] font-medium leading-tight sm:text-[2.5rem] text-foreground">
+          <h1 className="mt-3 text-[2rem] font-medium leading-tight tracking-tight sm:text-[3rem] text-foreground">
             {t('care.directory.title')}
           </h1>
           <p className="mt-4 text-base text-muted-foreground">{t('care.directory.desc')}</p>
