@@ -1,6 +1,6 @@
 # 5. Monitoring and alerting
 
-**Honest status:** one check is wired and in the repository (`.github/workflows/uptime.yml`: every 30 minutes pages answer with their CSP, TLS certificate has ≥ 14 days left, Supabase auth health is 200; failure emails the repo owner via GitHub's Actions notifications). Everything else below is a proposal; mark each "wired" only after a test alert has fired.
+**Honest status:** one check is committed to the repository and untested so far (`.github/workflows/uptime.yml`: every 30 minutes pages answer with their CSP, TLS certificate has ≥ 14 days left, Supabase auth health is 200; failure emails the repo owner via GitHub's Actions notifications). Everything else below is a proposal; mark each "wired" only after a test alert has fired.
 
 | Signal | Source | Alert when | Action | Status |
 |---|---|---|---|---|
@@ -14,7 +14,7 @@
 | Claude API spend | Anthropic console usage limits | set a monthly hard limit; alert at 70% | Runbook 4 | ☐ set limit |
 | Email spend/bounces | Resend dashboard | bounce > 5%, volume spike | Runbook 4 | ☐ |
 | CSP violations | Browser console during QA (no report-uri possible with meta CSP) | any violation on key flows after a release | Fix or adjust CSP | Manual check per release |
-| Uptime, CSP still served, certificate expiry, Supabase auth health | `uptime.yml` (GitHub Actions, every 30 min) | any failure | Runbook 6 | Wired (see run history) |
+| Uptime, CSP still served, certificate expiry, Supabase auth health | `uptime.yml` (GitHub Actions, every 30 min) | any failure | Runbook 6 | Committed, **not yet observed running** (a manual test run was declined by the automation guard on 2026-10-17; the schedule should start on its own, or run it from the Actions tab) |
 | Database size / growth | Supabase usage page | > 80% of plan | Review retention | Proposed |
 
 Retention note: `web_vitals` is trimmed to 90 days by migration 052; `cv_parse_log` rows older than 2 days are removed on use.
