@@ -249,23 +249,23 @@ function JobDetailPage() {
             {/* Meta bar */}
             <div className="flex flex-wrap items-center gap-4 mt-4 text-sm text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <MapPin className="size-4 text-accent" /> {formatLocationType(job.locationType, t)}
+                <MapPin className="size-4 text-primary" /> {formatLocationType(job.locationType, t)}
               </span>
               <span className="flex items-center gap-1.5">
-                <DollarSign className="size-4 text-accent" /> {formatSalary(job, locale)}
+                <DollarSign className="size-4 text-primary" /> {formatSalary(job, locale)}
               </span>
               {job.level && (
                 <span className="flex items-center gap-1.5">
-                  <Briefcase className="size-4 text-accent" /> {formatJobLevel(job.level, t)}
+                  <Briefcase className="size-4 text-primary" /> {formatJobLevel(job.level, t)}
                 </span>
               )}
               {job.languagesRequired && (
                 <span className="flex items-center gap-1.5">
-                  <Globe className="size-4 text-accent" /> {formatLanguageList(job.languagesRequired, t)}
+                  <Globe className="size-4 text-primary" /> {formatLanguageList(job.languagesRequired, t)}
                 </span>
               )}
               <span className="flex items-center gap-1.5">
-                <Clock className="size-4 text-accent" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
+                <Clock className="size-4 text-primary" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
               </span>
             </div>
 
@@ -392,10 +392,10 @@ function JobDetailPage() {
                 <p className="mt-1 text-lg font-semibold text-foreground">{formatSalary(job, locale)}</p>
               </div>
               <ul className="space-y-2 text-sm text-muted-foreground">
-                <li className="flex items-center gap-2"><MapPin className="size-4 shrink-0 text-accent" />{formatLocationType(job.locationType, t)}</li>
-                {job.level && <li className="flex items-center gap-2"><Briefcase className="size-4 shrink-0 text-accent" />{formatJobLevel(job.level, t)}</li>}
-                {job.languagesRequired && <li className="flex items-center gap-2"><Globe className="size-4 shrink-0 text-accent" />{formatLanguageList(job.languagesRequired, t)}</li>}
-                <li className="flex items-center gap-2"><Building2 className="size-4 shrink-0 text-accent" />{companyName}</li>
+                <li className="flex items-center gap-2"><MapPin className="size-4 shrink-0 text-primary" />{formatLocationType(job.locationType, t)}</li>
+                {job.level && <li className="flex items-center gap-2"><Briefcase className="size-4 shrink-0 text-primary" />{formatJobLevel(job.level, t)}</li>}
+                {job.languagesRequired && <li className="flex items-center gap-2"><Globe className="size-4 shrink-0 text-primary" />{formatLanguageList(job.languagesRequired, t)}</li>}
+                <li className="flex items-center gap-2"><Building2 className="size-4 shrink-0 text-primary" />{companyName}</li>
               </ul>
               {job.status === 'open' ? (
                 <div className="grid gap-2 [&_button]:w-full">

@@ -331,7 +331,7 @@ function PostJobPage() {
         <div className="p-6 max-w-3xl mx-auto">
           <FadeIn>
             <div className="mb-8">
-              <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('postJob.step1.kicker')}</p>
+              <p className="text-sm font-medium text-primary uppercase tracking-wider mb-2">{t('postJob.step1.kicker')}</p>
               <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
                 <Building2 className="size-7 text-primary" />
                 {t('postJob.step1.title')}
@@ -550,7 +550,7 @@ function PostJobPage() {
         <div className="p-6 max-w-3xl mx-auto">
           <FadeIn>
             <div className="mb-8">
-              <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('postJob.step2.kicker')}</p>
+              <p className="text-sm font-medium text-primary uppercase tracking-wider mb-2">{t('postJob.step2.kicker')}</p>
               <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
                 <PlusCircle className="size-7 text-primary" />
                 {t('postJob.step2.title')}

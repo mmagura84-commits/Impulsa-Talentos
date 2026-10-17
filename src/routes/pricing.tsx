@@ -41,7 +41,7 @@ function PlanCard({ id, billing, onBuy }: { id: string; billing: Billing; onBuy:
   const price = billing === 'yearly' ? pkg.priceYearlyUsd : pkg.priceUsd
   return (
     <div className={isPremium ? 'md:-mt-3 md:mb-3' : ''}>
-      <Card className={`h-full flex flex-col hover:shadow-lg transition-shadow ${isPremium ? 'border-primary/40 bg-gradient-to-b from-primary/5 to-card' : ''}`}>
+      <Card className={`h-full flex flex-col ${isPremium ? 'ring-2 ring-primary' : ''}`}>
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             {isPremium && <Sparkles className="size-4 text-primary" />}
@@ -366,7 +366,7 @@ function PricingPage() {
       <main id="main" className="max-w-5xl mx-auto px-5 py-12">
         <CardPaymentStatus />
         <div className="text-center mb-8">
-          <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('pricing.kicker')}</p>
+          <p className="text-sm font-medium text-primary uppercase tracking-wider mb-2">{t('pricing.kicker')}</p>
           <h1 className="font-serif text-3xl sm:text-4xl font-bold">{t('pricing.title')}</h1>
           <p className="mt-2 text-muted-foreground max-w-xl mx-auto">{t('pricing.subtitle')}</p>
         </div>

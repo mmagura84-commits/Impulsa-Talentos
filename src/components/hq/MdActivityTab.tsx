@@ -244,7 +244,7 @@ export function MdActivityTab() {
             <div className="space-y-2">
               {events.slice(0, 25).map(e => (
                 <div key={e.id} className="flex items-start gap-3 rounded-lg border p-3">
-                  <div className="mt-0.5 shrink-0">{e.kind === 'message' ? <Mail className="size-4 text-primary" /> : <KeyRound className="size-4 text-accent" />}</div>
+                  <div className="mt-0.5 shrink-0">{e.kind === 'message' ? <Mail className="size-4 text-primary" /> : <KeyRound className="size-4 text-primary" />}</div>
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium leading-snug">{e.title}</p>
                     {e.sub && <p className="text-xs text-muted-foreground truncate">{e.sub}</p>}

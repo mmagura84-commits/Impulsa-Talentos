@@ -56,9 +56,9 @@ export function Shell({ sidebar, appName = 'App', bottomBar, mobileActions, chil
       {/* [&>*]:w-full — page wrappers use `mx-auto`, which in a flex column
           sizes them to their content; pin them to the column so phones never
           get a page wider than the screen. */}
-      <main id="main" className="flex flex-1 min-w-0 flex-col [&>*]:w-full">
+      <main id="main" className="flex flex-1 min-w-0 flex-col bg-secondary [&>*]:w-full">
         {/* Mobile header — hamburger + app name, only shown below md. */}
-        <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-border bg-background sticky top-0 z-30">
+        <div className="md:hidden flex items-center gap-3 px-4 h-14 bg-background sticky top-0 z-30">
           <Button
             variant="ghost"
             size="icon"

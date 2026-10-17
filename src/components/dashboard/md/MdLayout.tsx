@@ -50,11 +50,11 @@ export function MdLayout() {
 function MdAccessOnly() {
   const { t } = useI18n()
   return (
-    <div className="flex items-center justify-center min-h-[70vh] px-4 py-10 bg-gradient-to-br from-background via-muted/30 to-primary/5">
-      <Card className="max-w-md w-full text-center border-border/70 shadow-2xl shadow-primary/10 rounded-2xl overflow-hidden">
-        <CardHeader className="pb-5 bg-gradient-to-b from-primary/10 to-transparent">
+    <div className="flex items-center justify-center min-h-[70vh] px-4 py-10 bg-secondary">
+      <Card className="max-w-md w-full text-center rounded-xl overflow-hidden">
+        <CardHeader className="pb-5">
           <div className="mx-auto mb-4 flex items-center justify-center">
-            <BrandMark className="size-14 rounded-2xl shadow-lg" title={t('brand.name')} />
+            <BrandMark className="size-14 rounded-xl" title={t('brand.name')} />
           </div>
           <CardTitle className="font-serif text-xl">{t('md.accessDeniedTitle')}</CardTitle>
           <CardDescription>{t('md.accessDeniedDesc')}</CardDescription>

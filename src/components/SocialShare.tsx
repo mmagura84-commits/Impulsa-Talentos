@@ -136,7 +136,7 @@ function ChannelButton({
       type="button"
       onClick={onClick}
       className={cn(
-        'group flex items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-all hover:scale-110 hover:shadow-md cursor-pointer',
+        'group flex items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:bg-secondary cursor-pointer',
         className ?? 'h-9 w-9',
       )}
       aria-label={label}
@@ -292,7 +292,7 @@ export function SocialShare({
           >
             <div className="flex items-start justify-between gap-2 mb-2">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-accent/15 text-accent">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary text-primary">
                   <Gift className="size-4" />
                 </div>
                 <div>
@@ -366,8 +366,8 @@ export function SocialShare({
   return (
     <div
       className={cn(
-        'rounded-2xl border border-border bg-card p-5 sm:p-6',
-        referralMode && 'ring-1 ring-accent/40 bg-gradient-to-br from-accent/5 to-transparent',
+        'rounded-xl bg-card p-5 sm:p-6',
+        referralMode && 'ring-1 ring-primary/30',
         className,
       )}
     >
@@ -375,7 +375,7 @@ export function SocialShare({
         <div>
           <div className="flex items-center gap-2 mb-1">
             {referralMode ? (
-              <Gift className="size-4 text-accent" />
+              <Gift className="size-4 text-primary" />
             ) : (
               <Share2 className="size-4 text-primary" />
             )}

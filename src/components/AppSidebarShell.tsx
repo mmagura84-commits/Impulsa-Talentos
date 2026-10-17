@@ -80,7 +80,8 @@ const ADMIN_NAV: NavItemDef[] = [
 
 function NavItem({ item, collapsed, label, accent }: { item: NavItemDef; collapsed: boolean; label: string; accent: 'gold' | 'navy' | 'ink' }) {
   const active = typeof window !== 'undefined' && window.location.pathname === item.to
-  const activeClass = accent === 'ink' ? 'bg-white/10 text-white border-l-2 border-amber-400' : accent === 'gold' ? 'bg-amber-500/10 text-amber-700 border-l-2 border-amber-500' : 'bg-primary/10 text-primary border-l-2 border-primary'
+  // Current page: a subtle background highlight, never a stripe or second color.
+  const activeClass = accent === 'ink' ? 'bg-white/10 text-white' : 'bg-secondary text-foreground'
   const link = (
     <Link
       to={item.to}
@@ -137,15 +138,15 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
     <TooltipProvider delayDuration={0}>
       <div
         className={cn(
-          'flex flex-col h-full bg-sidebar border-r border-sidebar-border overflow-hidden',
-          'transition-[width] duration-200 ease-linear shrink-0',
+          'flex flex-col h-full bg-sidebar overflow-hidden',
+          'transition-[width] duration-[330ms] ease-linear shrink-0',
           collapsed ? 'w-[3rem]' : 'w-[15rem]',
         )}
       >
         {/* ── Header ────────────────────────────────────── */}
         <div
           className={cn(
-            'flex items-center gap-2 shrink-0 border-b border-sidebar-border h-[52px] px-3',
+            'flex items-center gap-2 shrink-0 h-[52px] px-3',
             collapsed && 'justify-center px-2',
           )}
         >
@@ -196,14 +197,14 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
           {/* Role badge — shows which workspace you're in */}
           {!collapsed && (
             <div className="px-2 pt-3">
-              <span className="inline-flex items-center rounded-full bg-primary/10 text-primary text-xs sm:text-[11px] font-medium px-2.5 py-1">
+              <span className="inline-flex items-center rounded-md bg-secondary text-primary text-xs font-medium px-2.5 py-1">
                 {role === 'employer' ? t('nav.roleEmployer') : role === 'admin' ? t('nav.roleAdmin') : t('nav.roleCandidate')}
               </span>
             </div>
           )}
 
           {/* Language switcher (collapsed: icon; expanded: full list) */}
-          <div className={cn('mt-3 pt-3 border-t border-sidebar-border', collapsed ? 'px-1' : 'px-2')}>
+          <div className={cn('mt-3 pt-3', collapsed ? 'px-1' : 'px-2')}>
             {collapsed ? (
               <div className="flex justify-center">
                 <LanguageToggle compact />
@@ -217,7 +218,7 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
         {/* ── Footer ────────────────────────────────────── */}
         <div
           className={cn(
-            'shrink-0 border-t border-sidebar-border',
+            'shrink-0',
             collapsed ? 'flex flex-col items-center gap-1 p-2' : 'p-3 space-y-1',
           )}
         >

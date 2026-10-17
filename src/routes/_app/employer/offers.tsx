@@ -84,7 +84,7 @@ function EmployerOffersPage() {
       <div className="p-6 max-w-5xl mx-auto">
         <FadeIn>
           <div className="mb-8">
-            <p className="text-sm font-medium text-accent uppercase tracking-wider mb-2">{t('offers.kicker')}</p>
+            <p className="text-sm font-medium text-primary uppercase tracking-wider mb-2">{t('offers.kicker')}</p>
             <h1 className="font-serif text-2xl sm:text-3xl font-bold text-foreground flex items-center gap-2">
               <FileCheck className="size-7 text-primary" />
               {t('offers.title')}

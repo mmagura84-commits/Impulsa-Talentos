@@ -148,19 +148,19 @@ function CompanyProfilePage() {
               <div className="flex flex-wrap items-center gap-3 mt-2 text-sm text-muted-foreground">
                 {company.location && (
                   <span className="flex items-center gap-1">
-                    <MapPin className="size-3.5 text-accent" />
+                    <MapPin className="size-3.5 text-primary" />
                     {company.location}
                   </span>
                 )}
                 {company.industry && (
                   <span className="flex items-center gap-1">
-                    <Factory className="size-3.5 text-accent" />
+                    <Factory className="size-3.5 text-primary" />
                     {company.industry}
                   </span>
                 )}
                 {company.size && (
                   <span className="flex items-center gap-1">
-                    <Users className="size-3.5 text-accent" />
+                    <Users className="size-3.5 text-primary" />
                     {company.size}
                   </span>
                 )}

@@ -173,7 +173,7 @@ function ApplyConfirmPage() {
         {/* Application receipt card */}
         <FadeIn delay={0.1}>
           <Card className="mb-6 overflow-hidden">
-            <div className="h-1 bg-gradient-to-r from-primary via-accent to-primary" />
+            <div className="h-1 bg-primary" />
             <CardHeader>
               <CardTitle className="text-lg flex items-center gap-2">
                 <MailCheck className="size-5 text-primary" />

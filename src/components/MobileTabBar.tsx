@@ -51,7 +51,7 @@ export function MobileTabBar({ role }: { role: string | undefined }) {
   return (
     <nav
       aria-label={t('tabs.label')}
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 border-t border-border bg-background/95 backdrop-blur-md"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 bg-background/95 backdrop-blur-md"
       style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <ul className="grid grid-cols-4">

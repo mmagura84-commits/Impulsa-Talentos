@@ -134,7 +134,7 @@ function KpiCard({ icon: Icon, label, value, hint, delay }: {
 }) {
   return (
     <FadeIn delay={delay}>
-      <Card className="hover:shadow-md hover:-translate-y-0.5 transition-all duration-200">
+      <Card className="transition-colors hover:bg-secondary">
         <CardContent className="pt-5 pb-4">
           <div className="flex items-start justify-between">
             <div className="space-y-1">

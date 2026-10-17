@@ -57,25 +57,25 @@ function CaregiversDirectoryPage() {
   )
 
   return (
-    <div className="min-h-dvh bg-background">
-      <PublicHeader />
+    <div className="min-h-dvh bg-secondary">
+      <PublicHeader transparentOnTop={false} />
       <main id="main" className="mx-auto max-w-6xl px-5 py-12 sm:py-16">
         {/* Hero / intro */}
         <div className="mb-10 max-w-3xl">
-          <p className="text-sm font-semibold uppercase tracking-[.18em] text-emerald-600">
+          <p className="text-sm font-medium text-primary">
             {t('care.directory.eyebrow')}
           </p>
-          <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-5xl text-foreground">
+          <h1 className="mt-3 text-[1.75rem] font-medium leading-tight sm:text-[2.5rem] text-foreground">
             {t('care.directory.title')}
           </h1>
-          <p className="mt-4 text-lg text-muted-foreground">{t('care.directory.desc')}</p>
+          <p className="mt-4 text-base text-muted-foreground">{t('care.directory.desc')}</p>
         </div>
 
         {/* Filters */}
         <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.careType')}</span>
-            <select value={competency} onChange={e => setCompetency(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select value={competency} onChange={e => setCompetency(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_COMPETENCIES.map(c => (
                 <option key={c} value={c}>{t(CARE_COMPETENCY_KEYS[c])}</option>
@@ -84,7 +84,7 @@ function CaregiversDirectoryPage() {
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.comuna')}</span>
-            <select value={comuna} onChange={e => { setComuna(e.target.value); setBarrio('') }} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select value={comuna} onChange={e => { setComuna(e.target.value); setBarrio('') }} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
               <option value="">{t('care.directory.all')}</option>
               {MEDELLIN_COMUNAS.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -93,7 +93,7 @@ function CaregiversDirectoryPage() {
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.barrio')}</span>
-            <select value={barrio} onChange={e => setBarrio(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select value={barrio} onChange={e => setBarrio(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
               <option value="">{t('care.directory.all')}</option>
               {barriosForComuna.map(b => (
                 <option key={b.name} value={b.name}>{b.name}</option>
@@ -102,7 +102,7 @@ function CaregiversDirectoryPage() {
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.live')}</span>
-            <select value={live} onChange={e => setLive(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select value={live} onChange={e => setLive(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_LIVE_MODES.map(m => (
                 <option key={m} value={m}>{t(CARE_LIVE_MODE_KEYS[m])}</option>
@@ -111,7 +111,7 @@ function CaregiversDirectoryPage() {
           </label>
           <label className="block">
             <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.cert')}</span>
-            <select value={cert} onChange={e => setCert(e.target.value)} className="h-9 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <select value={cert} onChange={e => setCert(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_CERTIFICATIONS.map(c => (
                 <option key={c} value={c}>{t(CARE_CERTIFICATION_KEYS[c])}</option>
@@ -124,20 +124,20 @@ function CaregiversDirectoryPage() {
         {isLoading ? (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {Array.from({ length: 3 }).map((_, i) => (
-              <div key={i} className="h-64 rounded-2xl bg-muted animate-pulse" />
+              <div key={i} className="h-64 rounded-xl bg-secondary" />
             ))}
           </div>
         ) : caregivers.length === 0 ? (
-          <div className="rounded-2xl border border-dashed border-border p-12 text-center">
+          <div className="rounded-xl bg-secondary p-12 text-center">
             <p className="font-medium text-foreground">{t('care.directory.empty')}</p>
             <p className="mt-1 text-sm text-muted-foreground">{t('care.directory.emptyDesc')}</p>
           </div>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {caregivers.map(c => (
-              <article key={c.id} className="flex flex-col rounded-2xl border border-border bg-card p-5">
+              <article key={c.id} className="flex flex-col rounded-xl bg-card p-5">
                 <div className="flex items-center gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-700" aria-hidden="true">
+                  <div className="flex size-12 items-center justify-center rounded-full bg-secondary text-primary" aria-hidden="true">
                     <UserRound className="size-6" />
                   </div>
                   <div className="min-w-0">
@@ -151,7 +151,7 @@ function CaregiversDirectoryPage() {
 
                 <div className="mt-4 flex flex-wrap gap-1.5">
                   {c.competencies.map(comp => (
-                    <span key={comp} className="rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                    <span key={comp} className="rounded-md bg-secondary px-2.5 py-0.5 text-xs font-medium text-primary">
                       {t(CARE_COMPETENCY_KEYS[comp as keyof typeof CARE_COMPETENCY_KEYS] ?? 'care.competency.nanny')}
                     </span>
                   ))}

@@ -105,9 +105,8 @@ export function SaveJobButton({ jobId, variant = 'icon', className }: SaveJobBut
       className={cn(
         'inline-flex items-center justify-center h-9 w-9 rounded-full border transition-all cursor-pointer',
         isSaved
-          ? 'border-pink-500/40 bg-pink-500/10 text-pink-600'
-          : 'border-border bg-card text-muted-foreground hover:text-pink-600 hover:border-pink-500/40 hover:bg-pink-500/5',
-        'hover:scale-110',
+          ? 'border-primary/40 bg-primary/10 text-primary'
+          : 'border-border bg-card text-muted-foreground hover:text-primary hover:bg-secondary',
         className,
       )}
     >

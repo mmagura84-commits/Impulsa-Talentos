@@ -17,95 +17,113 @@ html, body {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Impulsa Talentos — Design System
-   Bilingual talent platform powered by our proprietary technology, connecting Colombian professionals
-   with local and international employers.
 
-   Palette: Deep indigo + warm gold accents. Trustworthy, warm, professional.
-   Single source of visual truth.
+   Design language: the Tesla-inspired rules in docs/design/TESLA-DESIGN.md
+   (radical subtraction: photography carries the emotion, the interface gets
+   out of the way). How those rules were adapted to this brand, and where they
+   are deliberately overridden for usability, is in
+   docs/design/IMPULSA-DESIGN-NOTES.md. Short version:
+
+     • one chromatic color  — Impulsa indigo, used for primary actions only
+     • white canvas, Light Ash bands, three greys for text
+     • flat: no shadows, no gradients, no decorative borders on cards
+     • 4px radius on controls, 12px on photo cards, circles only for dots/avatars
+     • type weights 400 and 500 only, normal letter-spacing, no uppercase
+     • one motion timing (0.33s), color/opacity only — no scale or slide
+   Single source of visual truth: change a token here, not a class in a page.
    ═══════════════════════════════════════════════════════════════════════════ */
 
 :root {
-  --background: oklch(0.985 0.005 95);
-  --foreground: oklch(0.22 0.025 260);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.22 0.025 260);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.22 0.025 260);
-  --primary: oklch(0.28 0.08 255);
-  --primary-foreground: oklch(0.98 0 0);
-  --secondary: oklch(0.95 0.015 95);
-  --secondary-foreground: oklch(0.35 0.03 255);
-  --muted: oklch(0.95 0.008 260);
-  --muted-foreground: oklch(0.5 0.02 260);
-  --accent: oklch(0.75 0.16 85);
-  --accent-foreground: oklch(0.22 0.025 260);
+  --background: #fff;
+  --foreground: #171a20;            /* Carbon */
+  --card: #fff;
+  --card-foreground: #171a20;
+  --popover: #fff;
+  --popover-foreground: #171a20;
+  --primary: #1f3a8a;               /* Impulsa indigo — the single accent */
+  --primary-foreground: #fff;
+  --secondary: #f4f4f4;             /* Light Ash */
+  --secondary-foreground: #393c41;  /* Graphite */
+  --muted: #f4f4f4;
+  --muted-foreground: #5c5e62;      /* Pewter (6.4:1 on white) */
+  /* "accent" is the neutral hover/selected surface (shadcn convention), not a
+     second brand color. The old gold accent lives on only inside the logo. */
+  --accent: #f4f4f4;
+  --accent-foreground: #171a20;
   --destructive: oklch(0.55 0.2 20);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.9 0.012 260);
-  --input: oklch(0.9 0.012 260);
-  --ring: oklch(0.28 0.08 255);
-  --chart-1: oklch(0.55 0.2 20);
-  --chart-2: oklch(0.75 0.16 85);
-  --chart-3: oklch(0.5 0.12 190);
-  --chart-4: oklch(0.65 0.1 260);
-  --chart-5: oklch(0.4 0.08 290);
-  --sidebar: oklch(0.985 0.002 260);
-  --sidebar-foreground: oklch(0.22 0.025 260);
-  --sidebar-primary: oklch(0.28 0.08 255);
-  --sidebar-primary-foreground: oklch(0.98 0 0);
-  --sidebar-accent: oklch(0.95 0.015 95);
-  --sidebar-accent-foreground: oklch(0.22 0.025 260);
-  --sidebar-border: oklch(0.9 0.012 260);
-  --sidebar-ring: oklch(0.28 0.08 255);
+  --destructive-foreground: #fff;
+  --border: #eee;                /* Cloud Gray — dividers only */
+  --input: #8e8e8e;                 /* Silver Fog — 3.3:1, so form fields stay findable (WCAG 1.4.11) */
+  --ring: #2f55d4;                  /* focus ring: bright enough to see on white and on photos */
+  --chart-1: #1f3a8a;
+  --chart-2: #5c5e62;
+  --chart-3: #3e6ae1;
+  --chart-4: #8e8e8e;
+  --chart-5: #d0d1d2;
+  --sidebar: #fff;
+  --sidebar-foreground: #171a20;
+  --sidebar-primary: #1f3a8a;
+  --sidebar-primary-foreground: #fff;
+  --sidebar-accent: #f4f4f4;
+  --sidebar-accent-foreground: #171a20;
+  --sidebar-border: #eee;
+  --sidebar-ring: #2f55d4;
 
-  --radius: 0.625rem;
+  --radius: 4px;
   /* Brand fonts are self-hosted and load after the first paint (see
      useBrandFonts in __root.tsx). Until then text uses a system font resized
      to DM Sans's measurements ("DM Sans Fallback ..." below), so nothing moves
-     when DM Sans arrives. */
+     when DM Sans arrives. Tesla's own face (Universal Sans) is proprietary and
+     is not used; DM Sans is the closest self-hosted geometric sans. */
   --font-sans: 'DM Sans Variable', 'DM Sans Fallback Arial', 'DM Sans Fallback Roboto', ui-sans-serif, system-ui, sans-serif;
-  --font-serif: 'Lora Variable', 'Lora Fallback Georgia', 'Lora Fallback Tinos', ui-serif, Georgia, serif;
+  --font-serif: 'DM Sans Variable', 'DM Sans Fallback Arial', 'DM Sans Fallback Roboto', ui-sans-serif, system-ui, sans-serif; /* headings use the one sans family (design rules: single typeface) */
   --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
   --font-script: 'Dancing Script', 'Brush Script MT', 'Snell Roundhand', 'Apple Chancery', cursive;
-  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
-  --shadow-md: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 1px 2px -2px rgb(0 0 0 / 0.06);
-  --shadow-lg: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow-xl: 0 10px 25px -5px rgb(0 0 0 / 0.1), 0 4px 10px -6px rgb(0 0 0 / 0.05);
+  /* Elevation is "none" in this system: layering comes from surface color
+     (white on Light Ash), opacity and photography. The zero-offset value keeps
+     every `shadow-*` utility valid while drawing nothing. */
+  --shadow-2xs: 0 0 #0000;
+  --shadow-xs: 0 0 #0000;
+  --shadow-sm: 0 0 #0000;
+  --shadow-md: 0 0 #0000;
+  --shadow-lg: 0 0 #0000;
+  --shadow-xl: 0 0 #0000;
+  --shadow-2xl: 0 0 #0000;
 }
 
 .dark {
-  --background: oklch(0.17 0.03 260);
-  --foreground: oklch(0.9 0.01 95);
-  --card: oklch(0.22 0.035 260);
-  --card-foreground: oklch(0.9 0.01 95);
-  --popover: oklch(0.22 0.035 260);
-  --popover-foreground: oklch(0.9 0.01 95);
-  --primary: oklch(0.65 0.12 240);
-  --primary-foreground: oklch(0.17 0.03 260);
-  --secondary: oklch(0.26 0.03 260);
-  --secondary-foreground: oklch(0.75 0.02 260);
-  --muted: oklch(0.26 0.03 260);
-  --muted-foreground: oklch(0.55 0.02 260);
-  --accent: oklch(0.82 0.17 85);
-  --accent-foreground: oklch(0.17 0.03 260);
-  --destructive: oklch(0.55 0.2 20);
-  --destructive-foreground: oklch(0.17 0.03 260);
-  --border: oklch(0.35 0.025 260);
-  --input: oklch(0.35 0.025 260);
-  --ring: oklch(0.65 0.12 240);
-  --chart-1: oklch(0.65 0.18 15);
-  --chart-2: oklch(0.82 0.17 85);
-  --chart-3: oklch(0.6 0.1 190);
-  --chart-4: oklch(0.7 0.12 250);
-  --chart-5: oklch(0.55 0.1 290);
-  --sidebar: oklch(0.2 0.035 260);
-  --sidebar-foreground: oklch(0.9 0.01 95);
-  --sidebar-primary: oklch(0.65 0.12 240);
-  --sidebar-primary-foreground: oklch(0.17 0.03 260);
-  --sidebar-accent: oklch(0.26 0.03 260);
-  --sidebar-accent-foreground: oklch(0.75 0.02 260);
-  --sidebar-border: oklch(0.35 0.025 260);
-  --sidebar-ring: oklch(0.65 0.12 240);
+  --background: #171a20;            /* Carbon */
+  --foreground: #f4f4f4;
+  --card: #20242b;
+  --card-foreground: #f4f4f4;
+  --popover: #20242b;
+  --popover-foreground: #f4f4f4;
+  --primary: #5b7fe8;               /* lifted indigo: 4.9:1 on Carbon */
+  --primary-foreground: #0d1220;
+  --secondary: #262a32;
+  --secondary-foreground: #d0d1d2;
+  --muted: #262a32;
+  --muted-foreground: #a8a9ab;
+  --accent: #2b3038;
+  --accent-foreground: #f4f4f4;
+  --destructive: oklch(0.65 0.2 20);
+  --destructive-foreground: #0d1220;
+  --border: #393c41;
+  --input: #6f7175;
+  --ring: #7f9cf0;
+  --chart-1: #7f9cf0;
+  --chart-2: #a8a9ab;
+  --chart-3: #5b7fe8;
+  --chart-4: #8e8e8e;
+  --chart-5: #d0d1d2;
+  --sidebar: #1c2027;
+  --sidebar-foreground: #f4f4f4;
+  --sidebar-primary: #5b7fe8;
+  --sidebar-primary-foreground: #0d1220;
+  --sidebar-accent: #2b3038;
+  --sidebar-accent-foreground: #f4f4f4;
+  --sidebar-border: #393c41;
+  --sidebar-ring: #7f9cf0;
 }
 
 /* ── Token → utility mapping (Tailwind v4). Same file as the values above. ── */
@@ -143,18 +161,44 @@ html, body {
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-ring: var(--sidebar-ring);
 
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Radius scale: 2px chips · 4px controls · 12px photo cards. Nothing rounder
+     except 9999px, which is kept for circles (avatars, dots, switches). */
+  --radius-xs: 2px;
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 4px;
+  --radius-xl: 12px;
+  --radius-2xl: 12px;
+  --radius-3xl: 12px;
+  --radius-4xl: 12px;
+
+  /* Two weights only: 400 and 500. Every "semibold/bold" class resolves to 500. */
+  --font-weight-semibold: 500;
+  --font-weight-bold: 500;
+  --font-weight-extrabold: 500;
+  --font-weight-black: 500;
+
+  /* Normal letter-spacing at every size. */
+  --tracking-tighter: normal;
+  --tracking-tight: normal;
+  --tracking-wide: normal;
+  --tracking-wider: normal;
+  --tracking-widest: normal;
+
+  /* One timing for every state change: 0.33s. */
+  --default-transition-duration: 330ms;
+
   --font-sans: var(--font-sans);
   --font-serif: var(--font-serif);
   --font-mono: var(--font-mono);
   --font-script: var(--font-script);
+  --shadow-2xs: var(--shadow-2xs);
+  --shadow-xs: var(--shadow-xs);
   --shadow-sm: var(--shadow-sm);
   --shadow-md: var(--shadow-md);
   --shadow-lg: var(--shadow-lg);
   --shadow-xl: var(--shadow-xl);
+  --shadow-2xl: var(--shadow-2xl);
 }
 
 @layer base {
@@ -182,6 +226,14 @@ html, body {
       min-height: 2.75rem;
       min-width: 2.75rem;
     }
+  }
+
+  /* Visible keyboard focus everywhere. Components that draw their own ring
+     keep it; this is the floor for everything else (links, summary, custom
+     controls). Mouse clicks do not trigger it (:focus-visible). */
+  :where(a, button, [role='button'], [role='tab'], [role='menuitem'], input, select, textarea, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--color-ring);
+    outline-offset: 2px;
   }
 
   /* Safe-area padding for iOS notch devices — applied via env(). */
@@ -214,13 +266,17 @@ html, body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
+    font-weight: 400;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* Headings: weight 500, normal tracking, balanced wrapping. */
+  h1, h2, h3, h4, h5, h6 { font-weight: 500; text-wrap: balance; }
 }
 
 @layer utilities {
-  .animate-fade-in { animation: fade-in 0.3s ease-in-out; }
+  /* Content fades in; it never slides (the rules allow color and opacity only). */
+  .animate-fade-in { animation: fade-in 0.33s ease-in-out; }
 
   /* ── Render-performance helpers ── */
   /* Defer paint for below-fold sections — the browser skips layout + paint
@@ -238,19 +294,14 @@ html, body {
   }
 }
 
-@keyframes fade-in {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: translateY(0); }
-}
+/* No uppercase text transforms anywhere (the rules call for lowercase calm).
+   Deliberately outside @layer so it also overrides Tailwind's `uppercase`
+   utility without touching ~70 call sites. */
+.uppercase { text-transform: none; }
 
-/* ── Company scrolling ribbon (trusted-by marquee) ────────────
-   Seamless infinite loop: the track renders the company list twice and
-   translates -50% of its own width, so it snaps back invisibly. The -50% only
-   loops cleanly if both halves are byte-identical width — the renderer
-   duplicates the exact same item set in CompanyRibbon. */
-@keyframes marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+@keyframes fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 /* Phone tab bar (MobileTabBar): keep page content and footer clear of it. */
@@ -267,11 +318,10 @@ html, body {
 
 
 /* ── Phone reading rules for public pages (≤767px) ───────────────────────
-   Modeled on remotelatinos.com's mobile stylesheet (measured 2026-10-12):
-   17px body text at ~1.6 line height, 40/32/22px headings with tight
-   leading, 52px pill buttons, 20px side padding and 48–64px section
-   spacing (ours already matched those two). Scoped to pages with the public
-   header, so dashboards keep their dense layout. Content is unchanged. */
+   Hero titles scale to ~28px on phones (the rules' mobile size), reading copy
+   stays at 17px / 1.6 so long text is comfortable, buttons stay 48px tall for
+   easy tapping but keep the 4px radius (no pills). Scoped to pages with the
+   public header, so dashboards keep their dense layout. Content is unchanged. */
 @media (max-width: 767px) {
   body:has([data-public-header]) main#main {
     font-size: 1.0625rem;
@@ -279,19 +329,17 @@ html, body {
     -webkit-text-size-adjust: 100%;
   }
   body:has([data-public-header]) main#main h1 {
-    font-size: 2.5rem;
-    line-height: 1.1;
-    letter-spacing: -0.015em;
+    font-size: 1.75rem;
+    line-height: 1.2;
     text-wrap: balance;
   }
   body:has([data-public-header]) main#main h2 {
-    font-size: 2rem;
-    line-height: 1.2;
-    letter-spacing: -0.01em;
+    font-size: 1.5rem;
+    line-height: 1.25;
     text-wrap: balance;
   }
   body:has([data-public-header]) main#main h3 {
-    font-size: 1.375rem;
+    font-size: 1.0625rem;
     line-height: 1.3;
   }
   body:has([data-public-header]) main#main p { text-wrap: pretty; }
@@ -300,47 +348,40 @@ html, body {
   body:has([data-public-header]) main#main .text-sm { font-size: 0.9375rem; line-height: 1.5rem; }
   body:has([data-public-header]) main#main .text-base { font-size: 1.0625rem; line-height: 1.7rem; }
   body:has([data-public-header]) main#main .text-lg { font-size: 1.1875rem; line-height: 1.8rem; }
-  /* pill buttons, 52px tall, easy to tap */
+  /* 48px-tall buttons, 4px radius */
   body:has([data-public-header]) main#main [data-slot="button"]:not([data-size="icon"]):not([data-size="sm"]) {
-    min-height: 3.25rem;
-    border-radius: 9999px;
+    min-height: 3rem;
     padding-inline: 1.5rem;
     font-size: 1rem;
-    font-weight: 600;
+    font-weight: 500;
   }
 }
 
-/* Home and public pages: clear separation between section backgrounds and the
-   cards on them (tinted band with white cards, white band with lifted cards). */
-.section-tint { background-color: #e8eefb; }
-.dark .section-tint { background-color: oklch(0.2 0.03 260); }
-.card-lift {
-  background-color: var(--color-card);
-  border-color: rgb(31 58 138 / 0.14);
-  box-shadow: 0 1px 2px rgb(15 23 42 / 0.06), 0 10px 28px -14px rgb(31 58 138 / 0.35);
-}
-.dark .card-lift { border-color: rgb(255 255 255 / 0.1); box-shadow: none; }
+/* Home and public pages: alternate white and Light Ash bands. Separation comes
+   from the surface shift and spacing, not from borders or shadows: cards are
+   Light Ash on a white band and white on a Light Ash band. */
+.section-tint { background-color: var(--color-secondary); }
+.card-lift { background-color: var(--color-secondary); }
+.section-tint .card-lift { background-color: var(--color-card); }
+.dark .section-tint { background-color: var(--color-secondary); }
+.dark .card-lift { background-color: var(--color-secondary); }
+.dark .section-tint .card-lift { background-color: var(--color-card); }
 
-/* Public pages on phones: darker secondary text so it reads on white and tint. */
-@media (max-width: 767px) {
-  :root:not(.dark) body:has([data-public-header]) main#main {
-    --muted-foreground: oklch(0.42 0.025 260);
-    --color-muted-foreground: oklch(0.42 0.025 260);
-  }
-}
-
-/* Home hero: slow zoom on each photo, and a crossfade when the next photo
-   arrives (CSS, so it runs before and without the app's scripts). */
-@keyframes hero-kb-even { from { transform: scale(1) translateX(0); } to { transform: scale(1.07) translateX(-1.5%); } }
-@keyframes hero-kb-odd { from { transform: scale(1.06) translateX(0); } to { transform: scale(1) translateX(1.5%); } }
+/* Home hero: a calm crossfade when the next photo arrives (CSS, so it runs
+   before and without the app's scripts). The photo itself does not move. */
 @keyframes hero-fade-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes feed-in { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-.hero-kb-even { animation: hero-kb-even 6.4s ease-out both; }
-.hero-kb-odd { animation: hero-kb-odd 6.4s ease-out both; }
-.hero-kb-even.hero-fade-in { animation: hero-kb-even 6.4s ease-out both, hero-fade-in 0.9s ease-out both; }
-.hero-kb-odd.hero-fade-in { animation: hero-kb-odd 6.4s ease-out both, hero-fade-in 0.9s ease-out both; }
-.feed-in { animation: feed-in 0.35s ease-out both; }
-@media (prefers-reduced-motion: reduce) {
-  .hero-kb-even, .hero-kb-odd, .hero-fade-in, .feed-in { animation: none !important; }
-}
+@keyframes feed-in { from { opacity: 0; } to { opacity: 1; } }
+.hero-fade-in { animation: hero-fade-in 0.9s ease-out both; }
+.feed-in { animation: feed-in 0.33s ease-out both; }
 
+/* Reduced motion: no animation, no smooth scrolling, no timed transitions,
+   anywhere — the user's operating-system setting always wins. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  .hero-fade-in, .feed-in { animation: none !important; }
+}

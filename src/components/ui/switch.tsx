@@ -38,7 +38,7 @@ export function Switch({
     >
       <span
         aria-hidden="true"
-        className={`pointer-events-none block h-5 w-5 rounded-full bg-white shadow-lg ring-0 transition-transform ${
+        className={`pointer-events-none block h-5 w-5 rounded-full bg-white ring-0 transition-transform ${
           checked ? 'translate-x-[22px]' : 'translate-x-[2px]'
         }`}
       />

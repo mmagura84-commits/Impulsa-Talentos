@@ -29,7 +29,7 @@ export function OnboardingPanel({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
       aria-label={t('onboarding.title')}
-      className="mb-8 rounded-2xl border border-primary/20 bg-gradient-to-br from-primary/5 via-card to-card p-5 shadow-sm"
+      className="mb-8 rounded-xl bg-card p-5"
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2.5">

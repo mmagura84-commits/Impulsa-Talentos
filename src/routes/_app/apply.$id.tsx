@@ -126,7 +126,7 @@ function StepIndicator({ step }: { step: 1 | 2 | 3 }) {
                   done
                     ? 'bg-primary text-primary-foreground'
                     : active
-                      ? 'bg-accent text-accent-foreground ring-2 ring-accent/30'
+                      ? 'bg-accent text-primary-foreground ring-2 ring-primary/30'
                       : 'bg-muted text-muted-foreground'
                 }`}
               >
@@ -547,7 +547,7 @@ function ApplyPage() {
         <FadeIn delay={0.05}>
           <Card className="mb-6 border-border">
             <CardHeader className="pb-3">
-              <p className="text-xs font-medium text-accent uppercase tracking-wider">
+              <p className="text-xs font-medium text-primary uppercase tracking-wider">
                 {t('apply.reviewingJob')}
               </p>
               <CardTitle className="text-lg">{job.title}</CardTitle>
@@ -557,14 +557,14 @@ function ApplyPage() {
             </CardHeader>
             <CardContent className="grid sm:grid-cols-3 gap-3 text-xs text-muted-foreground">
               <span className="flex items-center gap-1.5">
-                <MapPin className="size-3.5 text-accent" /> {formatLocationType(job.locationType, t)}
+                <MapPin className="size-3.5 text-primary" /> {formatLocationType(job.locationType, t)}
               </span>
               <span className="flex items-center gap-1.5">
-                <DollarSign className="size-3.5 text-accent" /> {formatSalary(job, locale)}
+                <DollarSign className="size-3.5 text-primary" /> {formatSalary(job, locale)}
               </span>
               {job.languagesRequired && (
                 <span className="flex items-center gap-1.5">
-                  <Globe className="size-3.5 text-accent" /> {formatLanguageList(job.languagesRequired, t)}
+                  <Globe className="size-3.5 text-primary" /> {formatLanguageList(job.languagesRequired, t)}
                 </span>
               )}
             </CardContent>
@@ -628,7 +628,7 @@ function ApplyPage() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
-                    <Sparkles className="size-5 text-accent" />
+                    <Sparkles className="size-5 text-primary" />
                     {t('apply.message.title')}
                   </CardTitle>
                   <CardDescription>{t('apply.message.desc')}</CardDescription>

@@ -175,7 +175,7 @@ export function RichTextEditor({
             className={cn(
               'inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors cursor-pointer',
               tab === 'write'
-                ? 'bg-accent text-accent-foreground'
+                ? 'bg-accent text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >
@@ -187,7 +187,7 @@ export function RichTextEditor({
             className={cn(
               'inline-flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors cursor-pointer',
               tab === 'preview'
-                ? 'bg-accent text-accent-foreground'
+                ? 'bg-accent text-primary-foreground'
                 : 'text-muted-foreground hover:text-foreground',
             )}
           >

@@ -120,7 +120,7 @@ function JobListItem({
         aria-label={job.title}
         className="block group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
       >
-        <Card className="h-full gap-3 py-4 hover:shadow-lg hover:-translate-y-1 transition-all duration-200 border-border sm:py-5">
+        <Card className="h-full gap-3 py-4 transition-colors hover:bg-secondary sm:py-5">
           <CardHeader className="px-4 pb-0 sm:px-5">
             <div className="flex items-start gap-2">
               <CardTitle className="text-base font-semibold group-hover:text-primary transition-colors line-clamp-2 flex-1">
@@ -160,7 +160,7 @@ function JobListItem({
                 <Clock className="size-3" /> <ClientTimeText compute={() => formatPosted(job.createdAt, t)} />
               </span>
             </div>
-            <p className="text-sm font-semibold text-accent">{formatSalary(job, locale)}</p>
+            <p className="text-sm font-semibold text-primary">{formatSalary(job, locale)}</p>
             {skills.length > 0 && (
               <div className="flex flex-wrap gap-1.5">
                 {skills.slice(0, 4).map(skill => (

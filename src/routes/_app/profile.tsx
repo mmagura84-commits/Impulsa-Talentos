@@ -550,7 +550,7 @@ function ProfilePage() {
                 : currentRole === 'employer' ? t('profile.employer.subtitle')
                 : t('profile.admin.subtitle')}
               {profile ? null : (
-                <span className="block mt-1 text-accent text-sm">{t('profile.notCreatedBanner')}</span>
+                <span className="block mt-1 text-primary text-sm">{t('profile.notCreatedBanner')}</span>
               )}
             </p>
           </div>
