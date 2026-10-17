@@ -369,25 +369,25 @@ const unsplashAt = (w: number) => candidatesPhoto.src.replace(/([?&])w=\d+/, `$1
 const TALENT_WORK_PHOTO = unsplashAt(800)
 const TALENT_WORK_SRCSET = `${unsplashAt(480)} 480w, ${unsplashAt(800)} 800w`
 const CITY_PHOTOS: Record<string, string> = {
-  medellin: ux('1715503234314-fbc6e3291264', 1000),
+  medellin: '/images/city-medellin.webp',
   bogota: ux('1661641172357-73091e102023', 1000),
   cartagena: ux('1570197820006-3e46f5ee01bb', 1000),
   cali: '/images/city-cali.webp',
   barranquilla: '/images/city-barranquilla.webp',
-  cucuta: ux('1720067392108-89b9485aa090', 1000),
+  cucuta: ux('1672851612832-0784f930d982', 1000),
 }
 // Verified downtown Medellín skyline for the hero only; city cards retain professional crops.
 const INDUSTRY_HERO_PHOTOS: Record<string, string> = {
-  technology: ux('1603201667230-bd139210db18', 1600),
-  finance: ux('1460925895917-afdab827c52f', 1600),
-  'customer-hospitality': ux('1766066014237-00645c74e9c6', 1600),
-  'operations-logistics': ux('1664382953403-fc1ac77073a0', 1600),
-  healthcare: ux('1758691462743-f9fc9e430d39', 1600),
-  'sales-marketing': ux('1714974528693-f77f6fcc56af', 1600),
-  'education-training': ux('1664382953518-4a664ab8a8c9', 1600),
-  'engineering-construction': ux('1626885930974-4b69aa21bbf9', 1600),
-  'creative-media': ux('1787647561978-df268f9e9ec2', 1600),
-  'legal-public-sector': ux('1676694047732-768cea5b66eb', 1600),
+  technology: '/images/industry-technology.webp',
+  finance: '/images/industry-finance.webp',
+  'customer-hospitality': '/images/industry-customer-hospitality.webp',
+  'operations-logistics': '/images/industry-operations-logistics.webp',
+  healthcare: '/images/industry-healthcare.webp',
+  'sales-marketing': '/images/industry-sales-marketing.webp',
+  'education-training': '/images/industry-education-training.webp',
+  'engineering-construction': '/images/industry-engineering-construction.webp',
+  'creative-media': '/images/industry-creative-media.webp',
+  'legal-public-sector': '/images/industry-legal-public-sector.webp',
 }
 const INDUSTRY_HERO_ALT_KEYS: Record<string, string> = {
   technology: 'landing.heroIndustryTechnologyAlt', finance: 'landing.heroIndustryFinanceAlt', 'customer-hospitality': 'landing.heroIndustryCustomerAlt', 'operations-logistics': 'landing.heroIndustryOperationsAlt', healthcare: 'landing.heroIndustryHealthcareAlt', 'sales-marketing': 'landing.heroIndustrySalesAlt', 'education-training': 'landing.heroIndustryEducationAlt', 'engineering-construction': 'landing.heroIndustryEngineeringAlt', 'creative-media': 'landing.heroIndustryCreativeAlt', 'legal-public-sector': 'landing.heroIndustryLegalAlt',
@@ -672,18 +672,19 @@ function LandingPage() {
           over the photo, one flat dark overlay keeps the white text readable, a
           single headline and at most two buttons, circle dots to switch photos.
           -mt-16: the hero extends up behind the transparent sticky header (h-16). */}
-      <section className="relative isolate -mt-16 flex min-h-[84svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
-        <div className="absolute inset-0 z-0" aria-hidden="true">
+      <section className="relative isolate -mt-16 flex flex-col overflow-hidden bg-[#171a20] sm:min-h-[84svh]" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
+        {/* Phones: the whole 3:2 photo sits in a 3:2 frame below the nav and the text follows on solid dark. Tablet and up: full-bleed hero. */}
+        <div className="absolute inset-x-0 top-0 z-0 h-[calc(66.667vw+4rem)] sm:inset-0 sm:h-auto" aria-hidden="true">
           {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => (
             <div key={i} className={`absolute inset-0 ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`}>
               {/* Soft fill behind the photo so the whole picture can be shown (object-contain) with no bars. */}
-              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 size-full scale-110 object-cover object-center opacity-70 blur-2xl" />
-              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-contain object-center" />
+              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-x-0 bottom-0 top-16 size-full scale-110 object-cover object-center opacity-70 blur-2xl sm:inset-0" />
+              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className="absolute inset-x-0 bottom-0 top-16 h-[calc(100%-4rem)] w-full object-contain object-center sm:inset-0 sm:h-full" />
             </div>
           ))}
-          <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-transparent to-black/20 sm:from-black/55 sm:via-black/25 sm:to-black/65" />
         </div>
-        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-center px-5 pb-24 pt-32 text-center sm:px-6 lg:px-10">
+        <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-center px-5 pb-16 pt-[calc(66.667vw+5.5rem)] text-center sm:px-6 sm:pb-24 sm:pt-32 lg:px-10">
           <h1 className="max-w-5xl text-[2.25rem] font-medium leading-[1.05] tracking-tight text-white sm:text-[3.75rem] lg:text-[4.5rem]">{t('landing.heroTitle1')}<span className="block">{t('landing.heroTitle2')}</span></h1>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-white/90 sm:text-lg">{t('landing.heroSub')}</p>
           <div className="mt-8 w-full sm:w-auto"><LandingCTAs /></div>
