@@ -16,6 +16,10 @@ Run on 2026-10-17 in a sandbox with a local Postgres 16. "Live" means the produc
 | Built site with CSP, Playwright on 10 routes | **0 CSP violations**; hydration works. One React #418 on `/jobs/` also occurs with the CSP removed (mocked data), so it is not caused by the CSP |
 | CSP bug found and fixed during this test | a TanStack script containing NUL characters hashed differently from what browsers hash; fixed in `finalize-static-build.mjs` |
 
+## Live verification after deploy (Pages run #11, 2026-10-17)
+- `/`, `/jobs/`, `/dashboard/` serve the CSP; an injected inline script was blocked by the browser (policy enforced); sign-in page works; Google's button renders on the site domain; no CSP errors in the console.
+- CI run #10 failed on the new secret-scan gate (a test fixture contained a private-key header); fixed in the next commit and run #11 passed. This shows the gate works.
+
 ## Not done / not verified
 - **Live database:** migration 052 and the new `parse-cv` were **not applied** to production from this session (the automation guard refused production SQL). See `09-…` for the steps. Until applied, F-03/F-04/F-06 server-side protections are not live.
 - Real-browser run of the F-01 payloads on the deployed site (unit tests only).

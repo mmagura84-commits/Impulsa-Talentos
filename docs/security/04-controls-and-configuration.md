@@ -16,8 +16,8 @@ Mark each when checked, with date and who checked.
 | Setting | Where | Recommended | Checked |
 |---|---|---|---|
 | Branch protection on `main` (PR + passing `security` checks) | GitHub → Settings → Branches | on | ☐ |
-| Secret scanning + push protection | GitHub → Settings → Code security | on | ☐ |
-| Dependabot alerts | same | on | ☐ |
+| Secret scanning + push protection | GitHub → Settings → Code security | on | ☑ already on (seen 2026-10-17) |
+| Dependabot alerts, dependency graph, private vulnerability reporting | same | on | ☑ enabled 2026-10-17 |
 | Pages → Enforce HTTPS | GitHub → Settings → Pages | on | ☐ |
 | Auth rate limits, CAPTCHA, leaked-password protection, email confirmation (confirmed on) | Supabase → Auth | on/tuned | ☐ |
 | MFA for all dashboard members; org SSO if available | Supabase / GitHub / Google / Wompi / Resend | on | ☐ |
