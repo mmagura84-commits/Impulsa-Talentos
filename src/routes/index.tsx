@@ -211,7 +211,7 @@ const SLIDE_INTERVAL_MS = 3000
 const ux = (id: string, w = 1000) => `https://images.unsplash.com/photo-${id}?auto=format&fit=crop&w=${w}&q=75`
 /** Several different photos per industry family; a job's id picks one so cards in a row differ. */
 const JOB_PHOTO_POOLS: Record<string, string[]> = {
-  'tech-engineering': [ux('1603195827187-459ab02554a0'), ux('1629904853716-f0bc54eea481'), ux('1603201667230-bd139210db18')],
+  'tech-engineering': [ux('1629904853893-c2c8981a1dc5'), ux('1629904853716-f0bc54eea481'), ux('1603201667230-bd139210db18')],
   'finance-business': [ux('1551135049-8a33b5883817'), ux('1573496130141-209d200cebd8'), ux('1460925895917-afdab827c52f')],
   'customer-hospitality': [ux('1626863905121-3b0c0ed7b94c'), ux('1714079761488-e0c9b9ac4138'), ux('1766066014237-00645c74e9c6')],
   'operations-industrial': [ux('1586528116022-aeda1613c63d'), ux('1644079446600-219068676743'), ux('1664382953403-fc1ac77073a0')],
@@ -265,7 +265,7 @@ function JobFeedPreview() {
     return (
       <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
         <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col overflow-hidden rounded-2xl bg-card transition-transform duration-300 hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
-          <div className="relative h-28 overflow-hidden bg-[#171a20]">
+          <div className="relative aspect-[16/10] overflow-hidden bg-[#171a20]">
             <Photo src={jobPhoto(job.industry, job.id)} className="absolute inset-0" />
             <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-black/10" />
             {age !== null && age <= 7 && <span className="absolute left-3 top-3 rounded-full bg-primary px-2.5 py-0.5 text-xs font-medium text-white">{t('landing.feedNew')}</span>}
