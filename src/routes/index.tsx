@@ -465,14 +465,20 @@ function FamilyCard({ family }: { family: typeof INDUSTRY_FAMILIES[number] }) {
   const { t } = useI18n(); const { data: jobs } = useHomeJobs(); const counts = new Map<string, number>();
   for (const j of (jobs ?? []).filter(j => isOpen(j) && j.industry)) counts.set(j.industry!, (counts.get(j.industry!) ?? 0) + 1);
   const total = family.members.reduce((n, m) => n + (counts.get(m) ?? 0), 0)
-  return <div className="card-lift flex h-full flex-col overflow-hidden rounded-xl">
-    <div className="relative h-36 shrink-0">
-      <img src={FAMILY_PHOTOS[family.slug] ?? '/images/hero-professional-coworking.webp'} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" />
-      <div className="absolute inset-0 bg-black/40" />
-      <h3 className="absolute inset-x-4 bottom-3 font-medium text-white">{t(`industries.family.${family.slug}`)}</h3>
-      {total > 0 && <span className="absolute right-3 top-3 rounded-md bg-white px-2 py-0.5 text-xs font-medium text-[#171a20]">{t('industries.open', { n: total })}</span>}
+  const subjects = family.members.filter(m => (counts.get(m) ?? 0) > 0)
+  /* Fixed-height, full-bleed photo panel: every card is the same size, the photo
+     always fills it, and the title + subjects sit on a bottom gradient. */
+  return <div className="group relative h-[30rem] overflow-hidden rounded-2xl bg-[#171a20] sm:h-[34rem]">
+    <img src={FAMILY_PHOTOS[family.slug] ?? '/images/hero-professional-coworking.webp'} alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" />
+    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/45 to-black/10" />
+    {total > 0 && <span className="absolute left-5 top-5 rounded-full bg-white/90 px-3 py-1 text-xs font-medium text-[#171a20] backdrop-blur">{t('industries.open', { n: total })}</span>}
+    <div className="absolute inset-x-0 bottom-0 flex flex-col p-6 sm:p-7">
+      <h3 className="text-2xl font-medium leading-tight text-white sm:text-[1.75rem]">{t(`industries.family.${family.slug}`)}</h3>
+      <div className="mt-4 flex min-h-[8.75rem] flex-wrap content-start gap-2">
+        {subjects.map(m => { const slug = INDUSTRIES.find(x => x.canonical === m)?.slug; return <Link key={m} to="/jobs" search={{ industry: slug }} className="inline-flex min-h-0 min-w-0 items-center gap-1.5 rounded-full border border-white/35 bg-white/10 px-3 py-1.5 text-sm text-white backdrop-blur transition-colors hover:bg-white hover:text-[#171a20]">{t(`industries.${slug}`)} <b className="font-medium opacity-80">{counts.get(m)}</b></Link> })}
+        {total === 0 && <p className="text-sm text-white/80">{t('industries.comingSoon')}</p>}
+      </div>
     </div>
-    <div className="flex flex-1 flex-wrap content-start gap-1.5 p-4">{family.members.filter(m => (counts.get(m) ?? 0) > 0).map(m => { const slug = INDUSTRIES.find(x => x.canonical === m)?.slug; return <Link key={m} to="/jobs" search={{ industry: slug }} className="rounded-md bg-secondary px-2.5 py-1 text-xs text-foreground transition-colors hover:text-primary">{t(`industries.${slug}`)} <b className="text-primary">{counts.get(m)}</b></Link> })}{total === 0 && <p className="text-sm text-muted-foreground">{t('industries.comingSoon')}</p>}</div>
   </div>
 }
 
@@ -582,7 +588,7 @@ function LandingPage() {
         </div>
       </div></section>
 
-      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-2xl font-medium text-foreground sm:text-[2rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-full min-h-64 flex-col justify-end overflow-hidden rounded-xl p-5 text-white"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover" /><div className="absolute inset-0 bg-black/55" /><h3 className="relative font-medium">{t('industries.ctaTitle')}</h3><p className="relative mt-1.5 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
+      <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-20 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-full snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group relative flex h-[30rem] flex-col justify-end overflow-hidden rounded-2xl p-6 text-white sm:h-[34rem] sm:p-7"><img src="/images/industry-engineering-construction.webp" alt="" loading="lazy" decoding="async" className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]" /><div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25" /><h3 className="relative text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="relative mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="relative pt-3 text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></Link></div></IndustrySlides></SectionReveal></div></section>
       <CityShowcase />
 
       {/* ── Why bilingual talent ────────────────────────────── */}
