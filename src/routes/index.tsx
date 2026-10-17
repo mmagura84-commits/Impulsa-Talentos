@@ -124,24 +124,18 @@ function LandingCTAs() {
   )
 }
 
-/* ── Live job feed — auto-rotating animated widget ─────────── */
+/* ── Live job board — the newest open roles, three at a time ──
+   A flat band: a heading with a live dot and one link, then up to three
+   white 12px cards (logo tile, title, company and place, pay, languages).
+   No rotation and no motion; the roles update when the data does. */
 const compactMoney = (v: number, locale: string) =>
   new Intl.NumberFormat(locale === 'es' ? 'es-CO' : locale === 'pt' ? 'pt-BR' : 'en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(v).replace(/\s/g, '')
 function JobFeedPreview() {
   const { t, locale } = useI18n()
   const { data: jobs } = useHomeJobs()
   const { data: companies } = useHomeCompanies()
-  const reduce = usePrefersReducedMotion()
-  const [index, setIndex] = useState(0)
-  const [rotated, setRotated] = useState(false)
-  const [paused, setPaused] = useState(false)
   const companyMap = new Map((companies ?? []).map((c: Company) => [c.id, c]))
-  const featured = (jobs ?? []).filter(isOpen)
-  useEffect(() => {
-    if (reduce || paused || featured.length < 2) return
-    const id = window.setInterval(() => { setRotated(true); setIndex((i) => (i + 1) % featured.length) }, 3000)
-    return () => window.clearInterval(id)
-  }, [reduce, paused, featured.length])
+  const featured = (jobs ?? []).filter(isOpen).slice(0, 3)
   const card = (job: Job) => {
     const company = companyMap.get(job.companyId)
     const salary =
@@ -150,21 +144,33 @@ function JobFeedPreview() {
           ? `$${compactMoney(job.salaryMin, locale)}–$${compactMoney(job.salaryMax, locale)}`
           : `${job.currency} ${compactMoney(job.salaryMin, locale)}–${compactMoney(job.salaryMax, locale)}`
         : t('jobs.salaryTBD')
-    // Every row is a single line (truncated), so each job renders at exactly
-    // the same height and the rotating card never makes the hero jump.
-    return <Link to="/jobs/$id" params={{ id: job.id }} className="group flex items-center gap-3 p-4 transition-colors hover:bg-secondary">
-      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md bg-secondary text-sm font-medium text-primary">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full rounded-md object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
-      <div className="min-w-0 flex-1 leading-tight">
-        <p className="truncate text-sm font-medium text-foreground group-hover:text-primary">{job.title}</p>
-        <p className="mt-1 flex min-w-0 items-center gap-1 text-xs text-muted-foreground"><span className="truncate">{company?.name ?? 'Impulsa Talentos partner'}</span><span aria-hidden className="shrink-0">·</span><MapPin className="size-3 shrink-0" /><span className="truncate">{formatLocationType(job.locationType, t)}</span></p>
-        <p className="mt-1.5 flex min-w-0 items-center gap-2 text-xs"><span className="shrink-0 font-medium text-foreground">{salary}</span><span className="truncate text-xs text-muted-foreground">{formatLanguageList(job.languagesRequired, t)}</span></p>
-      </div><ArrowRight className="size-4 shrink-0 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100" />
-    </Link>
+    return (
+      <li key={job.id} className="min-w-0">
+        <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col gap-4 rounded-xl bg-card p-5 transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-sm font-medium text-primary">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
+            <p className="min-w-0 truncate text-sm text-muted-foreground">{company?.name ?? 'Impulsa Talentos partner'}</p>
+          </div>
+          <h3 className="line-clamp-2 min-h-[2.75rem] text-base font-medium leading-snug text-foreground group-hover:text-primary">{job.title}</h3>
+          <div className="mt-auto flex flex-col gap-1.5 text-sm">
+            <p className="flex min-w-0 items-center gap-1.5 text-muted-foreground"><MapPin className="size-4 shrink-0" /><span className="truncate">{formatLocationType(job.locationType, t)}</span></p>
+            <p className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1"><span className="font-medium text-foreground">{salary}</span><span className="truncate text-muted-foreground">{formatLanguageList(job.languagesRequired, t)}</span></p>
+          </div>
+        </Link>
+      </li>
+    )
   }
-  return <div data-testid="hero-live-feed" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} className="w-full overflow-hidden rounded-lg bg-card" aria-label={t('landing.feedTitle')}>
-    <div className="flex items-center justify-between px-4 py-3"><div className="flex items-center gap-2 text-sm font-medium text-foreground"><span aria-hidden className="inline-flex size-2 rounded-full bg-primary" />{t('landing.feedLiveLabel')}</div><Link to="/jobs" className="inline-flex items-center text-sm font-medium text-primary hover:underline">{t('landing.feedViewAll')} →</Link></div>
-    {featured.length === 0 ? <div className="p-4"><div className="h-20 rounded-md bg-secondary" /></div> : reduce ? <div>{featured.slice(0, 3).map(card)}</div> : <div key={featured[index % featured.length]?.id} className={rotated ? 'feed-in' : undefined}>{card(featured[index % featured.length])}</div>}
-  </div>
+  return (
+    <div data-testid="hero-live-feed" className="w-full" aria-label={t('landing.feedTitle')}>
+      <div className="flex items-center justify-between gap-4">
+        <h2 className="flex items-center gap-2 text-lg font-medium text-foreground sm:text-2xl"><span aria-hidden className="inline-flex size-2 shrink-0 rounded-full bg-primary" />{t('landing.feedLiveLabel')}</h2>
+        <Link to="/jobs" className="inline-flex min-h-8 shrink-0 items-center whitespace-nowrap rounded-md px-3 text-sm font-medium text-primary transition-colors hover:bg-card focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">{t('landing.feedViewAll')} →</Link>
+      </div>
+      {featured.length === 0
+        ? <div className="mt-5 grid gap-4 sm:grid-cols-3"><div className="h-40 rounded-xl bg-card" /><div className="hidden h-40 rounded-xl bg-card sm:block" /><div className="hidden h-40 rounded-xl bg-card sm:block" /></div>
+        : <ul className="mt-5 grid gap-4 sm:grid-cols-3">{featured.map(card)}</ul>}
+    </div>
+  )
 }
 /* ── Stats bar — LIVE numbers from Supabase ────────────────── */
 function StatsBar() {
@@ -191,7 +197,7 @@ function CompanyRibbon({ companies }: { companies: Company[] }) {
   const set = (link: boolean) => companies.map((c) => (
     <span key={(link ? 'a' : 'b') + c.id} aria-hidden={!link} className="flex shrink-0 items-center gap-6 px-4 text-sm font-medium text-white sm:gap-8 sm:px-5 sm:text-base">
       {link
-        ? <Link to="/companies/$id" params={{ id: c.id }} className="rounded-md px-1 text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">{c.name}</Link>
+        ? <Link to="/companies/$id" params={{ id: c.id }} className="min-h-0 min-w-0 rounded-md px-1 text-white transition-colors hover:bg-white/15 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white">{c.name}</Link>
         : <span>{c.name}</span>}
       <span aria-hidden="true" className="size-1.5 rounded-full bg-white/50" />
     </span>
@@ -395,7 +401,7 @@ function CityShowcase() {
             onClick={() => { pause(); goTo(i) }}
             aria-label={t(`landing.city${capitalize(city.key)}`)}
             aria-current={i === active ? 'true' : undefined}
-            className="flex size-6 items-center justify-center rounded-full"
+            className="flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full"
           >
             <span className={`block size-2 rounded-full transition-colors ${i === active ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
           </button>
@@ -514,12 +520,12 @@ function LandingPage() {
           <p className="mt-4 max-w-xl text-sm leading-relaxed text-white sm:text-base">{t('landing.heroSub')}</p>
           <div className="mt-8 w-full sm:w-auto"><LandingCTAs /></div>
         </div>
-        <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
+        <div className="absolute inset-x-0 bottom-6 z-10 flex items-center justify-center">{HERO_SLIDES.map((key,i)=><button key={key} type="button" onClick={()=>showSlide(i)} aria-label={key.replace(/-/g, ' ')} aria-current={i === slide ? 'true' : undefined} className="group flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"><span className={`block size-2 rounded-full transition-colors ${i===slide?'bg-white':'bg-white/40 group-hover:bg-white/70'}`} /></button>)}</div>
         <p className="absolute bottom-1 left-3 z-10 hidden max-w-[70%] text-[10px] leading-tight text-white/70 sm:left-6 sm:block">Original industry imagery · Generated for Impulsa Talentos</p>
       </section>
       <CompanyRibbon companies={companies} />
       {/* The live job feed sits in its own flat band under the ribbon at every width. */}
-      <section className="bg-secondary px-5 py-8 sm:py-10"><div className="mx-auto max-w-2xl"><JobFeedPreview /></div></section>
+      <section className="bg-secondary px-5 py-10 sm:py-14"><div className="mx-auto max-w-6xl"><JobFeedPreview /></div></section>
       <StatsBar />
       {/* ── How it works — candidate journey ────────────────── */}
       <section className="section-tint"><div className="mx-auto max-w-6xl px-5 py-12 sm:py-20">
