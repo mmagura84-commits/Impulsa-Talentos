@@ -15,13 +15,15 @@ Mark each when checked, with date and who checked.
 
 | Setting | Where | Recommended | Checked |
 |---|---|---|---|
-| Branch protection on `main` (PR + passing `security` checks) | GitHub → Settings → Branches | on | ☐ |
+| Branch protection on `main` (at minimum: block deletion and force-push; PR + passing `security` checks if the owner is willing) | GitHub → Settings → Rules | on | ☐ none exists (creation declined by the automation guard 2026-10-17; owner to create) |
 | Secret scanning + push protection | GitHub → Settings → Code security | on | ☑ already on (seen 2026-10-17) |
 | Dependabot alerts, dependency graph, private vulnerability reporting | same | on | ☑ enabled 2026-10-17 |
-| Pages → Enforce HTTPS | GitHub → Settings → Pages | on | ☐ |
-| Auth rate limits, CAPTCHA, leaked-password protection, email confirmation (confirmed on) | Supabase → Auth | on/tuned | ☐ |
+| Pages → Enforce HTTPS | GitHub → Settings → Pages | on | ☑ on (seen 2026-10-17) |
+| Auth rate limits (defaults, acceptable) · email confirmation (on) · TOTP MFA for users (on) | Supabase → Auth | on/tuned | ☑ seen 2026-10-17 |
+| CAPTCHA on sign-up/sign-in | Supabase → Auth → Attack protection | on (needs Turnstile/hCaptcha keys + frontend change) | ☐ off |
+| Leaked-password protection | same | on | ☐ off — needs Supabase Pro |
 | MFA for all dashboard members; org SSO if available | Supabase / GitHub / Google / Wompi / Resend | on | ☐ |
-| Database backups / PITR | Supabase → Database → Backups | enabled, restore tested | ☐ |
+| Database backups / PITR | Supabase → Database → Backups | enabled, restore tested | ☒ **none: Free plan has no backups** — upgrade to Pro (cost) or schedule your own export |
 | Google OAuth client: authorized JS origin `https://impulsatalentos.expert` | Google Cloud → Auth Platform → Clients | present (**seen present 2026-10-17**) | ☑ |
 | Service-role key never in client or repo | Supabase / secret scan | confirmed by scan | ☑ (scan) |
 | Edge function secrets rotated on staff change | Supabase → Functions → Secrets | per runbook | ☐ |

@@ -20,11 +20,23 @@ Run on 2026-10-17 in a sandbox with a local Postgres 16. "Live" means the produc
 - `/`, `/jobs/`, `/dashboard/` serve the CSP; an injected inline script was blocked by the browser (policy enforced); sign-in page works; Google's button renders on the site domain; no CSP errors in the console.
 - CI run #10 failed on the new secret-scan gate (a test fixture contained a private-key header); fixed in the next commit and run #11 passed. This shows the gate works.
 
+## Live database and function (applied 2026-10-17, with the owner's explicit approval)
+- Pre-check (read-only): tables/columns/helper functions present; 3 leads, none over the new length limits.
+- Migration 052 applied in the Supabase SQL editor; no errors. Verified from the catalog: triggers `trg_leads_rate` and `trg_reports_rate` exist; `leads_field_lengths` present (NOT VALID by design); `cv_parse_log` has RLS on; `anon` cannot execute `claim_cv_parse()` or `guard_public_insert_rate()`; `anon` cannot read or write `cv_parse_log`; `authenticated` can execute `claim_cv_parse()`; `record_web_vitals` is capped.
+- Live `parse-cv` index.ts/extract.ts compared with the repo before the change (index.ts identical; extract.ts differed only by a character-class space that had lost its `\u00a0`); after editing, both buffers hash identically to the repo files; deployed. Smoke tests: no-header call → 401 from the platform JWT gate; anon-key call → 401 `sign in required` from the new code; anon call of `claim_cv_parse` over REST → 42501 permission denied.
+- Not exercised live: a real signed-in CV upload (needs a user session), so the 429 path on production was only tested with mocks.
+
+## Settings checked on 2026-10-17
+- GitHub Pages "Enforce HTTPS": **on**. Secret scanning and push protection: **on**. Dependency graph, Dependabot alerts, private vulnerability reporting: **enabled today**.
+- Branch protection: **none exists**. Creating a ruleset was declined by the automation guard (access-control change); it is a pending one-click item for the owner.
+- Supabase Auth: TOTP MFA enabled for users; rate limits at defaults (per IP: 360 sign-up/sign-in per hour, 1800 refreshes per hour); email confirmation on; CAPTCHA **off**; leaked-password check **off** (needs Pro).
+- Supabase backups: **Free plan has no project backups at all**. This is the largest operational risk found in the settings review.
+- A billing banner ("Outstanding invoices in other organizations") shows in the Supabase dashboard; it concerns another organization but could interrupt service if unpaid.
+
 ## Not done / not verified
-- **Live database:** migration 052 and the new `parse-cv` were **not applied** to production from this session (the automation guard refused production SQL). See `09-…` for the steps. Until applied, F-03/F-04/F-06 server-side protections are not live.
 - Real-browser run of the F-01 payloads on the deployed site (unit tests only).
 - Google Identity Services button in a real signed-in flow (needs a human Google account); the fallback redirect button remains.
-- No load or destructive tests. Supabase dashboard settings, third-party accounts and GitHub repo settings: unverified (checklist in `04-…`).
+- No load or destructive tests on production (caps are exercised by the local database tests; flooding production would add junk data). MFA on the owner's own Google/GitHub/Supabase/Wompi/Resend accounts cannot be seen from here.
 
 ## Residual risks
 1. **No real HTTP security headers** while hosted on GitHub Pages: no HSTS, no `frame-ancestors`, no `nosniff`. Recommend Cloudflare (or similar) in front.

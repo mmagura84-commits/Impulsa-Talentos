@@ -1,0 +1,37 @@
+name: Uptime and security-header check
+# Every 30 minutes: the public pages answer, the Content-Security-Policy is still
+# being served, and the Supabase API/auth is up. A failure makes GitHub email the
+# repository owner (Settings → Notifications → Actions). Read-only: plain GETs.
+on:
+  schedule:
+    - cron: '7,37 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Public pages respond and carry the CSP
+        run: |
+          set -euo pipefail
+          for p in / /jobs/ /for-employers/ /dashboard/; do
+            code=$(curl -sS -o /tmp/page.html -w '%{http_code}' --max-time 20 "https://impulsatalentos.expert$p")
+            [ "$code" = 200 ] || { echo "::error::$p answered HTTP $code"; exit 1; }
+            grep -q 'http-equiv="Content-Security-Policy"' /tmp/page.html || { echo "::error::$p is served without its Content-Security-Policy"; exit 1; }
+          done
+          echo "pages OK"
+      - name: Certificate is valid for at least 14 more days
+        run: |
+          set -euo pipefail
+          end=$(echo | openssl s_client -servername impulsatalentos.expert -connect impulsatalentos.expert:443 2>/dev/null | openssl x509 -noout -enddate | cut -d= -f2)
+          days=$(( ( $(date -d "$end" +%s) - $(date +%s) ) / 86400 ))
+          echo "certificate valid for $days days"
+          [ "$days" -ge 14 ] || { echo "::error::TLS certificate expires in $days days"; exit 1; }
+      - name: Supabase auth service is healthy
+        run: |
+          set -euo pipefail
+          code=$(curl -sS -o /dev/null -w '%{http_code}' --max-time 20 "https://cmdqlybsgkegolqydmbh.supabase.co/auth/v1/health" -H "apikey: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNtZHFseWJzZ2tlZ29scXlkbWJoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYxNDYxNzksImV4cCI6MjEwMTcyMjE3OX0.VTalByKsYkNvc7JX9OIkAk--7Ex7UeCZYSvlwDb9Lr4")
+          [ "$code" = 200 ] || { echo "::error::Supabase auth health answered HTTP $code"; exit 1; }
+          echo "supabase auth OK"

@@ -6,6 +6,7 @@
 3. Verify: view-source of `/` contains `Content-Security-Policy`; sign-in page loads; browser console shows **no CSP violations** on `/`, `/jobs/`, `/dashboard`, the Google button renders.
 
 ## Database (Supabase) — done by hand, in this order
+_Status 2026-10-17: steps 1 and 2 were applied to production with the owner's approval (see `08-…`)._
 1. Apply `supabase/migrations/052_abuse_limits.sql` (SQL editor or CLI). It is additive; rollback notes are in its header.
 2. Deploy `supabase/functions/parse-cv` (keep its existing JWT-verification setting). It works with or without step 1.
 3. Run the checks at the bottom of `supabase/tests/10_role_permissions.sql` logic against staging if available.
