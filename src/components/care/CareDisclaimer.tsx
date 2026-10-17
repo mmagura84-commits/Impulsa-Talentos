@@ -11,7 +11,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 export function CareSummaryDisclaimer({ compact = false }: { compact?: boolean }) {
   const { t } = useI18n()
   return (
-    <div className="rounded-lg border border-muted bg-muted/30 p-4 text-xs text-muted-foreground">
+    <div className="rounded-lg border border-muted bg-muted/30 p-4 text-sm leading-relaxed text-muted-foreground">
       <div className="flex items-start gap-2">
         <ShieldAlert className="mt-0.5 size-4 shrink-0 text-amber-600" aria-hidden="true" />
         <div className="space-y-2">

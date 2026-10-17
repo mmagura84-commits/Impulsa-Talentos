@@ -119,8 +119,32 @@ function CompareTable() {
   ]
   return (
     <section className="mt-14">
-      <h2 className="text-center font-serif text-xl font-bold mb-6">{t('pricing.compare.title')}</h2>
-      <div className="overflow-x-auto rounded-xl border">
+      <h2 className="mb-6 hidden text-center font-serif text-xl font-bold sm:block">{t('pricing.compare.title')}</h2>
+      {/* Phones: the 4-column table does not fit, so each plan gets a block listing every row.
+          It repeats detail already shown on the plan cards, so it sits in a native
+          collapsible section (keyboard and screen-reader friendly, closed by default). */}
+      <details className="group sm:hidden">
+        <summary className="flex min-h-11 cursor-pointer list-none items-center justify-between rounded-xl border bg-card px-4 py-3 [&::-webkit-details-marker]:hidden">
+          <h2 className="font-serif text-xl font-bold">{t('pricing.compare.title')}</h2>
+          <span aria-hidden="true" className="text-2xl leading-none transition-transform group-open:rotate-45">+</span>
+        </summary>
+      <div className="mt-4 space-y-4">
+        {heads.map((h, col) => (
+          <div key={h.name} className="rounded-xl border bg-card p-4">
+            <h3 className="text-lg font-semibold">{h.name}</h3>
+            <dl className="mt-3 divide-y divide-border text-base">
+              {rows.map(r => (
+                <div key={r.label} className="flex items-start justify-between gap-4 py-2.5">
+                  <dt className="text-muted-foreground">{r.label}</dt>
+                  <dd className="max-w-[55%] text-right">{r.cells[col]}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        ))}
+      </div>
+      </details>
+      <div className="hidden overflow-x-auto rounded-xl border sm:block">
         <table className="w-full border-collapse text-sm">
           <thead>
             <tr className="bg-muted/50">

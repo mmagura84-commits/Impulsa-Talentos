@@ -195,7 +195,7 @@ function GlobalFooter() {
       <nav
         aria-label={t('footer.pricing') === 'Pricing' ? 'Footer' : 'Pie de página'}
         data-site-footer
-        className="mx-auto flex max-w-sm flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-xs leading-tight text-muted-foreground sm:max-w-none sm:gap-x-4 sm:gap-y-1"
+        className="mx-auto flex max-w-sm flex-wrap items-center justify-center gap-x-3.5 gap-y-2 text-sm leading-tight text-muted-foreground sm:max-w-none sm:gap-x-4 sm:gap-y-1 sm:text-xs"
       >
         {/* Last on phones (it closes the second row), first on wider screens.
             min-h-11 matches the 44px tap target the links get on phones (see

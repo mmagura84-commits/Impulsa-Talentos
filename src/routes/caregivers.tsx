@@ -72,10 +72,10 @@ function CaregiversDirectoryPage() {
         </div>
 
         {/* Filters */}
-        <div className="mb-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mb-8 grid grid-cols-2 gap-3 lg:grid-cols-5">
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.careType')}</span>
-            <select value={competency} onChange={e => setCompetency(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <span className="mb-1 block text-sm font-medium text-muted-foreground">{t('care.directory.filter.careType')}</span>
+            <select value={competency} onChange={e => setCompetency(e.target.value)} className="h-11 w-full rounded-md border border-input bg-background px-3 text-base sm:h-10 sm:text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_COMPETENCIES.map(c => (
                 <option key={c} value={c}>{t(CARE_COMPETENCY_KEYS[c])}</option>
@@ -83,8 +83,8 @@ function CaregiversDirectoryPage() {
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.comuna')}</span>
-            <select value={comuna} onChange={e => { setComuna(e.target.value); setBarrio('') }} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <span className="mb-1 block text-sm font-medium text-muted-foreground">{t('care.directory.filter.comuna')}</span>
+            <select value={comuna} onChange={e => { setComuna(e.target.value); setBarrio('') }} className="h-11 w-full rounded-md border border-input bg-background px-3 text-base sm:h-10 sm:text-sm">
               <option value="">{t('care.directory.all')}</option>
               {MEDELLIN_COMUNAS.map(c => (
                 <option key={c} value={c}>{c}</option>
@@ -92,8 +92,8 @@ function CaregiversDirectoryPage() {
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.barrio')}</span>
-            <select value={barrio} onChange={e => setBarrio(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <span className="mb-1 block text-sm font-medium text-muted-foreground">{t('care.directory.filter.barrio')}</span>
+            <select value={barrio} onChange={e => setBarrio(e.target.value)} className="h-11 w-full rounded-md border border-input bg-background px-3 text-base sm:h-10 sm:text-sm">
               <option value="">{t('care.directory.all')}</option>
               {barriosForComuna.map(b => (
                 <option key={b.name} value={b.name}>{b.name}</option>
@@ -101,17 +101,17 @@ function CaregiversDirectoryPage() {
             </select>
           </label>
           <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.live')}</span>
-            <select value={live} onChange={e => setLive(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+            <span className="mb-1 block text-sm font-medium text-muted-foreground">{t('care.directory.filter.live')}</span>
+            <select value={live} onChange={e => setLive(e.target.value)} className="h-11 w-full rounded-md border border-input bg-background px-3 text-base sm:h-10 sm:text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_LIVE_MODES.map(m => (
                 <option key={m} value={m}>{t(CARE_LIVE_MODE_KEYS[m])}</option>
               ))}
             </select>
           </label>
-          <label className="block">
-            <span className="mb-1 block text-xs font-medium text-muted-foreground">{t('care.directory.filter.cert')}</span>
-            <select value={cert} onChange={e => setCert(e.target.value)} className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm">
+          <label className="col-span-2 block lg:col-span-1">
+            <span className="mb-1 block text-sm font-medium text-muted-foreground">{t('care.directory.filter.cert')}</span>
+            <select value={cert} onChange={e => setCert(e.target.value)} className="h-11 w-full rounded-md border border-input bg-background px-3 text-base sm:h-10 sm:text-sm">
               <option value="">{t('care.directory.all')}</option>
               {CARE_CERTIFICATIONS.map(c => (
                 <option key={c} value={c}>{t(CARE_CERTIFICATION_KEYS[c])}</option>
@@ -171,7 +171,7 @@ function CaregiversDirectoryPage() {
                   {(c.certifications?.length ?? 0) > 0 && (
                     <div className="flex items-start gap-2">
                       <Award className="mt-0.5 size-3.5 shrink-0" aria-hidden="true" />
-                      <span className="line-clamp-2">
+                      <span>
                         {t('care.directory.certifications')}: {c.certifications.map(cert => t(CARE_CERTIFICATION_KEYS[cert as keyof typeof CARE_CERTIFICATION_KEYS] ?? 'care.cert.cpr')).join(', ')}
                       </span>
                     </div>
@@ -179,7 +179,7 @@ function CaregiversDirectoryPage() {
                 </dl>
 
                 {c.about && (
-                  <p className="mt-3 line-clamp-2 text-sm text-foreground/80">{c.about}</p>
+                  <p className="mt-3 text-sm leading-relaxed text-foreground/80">{c.about}</p>
                 )}
 
                 <div className="mt-auto pt-4">

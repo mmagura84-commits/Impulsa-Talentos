@@ -20,6 +20,7 @@ export function safeHref(raw: string): string {
     } catch { return '#' }
   }
   // "/path" only: "//host" and "/\host" are protocol-relative in browsers.
+  // eslint-disable-next-line no-control-regex -- control characters are exactly what this check rejects
   if (/^\/(?![/\\])/.test(url) && !/[\s\u0000-\u001f]/.test(url)) return url
   return '#'
 }
