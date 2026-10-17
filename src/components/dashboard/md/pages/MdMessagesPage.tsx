@@ -7,7 +7,6 @@ import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { logMdAudit } from '@/lib/mdAudit'
 import { useI18n } from '@/i18n/I18nProvider'
-import { MdNav } from '@/components/MdNav'
 
 type MdMessage = {
   id: string
@@ -57,7 +56,7 @@ export function Messages() {
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard">
       <div className="mx-auto max-w-3xl p-6">
-        <MdNav />
+        
         <h1 className="text-3xl font-bold">{t('md.messages.title')}</h1>
         <div className="mt-6 flex gap-2">
           <Button variant={tab === 'inbox' ? 'default' : 'outline'} onClick={() => setTab('inbox')}>{t('md.messages.inbox')}</Button>

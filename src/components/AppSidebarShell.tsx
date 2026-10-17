@@ -78,17 +78,19 @@ const ADMIN_NAV: NavItemDef[] = [
   { to: '/profile', icon: <User className="size-4" />, labelKey: 'common.profile' },
 ]
 
-function NavItem({ item, collapsed, label, accent }: { item: NavItemDef; collapsed: boolean; label: string; accent: 'gold' | 'navy' | 'ink' }) {
+/* The sidebar background is light for every role, so every accent uses the same dark-on-light colors
+   (the old 'ink' variant used white text and made the MD and Admin menus nearly invisible). */
+function NavItem({ item, collapsed, label }: { item: NavItemDef; collapsed: boolean; label: string; accent?: 'gold' | 'navy' | 'ink' }) {
   const active = typeof window !== 'undefined' && window.location.pathname === item.to
   // Current page: a subtle background highlight, never a stripe or second color.
-  const activeClass = accent === 'ink' ? 'bg-white/10 text-white' : 'bg-secondary text-foreground'
+  const activeClass = 'bg-secondary text-foreground'
   const link = (
     <Link
       to={item.to}
       className={cn(
         'flex items-center gap-2.5 rounded-md text-sm transition-colors cursor-pointer',
         collapsed ? 'justify-center w-8 h-8 mx-auto' : 'px-3 py-2 w-full',
-        accent === 'ink' ? 'text-white/70 hover:bg-white/10 hover:text-white' : 'text-muted-foreground hover:bg-accent hover:text-foreground',
+        'text-muted-foreground hover:bg-accent hover:text-foreground',
         active && activeClass,
       )}
       aria-current={active ? 'page' : undefined}
@@ -198,7 +200,7 @@ export function AppSidebarShell({ navItems, accent = 'navy', headerActions }: { 
           {!collapsed && (
             <div className="px-2 pt-3">
               <span className="inline-flex items-center rounded-md bg-secondary text-primary text-xs font-medium px-2.5 py-1">
-                {role === 'employer' ? t('nav.roleEmployer') : role === 'admin' ? t('nav.roleAdmin') : t('nav.roleCandidate')}
+                {role === 'employer' ? t('nav.roleEmployer') : role === 'admin' ? t('nav.roleAdmin') : role === 'md' ? t('nav.roleMd') : t('nav.roleCandidate')}
               </span>
             </div>
           )}

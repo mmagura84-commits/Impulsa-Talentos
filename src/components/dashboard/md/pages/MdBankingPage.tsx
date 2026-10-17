@@ -10,7 +10,6 @@ import { useAuth, useIsMd } from '@/hooks/useAuth'
 import { supabase } from '@/lib/supabase'
 import { logMdAudit } from '@/lib/mdAudit'
 import { useI18n } from '@/i18n/I18nProvider'
-import { MdNav } from '@/components/MdNav'
 
 type BankRow = {
   bank_name: string
@@ -170,7 +169,7 @@ export function Banking() {
   return (
     <AuthGate fallbackKey="auth.fallback.dashboard">
       <div className="mx-auto max-w-2xl p-6">
-        <MdNav />
+        
         <h1 className="text-3xl font-bold">{t('md.banking.title')}</h1>
         <p className="mt-2 text-muted-foreground">{t('md.banking.description')}</p>
         <p className="mt-1 text-sm text-muted-foreground">{t('md.freezeHint')}</p>
