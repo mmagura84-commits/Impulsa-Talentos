@@ -9,7 +9,7 @@
 // evidence for matching. Extraction failing never fails the upload.
 //
 // Request:  POST /functions/v1/parse-cv  { "path": "cvs/<auth-user-id>/<file>" | "resumes/<profile-id>/<file>" }
-// Response: 200 { format, charCount, extracted } · 400 · 401 · 403 · 413 · 415 · 422 (no text)
+// Response: 200 { format, charCount, extracted } · 400 · 401 · 403 · 413 · 415 · 422 (no text) · 429 (quota)
 import { extractCvText, UnsupportedCvError } from './extract.ts'
 import { CLAUDE_MODEL, extractWithClaude } from './claude.ts'
 
@@ -52,6 +52,15 @@ Deno.serve(async (req) => {
     const owner = m[2].toLowerCase()
     if ((m[1] === 'cvs' && owner !== userId.toLowerCase()) || (m[1] === 'resumes' && owner !== own.id.toLowerCase())) {
       return json({ error: 'not your file' }, 403)
+    }
+
+    // Per-user quota (migration 052): each parse can call the Claude API. Fails open only when
+    // the function does not exist yet (HTTP 404, i.e. the migration has not been applied).
+    const quota = await fetch(`${SUPABASE_URL}/rest/v1/rpc/claim_cv_parse`, {
+      method: 'POST', headers: { ...asUser, 'Content-Type': 'application/json' }, body: '{}',
+    })
+    if (quota.status !== 404 && (!quota.ok || (await quota.json()) !== true)) {
+      return json({ error: 'too many CV uploads — try again in an hour', code: 'rate_limited' }, 429)
     }
 
     const file = await fetch(`${SUPABASE_URL}/storage/v1/object/authenticated/cvs/${path!.split('/').map(encodeURIComponent).join('/')}`, { headers: asUser })

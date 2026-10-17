@@ -1,0 +1,15 @@
+{
+  "_comment": "Accepted npm-audit findings. A package listed here is tolerated by scripts/audit-gate.mjs until its expiry date, after which CI fails again so the decision is revisited. Never add a package without a reason.",
+  "allow": [
+    {
+      "package": "braces",
+      "advisory": "GHSA-vfj7-8cjw-p6xm",
+      "reason": "Stack exhaustion on deeply nested brace patterns. No patched release exists (3.0.3 is the latest and is inside the affected range). Reached only through stylelint's file globbing at lint time on repository-controlled input; not part of the shipped site bundle.",
+      "expires": "2027-01-17"
+    },
+    { "package": "micromatch", "reason": "Depends on braces (same advisory, same reasoning).", "expires": "2027-01-17" },
+    { "package": "fast-glob",  "reason": "Depends on micromatch (same advisory, same reasoning).", "expires": "2027-01-17" },
+    { "package": "globby",     "reason": "Depends on fast-glob (same advisory, same reasoning).", "expires": "2027-01-17" },
+    { "package": "stylelint",  "reason": "Dev-time CSS linter; flagged only through the chain above. npm's suggested fix is a downgrade to 7.7.0, which is not a real remedy.", "expires": "2027-01-17" }
+  ]
+}

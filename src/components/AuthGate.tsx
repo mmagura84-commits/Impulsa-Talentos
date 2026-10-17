@@ -13,6 +13,7 @@ import { useI18n } from '@/i18n/I18nProvider'
 import { LanguageToggle } from '@/components/LanguageToggle'
 import { BrandMark } from '@/components/BrandMark'
 import { ResetPassword } from '@/components/ResetPassword'
+import { GoogleSignInButton } from '@/components/GoogleSignInButton'
 import type { ReactNode } from 'react'
 
 interface AuthGateProps {
@@ -45,8 +46,11 @@ function startsInSignUp(): boolean {
 }
 
 function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage, fallbackDescription, signUpDisabled }: AuthGateProps) {
-  const { isAuthenticated, isLoading, signInWithPassword, signUpWithPassword, resendVerificationEmail, signInWithGoogle } = useAuth()
+  const { isAuthenticated, isLoading, signInWithPassword, signUpWithPassword, resendVerificationEmail, signInWithGoogle, signInWithGoogleIdToken } = useAuth()
   const [googleBusy, setGoogleBusy] = useState(false)
+  // Google's own button (popup tied to this site's domain). Falls back to the redirect button if Google's script can't load.
+  const [gsiReady, setGsiReady] = useState(false)
+  const [gsiFailed, setGsiFailed] = useState(false)
   const { t, locale } = useI18n()
   const [showReset, setShowReset] = useState(false)
   // Password-only auth (owner decision 2026-08-11): magic-link/passwordless
@@ -294,7 +298,23 @@ function AuthGateInner({ children, fallbackKey, fallbackDescKey, fallbackMessage
                 same role choice and data-processing consent apply first. */}
             <div className="space-y-2">
               <div className="flex items-center gap-3 text-xs text-muted-foreground"><span className="h-px flex-1 bg-border" />{t('auth.or')}<span className="h-px flex-1 bg-border" /></div>
-              <Button type="button" variant="outline" size="lg" className="w-full gap-2 font-medium"
+              {!gsiFailed && !(authMode === 'signUp' && !dataConsent) && (
+                <div className={gsiReady ? '' : 'hidden'} aria-busy={googleBusy}>
+                  <GoogleSignInButton
+                    locale={locale}
+                    text={authMode === 'signUp' ? 'signup_with' : 'continue_with'}
+                    onReady={() => setGsiReady(true)}
+                    onUnavailable={() => setGsiFailed(true)}
+                    onCredential={async (token, nonce) => {
+                      if (authMode === 'signUp' && signUpRole) setOnboardingIntent(signUpRole)
+                      setGoogleBusy(true)
+                      const { error } = await signInWithGoogleIdToken(token, nonce)
+                      if (error) { setGoogleBusy(false); setErrorKey(''); setErrorMsg(t('auth.googleFailed')) }
+                    }}
+                  />
+                </div>
+              )}
+              <Button type="button" variant="outline" size="lg" className={`w-full gap-2 font-medium ${gsiReady && !gsiFailed && !(authMode === 'signUp' && !dataConsent) ? 'hidden' : ''}`}
                 disabled={googleBusy || (authMode === 'signUp' && !dataConsent)}
                 onClick={async () => {
                   if (authMode === 'signUp') {

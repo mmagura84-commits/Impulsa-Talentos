@@ -14,6 +14,12 @@ jobs:
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version: 1.4.2
+      - name: Security gates (types, unit tests, secret scan)
+        run: |
+          bun install --frozen-lockfile
+          bun run lint:types
+          bun test tests
+          node scripts/secret-scan.mjs
       - name: Build
         env:
           # LIVE consolidated Supabase project values (2026-08-13).
@@ -47,6 +53,7 @@ jobs:
           PORT: ${{ secrets.HOSTINGER_PORT }}
           USER_: ${{ secrets.HOSTINGER_USER }}
           LIVE: /home/u774117868/websites/0D7T1hSPl/public_html
+          KNOWN_HOSTS: ${{ secrets.HOSTINGER_KNOWN_HOSTS }}
         run: |
           set -euo pipefail
           mkdir -p ~/.ssh
@@ -56,7 +63,19 @@ jobs:
           # different host keys from one connection to the next, so a pinned
           # known_hosts fails with "REMOTE HOST IDENTIFICATION HAS CHANGED"
           # (run #199). The runner is throwaway; the deploy key is the guard.
-          SSH="ssh -i $HOME/.ssh/deploy_key -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=15 -p $PORT"
+          # Security review F-02: when the HOSTINGER_KNOWN_HOSTS secret holds the
+          # host keys of EVERY node (one ssh-keyscan line per key, collected with
+          # scripts/pin-deploy-hostkeys.sh and checked against hPanel), the
+          # connection is verified against them. Without the secret it falls back
+          # to the old unverified behaviour and says so.
+          if [ -n "${KNOWN_HOSTS:-}" ]; then
+            printf '%s\n' "$KNOWN_HOSTS" > ~/.ssh/known_hosts_deploy
+            HK="-o StrictHostKeyChecking=yes -o UserKnownHostsFile=$HOME/.ssh/known_hosts_deploy"
+          else
+            echo "::warning::HOSTINGER_KNOWN_HOSTS is not set — the server's host key is NOT being verified"
+            HK="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null"
+          fi
+          SSH="ssh -i $HOME/.ssh/deploy_key $HK -o LogLevel=ERROR -o ConnectTimeout=15 -p $PORT"
           COUNT=$(find dist -type f | wc -l | tr -d ' ')
           INCOMING="$LIVE/.deploy/incoming"; PREV="$LIVE/.deploy/prev"
           # One compressed stream instead of scp's file-by-file transfer: the

@@ -5,11 +5,14 @@
  *
  * Supports a deliberate subset: bold, italic, inline code, links,
  * bullet/numbered lists, blockquotes, headings (h1-h6), horizontal
- * rules, paragraphs. All input is HTML-escaped first; only an
- * allowlisted URL scheme is permitted for links.
+ * rules, paragraphs. Rendered as React elements (never an HTML string), so
+ * all text is escaped by React; link targets go through `safeHref`
+ * (src/lib/markdownInline.tsx), which allows only http(s), mailto and
+ * same-site paths.
  */
 import type { ReactNode } from 'react'
 import { cn } from '@/lib/utils'
+import { renderInline } from '@/lib/markdownInline'
 
 export function MarkdownPreview({
   source,
@@ -19,13 +22,6 @@ export function MarkdownPreview({
   className?: string
 }) {
   if (!source || !source.trim()) return null
-
-  // Escape HTML, then convert a safe subset of markdown.
-  const escape = (s: string) =>
-    s
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
 
   const lines = source.split('\n')
   type Block =
@@ -102,25 +98,9 @@ export function MarkdownPreview({
     blocks.push({ kind: 'p', text: paraLines.join('\n') })
   }
 
-  const inline = (s: string) => {
-    let out = escape(s)
-    out = out.replace(/`([^`]+)`/g, (_, c) => `<code class="rounded bg-muted px-1 py-0.5 text-[12px]">${c}</code>`)
-    out = out.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
-    out = out.replace(/_([^_]+)_/g, '<em>$1</em>')
-    out = out.replace(/\[([^\]]+)\]\(([^)]+)\)/g, (_, txt, url) => {
-      const safeUrl = /^(https?:|mailto:|\/)/i.test(url) ? url : '#'
-      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer" class="text-primary hover:underline">${txt}</a>`
-    })
-    return out
-  }
-
   const renderItems = (items: string[]): ReactNode[] =>
     items.map((it, j) => (
-      <span
-        key={j}
-        className="block text-sm"
-        dangerouslySetInnerHTML={{ __html: inline(it) }}
-      />
+      <span key={j} className="block text-sm">{renderInline(it)}</span>
     ))
 
   return (
@@ -131,8 +111,7 @@ export function MarkdownPreview({
             <p
               key={idx}
               className="font-serif text-base font-bold text-foreground"
-              dangerouslySetInnerHTML={{ __html: inline(b.text) }}
-            />
+            >{renderInline(b.text)}</p>
           )
         }
         if (b.kind === 'p') {
@@ -140,8 +119,7 @@ export function MarkdownPreview({
             <p
               key={idx}
               className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line"
-              dangerouslySetInnerHTML={{ __html: inline(b.text) }}
-            />
+            >{renderInline(b.text)}</p>
           )
         }
         if (b.kind === 'ul') {
@@ -151,8 +129,7 @@ export function MarkdownPreview({
                 <li
                   key={j}
                   className="text-sm text-muted-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: inline(it) }}
-                />
+                >{renderInline(it)}</li>
               ))}
             </ul>
           )
@@ -164,8 +141,7 @@ export function MarkdownPreview({
                 <li
                   key={j}
                   className="text-sm text-muted-foreground leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: inline(it) }}
-                />
+                >{renderInline(it)}</li>
               ))}
             </ol>
           )

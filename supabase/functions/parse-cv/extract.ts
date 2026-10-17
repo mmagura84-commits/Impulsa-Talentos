@@ -13,6 +13,9 @@ import { strFromU8, unzipSync } from 'fflate'
 
 export type CvFormat = 'pdf' | 'docx'
 export const MAX_CV_TEXT = 20_000
+/** A DOCX is a zip: refuse to inflate any part (or all parts together) beyond these sizes (zip-bomb guard, finding F-06). */
+export const MAX_DOCX_PART_BYTES = 5 * 1024 * 1024
+export const MAX_DOCX_TOTAL_BYTES = 10 * 1024 * 1024
 
 export class UnsupportedCvError extends Error {}
 
@@ -62,11 +65,23 @@ function wordXmlText(xml: string): string {
 
 function docxText(bytes: Uint8Array): string {
   let files: Record<string, Uint8Array>
+  let tooBig = false
+  let total = 0
   try {
-    files = unzipSync(bytes, { filter: f => /^word\/(document|header\d*|footer\d*)\.xml$/.test(f.name) })
+    files = unzipSync(bytes, {
+      filter: f => {
+        if (!/^word\/(document|header\d*|footer\d*)\.xml$/.test(f.name)) return false
+        // originalSize comes from the zip header; fflate never writes past it, so a
+        // header that lies low only truncates the part.
+        total += f.originalSize
+        if (f.originalSize > MAX_DOCX_PART_BYTES || total > MAX_DOCX_TOTAL_BYTES) { tooBig = true; return false }
+        return true
+      },
+    })
   } catch {
     throw new UnsupportedCvError('not a valid DOCX file')
   }
+  if (tooBig) throw new UnsupportedCvError('DOCX is too large once unpacked')
   const main = files['word/document.xml']
   if (!main) throw new UnsupportedCvError('not a Word document (no word/document.xml)')
   const parts = [main, ...Object.entries(files).filter(([n]) => n !== 'word/document.xml').map(([, v]) => v)]

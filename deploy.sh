@@ -25,9 +25,25 @@ REMOTE_PATH="${DEPLOY_PATH:-/home/u774117868/websites/0D7T1hSPl/public_html}"
 LIVE_REF="cmdqlybsgkegolqydmbh"
 LEGACY_REF="wpnkeryyhsdsislqaegb"
 
-# Hostinger rotates host keys across its SSH nodes (see the workflow note), so
-# strict pinning breaks every other connection; the deploy key is the guard.
-SSH_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o ConnectTimeout=20 -i "$SSH_KEY")
+# Hostinger rotates host keys across its SSH nodes, so a single pinned key breaks
+# every other connection. Security review F-02: verify against a known_hosts file
+# that lists the keys of ALL the nodes (build it once with
+# scripts/pin-deploy-hostkeys.sh, after checking the fingerprints in hPanel).
+# If that file does not exist the deploy stops, unless you accept the risk for
+# this run with DEPLOY_INSECURE_HOSTKEY=1 (the old behaviour: anyone on the
+# network path could then impersonate the server).
+KNOWN_HOSTS_FILE="${DEPLOY_KNOWN_HOSTS:-$HOME/.ssh/hostinger_known_hosts}"
+if [ -s "$KNOWN_HOSTS_FILE" ]; then
+  HOSTKEY_OPTS=(-o StrictHostKeyChecking=yes -o "UserKnownHostsFile=$KNOWN_HOSTS_FILE")
+elif [ "${DEPLOY_INSECURE_HOSTKEY:-0}" = "1" ]; then
+  echo "WARNING: host key NOT verified (DEPLOY_INSECURE_HOSTKEY=1)" >&2
+  HOSTKEY_OPTS=(-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null)
+else
+  echo "No pinned host keys at $KNOWN_HOSTS_FILE." >&2
+  echo "Run scripts/pin-deploy-hostkeys.sh once, or set DEPLOY_INSECURE_HOSTKEY=1 to skip verification for this run." >&2
+  exit 1
+fi
+SSH_OPTS=("${HOSTKEY_OPTS[@]}" -o LogLevel=ERROR -o ConnectTimeout=20 -i "$SSH_KEY")
 REMOTE="$REMOTE_USER@$REMOTE_HOST"
 INCOMING="${REMOTE_PATH%/}/.deploy/incoming"   # inside public_html: the account can't
 PREV="${REMOTE_PATH%/}/.deploy/prev"           # write next to it; .htaccess blocks /.deploy

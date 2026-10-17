@@ -694,3 +694,46 @@ select t.reset();
 select t.act_as('00000000-0000-0000-0000-0000000000a1');
 select t.expect_rows('HQ gets an all-pages row and one row per page', $$select * from public.hq_web_vitals_summary(7) where device = 'mobile'$$, 3);
 select t.reset();
+
+-- ── Abuse limits (052) ──
+select t.reset();
+select t.act_as_anon();
+select t.expect_ok('a visitor can still send the lead form', $$insert into public.leads (email, name, source) values ('probe1@example.com', 'Probe', 'pricing')$$);
+select t.expect_error('an oversized lead field is rejected', $$insert into public.leads (email, name, source) values (repeat('a', 300) || '@example.com', 'Probe', 'pricing')$$);
+select t.reset();
+insert into public.leads (email, name, source) select 'seed' || g || '@example.com', 'Seed', 'seed' from generate_series(1, 300) g;
+select t.act_as_anon();
+select t.expect_error('the hourly cap stops a lead flood', $$insert into public.leads (email, name, source) values ('flood@example.com', 'Flood', 'x')$$);
+select t.reset();
+select t.act_as('00000000-0000-0000-0000-0000000000a1');
+select t.expect_ok('HQ is not held to the visitor cap', $$insert into public.leads (email, name, source) values ('hq@example.com', 'HQ', 'manual')$$);
+select t.reset();
+delete from public.leads where email like 'seed%@example.com' or email in ('probe1@example.com', 'hq@example.com');
+
+insert into public.reports (job_id, reporter_id, reason) select (select id from public.jobs limit 1), 'seed' || g, 'spam' from generate_series(1, 300) g;
+select t.act_as_anon();
+select t.expect_error('the hourly cap stops a report flood', $$select public.report_job((select id from public.jobs limit 1), 'spam', null)$$);
+select t.reset();
+delete from public.reports where reporter_id like 'seed%';
+
+insert into public.web_vitals (created_at, page, device) values (now() - interval '100 days', '/old', 'mobile');
+select t.act_as_anon();
+do $$ begin for i in 1..1000 loop perform public.record_web_vitals('/ret', 'mobile'); end loop; end $$;  -- ~1% trim chance per call
+select t.reset();
+select t.check('old web vitals are trimmed (retention)', not exists (select 1 from public.web_vitals where page = '/old'));
+insert into public.web_vitals (page, device) select '/flood', 'mobile' from generate_series(1, 1500);
+select t.act_as_anon();
+select public.record_web_vitals('/capped', 'mobile');
+select t.reset();
+select t.check('the per-minute cap drops extra web vitals', not exists (select 1 from public.web_vitals where page = '/capped'));
+delete from public.web_vitals where page in ('/flood', '/ret');
+
+select t.act_as('00000000-0000-0000-0000-0000000000a5');
+select t.check('a candidate may parse a CV (first 10 per hour)', (select bool_and(public.claim_cv_parse()) from generate_series(1, 10)));
+select t.check('the 11th parse in an hour is refused', public.claim_cv_parse() = false);
+select t.expect_error('the parse log table is not readable', $$select * from public.cv_parse_log$$);
+select t.reset();
+select t.act_as_anon();
+select t.expect_error('a visitor cannot claim a CV parse', $$select public.claim_cv_parse()$$);
+select t.reset();
+delete from public.cv_parse_log;

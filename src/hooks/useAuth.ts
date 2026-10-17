@@ -221,6 +221,9 @@ export function useAuth() {
           queryParams: { access_type: 'offline', prompt: 'consent' },
         },
       })),
+    /** Sign in with a Google ID token from Google Identity Services (see GoogleSignInButton). */
+    signInWithGoogleIdToken: (token: string, nonce: string) =>
+      ensureClient().then((supabase) => supabase.auth.signInWithIdToken({ provider: 'google', token, nonce })),
     /** Sign in with Apple OAuth. Requires Apple provider configured in Supabase dashboard. */
     signInWithApple: (redirectTo?: string) =>
       ensureClient().then((supabase) => supabase.auth.signInWithOAuth({

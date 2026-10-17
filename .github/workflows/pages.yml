@@ -28,6 +28,12 @@ jobs:
       - uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
         with:
           bun-version: 1.4.2
+      - name: Security gates (types, unit tests, secret scan)
+        run: |
+          bun install --frozen-lockfile
+          bun run lint:types
+          bun test tests
+          node scripts/secret-scan.mjs
       - name: Build
         env:
           # Same LIVE Supabase project as deploy.yml. The anon key is public by

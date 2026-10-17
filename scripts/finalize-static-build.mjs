@@ -227,8 +227,11 @@ htmlFiles.sort()
   for (const f of htmlFiles) {
     const html = readFileSync(f, 'utf8')
     if (!/<link rel="stylesheet" href="\/assets\//.test(html)) continue
+    if (process.env.FINALIZE_VERBOSE) console.log(`[finalize]   critical CSS: ${f}`)
+    const t0 = Date.now()
     writeFileSync(f, (await beasties.process(html)).replace(' data-beasties-container', ''))
     inlined++
+    if (Date.now() - t0 > 5000) console.log(`[finalize]   slow critical-CSS page (${Date.now() - t0} ms): ${f}`)
   }
   console.log(`[finalize] ✓ critical CSS inlined in ${inlined} pages`)
 }
@@ -292,6 +295,63 @@ for (const f of htmlFiles) {
   injected++
 }
 console.log(`[finalize] ✓ build ${BUILD_ID}: version.json + self-update script in ${injected} pages`)
+
+// ── Content-Security-Policy (security review, finding F-01 / defense in depth) ──
+// None of the hosts (GitHub Pages, Hostinger shared hosting) lets us set response
+// headers, so the policy ships as a <meta http-equiv> in every page. It is built
+// per page: the page's inline scripts are allowed by SHA-256 hash instead of
+// 'unsafe-inline', so an injected <script> or inline handler is refused even if
+// some future bug lets markup through. Not expressible in a meta tag (and so not
+// enforced here): frame-ancestors, report-uri, sandbox. A small inline guard hides
+// the page when it is framed, as a best-effort clickjacking defence.
+// The HTML parser turns CRLF into LF and NUL into U+FFFD inside script text before the browser
+// hashes it, so hash the text the way the parser will hand it over (a TanStack stream script carries NULs).
+const sha = (t) => `'sha256-${createHash('sha256').update(t.replace(/\r\n?/g, '\n').replace(/\0/g, '\uFFFD'), 'utf8').digest('base64')}'`
+const supabaseOrigin = (() => {
+  const raw = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL || ''
+  try { return new URL(raw).origin } catch { return '' }
+})()
+if (!supabaseOrigin) { console.error('[finalize] CSP: VITE_SUPABASE_URL is not set — refusing to write a policy that would block the API'); process.exit(1) }
+const wsOrigin = supabaseOrigin.replace(/^http/, 'ws')
+const FRAME_GUARD = `try{if(window.top!==window.self)document.documentElement.style.display="none"}catch(e){document.documentElement.style.display="none"}`
+let cspPages = 0
+for (const f of htmlFiles) {
+  let html = readFileSync(f, 'utf8')
+  if (html.includes('http-equiv="Content-Security-Policy"')) continue
+  const scriptHashes = new Set([sha(FRAME_GUARD)])
+  for (const m of html.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/g)) {
+    const attrs = m[1]
+    if (/\ssrc=/.test(attrs) || /type="application\/ld\+json"/.test(attrs)) continue
+    if (m[2].trim() === '') continue
+    scriptHashes.add(sha(m[2]))
+  }
+  const handlerHashes = new Set()
+  for (const m of html.matchAll(/\son(?:load|error|click)="([^"]*)"/g)) handlerHashes.add(sha(m[1].replace(/&#39;|&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, '&')))
+  const policy = [
+    `default-src 'self'`,
+    `script-src 'self' https://accounts.google.com/gsi/client ${[...scriptHashes].join(' ')}${handlerHashes.size ? ` 'unsafe-hashes' ${[...handlerHashes].join(' ')}` : ''}`,
+    `style-src 'self' 'unsafe-inline' https://accounts.google.com/gsi/style`,
+    `img-src 'self' data: blob: https:`,
+    `media-src 'self' blob: https://assets.mixkit.co`,
+    `font-src 'self' data:`,
+    `connect-src 'self' ${supabaseOrigin} ${wsOrigin} https://accounts.google.com/gsi/`,
+    `frame-src https://accounts.google.com/gsi/`,
+    `object-src 'none'`,
+    `base-uri 'self'`,
+    `form-action 'self'`,
+    `worker-src 'self' blob:`,
+    `manifest-src 'self'`,
+    ...(supabaseOrigin.startsWith('https:') ? ['upgrade-insecure-requests'] : []),
+  ].join('; ')
+  const head = html.indexOf('<head>')
+  if (head === -1) continue
+  const cs = html.slice(head, head + 400).match(/<meta charset="[^"]*"\s*\/?>/i)
+  const at = cs ? head + cs.index + cs[0].length : head + 6
+  const tags = `<meta http-equiv="Content-Security-Policy" content="${policy.replace(/"/g, '&quot;')}"><meta name="referrer" content="strict-origin-when-cross-origin"><script>${FRAME_GUARD}</script>`
+  writeFileSync(f, html.slice(0, at) + tags + html.slice(at))
+  cspPages++
+}
+console.log(`[finalize] ✓ Content-Security-Policy meta (hash-based script-src) in ${cspPages} pages`)
 
 // A tiny index.php next to every page, which this host serves ahead of
 // index.html (verified live). It returns the very same bytes, but with

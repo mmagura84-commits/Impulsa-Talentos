@@ -20,6 +20,8 @@ let claudeDown = false
 /** The exact body of the last request made to the Anthropic API. */
 let claudeRequest: Record<string, unknown> | undefined
 let files: Record<string, Uint8Array> = {}
+/** What the fake claim_cv_parse() answers: true = allowed, false = quota used up, 'missing' = migration not applied (404). */
+let quota: boolean | 'missing' = true
 
 beforeAll(async () => {
   ;(globalThis as Record<string, unknown>).Deno = {
@@ -37,6 +39,7 @@ beforeAll(async () => {
     }
     if (!u.startsWith(URL_)) return realFetch(input, init)
     if (u.endsWith('/auth/v1/user')) return auth === 'Bearer good' ? Response.json({ id: USER }) : new Response('{}', { status: 401 })
+    if (u.endsWith('/rest/v1/rpc/claim_cv_parse')) return quota === 'missing' ? new Response('{}', { status: 404 }) : Response.json(quota)
     if (u.includes('/rest/v1/profiles?select=id')) return Response.json([{ id: PROFILE }])
     if (u.includes('/storage/v1/object/authenticated/cvs/')) {
       const path = decodeURIComponent(u.split('/cvs/')[1])
@@ -54,6 +57,26 @@ beforeAll(async () => {
 
 const call = (body: unknown, token = 'good') =>
   handler(new Request(`${URL_}/functions/v1/parse-cv`, { method: 'POST', headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) }))
+
+describe('parse-cv quota (F-03)', () => {
+  test('a user who used up the quota gets 429 and nothing is downloaded or saved', async () => {
+    files = { [`cvs/${USER}/cv.pdf`]: pdf }
+    saved.body = undefined
+    quota = false
+    const res = await call({ path: `cvs/${USER}/cv.pdf` })
+    quota = true
+    expect(res.status).toBe(429)
+    expect((await res.json()).code).toBe('rate_limited')
+    expect(saved.body).toBeUndefined()
+  })
+  test('before migration 052 is applied (rpc missing) uploads keep working', async () => {
+    files = { [`cvs/${USER}/cv.pdf`]: pdf }
+    quota = 'missing'
+    const res = await call({ path: `cvs/${USER}/cv.pdf` })
+    quota = true
+    expect(res.status).toBe(200)
+  })
+})
 
 describe('parse-cv handler', () => {
   test('reads the caller\'s own CV and saves the text on their profile', async () => {
