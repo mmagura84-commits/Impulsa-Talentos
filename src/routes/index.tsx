@@ -630,9 +630,15 @@ function LandingPage() {
           over the photo, one flat dark overlay keeps the white text readable, a
           single headline and at most two buttons, circle dots to switch photos.
           -mt-16: the hero extends up behind the transparent sticky header (h-16). */}
-      <section className="relative isolate -mt-16 flex min-h-[70svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
+      <section className="relative isolate -mt-16 flex min-h-[84svh] flex-col overflow-hidden" onMouseEnter={() => { pausedRef.current = true }} onMouseLeave={() => { pausedRef.current = document.hidden }} onFocusCapture={() => { pausedRef.current = true }} onBlurCapture={() => { pausedRef.current = document.hidden }}>
         <div className="absolute inset-0 z-0" aria-hidden="true">
-          {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => <img key={i} src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className={`absolute inset-0 size-full object-cover object-center ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`} />)}
+          {[prevSlide, slide].filter((i): i is number => i !== null).map((i) => (
+            <div key={i} className={`absolute inset-0 ${i === slide && prevSlide !== null ? 'hero-fade-in' : ''}`}>
+              {/* Soft fill behind the photo so the whole picture can be shown (object-contain) with no bars. */}
+              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt="" aria-hidden="true" loading="lazy" decoding="async" className="absolute inset-0 size-full scale-110 object-cover object-center opacity-70 blur-2xl" />
+              <img src={INDUSTRY_HERO_PHOTOS[HERO_SLIDES[i]]} alt={i === slide ? t(INDUSTRY_HERO_ALT_KEYS[HERO_SLIDES[i]]) : ''} loading={i === INITIAL_HERO_SLIDE ? 'eager' : 'lazy'} fetchPriority={i === INITIAL_HERO_SLIDE ? 'high' : 'auto'} decoding="async" className="absolute inset-0 size-full object-contain object-center" />
+            </div>
+          ))}
           <div className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/25 to-black/65" />
         </div>
         <div className="relative z-10 mx-auto flex w-full max-w-[88rem] flex-1 flex-col items-center justify-center px-5 pb-24 pt-32 text-center sm:px-6 lg:px-10">
