@@ -16,7 +16,9 @@ jobs:
       - name: Public pages respond and carry the CSP
         run: |
           set -euo pipefail
-          for p in / /jobs/ /for-employers/ /dashboard/; do
+          # Only prerendered pages: SPA-only routes (/dashboard, /employer, /hq …) are served through GitHub Pages'
+          # 404.html fallback, which browsers render but which answers with HTTP 404 by design.
+          for p in / /jobs/ /for-employers/ /caregivers/ /privacy/; do
             code=$(curl -sS -o /tmp/page.html -w '%{http_code}' --max-time 20 "https://impulsatalentos.expert$p")
             [ "$code" = 200 ] || { echo "::error::$p answered HTTP $code"; exit 1; }
             grep -q 'http-equiv="Content-Security-Policy"' /tmp/page.html || { echo "::error::$p is served without its Content-Security-Policy"; exit 1; }
