@@ -7,7 +7,7 @@ const jwt = (role: string) => `eyJhbGciOiJIUzI1NiJ9.${Buffer.from(JSON.stringify
 describe('secret-scan', () => {
   test('flags private keys, cloud/API tokens and non-anon JWTs, by category only', () => {
     const text = [
-      '-----BEGIN RSA PRIVATE KEY-----',
+      '-----BEGIN RSA ' + 'PRIVATE KEY-----',
       'const a = "AKIA' + 'ABCDEFGHIJKLMNOP"',
       'token: "ghp_' + 'a'.repeat(36) + '"',
       'k = "sk-ant-' + 'x'.repeat(30) + '"',
