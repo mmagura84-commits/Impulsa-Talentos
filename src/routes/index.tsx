@@ -15,7 +15,7 @@ import { PublicHeader } from '@/components/PublicHeader'
 import type { Job, Company } from '@/types'
 import { INDUSTRIES, INDUSTRY_FAMILIES } from '@/lib/industries'
 import { candidatesPhoto } from '@/lib/media'
-import { useRef, type ReactNode } from 'react'
+import { Children, useRef, type ReactNode } from 'react'
 import { captureUTMParams, trackEvent } from '@/lib/marketing'
 import { setOnboardingIntent } from '@/lib/intent'
 
@@ -127,15 +127,93 @@ function LandingCTAs() {
 /* ── Live job board — the newest open roles, three at a time ──
    A flat band: a heading with a live dot and one link, then up to three
    white 12px cards (logo tile, title, company and place, pay, languages).
-   No rotation and no motion; the roles update when the data does. */
+   Phones: a slide row that advances every 3 s (see useSlideRow); wider screens: all three at once. */
 const compactMoney = (v: number, locale: string) =>
   new Intl.NumberFormat(locale === 'es' ? 'es-CO' : locale === 'pt' ? 'pt-BR' : 'en-US', { notation: 'compact', maximumFractionDigits: 1 }).format(v).replace(/\s/g, '')
+/* ── Phone slide row: a horizontal snap scroller that advances by itself ──
+   Used on phones (<640px) for the live job feed and the industries row: one slide
+   at a time, a new slide every `intervalMs`, looping back to the first. It only
+   advances while on screen, pauses for 8 s after a touch and while focused or the
+   tab is hidden, and never moves by itself under prefers-reduced-motion (swiping
+   and the dots still work). Tablet and desktop lay the same items out as a grid. */
+function useSlideRow<T extends HTMLElement>(count: number, intervalMs: number) {
+  const reduce = usePrefersReducedMotion()
+  const ref = useRef<T | null>(null)
+  const [active, setActive] = useState(0)
+  const pausedUntil = useRef(0)
+  const focused = useRef(false)
+  const offsetOf = (el: T, i: number) => {
+    const c = el.children[i] as HTMLElement | undefined
+    const f = el.children[0] as HTMLElement | undefined
+    return c && f ? c.offsetLeft - f.offsetLeft : 0
+  }
+  const indexNow = (el: T) => {
+    let best = 0
+    let dist = Infinity
+    for (let i = 0; i < count; i++) {
+      const d = Math.abs(el.scrollLeft - offsetOf(el, i))
+      if (d < dist) { dist = d; best = i }
+    }
+    return best
+  }
+  const goTo = (i: number) => {
+    const el = ref.current
+    if (!el) return
+    pausedUntil.current = Date.now() + 8000
+    setActive(i)
+    el.scrollTo({ left: offsetOf(el, i), behavior: reduce ? 'auto' : 'smooth' })
+  }
+  useEffect(() => {
+    const el = ref.current
+    if (!el) return
+    const onScroll = () => setActive(indexNow(el))
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => el.removeEventListener('scroll', onScroll)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count])
+  useEffect(() => {
+    if (reduce || count < 2) return
+    const id = window.setInterval(() => {
+      const el = ref.current
+      if (!el || !window.matchMedia('(max-width: 639px)').matches || focused.current || document.hidden || Date.now() < pausedUntil.current) return
+      const r = el.getBoundingClientRect()
+      if (!(r.top < window.innerHeight * 0.85 && r.bottom > window.innerHeight * 0.15)) return
+      const next = (indexNow(el) + 1) % count
+      setActive(next)
+      el.scrollTo({ left: offsetOf(el, next), behavior: 'smooth' })
+    }, intervalMs)
+    return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [reduce, count, intervalMs])
+  const handlers = {
+    onTouchStart: () => { pausedUntil.current = Date.now() + 8000 },
+    onPointerDown: () => { pausedUntil.current = Date.now() + 8000 },
+    onFocusCapture: () => { focused.current = true },
+    onBlurCapture: () => { focused.current = false },
+  }
+  return { ref, active, goTo, handlers }
+}
+function SlideDots({ count, active, goTo, label }: { count: number; active: number; goTo: (i: number) => void; label: (i: number) => string }) {
+  if (count < 2) return null
+  return (
+    <div className="mt-3 flex justify-center sm:hidden">
+      {Array.from({ length: count }, (_, i) => (
+        <button key={i} type="button" onClick={() => goTo(i)} aria-label={label(i)} aria-current={i === active ? 'true' : undefined} className="flex size-6 min-h-0 min-w-0 items-center justify-center rounded-full">
+          <span className={`block size-2 rounded-full transition-colors ${i === active ? 'bg-primary' : 'bg-muted-foreground/40'}`} />
+        </button>
+      ))}
+    </div>
+  )
+}
+const SLIDE_INTERVAL_MS = 3000
+
 function JobFeedPreview() {
   const { t, locale } = useI18n()
   const { data: jobs } = useHomeJobs()
   const { data: companies } = useHomeCompanies()
   const companyMap = new Map((companies ?? []).map((c: Company) => [c.id, c]))
   const featured = (jobs ?? []).filter(isOpen).slice(0, 3)
+  const slides = useSlideRow<HTMLUListElement>(featured.length, SLIDE_INTERVAL_MS)
   const card = (job: Job) => {
     const company = companyMap.get(job.companyId)
     const salary =
@@ -145,7 +223,7 @@ function JobFeedPreview() {
           : `${job.currency} ${compactMoney(job.salaryMin, locale)}–${compactMoney(job.salaryMax, locale)}`
         : t('jobs.salaryTBD')
     return (
-      <li key={job.id} className="min-w-0">
+      <li key={job.id} className="w-full min-w-0 shrink-0 snap-center sm:w-auto">
         <Link to="/jobs/$id" params={{ id: job.id }} className="group flex h-full flex-col gap-4 rounded-xl bg-card p-5 transition-colors hover:bg-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-secondary">
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-md bg-secondary text-sm font-medium text-primary">{company?.logoUrl ? <img src={company.logoUrl} alt={`${company.name} logo`} className="size-full object-cover" /> : (company?.name ?? 'J').charAt(0).toUpperCase()}</div>
@@ -168,7 +246,10 @@ function JobFeedPreview() {
       </div>
       {featured.length === 0
         ? <div className="mt-5 grid gap-4 sm:grid-cols-3"><div className="h-40 rounded-xl bg-card" /><div className="hidden h-40 rounded-xl bg-card sm:block" /><div className="hidden h-40 rounded-xl bg-card sm:block" /></div>
-        : <ul className="mt-5 grid gap-4 sm:grid-cols-3">{featured.map(card)}</ul>}
+        : <div {...slides.handlers} role="group" aria-roledescription="carousel" aria-label={t('landing.feedTitle')}>
+            <ul ref={slides.ref} className="mt-5 flex snap-x snap-mandatory gap-4 overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:grid sm:grid-cols-3 sm:overflow-visible">{featured.map(card)}</ul>
+            <SlideDots count={featured.length} active={slides.active} goTo={slides.goTo} label={(i) => `${i + 1} / ${featured.length}`} />
+          </div>}
     </div>
   )
 }
@@ -415,20 +496,20 @@ function CityShowcase() {
 }
 /* Industries: one row that advances by itself, one card every 3 seconds, and
    loops back to the start. Pauses on hover, focus and touch; with
-   prefers-reduced-motion it never moves by itself and shows its scrollbar. */
+   prefers-reduced-motion it never moves by itself and shows its scrollbar.
+   Phones use the shared slide row (useSlideRow) with dots under it. */
 function IndustrySlides({ children }: { children: ReactNode }) {
   const { t } = useI18n()
   const reduce = usePrefersReducedMotion()
-  const ref = useRef<HTMLDivElement | null>(null)
-  const pausedUntil = useRef(0)
+  const count = Children.toArray(children).length
+  const slides = useSlideRow<HTMLDivElement>(count, SLIDE_INTERVAL_MS)
   const hovering = useRef(false)
   useEffect(() => {
     if (reduce) return
     const id = window.setInterval(() => {
-      const el = ref.current
-      // Phones: cards never move by themselves (text that moves under a reader's
-      // thumb is hard to read); swiping is the control there.
-      if (!el || window.matchMedia('(max-width: 639px)').matches || hovering.current || Date.now() < pausedUntil.current || document.hidden) return
+      const el = slides.ref.current
+      // Phones are driven by useSlideRow; this timer is for tablet and desktop.
+      if (!el || window.matchMedia('(max-width: 639px)').matches || hovering.current || document.hidden) return
       const r = el.getBoundingClientRect()
       if (!(r.top < window.innerHeight * 0.85 && r.bottom > window.innerHeight * 0.15)) return
       const first = el.firstElementChild as HTMLElement | null
@@ -436,24 +517,28 @@ function IndustrySlides({ children }: { children: ReactNode }) {
       const step = first.offsetWidth
       const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 4
       el.scrollTo({ left: atEnd ? 0 : Math.round(el.scrollLeft / step) * step + step, behavior: 'smooth' })
-    }, 3000)
+    }, SLIDE_INTERVAL_MS)
     return () => window.clearInterval(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [reduce])
-  const pause = () => { pausedUntil.current = Date.now() + 8000 }
   return (
     <div
-      ref={ref}
-      onTouchStart={pause}
-      onPointerDown={pause}
+      {...slides.handlers}
+      onPointerDownCapture={() => { hovering.current = true; window.setTimeout(() => { hovering.current = false }, 8000) }}
       onMouseEnter={() => { hovering.current = true }}
       onMouseLeave={() => { hovering.current = false }}
-      onFocusCapture={() => { hovering.current = true }}
-      onBlurCapture={() => { hovering.current = false }}
-      aria-roledescription="carousel"
-      aria-label={t('industries.sectionTitle')}
-      className={`-mx-2 mt-8 flex snap-x snap-mandatory overflow-x-auto sm:mt-10 ${reduce ? 'pb-2' : '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'}`}
+      onFocusCapture={() => { hovering.current = true; slides.handlers.onFocusCapture() }}
+      onBlurCapture={() => { hovering.current = false; slides.handlers.onBlurCapture() }}
     >
-      {children}
+      <div
+        ref={slides.ref}
+        aria-roledescription="carousel"
+        aria-label={t('industries.sectionTitle')}
+        className={`-mx-2 mt-8 flex snap-x snap-mandatory overflow-x-auto sm:mt-10 ${reduce ? 'pb-2' : '[scrollbar-width:none] [&::-webkit-scrollbar]:hidden'}`}
+      >
+        {children}
+      </div>
+      <SlideDots count={count} active={slides.active} goTo={slides.goTo} label={(i) => `${i + 1} / ${count}`} />
     </div>
   )
 }
