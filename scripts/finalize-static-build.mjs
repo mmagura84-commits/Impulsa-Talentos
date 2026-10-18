@@ -313,7 +313,9 @@ const supabaseOrigin = (() => {
 })()
 if (!supabaseOrigin) { console.error('[finalize] CSP: VITE_SUPABASE_URL is not set — refusing to write a policy that would block the API'); process.exit(1) }
 const wsOrigin = supabaseOrigin.replace(/^http/, 'ws')
-const FRAME_GUARD = `try{if(window.top!==window.self)document.documentElement.style.display="none"}catch(e){document.documentElement.style.display="none"}`
+// Plain-http visits (a typed "http://…" address, an old link) are sent to https before anything renders.
+// GitHub Pages already redirects, but it sends no HSTS header on a custom domain, so this is the belt to its braces.
+const FRAME_GUARD = `try{if(location.protocol==="http:"&&!/^(localhost|127\\.0\\.0\\.1|\\[::1\\])$/.test(location.hostname)&&!/\\.localhost$|\\.test$/.test(location.hostname))location.replace("https:"+location.href.slice(5))}catch(e){}try{if(window.top!==window.self)document.documentElement.style.display="none"}catch(e){document.documentElement.style.display="none"}`
 let cspPages = 0
 for (const f of htmlFiles) {
   let html = readFileSync(f, 'utf8')
