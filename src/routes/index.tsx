@@ -718,34 +718,42 @@ function LandingPage() {
       {/* The live job feed sits in its own flat band under the ribbon at every width. */}
       <section className="bg-secondary px-5 py-10 sm:py-14"><div className="mx-auto max-w-6xl"><JobFeedPreview /></div></section>
       {/* ── How it works — candidate journey ────────────────── */}
-      <section className="section-tint"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10">
+      <section className="bg-[#171a20] text-white"><div className="mx-auto w-full max-w-[88rem] px-5 py-14 sm:px-6 sm:py-24 lg:px-10">
         <SectionReveal>
-          <div className="mx-auto max-w-xl text-center">
-            <Eyebrow center>{t('landing.laneProfessionals')}</Eyebrow>
-            <h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-[1.1]">
-              {t('landing.howTitle')}
-            </h2>
-            <p className="mt-3 text-muted-foreground">{t('landing.howSub')}</p>
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+            <div className="max-w-2xl">
+              <Eyebrow tone="dark">{t('landing.laneProfessionals')}</Eyebrow>
+              <h2 className="text-3xl font-medium tracking-tight text-white sm:text-[2.75rem] sm:leading-[1.08]">{t('landing.howTitle')}</h2>
+              <p className="mt-3 text-base text-white/70 sm:text-lg">{t('landing.howSub')}</p>
+            </div>
+            <Button asChild size="lg" className="hidden bg-white px-7 text-[#171a20] hover:bg-white/90 sm:inline-flex"><Link to="/dashboard">{t('landing.ctaCreate')}</Link></Button>
           </div>
         </SectionReveal>
-        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-3 sm:gap-5">
+        {/* A numbered rail runs through the three steps, so the section reads as one journey. */}
+        <ol className="mt-10 grid gap-10 sm:mt-14 sm:grid-cols-3 sm:gap-6">
           {[
-            { step: '01', img: ux('1557804506-669a67965ba0', 800), pos: '50% 50%', alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
-            { step: '02', img: ux('1573164574572-cb89e39749b4', 800), pos: '50% 50%', alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
-            { step: '03', img: ux('1622675363311-3e1904dc1885', 800), pos: '50% 50%', alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
-          ].map((s, i) => (
-            <SectionReveal key={s.step} delay={i * 0.1}>
-              <div className="group overflow-hidden rounded-2xl bg-[#171a20]">
-                <Photo src={s.img} alt={s.alt} />
-                <div className="p-5 sm:p-6">
-                  <span className="text-sm font-medium tracking-wide text-white/70">{s.step}</span>
-                  <h3 className="mt-1 text-2xl font-medium leading-tight text-white">{s.title}</h3>
-                  <p className="mt-2 text-base leading-relaxed text-white/85">{s.desc}</p>
+            { step: '01', img: ux('1557804506-669a67965ba0', 800), alt: t('landing.how1ImgAlt'), title: t('landing.how1Title'), desc: t('landing.how1Desc') },
+            { step: '02', img: ux('1573164574572-cb89e39749b4', 800), alt: t('landing.how2ImgAlt'), title: t('landing.how2Title'), desc: t('landing.how2Desc') },
+            { step: '03', img: ux('1622675363311-3e1904dc1885', 800), alt: t('landing.how3ImgAlt'), title: t('landing.how3Title'), desc: t('landing.how3Desc') },
+          ].map((st, i, all) => (
+            <li key={st.step}>
+              <SectionReveal delay={i * 0.1}>
+                <div className="flex items-center gap-4">
+                  <span className="flex size-12 shrink-0 items-center justify-center rounded-full border border-white/30 text-sm font-medium tracking-wide text-white">{st.step}</span>
+                  <span aria-hidden="true" className={`h-px flex-1 bg-gradient-to-r from-white/35 to-white/5 ${i === all.length - 1 ? 'hidden' : 'sm:-mr-6'}`} />
                 </div>
-              </div>
-            </SectionReveal>
+                <div className="group mt-5 overflow-hidden rounded-2xl bg-[#0f1115]">
+                  <Photo src={st.img} alt={st.alt} />
+                  <div className="p-5 sm:p-6">
+                    <h3 className="text-2xl font-medium leading-tight text-white">{st.title}</h3>
+                    <p className="mt-2 text-base leading-relaxed text-white/75">{st.desc}</p>
+                  </div>
+                </div>
+              </SectionReveal>
+            </li>
           ))}
-        </div>
+        </ol>
+        <Button asChild size="lg" className="mt-10 w-full bg-white px-7 text-[#171a20] hover:bg-white/90 sm:hidden"><Link to="/dashboard">{t('landing.ctaCreate')}</Link></Button>
       </div></section>
 
       <section className="bg-card"><div className="w-full px-5 py-12 sm:px-6 sm:py-28 lg:px-10"><SectionReveal><div className="flex flex-wrap items-end justify-between gap-4"><div><Eyebrow>{t('landing.laneProfessionals')}</Eyebrow><h2 className="text-3xl font-medium tracking-tight text-foreground sm:text-[2.5rem] sm:leading-tight">{t('industries.sectionTitle')}</h2><p className="mt-3 text-muted-foreground">{t('industries.sectionSub')}</p></div><Button asChild variant="outline" size="sm"><Link to="/jobs">{t('industries.viewAll')} <ArrowRight className="size-3.5" /></Link></Button></div></SectionReveal><SectionReveal><IndustrySlides>{INDUSTRY_FAMILIES.map((family) => <div key={family.slug} className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><FamilyCard family={family} /></div>)}<div className="shrink-0 basis-[88%] snap-start px-2 sm:basis-1/2 lg:basis-1/3"><Link to="/dashboard" className="group block overflow-hidden rounded-2xl bg-[#171a20] text-white"><Photo src={ux('1742112125567-3e8967bad60f')} /><div className="p-5 sm:p-6"><h3 className="text-2xl font-medium leading-tight sm:text-[1.75rem]">{t('industries.ctaTitle')}</h3><p className="mt-2 text-sm text-white/85">{t('industries.ctaDesc')}</p><span className="mt-3 inline-block text-sm font-medium text-white underline underline-offset-4">{t('industries.ctaAction')} <ArrowRight className="inline size-3.5" /></span></div></Link></div></IndustrySlides></SectionReveal></div></section>
